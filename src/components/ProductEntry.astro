@@ -1,0 +1,125 @@
+---
+import ProductMark from './ProductMark.astro';
+import StatusTag from './StatusTag.astro';
+import SpecGrid, { type Spec } from './SpecGrid.astro';
+import InstallBlock, { type InstallLine } from './InstallBlock.astro';
+
+/**
+ * ProductEntry — one band in the editorial index.
+ *
+ * Layout: narrow left rail (index + mark) · wide main column · right meta
+ * column. Deliberately NOT one of three equal cards: `weight` scales the
+ * title, drops the install block and softens the body so a visitor scanning
+ * only the rail can tell which tool is usable today.
+ */
+interface Props {
+  index: string;
+  id: string;
+  name: string;
+  product: 'codegraph' | 'agentlens' | 'voxera';
+  role: string;
+  status: 'live' | 'early' | 'wip';
+  /** Structural weight — see DESIGN.md §4. */
+  weight: 'lead' | 'standard' | 'pending';
+  version?: string;
+  released?: string;
+  specs: Spec[];
+  install?: { label: string; lines: InstallLine[] };
+  links?: { label: string; href: string }[];
+  /** Right-column note used where there is nothing to link to yet. */
+  note?: string;
+}
+
+const {
+  index,
+  id,
+  name,
+  product,
+  role,
+  status,
+  weight,
+  version,
+  released,
+  specs,
+  install,
+  links = [],
+  note,
+} = Astro.props;
+
+const titleSize =
+  weight === 'lead' ? 'text-title' : weight === 'standard' ? 'text-title-sm' : 'text-3xl';
+
+// The pending entry is separated by a dashed rule — the boundary itself says
+// "not finished" before any label is read.
+const topRule = weight === 'pending' ? 'border-t border-dashed' : 'border-t';
+
+const bodyTone = weight === 'pending' ? 'text-ink-mute' : 'text-ink-body';
+const pad = weight === 'lead' ? 'py-14 md:py-20' : 'py-14 md:py-16';
+---
+
+<article
+  id={id}
+  class={`border-rule ${topRule} ${pad} grid gap-y-8 md:grid-cols-12 md:gap-x-8`}
+>
+  {/* Rail — index number and mark. Horizontal on small screens. */}
+  <div class="flex items-center gap-4 md:col-span-2 md:items-start md:pt-1">
+    <span class="u-meta text-ink-mute tabular-nums">{index}</span>
+    <ProductMark product={product} size={weight === 'lead' ? 46 : 38} class="text-ink-soft" />
+  </div>
+
+  {/* Main column */}
+  <div class="min-w-0 md:col-span-6">
+    <h2 class={`u-display ${titleSize}`}>{name}</h2>
+    <p class="text-ink-soft mt-3 font-mono text-sm">{role}</p>
+
+    <div class="mt-6 max-w-prose space-y-4">
+      <p class={bodyTone}>
+        <slot />
+      </p>
+    </div>
+
+    <SpecGrid items={specs} class="border-rule mt-10 border-t pt-8" />
+
+    {install && <InstallBlock label={install.label} lines={install.lines} />}
+  </div>
+
+  {/* Meta column */}
+  <div class="md:col-span-3 md:col-start-10">
+    <StatusTag state={status} />
+
+    {
+      (version || released) && (
+        <dl class="mt-6 space-y-3">
+          {version && (
+            <div>
+              <dt class="u-meta text-ink-mute">Version</dt>
+              <dd class="text-ink-soft font-mono text-sm tabular-nums">{version}</dd>
+            </div>
+          )}
+          {released && (
+            <div>
+              <dt class="u-meta text-ink-mute">Released</dt>
+              <dd class="text-ink-soft font-mono text-sm tabular-nums">{released}</dd>
+            </div>
+          )}
+        </dl>
+      )
+    }
+
+    {
+      links.length > 0 && (
+        <ul class="mt-6 space-y-2 text-sm">
+          {links.map((link) => (
+            <li>
+              <a href={link.href} rel="noopener">
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    {note && <p class="text-ink-mute mt-6 max-w-[22rem] text-sm">{note}</p>}
+  </div>
+</article>

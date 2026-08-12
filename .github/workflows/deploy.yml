@@ -1,0 +1,79 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# A Pages deploy is not safely interruptible: cancelling one mid-flight can
+# leave the live site on a partially published artifact. Queue instead.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # configure-pages only reads the Pages site config (enablement stays at
+      # its default of false, which would require a token other than
+      # GITHUB_TOKEN anyway), so read access is enough here.
+      pages: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # pnpm has to exist before setup-node, otherwise `cache: pnpm` cannot
+      # resolve the store directory and the setup step fails.
+      #
+      # No `version:` on purpose. action-setup reads the exact version from
+      # `packageManager` in package.json, which is also what corepack and the
+      # local toolchain read — one pin, one source of truth. Setting `version:`
+      # here as well would risk the two disagreeing, which action-setup rejects.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+
+      - name: Build
+        run: pnpm build
+
+      # public/CNAME is the only thing binding this site to the apex domain.
+      # If it ever stops reaching dist/, GitHub Pages silently drops the
+      # custom domain and firlab.app starts serving 404s. Fail here, loudly,
+      # instead of discovering it in production.
+      - name: Verify CNAME survived the build
+        run: test -f dist/CNAME && grep -qx 'firlab.app' dist/CNAME
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ./dist
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

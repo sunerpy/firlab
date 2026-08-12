@@ -1,0 +1,12 @@
+# pnpm reads its own settings from this file rather than .npmrc.
+#
+# There is deliberately no `packages:` key: this is a single-package repo, not a
+# workspace. Adding one would make pnpm resolve this directory as a workspace
+# root and change the install layout. (Only pnpm 9 demands the key, and the
+# pinned `packageManager` version is 10.x — see package.json.)
+
+# esbuild ships its platform binary via a postinstall script. Approving it here
+# keeps `pnpm install` non-interactive and exiting 0, and ensures the binary is
+# actually materialised rather than left as an "ignored build script" warning.
+onlyBuiltDependencies:
+  - esbuild

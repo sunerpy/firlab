@@ -1,0 +1,46 @@
+---
+/**
+ * InstallBlock — real, copyable commands. Selectable <code>, never an image,
+ * and only rendered when a command genuinely exists.
+ *
+ * Long commands wrap rather than scroll horizontally: a clipped `curl` line
+ * reads as broken, and a landing page visitor should be able to see the whole
+ * command without dragging.
+ */
+export interface InstallLine {
+  /** Optional comment printed above the command. */
+  note?: string;
+  command: string;
+}
+
+interface Props {
+  label: string;
+  lines: InstallLine[];
+}
+
+const { label, lines } = Astro.props;
+---
+
+<div class="mt-8 min-w-0">
+  <p class="u-meta text-ink-mute mb-3">{label}</p>
+  <div class="bg-block border-rule min-w-0 rounded-[4px] border px-5 py-4">
+    {
+      lines.map((line, i) => (
+        <div class={i > 0 ? 'mt-4' : ''}>
+          {line.note && (
+            <p class="text-ink-mute font-mono text-[0.75rem] leading-relaxed">
+              # {line.note}
+            </p>
+          )}
+          <code
+            class="text-ink-soft block font-mono text-[0.8125rem] leading-relaxed"
+            style="white-space: pre-wrap; overflow-wrap: anywhere;"
+          >
+            <span class="text-ink-mute select-none">$ </span>
+            {line.command}
+          </code>
+        </div>
+      ))
+    }
+  </div>
+</div>

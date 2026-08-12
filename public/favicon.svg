@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <title>FirLab</title>
+  <!-- Three arms of decreasing length off one spine: three tools at three
+       levels of maturity. Same glyph as the site wordmark. -->
+  <g stroke-linecap="square" stroke-width="4">
+    <path d="M7 4 L7 28" class="spine"/>
+    <path d="M7 8 L27 8" stroke="#F97316"/>
+    <path d="M7 16 L21 16" class="spine"/>
+    <path d="M7 24 L15 24" class="spine" opacity="0.45"/>
+  </g>
+  <style>
+    .spine { stroke: #0B1220; }
+    @media (prefers-color-scheme: dark) {
+      .spine { stroke: #F2F6FB; }
+    }
+  </style>
+</svg>

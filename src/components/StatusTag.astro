@@ -1,0 +1,38 @@
+---
+/**
+ * StatusTag — maturity, stated as text. Colour is a reinforcement, never the
+ * sole carrier of meaning (WCAG 1.4.1).
+ */
+interface Props {
+  state: 'live' | 'early' | 'wip';
+  /** `inline` sits beside adjacent text; `block` occupies its own line. */
+  display?: 'inline' | 'block';
+  class?: string;
+}
+
+const { state, display = 'inline', class: className = '' } = Astro.props;
+
+// Tailwind resolves `inline-flex` and `block` in the same layer, so passing
+// `block` down from a parent would not reliably win — the mode is a prop.
+const layout = display === 'block' ? 'flex' : 'inline-flex';
+
+const copy = {
+  live: 'Actively released',
+  early: 'Released · early',
+  wip: 'In development',
+}[state];
+
+// The dot may use the brand orange (decoration); the label may not — orange-500
+// on paper measures 2.7:1. Labels use the AA-safe accent or mute step instead.
+const tone = {
+  live: 'text-live before:bg-live',
+  early: 'text-accent before:bg-mark',
+  wip: 'text-ink-mute before:bg-ink-mute',
+}[state];
+---
+
+<span
+  class={`u-meta ${layout} items-center gap-2 before:block before:size-1.5 before:shrink-0 before:rounded-full ${tone} ${className}`}
+>
+  {copy}
+</span>

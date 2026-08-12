@@ -1,0 +1,35 @@
+---
+import Wordmark from './Wordmark.astro';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="border-rule border-t">
+  <div
+    class="mx-auto flex max-w-[76rem] flex-col gap-8 px-6 py-12 md:flex-row md:items-end md:justify-between md:px-10"
+  >
+    <div>
+      <Wordmark class="text-ink" />
+      <p class="text-ink-mute mt-4 max-w-[34rem] text-sm">
+        The project umbrella for developer tools built by Shaonan Zhang. Everything
+        here is a personal project, released under its own repository and its own
+        pace.
+      </p>
+    </div>
+
+    <div class="md:text-right">
+      <nav aria-label="Elsewhere">
+        <ul class="flex gap-6 text-sm md:justify-end">
+          <li><a href="https://github.com/sunerpy" rel="noopener">GitHub</a></li>
+          <li>
+            <a href="https://github.com/sunerpy/codegraph-rust" rel="noopener">CodeGraph</a>
+          </li>
+          <li><a href="https://github.com/sunerpy/AgentLens" rel="noopener">AgentLens</a></li>
+        </ul>
+      </nav>
+      <p class="u-meta text-ink-mute mt-6">
+        © {year} Shaonan Zhang · No analytics, no cookies
+      </p>
+    </div>
+  </div>
+</footer>
