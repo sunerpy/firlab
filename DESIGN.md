@@ -157,16 +157,28 @@ Four supporting rules, each fixing a specific CJK failure:
   wrong (beside full-width punctuation). Chinese body copy is otherwise authored
   with real spaces around Latin runs, per the standard CJK convention.
 
-Scale — display sizes are fluid via `clamp()`, body is fixed:
+Scale — display sizes are fluid via `clamp()`, body is fixed. **`--text-display`
+and `--text-title` are per-script**, the same way leading and tracking already
+are, because one size cannot serve both: a hanzi advance is a full em and a Latin
+character averages about half of one.
 
-| Token | Value | Use |
-| --- | --- | --- |
-| `--text-display` | `clamp(2.6rem, 7vw, 5.25rem)` | the single `h1` |
-| `--text-title` | `clamp(1.9rem, 3.6vw, 2.9rem)` | product names |
-| `--text-lede` | `clamp(1.05rem, 1.5vw, 1.25rem)` | hero paragraph |
-| `--text-body` | `1rem` | prose |
-| `--text-small` | `0.875rem` | spec values |
-| `--text-meta` | `0.75rem` | labels, index numbers, badges |
+| Token | Latin | Chinese | Use |
+| --- | --- | --- | --- |
+| `--text-display` | `clamp(2.15rem, 3.5vw, 3.5rem)` | `clamp(2.35rem, 4.4vw, 4.35rem)` | the single `h1` |
+| `--text-title` | `clamp(1.7rem, 2.75vw, 2.4rem)` | `clamp(1.85rem, 3.1vw, 2.7rem)` | the lead product |
+| `--text-title-md` | `clamp(1.7rem, 2.7vw, 2.35rem)` | — | `major` |
+| `--text-title-sm` | `clamp(1.55rem, 2.3vw, 2.05rem)` | — | `standard`, section headings |
+| `--text-lede` | `clamp(1.0625rem, 1.5vw, 1.28rem)` | — | hero paragraph |
+| `--text-meta` | `0.75rem` | — | labels, index numbers, badges |
+
+At the previous single size a 17-hanzi Chinese headline ran to three lines in an
+8-column track where a 51-character English one ran to four. Both now set in
+**two** from 414px up; the Chinese one takes three at 320–390px, which is accepted
+rather than fixed (§7).
+
+The per-script block is **unlayered on purpose**. It overrides `@theme` variables,
+and an unlayered declaration outranks every layered one — moving it into
+`@layer base` would silently kill it, the same trap §8 documents three more times.
 
 Display and title are set at `line-height: 1.02–1.08` with `letter-spacing: -0.022em`.
 Meta text is mono, uppercase, `letter-spacing: 0.08em`.
@@ -182,116 +194,218 @@ stepped — see §2. It is a frame, not a spacing relationship between two piece
 content, and a frame that jumps at a breakpoint is what produced the cramped
 mid-width layout in the first place.
 
-### Radius / rule
+### Radius — three steps, and every corner on the site is one of them
 
-`--radius-sm` `4px` (badges, code block), `--radius-md` `8px` (mark frame). No pill
-buttons, no `rounded-2xl` cards. Hairlines are `1px solid var(--color-rule)`;
-unreleased work uses `1px dashed`.
+| Token | Value | Use |
+| --- | --- | --- |
+| `--radius-chip` | `4px` | badges, code blocks, index rows, nav chips |
+| `--radius-control` | `8px` | the nav pill, segmented controls, popovers |
+| `--radius-plate` | `12px` | anything that behaves as a sheet of its own |
+
+The previous build carried `3 / 4 / 6 / 8 / 10px` as arbitrary values scattered
+across nine components, which is how a page ends up with pill controls sitting on
+square cards. No pill buttons, no `rounded-2xl`. Hairlines are
+`1px solid var(--color-rule)`; unreleased work uses `1px dashed`.
 
 ## 2. Layout grammar
 
-### The page shell
+### The stage, and the safe area inside it
 
-Every band on the site — `main` on all five page components, the footer grid, the
-pager, the nav pill — is `.u-shell`. Nothing sets its own container width or
-gutter. Two tokens define it:
+**TWO NESTED BOXES, not one gutter.** This is the layout's load-bearing idea and
+the reason the previous single-token shell could not be fixed by widening it.
+
+That shell had one horizontal token, `--shell-gutter`, and the editorial margin
+rules (`.u-guides`) were *derived from that same token* — so the visible frame
+landed exactly on the line the text started at. Measured at 1180px: the rules sat
+at x=76/1088 and the headline's first glyph at x=79. **Three pixels.** Every
+increase moved the frame and the copy together, so the text still read as pinned
+to a border, which is precisely what it was. Two boxes are needed because a frame
+and a text-start line are two different edges.
+
+```
+┌─ viewport ───────────────────────────────────────────────────┐
+│      ┌─ stage (the sheet, a real element) ──────────────┐    │
+│ desk │        ┌─ content column ───────────┐            │    │
+│      │  air   │  headline, prose, specs …  │   air      │    │
+│      │        └────────────────────────────┘            │    │
+│      └──────────────────────────────────────────────────┘    │
+└──────────────────────────────────────────────────────────────┘
+  inset          gap                            gap      inset
+```
 
 | Token | Value | Meaning |
 | --- | --- | --- |
 | `--shell-measure` | `71rem` | the content column's cap |
-| `--shell-gutter` | `clamp(1.5rem, 6.5vw, 5.5rem)` | the air outside it |
+| `--stage-inset` | `clamp(0px, 6.8vw - 0.64rem, 7rem)` | viewport → the sheet's visible edge |
+| `--stage-gap` | `clamp(1.5rem, 4.7vw - 0.6rem, 3.5rem)` | the sheet's edge → the first glyph |
+| `--plate-x` / `--plate-y` | `clamp(1.25rem, 2.6vw + 0.15rem, 2.75rem)` / `clamp(1.5rem, 2.4vw + 0.5rem, 2.75rem)` | a plate's own inner padding |
+| `--nav-pad` | `0.625rem`, `0.875rem` from 768px | the nav pill's inner padding, read by two rules |
 
 ```css
-.u-shell {
-  max-width: calc(var(--shell-measure) + 2 * var(--shell-gutter));
+.u-stage {                          /* the outer box — the sheet */
+  width: min(
+    calc(var(--shell-measure) + 2 * var(--stage-gap)),
+    calc(100% - 2 * var(--stage-inset))
+  );
   margin-inline: auto;
-  padding-inline: var(--shell-gutter);
+  border-inline: 1px solid var(--color-rule);   /* ≥768px only */
+}
+
+.u-shell {                          /* the inner box — the safe area */
+  max-width: calc(var(--shell-measure) + 2 * var(--stage-gap));
+  margin-inline: auto;
+  padding-inline: var(--stage-gap);
 }
 ```
 
-**The content column is capped; the gutter is added outside it.** This is the
-opposite of what the site shipped with, and the inversion is the point. The old
-shell was `max-width: 76rem` with a fixed `padding: 0 2.5rem`, and a max-width
-only produces margin once the viewport *exceeds* it — so every width below
-~1300px fell through to the bare 40px padding while 1440px got 144px. Measured
-before the change: **40px of gutter at 1024px and at 1180px**, against 104px at
-1440px. The page was correct on a large display and cramped on every laptop,
-which is exactly why it went unnoticed.
-
-Capping `measure + 2 × gutter` rather than a flat 76rem keeps the wide-display
-result identical — the content column still reaches 71rem and its inset is
-unchanged. `--shell-measure` is 71rem, not 76rem, because 76rem was a *padding*
-box: its content was 76 − 2×2.5 = 71rem. Naming the real measure is what makes
-the two regimes agree.
+The stage takes the **smaller of two limits**, and that is what keeps the
+frame-to-text air constant instead of letting it grow with the display: `measure
++ 2 × gap` stops the sheet outgrowing its content column, `100% − 2 × inset`
+stops it reaching the viewport edge.
 
 Measured, home page, before → after:
 
-| viewport | gutter before | gutter after | body copy |
-| --- | --- | --- | --- |
-| 320px | 24px | 24px | 15.9 hanzi/line |
-| 390px | 24px | 25px | 20.2 → 20.0 hanzi/line |
-| 768px | 40px | 50px | 37.7 hanzi/line (unchanged) |
-| 900px | 40px | 59px | — |
-| 1024px | **40px** | **67px** | 27.7 → 26.0 hanzi/line |
-| 1180px | **40px** | **77px** | 30.2 hanzi/line |
-| 1280px | 40px | 83px | 32.9 hanzi/line |
-| 1440px | 104px | 104px | 34.1 hanzi/line (unchanged) |
-| 1920px | 384px | 384px | 34.1 hanzi/line (unchanged) |
+| viewport | text safe area before | after | frame→text air before | after | body copy |
+| --- | --- | --- | --- | --- | --- |
+| 320px | 24px | 24px | — (no frame) | — | 13.4 hanzi/line |
+| 375px | 24px | 24px | — | — | 16.8 |
+| 390px | 25px | 24px | — | — | 17.8 |
+| 414px | 27px | 24px | — | — | 19.3 |
+| 768px | 50px | **69px** | 0 | **27px** | 29.0 |
+| 1024px | 67px | **99px** | 0 | **39px** | 29.0 |
+| 1180px | **77px** | **117px** | **3px** | **47px** | 29.0 |
+| 1280px | 83px | **128px** | 3px | **51px** | 29.0 |
+| 1440px | 104px | **145px** | 3px | **57px** | 29.0 |
 
-The `6.5vw` slope is fitted so phones lose nothing: it resolves to 25px at
-390px, where the old fixed gutter was 24px. The `1.5rem` floor holds 320–369px
-at the old 24px exactly. The `5.5rem` ceiling stops the gutter from chasing the
-max-width crossover upward.
+The 1024–1440px band, where a laptop actually sits, gains 32–41px of page margin
+**and** 39–57px of air between the frame and the first glyph, where it had 3px.
 
-Two things are derived from the same tokens rather than restated, so they cannot
+Both slopes are two-point fits, not round numbers: inset 42px@768 → 70px@1180,
+gap 26px@768 → 46px@1180. **Below 768px the sheet is full-bleed** — a 12px frame
+with 14px of air inside it is worse than no frame, and a phone has no margin to
+spend. Phones keep the 24px they had.
+
+Three things derive from the same tokens rather than restating them, so none can
 drift out of alignment with the copy:
 
-- **`.u-guides`** — `width: min(var(--shell-measure), 100% - 2 * var(--shell-gutter))`.
-  Before this, the margin rules were hard-coded to `100% - 10rem` and sat 40px
-  *inside* the copy at 1180px.
-- **`.u-shell-nav`** — `padding-inline: calc(var(--shell-gutter) - 0.5rem)`. The
-  nav pill's outer edge sits 0.5rem outside the content column so its own 1rem
-  of inner padding lands the wordmark 0.5rem inside the copy. That was the
-  measured relationship before the gutter became fluid; it is preserved, not
-  re-invented.
+- **`.u-stage`** is a real element, not a fixed overlay. That is what makes the
+  footer and the pager bleed to the **sheet** rather than to the viewport for
+  free. It replaces `.u-guides`, which is deleted.
+- **`.u-progress`** spans the stage, not the viewport: it reports progress
+  through the sheet, and a rail running out over the desk would claim otherwise.
+- **`.u-shell-nav`** — `padding-inline: max(0px, calc(var(--stage-gap) - var(--nav-pad)))`.
+  The pill is pulled outward by exactly its own inner padding, which lands the
+  wordmark on the copy's start line while the bar still frames the column. Both
+  halves read `--nav-pad`, and the pill therefore carries **no `px-*` utility** —
+  a utility there would break the pair.
 
-**Full-bleed bands stay full-bleed.** The footer and the pager span the viewport
-(`[0, 1165]` at 1180px) while their *content* sits on the column (`[77, 1088]`),
-matching `main` to the pixel. Section hairlines are on the sections themselves,
-so they span the column, never the viewport.
+**The desk is `--paper-1`, one step off the sheet.** Light mode lifts the sheet,
+dark mode sinks it. No content ever sits on the desk, so every measured contrast
+pair in §6 still holds. `theme-color` follows the desk, since browser chrome
+continues the colour at the viewport's own edge.
 
-The page is a **12-column asymmetric editorial index**, not a card grid:
+### Plates
 
-- **Header** — a **floating sticky nav** (`FloatingNav`), inset from the top edge
-  so it reads as an object on the page rather than a browser chrome strip. It
-  replaces the former static `SiteHeader`, which is deleted.
-- **Hero** — headline occupies columns 1–8 (left-biased, never centred). Columns
-  9–12 hold a compact mono *ledger* listing the three products with version and
-  status — the page announces itself as an index in the first viewport.
-- **Products** — stacked full-width bands separated by hairlines. Each band:
-  narrow left rail (index number + mark), wide main column (name, status, one
-  paragraph, spec grid, install block), right meta column (version, links). Bands
-  are *not* equal weight — see §4.
-- **Footer** — two-line, left/right split.
+A plate is a panel that carries its own ground, its own hairline **and its own
+inner padding**, so its copy never lands on its own border — the same failure as
+the page frame, one level down. Three variants, each earning its treatment:
 
-**The 12-column split activates at `lg` (1024px), not `md`.** This was measured,
-not guessed: at 768px the `md` split gave `SpecGrid` a 145px value column — about
-nine hanzi per line, running to 8 lines. Moving the breakpoint to `lg` takes that
-to 497px / 2 lines. `md` still drives the footer grid, whose content is short
-labels rather than prose. It no longer drives padding — the gutter is fluid and
-has no breakpoint at all.
+| Class | Ground | Boundary | Used for |
+| --- | --- | --- | --- |
+| `.u-plate` | `--color-panel` | 1px solid, `--radius-plate` | hero index, detail masthead ledger |
+| `.u-plate-lead` | + 2px brand-orange left rule | | the lead product, and a detail page's premise — **nowhere else** |
+| `.u-plate-draft` | none | 1px **dashed** on all four sides | unreleased work |
 
-**The nav's product links also appear at `lg`,** not at the former ad-hoc 900px.
-Measured at 900px once the gutter went fluid: the pill has 784px of width and its
-contents need 822px, so the right-hand cluster rendered 38px outside its own
-rounded ground. It was already 1px over before the gutter change — 900px was
-never a width this bar fitted in. The tightest surviving fit is a detail page at
-1024px: 892px available, 861px needed, **31px slack**. A fifth product would
-exceed that and needs this breakpoint re-measured, not nudged.
+The orange left rule means "this is the claim" and appears at most once per page.
+The dashed enclosure states a boundary before a word inside it is read.
 
-Responsive: single column below `1024px`; the ledger moves under the hero
-headline; the left rail becomes a horizontal row above the product name. Every
-multi-column rule is declared at the component that owns it.
+### Band rhythm — a rule marks a movement, not a section
+
+A detail page is nine or ten sections long, and the previous build gave every one
+of them the same hairline top rule. Ten identical boundaries carry no
+information: the rule stopped meaning "the subject changed" and became wallpaper,
+and the reader never got the sense of having finished anything.
+
+| Class | Gap above (≥768px) | Rule |
+| --- | --- | --- |
+| `.u-band-open` | 144px | **yes** — starts a movement |
+| `.u-band-next` | 96px | no — continues one |
+| `.u-band-tight` | 56px | no — binds to the section above |
+
+Measured section-level rules per page, before → after: CodeGraph 10 → **5**,
+pt-tools 9 → **4**, AgentLens 9 → **4**, Voxera 9 → **4**. `next` and `tight` are
+separated by space alone, and 96px of it says more than a hairline ever did.
+
+### Measure is a token, and it is per-script
+
+`--measure-prose` / `--measure-lede` replace every `max-w-prose` and
+`max-w-[42rem]` on the site. A hanzi advance is a full em and a Latin character
+averages about half of one, so one value cannot serve both: Latin gets `36em`
+(≈66 characters), Chinese `29em` (≈29 hanzi, inside the 24–30 band CJK copy
+needs). `em` rather than `rem` is deliberate — the cap is relative to the
+element's own size, so a 1.28rem lede and a 1rem paragraph land on the same
+character count. Measured: **29.0 hanzi per line at every width from 768px up.**
+
+Display steps are per-script for the same reason (§1). At one shared size a
+17-hanzi Chinese headline ran to three lines in an 8-column track where a
+51-character English one ran to four; both now set in **two** from 414px up. At
+320–390px the Chinese headline takes three, which is accepted rather than fixed.
+
+### The page
+
+A **12-column asymmetric editorial index**, not a card grid:
+
+- **Header** — a floating sticky nav (`FloatingNav`), inset from the top edge so
+  it reads as an object on the page rather than a browser chrome strip.
+- **Hero** — headline in columns 1–7, left-biased, never centred. Columns 8–12
+  hold the product index as a `.u-plate`, so the page announces itself as an
+  index inside the first viewport. The rail is 5 columns rather than 4 because a
+  4-column rail cannot fit the widest English status/version pair between 1024
+  and 1180px — the version was pushed clean out of the plate. Four text
+  elements, no more: eyebrow,
+  headline, lede, index. The hero carries almost no bottom padding — the gap to
+  the first product is owned entirely by that entry's `.u-band-open`, because
+  with padding on both sides the two stacked to 304px and read as an unfinished
+  page.
+- **Products** — four **structurally distinct shapes**, not one grid with four
+  sets of knob values. See §4.
+- **Principles** — sticky heading against a hanging-numeral list. No eyebrow:
+  `principles.label` and `principles.title` are the same string in both locales,
+  so rendering both printed the heading twice at two sizes.
+- **Footer** — recessed in **both** variants now. The index footer previously
+  shared the page's ground and was separated by a hairline identical to the eight
+  above it, so the page did not end, it stopped.
+
+**The 12-column split activates at `lg` (1024px), not `md`.** Measured: at 768px
+the `md` split gave `SpecGrid` a 145px value column — nine hanzi per line, eight
+lines. At `lg` that is 497px / 2 lines.
+
+### Nav — progressive disclosure, and every threshold is measured
+
+| Width | Contents |
+| --- | --- |
+| under 1024px | wordmark + theme + language switch |
+| 1024px and up | + product links |
+| 1280px and up | + social icons |
+
+The social row moved up from `sm` (640px) because the stage narrowed the pill: at
+1024px the pill has 828px usable and wordmark + four product links + socials +
+theme + language needs 851px, so the right-hand cluster rendered **23px outside
+its own rounded ground**. At `xl` there is 177px of slack at 1024px. Nothing
+becomes unreachable — the product links are also the hero index, and all five
+socials repeat *with text labels* in the footer, which is where their accessible
+names depend least on `aria-label` (§6). Moving them off the phone bar is a net
+a11y gain.
+
+`flex-nowrap` is the single-line guarantee: a two-line nav at desktop is a broken
+bar, so groups disappear at these thresholds instead of wrapping. Below 375px the
+theme and language segments tighten by 2px a side — measured, they overran the
+pill's padding box by 8.7px at 320px, and every button stays above the 24×24
+target-size floor (26×28 / 30×30).
+
+Verified across **90 page × width combinations** (10 routes × 9 widths, 320–1440):
+zero horizontal overflow, zero over-wide elements, zero clickable text wrapping
+to two lines, nav on one line everywhere, exactly one `h1` per page.
 
 ### Navigation and footer
 
@@ -322,18 +436,10 @@ page. On a detail page the entry for the product being read is **not a link to
 itself** — it is `aria-current="page"` with the marked dot, the same treatment the
 detail-page footer strip uses.
 
-The nav reduces by **progressive disclosure**, never by squashing:
-
-| Width | Contents |
-| --- | --- |
-| under 640px | wordmark + theme switch + language switch |
-| 640px+ | + social icon row |
-| 900px+ | + product links |
-
-Nothing becomes unreachable at any width: the product links are also the hero
-index, and the socials repeat *with text labels* in the footer. The icon row's
-cutoff is measured — it needs 357px of the 332px available at 390px, and only
-clears around 430px, so `sm` is the correct threshold.
+The nav reduces by **progressive disclosure**, never by squashing — at the
+thresholds measured above: product links at `lg` (1024px), social icons at `xl`
+(1280px). Nothing becomes unreachable at any width: the product links are also the
+hero index, and the socials repeat *with text labels* in the footer.
 
 The footer is three columns: identity · product index · contact. It is where the
 social marks get **text labels**, which the icon-only nav depends on (see §3).
@@ -351,35 +457,42 @@ social marks get **text labels**, which the icon-only nav depends on (see §3).
 | `Hero` | one `h1`, one lede, one ledger. Exactly three text elements: eyebrow, headline, lede. No trust strip, no sub-tagline, no CTA pair — the ledger *is* the call to action. No image, no gradient, no blob. |
 | `ProductMark` | inline SVG, `role="img"` + `<title>`, fixed 40/48px box, uses `--accent-mark`. |
 | `StatusTag` | mono uppercase, 3 states only: `live`, `early`, `wip`. Colour + label, never colour alone. |
-| `SpecGrid` | definition list; `dt` mono meta, `dd` sans small. Used for stack/platform/scope. |
-| `InstallBlock` | mono, `--color-block` ground, `--radius-sm`. Renders only when a real command exists. |
-| `ProductEntry` | composes the five above. `weight` prop drives §4. |
+| `SpecGrid` | definition list, **three variants** — `rows` (hairline-divided, the default), `grid` (two columns at `lg`, a rule per cell, for the lead product whose seven specs read as a wall in one column), `plain` (gap only, no rules, for the two least-released entries where a fully ruled table would claim more finish than the work has). `divide-y` cannot be used in the two-column variant: it draws a rule above every cell in flow order, landing them at mismatched heights. |
+| `InstallBlock` | mono, `--color-block` ground, `--radius-chip`. Renders only when a real command exists. |
+| `ProductEntry` | **four structurally distinct shapes**, selected by `weight`. Not one grid with four sets of knob values — see §4. |
 | `SiteFooter` | **two variants.** `index`: three columns — identity + positioning blurb, product index, contact. `detail`: the blurb and the stacked product list are **dropped**; the wordmark becomes the labelled way back, and the products become a one-line inline jump strip with the current entry marked `aria-current="page"` and not a link. See §4a. |
 | `NextProduct` | the page-ending pager. A `<nav>` **outside `<main>`**, so it reads as chrome-level "advance" rather than one more product pitch. Wraps from the last product to the first, and says so when it does. Asks for nothing, so it works unchanged on Voxera, which has nothing to download. |
 | `SpecGrid` | hairline-divided rows (`divide-y`), not gap-separated `display: contents` cells. Two reasons: the spec tables are the trust-building content and without a rule per row they read as prose in a smaller size; and `display: contents` children cannot be transformed, so `.u-stagger` had nothing to animate. |
 
-## 4. Hierarchy by maturity
+## 4. Hierarchy by maturity — four shapes, not four sizes
 
-Maturity is expressed structurally, so the layout carries information:
+**Maturity changes the SHAPE, or it is decoration.** The previous build expressed
+it through four scalar knobs — title size, mark size, body colour, one dashed
+rule — applied to one identical rail / main / meta grid. Four bands of the same
+shape in the same three columns read as four rows of a table with the type set
+slightly differently, which is why a visitor could not tell at a glance which tool
+was usable today.
 
-| Product | Weight | Treatment |
+| Product | Weight | Shape |
 | --- | --- | --- |
-| pt-tools | `lead` | largest title (`--text-title`), 46px mark, full spec grid, install block, all links |
-| CodeGraph | `major` | title one rung down (`--text-title-md`), 42px mark, full spec grid, install block, both links |
-| AgentLens | `standard` | `--text-title-sm`, 38px mark, spec grid, release link, no install block |
-| Voxera | `pending` | `--color-ink-mute` body, dashed top rule, no link, no version, no install block, `aria-disabled` absent (nothing is interactive to disable) |
+| pt-tools | `lead` | **Full width, no rail.** A `.u-plate-lead` masthead carries mark, title, role and the release facts on one ground; specs run two-up (`grid`) across the full measure; install block and outward links close it. The most-released tool is the only entry with a masthead. |
+| CodeGraph | `major` | **A 4/7 split.** Identity rail (mark, title, status, version, links) against a reading column (prose, ruled specs, install). Recognisably a documented product, deliberately not a masthead. |
+| AgentLens | `standard` | **One header line** — mark, title, role, status inline — then prose and unruled specs (`plain`) two-up beneath. No meta column at all: a v0.0.5 tool has three facts, and a column drawn for eight makes the three look like omissions. |
+| Voxera | `pending` | **A `.u-plate-draft` enclosure** — dashed on all four sides, no ground, no shadow, muted body, no install block, no version, no external link. It reads as a record of intent, which is what it is. |
 
-A visitor scanning only the left rail can tell which tool is real today.
+The mark sits **outside** the link, as a sibling, and is lit by
+`.u-entry:has(.u-entry-name:hover)` — so the mark reads as belonging to the
+destination rather than as decoration beside it, without making a 500px-tall band
+into a hover target. `:has()` is the only selector that reaches a sibling of the
+hovered element; where it is unsupported the effect simply does not apply, which
+costs nothing because the link already changes colour and advances its arrow.
 
 **The order is by maturity, not by age, and it is load-bearing.** pt-tools leads
 because it is the most released thing here — v0.46.0, 136 stars, published Docker
-images — so it takes the index's `01` and the largest title. That forced a
-**fourth** weight rung (`major` / `--text-title-md`): with four products, dropping
-CodeGraph (v0.42.10) onto the same size as AgentLens (v0.0.5) would have thrown
-away information the ladder exists to carry. `content.ts`'s array order, each
-product's `index`, and each detail page's `eyebrow` are three copies of the same
-fact — changing one without the others leaves the site contradicting itself, so
-the ordering rule is stated at the top of `content.ts` as well.
+images. `content.ts`'s array order, each product's `index`, and each detail page's
+`eyebrow` are three copies of the same fact; changing one without the others
+leaves the site contradicting itself, so the rule is stated at the top of
+`content.ts` as well.
 
 ## 4a. Page endings and lateral movement
 
@@ -413,6 +526,7 @@ Four mechanisms, no scroll listener, no `IntersectionObserver`, no `rAF` loop:
 
 | Mechanism | Driver | What it does |
 | --- | --- | --- |
+| `.u-enter` | **time** (560ms, 40/110/190/270ms delays) | The only time-driven animation on the site, and it has to be: the first viewport is already on screen when the document paints, so a `view()` timeline there resolves as "already fully entered" and produces no entrance at all — which is why the hero previously arrived flat. Delays sequence the reading order (eyebrow → headline → lede → index); this is the one place `animation-delay` works, because the timeline is time rather than scroll. |
 | `.u-reveal` | `view()`, range `entry 8% cover 26%` | Section bands fade + rise 1.5rem as they enter. `opacity` and `transform` only. |
 | `.u-stagger > *` | `view()`, range offset per `nth-child` | Sequences the rows *within* a band: 6/12/18/24% entry offsets, 5th and later share 28%. Travel is 0.85rem, shorter than `.u-reveal`, because the two compose — 1.5rem inside 1.5rem reads as a slide. |
 | `.u-nav-settle` | `scroll(root block)`, range `0 6rem` | Deepens the nav ground, brings in its hairline + shadow over the first 6rem. |
@@ -425,8 +539,10 @@ Plus `@view-transition { navigation: auto }` — cross-document, so index → de
 needs no router. Each product's mark and title carry
 `view-transition-name: mark-<id>` / `title-<id>` on **both** the index band and the
 detail masthead, so the shared element morphs instead of the two documents
-cross-fading. Voxera pairs only the mark: its `h1` is a sentence, not the product
-name, so pairing the titles would cross-fade two boxes of very different size.
+cross-fading. All four products pair BOTH names on BOTH pages — the index band
+and the detail masthead each carry `mark-<id>` and `title-<id>`, so a mark or a
+title left unpaired is a bug, not a variant: the unpaired half silently falls
+back to a document cross-fade while its sibling morphs.
 
 > **Every timeline is assigned through `var(--u-timeline)`, never as a literal.**
 > This is not style preference — it is the only form that survives the build.
@@ -443,26 +559,40 @@ anywhere — this is a publication, not a consumer app.
 
 | Helper | Property | Duration | Where |
 | --- | --- | --- | --- |
+| `.u-entry-mark` | `color` | 240ms | a product mark, lit when its **name** is hovered or focused via `.u-entry:has()`. The band itself is never the target. |
+| `.u-row` | `background-color` | 200ms | a full-row link (hero index rows, the AgentLens TOC). A colour change on the name alone under-reported a 64px-tall target. |
 | `a` (base) | `color`, `text-decoration-color` | 160ms | every link |
 | `.u-link-draw` | `transform: scaleX()` on `::after` | 220ms | links in an identifier row, where five static underlines would read as a stack of rules |
 | `.u-arrow` | `transform: translateX(0.3em)` | 240ms | trailing `→`, advanced by `.u-arrow-host:hover` / `:focus-visible` |
 | `.u-pager` | `background-color`; mark `color` | 260ms | the whole page-ending band |
 | `.u-copy` | `color`, `border-color`, `background-color`, `transform` | 160 / 120ms | command copy button |
 
-The full transition surface is **six declarations, all on `color`,
-`background-color`, `border-color`, `text-decoration-color` or `transform`**. Zero
-animate a layout property; there is no `transition: all`. Verified against the built
-CSS, not the source.
+Every transition is on `color`, `background-color`, `border-color`,
+`text-decoration-color` or `transform`. Zero animate a layout property; there is
+no `transition: all` — verified as **0 occurrences** in the built CSS, not the
+source.
 
 ### Depth
 
 Drawn with a hairline plus one tightly-spread shadow — never a blurred glass panel.
-`--shadow-plate` (command blocks, the premise callout) and `--shadow-recess` (the
-detail-page footer, so it reads as chrome the content sits on). Both mix from
-`--shade`, which is a **separate token from `--ink-900`**: the ink ramp inverts in
-dark mode, so a shadow mixed from it becomes a white glow. `--shade` stays dark in
-both themes. Both live on `:root`, not in `@theme` — Tailwind prunes theme variables
-it sees no utility for, and these are consumed through `var()`.
+`--shadow-plate` (plates, command blocks) and `--shadow-recess` (the footer, so it
+reads as chrome the content sits on). The stage itself carries one wide, very low
+shadow so its frame reads as a sheet edge rather than a stray hairline.
+
+Three surfaces mix from **`--shade`**, which is a separate token from `--ink-900`
+for a specific reason: the ink and paper ramps both invert in dark mode, so
+anything mixed from them flips sense. `--shade` stays dark in both themes.
+
+- both shadows — mixed from `--ink-900` they would become a white glow;
+- **the footer ground**, `color-mix(in oklab, var(--shade) 6%, var(--color-paper))`.
+  A fixed paper step cannot work here: `--paper-2` is darker than the sheet in
+  light mode and *lighter* in dark mode, and measured, the dark footer came out
+  brighter than the page it sits in — reading as a raised panel, the opposite of
+  the intent. Mixed from `--shade` it recesses in both (measured relative
+  luminance: light 0.837 vs sheet 0.973; dark 0.0033 vs sheet 0.0040).
+
+All live on `:root`, not in `@theme` — Tailwind prunes theme variables it sees no
+utility for, and these are consumed through `var()`.
 
 **Legibility must not depend on motion, and does not.** Both mechanisms sit inside
 `@media (prefers-reduced-motion: no-preference)` *and* an `@supports` gate, so an
@@ -493,10 +623,19 @@ full.
 - Exactly one `h1`; product names are `h2`; spec group labels are `dt`, not headings.
 - Focus: `:focus-visible` → `2px solid var(--color-accent)`, `outline-offset: 3px`.
   Never removed, never animated.
-- Contrast verified both themes: body `--ink-500` on `--paper-0` is 7.4:1 light /
-  8.1:1 dark. `--accent` on `--paper-0` is 5.3:1 light / 7.9:1 dark. `--live` is
-  5.1:1 / 8.6:1. `--ink-400` meta on `--paper-0` is 5.6:1 / 5.2:1 — used at ≥12px,
-  passes AA for normal text.
+- Contrast re-measured across **26 surfaces × both themes** after the stage /
+  plate / footer rework, each against its own *composited* ground (the nav's is
+  92%-opaque, so the ground has to be composited rather than read): **zero
+  failures**. Worst case is the footer's muted text at **4.87:1 light / 4.69:1
+  dark** against a 4.5 floor. Nothing on the site relies on the desk colour, which
+  is why introducing it changed no measured pair.
+- Body `--ink-500` on `--paper-0` is 7.4:1 light / 8.1:1 dark. `--accent` on
+  `--paper-0` is 5.3:1 / 7.9:1. `--live` is 5.1:1 / 8.6:1. `--ink-400` meta is
+  5.6:1 / 5.2:1 — used at ≥12px, passes AA for normal text.
+- Target size: below 375px the theme and language segments tighten to recover the
+  measured 8.7px nav overflow, and every button stays above 24×24 (26×28 for a
+  theme segment, 30×30 for a locale). Hiding a control was rejected — it would
+  remove a working affordance from the one device with no alternative.
 - Status is text + colour, never colour alone.
 - The theme control's selected segment is `aria-pressed="true"` plus a filled
   ground plus a distinct icon per segment — three signals, none of them colour
@@ -516,6 +655,11 @@ full.
   anchor targets from landing underneath it.
 - `html`/`body` use `overflow-x: clip`, never `hidden` — `hidden` on the root turns
   the document into a scroll container and silently kills `position: sticky`.
+- No clickable text wraps to two lines at any width. The hero index row was
+  restructured into two lines — identifiers, then facts — because the status label
+  and the version shared one squeezed flex track: measured at 1180px the name
+  column was 95.8px and **every** status label wrapped inside a link. On its own
+  line the label has 170px and none wraps from 320px up.
 - Every authored social mark has an accessible name; the icon-only nav row relies on
   `aria-label` + `title`, and the footer repeats all five with visible text.
 - Measured at 390 / 768 / 1440px, both themes: zero horizontal overflow, zero
@@ -557,9 +701,8 @@ full.
    so the headline is not byte-identical cross-platform. Accepted: the cost of a
    self-hosted display face (network + FOUT + Lighthouse) outweighs exact fidelity on
    a single-page site.
-3. **No theme toggle.** Theme follows `prefers-color-scheme` only. A toggle needs
-   inline JS + `localStorage` and a blocking inline script to avoid a wrong-theme
-   flash; deferred. The language switch is a real navigation, so it needs neither.
+3. ~~**No theme toggle.**~~ **Superseded.** Three states ship — `system` ·
+   `light` · `dark` — see §1.
 4. **Naive UI not used.** The session default asks for Naive UI components; Naive UI
    is Vue-only and the task forbids adding a client framework. Tailwind 4 + Astro
    components only. Recorded here rather than silently dropped.
@@ -620,6 +763,15 @@ full.
     outage. The RSS free-only default gets a full callout for the same reason —
     misreading it costs real download volume.
 
+11. **The Chinese headline sets in three lines below 414px.** Reaching two would
+    mean dropping the display step to ~34px on the one screen size where the
+    headline is already the smallest it will ever be, which costs more than the
+    extra line does. Latin sets in two at every width from 320px up.
+
+12. **Em-dashes remain throughout the copy** (164 occurrences across
+    `src/i18n/*.ts`). They are the author's own prose and this pass does not touch
+    product copy; the house style used for anything authored here avoids them.
+
 ## 8. Verified
 
 Measured in Chrome 151 at 390 / 768 / 1440px, both colour schemes, both locales,
@@ -660,8 +812,9 @@ Chrome 151, `dist/` over HTTP, measured at 390 / 1440px in both schemes:
   HSTS-preloaded. Console clean — no errors, warnings or issues.
 - `<script src>` count is still **0** on all six sampled pages; no `@font-face`,
   no `fonts.googleapis`, no `fonts.gstatic` anywhere in `src/` or `dist/`.
-- Footer variant per page: `/` and `/en/` carry the blurb and no pager; all six
-  product pages carry `u-footer-slim`, **zero** blurb occurrences, and one pager.
+- Footer variant per page: `/` and `/en/` carry the blurb and no pager; all eight
+  localized product pages carry `u-footer-slim`, **zero** blurb occurrences, and
+  one pager.
 - All four scroll mechanisms register real timelines — `ViewTimeline` for
   `u-reveal` / `u-rise`, `ScrollTimeline` for `u-nav-settle` / `u-progress` — each
   `playState: running`. The stagger offsets resolve to 6 / 12 / 18 / 24 / 28 %
@@ -680,6 +833,77 @@ Chrome 151, `dist/` over HTTP, measured at 390 / 1440px in both schemes:
 - CSS **33,338 → 38,945 bytes** (+5,607, +16.8 %) for two extra keyframes, three
   extra transitions, the stagger cascade, the progress rail, the pager, the copy
   button and the two footer variants.
+
+### Verified after the stage rework
+
+Chrome, `dist/` over HTTP, both locales, both themes, at 320 / 375 / 390 / 414 /
+768 / 1024 / 1180 / 1280 / 1440px:
+
+- `pnpm check` **0 / 0 / 0** (44 files); `pnpm build` exit 0, **10 pages**. CSS
+  42,024 bytes.
+- **90 page × width combinations** (10 routes × 9 widths) with **zero failures** on
+  every one of: horizontal overflow, over-wide elements, clickable text wrapping
+  to two lines, nav fitting inside its own pill, nav on a single line, exactly one
+  `h1`. The 22 "over-wide" elements on `/codegraph/` at 390px are all inside an
+  `.overflow-x-auto` table wrapper and produce no document overflow —
+  `documentElement.scrollWidth` equals the viewport at every width.
+- Text safe area: **24px** at 320–414, **69px** at 768, **99px** at 1024,
+  **117px** at 1180, **145px** at 1440. Frame→text air 27 / 39 / 47 / 57px, against
+  **3px** before.
+- The sheet, its content, the footer and the pager all agree to the pixel: at
+  1180px the stage spans `[70, 1096]`, the footer bleeds to the same bounds, and
+  `main`'s content and the footer's content both start at 117px.
+- Body measure holds at **29.0 hanzi per line** from 768px to 1920px.
+- Headline sets in **two lines** from 414px up (three at 320–390, accepted).
+- Section-level rules per detail page: CodeGraph **5**, pt-tools **4**, AgentLens
+  **4**, Voxera **4** — down from 9–10, and each survivor now marks a movement.
+- Contrast: **26 surfaces × 2 themes, zero failures**, worst 4.87 light / 4.69
+  dark, measured against composited grounds.
+- The footer recesses in **both** themes (relative luminance 0.837 vs sheet 0.973
+  light; 0.0033 vs 0.0040 dark).
+- Motion, verified in the built CSS rather than the source: `animation-timeline`
+  appears **4 times as `var(--u-timeline)`** and **zero times folded into an
+  `animation` shorthand** (the form Chrome rejects); five keyframes; the whole
+  motion layer nested inside `prefers-reduced-motion: no-preference`; one `reduce`
+  block; `transition: all` count **0**.
+- Under emulated `reduce`: **zero** elements left below `opacity: 1` above the
+  fold, on every page checked — the entrance rule does not exist under `reduce`,
+  so nothing can be stranded invisible.
+- Theme control driven through the real UI: `system → light → dark → system`
+  switches all four grounds, writes and clears `localStorage['firlab-theme']`, and
+  moves `aria-pressed` correctly.
+- `<script src>` count **0**; no `@font-face`, no `fonts.googleapis`, no
+  `fonts.gstatic`. `dist/CNAME` is `firlab.app`.
+
+### Five defects found by measuring in this pass, and fixed
+
+1. **The 1024px headline grew its own box by 42px.** The hero index spans every
+   grid row, so when it was taller than the three text items the grid distributed
+   the surplus into *their* rows — the `h1` box went 110 → 152px and the lede
+   drifted away from the headline it belongs to. Fixed with a fourth `1fr` spacer
+   row that has no left-column content, so the surplus lands there.
+2. **The nav overran its own pill by 8.7px at 320px.** Fixed by tightening the two
+   segmented controls below 375px, not by dropping the pill's outward pull (that
+   would take the wordmark off the copy's start line) and not by hiding a control.
+3. **Every status label in the hero index wrapped to two lines inside a link.**
+   The label and the version shared one squeezed flex track — 95.8px for the name
+   column at 1180px. The row is now two lines: identifiers, then facts.
+4. **The dark footer was brighter than the page it sat in.** A fixed paper step
+   cannot recess in both themes because the ramp inverts; the ground is now mixed
+   from `--shade`.
+5. **The Principles heading printed twice.** `principles.label` and
+   `principles.title` are the same string in both locales, and the section
+   rendered both — once as an eyebrow, once as the heading. The eyebrow is gone.
+
+Two more found and fixed while writing the fixes, both instances of the same
+Tailwind v4 cascade trap this file already documents:
+
+- a `@media (max-width: 374px)` block written **before** `.u-theme-btn` lost on
+  source order, because the base rule sets padding through the `padding`
+  *shorthand*. Measured, the override read back as 7px until it moved below.
+- `--nav-pad`'s `768px` override had to be **unlayered**; inside
+  `@layer components` it lost to the `:root` block and the pill kept its 10px
+  padding at every width.
 
 ### Four defects found by measuring, and fixed
 

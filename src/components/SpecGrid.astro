@@ -6,30 +6,58 @@ import type { Spec } from '../i18n/content';
  * specifics; this is where the version-, platform- and language-level detail
  * lives instead of in adjectives.
  *
- * Rows are hairline-divided rather than floated on vertical gap alone. The
- * spec tables are the trust-building content on every page, and without a rule
- * per row they read as another run of prose in a smaller size — the reader has
- * to parse the type change to notice they are looking at data. Each row also
- * becomes an animatable box this way, which `u-stagger` needs; `display:
- * contents` children, which this used before, cannot be transformed at all.
+ * Three variants, because four products at four maturities cannot all present
+ * their specs with the same weight — the spec table is one of the places the
+ * maturity ladder is expressed, not just the title size:
  *
- * `divide-y` and not `border-t` per row: every caller already draws the top rule
- * on the container, and two rules at the same y-position read as a double line.
+ *   rows   hairline-divided single column. The default, and the reference
+ *          treatment on a detail page.
+ *   grid   two columns at `lg`, a rule per cell. For the lead product, whose
+ *          seven specs run to eight rows of prose in one column and read as a
+ *          wall. The rule is on the cell rather than via `divide-y` because
+ *          `divide-y` in a two-column grid draws a rule above every cell in the
+ *          flow order, which lands them at mismatched heights.
+ *   plain  no rules at all, gap only. For the two least-released entries, where
+ *          a fully ruled table would claim more finish than the work has.
+ *
+ * `divide-y` and not `border-t` per row in `rows`: every caller already draws the
+ * top rule on the container, and two rules at the same y-position read as a
+ * double line.
  */
 interface Props {
   items: Spec[];
+  variant?: 'rows' | 'grid' | 'plain';
   class?: string;
 }
 
-const { items, class: className = '' } = Astro.props;
+const { items, variant = 'rows', class: className = '' } = Astro.props;
+
+const list = {
+  rows: 'divide-rule divide-y',
+  grid: 'grid gap-x-10 lg:grid-cols-2',
+  plain: 'grid gap-x-10 gap-y-5 sm:grid-cols-2',
+}[variant];
+
+const row = {
+  rows: 'grid gap-x-10 gap-y-1.5 py-4 sm:grid-cols-[9rem_minmax(0,1fr)]',
+  grid: 'border-rule grid gap-x-6 gap-y-1.5 border-t py-4 sm:grid-cols-[8rem_minmax(0,1fr)]',
+  plain: 'min-w-0',
+}[variant];
+
+const value =
+  variant === 'rows'
+    ? 'border-rule min-w-0 text-sm sm:border-l sm:pl-6'
+    : 'min-w-0 text-sm';
 ---
 
-<dl class={`divide-rule u-stagger divide-y ${className}`}>
+<dl class={`u-stagger ${list} ${className}`}>
   {
     items.map((item) => (
-      <div class="grid gap-x-8 gap-y-1.5 py-4 sm:grid-cols-[9rem_minmax(0,1fr)]">
-        <dt class="u-meta text-ink-soft min-w-0 pt-1">{item.term}</dt>
-        <dd class="border-rule min-w-0 text-sm sm:border-l sm:pl-6">{item.value}</dd>
+      <div class={row}>
+        <dt class={`u-meta text-ink-soft min-w-0 ${variant === 'plain' ? 'mb-1.5' : 'pt-1'}`}>
+          {item.term}
+        </dt>
+        <dd class={value}>{item.value}</dd>
       </div>
     ))
   }

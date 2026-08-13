@@ -83,8 +83,11 @@ const structuredData = [
   },
 ];
 
-const SECTION = 'border-rule u-reveal border-t pt-12 pb-4 md:pt-16';
-const HEAD = 'grid gap-y-5 lg:grid-cols-12 lg:gap-x-8';
+// Shared band vocabulary, defined once in global.css. Only `u-band-open` draws
+// a rule — see CodeGraphPage for why ten identical hairlines carried no
+// information. This page's movements are: what it does → how it runs → limits.
+const SECTION = 'u-reveal u-band';
+const HEAD = 'grid gap-y-5 lg:grid-cols-12 lg:gap-x-10';
 const RAIL = 'min-w-0 lg:col-span-4';
 const MEASURE = 'min-w-0 lg:col-span-7 lg:col-start-6';
 const HEADING = 'u-display text-title-sm';
@@ -114,59 +117,71 @@ const HEADING = 'u-display text-title-sm';
     </nav>
 
     {/* ---- Masthead --------------------------------------------------- */}
-    <section class="grid gap-y-12 pt-8 pb-14 md:pt-10 md:pb-20 lg:grid-cols-12 lg:gap-x-8">
+    <section
+      class="u-enter grid gap-y-10 pt-8 pb-14 md:pt-10 md:pb-20 lg:grid-cols-12 lg:gap-x-10"
+    >
       <div class="min-w-0 lg:col-span-7">
         <p class="u-meta text-ink-mute mb-7">{c.eyebrow}</p>
 
+        {/* The two `view-transition-name`s match the ones the index's pt-tools
+            entry carries, so arriving from the index morphs that entry into this
+            masthead rather than cross-fading the two documents. */}
         <div class="flex items-start gap-5">
-          <ProductMark product="pttools" size={52} class="text-mark mt-1 shrink-0" />
-          <h1 class="u-display u-display-latin text-display min-w-0">{c.name}</h1>
+          <span class="mt-1 inline-flex shrink-0" style="view-transition-name: mark-pttools">
+            <ProductMark product="pttools" size={52} class="text-mark" />
+          </span>
+          <h1
+            class="u-display u-display-latin text-display min-w-0"
+            style="view-transition-name: title-pttools"
+          >
+            {c.name}
+          </h1>
         </div>
 
         <p class="text-ink-soft mt-5 font-mono text-sm">{c.role}</p>
 
-        <p class="u-lede text-ink-body mt-8 max-w-[42rem]">
+        <p class="u-lede text-ink-body mt-8">
           <span class="text-ink-soft">{c.ledeAccent}</span>{' '}
           {c.lede}
         </p>
       </div>
 
       {/* Release ledger. Facts only. */}
-      <aside class="min-w-0 lg:col-span-4 lg:col-start-9">
+      <aside class="u-plate min-w-0 self-start lg:col-span-4 lg:col-start-9">
         <h2 class="u-meta text-ink-mute border-rule border-b pb-3">{c.metaLabel}</h2>
 
         <div class="border-rule border-b py-4">
           <StatusTag lang={lang} state="live" display="block" />
         </div>
 
-        <dl class="text-sm">
-          <div class="border-rule flex items-baseline justify-between gap-4 border-b py-3">
+        <dl class="divide-rule divide-y text-sm">
+          <div class="flex items-baseline justify-between gap-4 py-3">
             <dt class="u-meta text-ink-mute shrink-0">{t('product.version')}</dt>
             <dd class="text-ink-soft font-mono tabular-nums">{pttoolsVersion}</dd>
           </div>
-          <div class="border-rule flex items-baseline justify-between gap-4 border-b py-3">
+          <div class="flex items-baseline justify-between gap-4 py-3">
             <dt class="u-meta text-ink-mute shrink-0">{t('product.released')}</dt>
             <dd class="text-ink-soft font-mono tabular-nums">{pttoolsReleased}</dd>
           </div>
-          <div class="border-rule flex items-baseline justify-between gap-4 border-b py-3">
+          <div class="flex items-baseline justify-between gap-4 py-3">
             <dt class="u-meta text-ink-mute shrink-0">{c.licenseTerm}</dt>
             <dd class="text-ink-soft font-mono">{c.licenseValue}</dd>
           </div>
-          <div class="border-rule flex items-baseline justify-between gap-4 border-b py-3">
+          <div class="flex items-baseline justify-between gap-4 py-3">
             <dt class="u-meta text-ink-mute shrink-0">{c.languageTerm}</dt>
             <dd class="text-ink-soft font-mono">{c.languageValue}</dd>
           </div>
-          <div class="border-rule flex items-baseline justify-between gap-4 border-b py-3">
+          <div class="flex items-baseline justify-between gap-4 py-3">
             <dt class="u-meta text-ink-mute shrink-0">{c.starsTerm}</dt>
             <dd class="text-ink-soft font-mono tabular-nums">{c.starsValue}</dd>
           </div>
-          <div class="border-rule border-b py-3">
+          <div class="py-3">
             <dt class="u-meta text-ink-mute">{c.imageTerm}</dt>
             <dd class="text-ink-soft mt-1 font-mono text-[0.8125rem]">{c.imageValue}</dd>
           </div>
         </dl>
 
-        <ul class="mt-5 space-y-2 text-sm">
+        <ul class="border-rule mt-1 flex flex-wrap gap-x-6 gap-y-2 border-t pt-4 text-sm">
           <li>
             <a href={pttoolsLinks.repo} target="_blank" rel="noopener noreferrer">
               {c.repoLabel}
@@ -190,15 +205,12 @@ const HEADING = 'u-display text-title-sm';
         Given a callout rather than a spec row because getting it wrong costs
         the reader real download volume. Brand orange as a 2px left rule:
         graphic, load-bearing for hierarchy, never asked to carry a glyph. */}
-    <section
-      aria-labelledby="default-behaviour"
-      class="bg-panel border-rule border-mark u-reveal border border-l-2 px-6 py-8 md:px-10 md:py-10"
-    >
+    <section aria-labelledby="default-behaviour" class="u-plate u-plate-lead u-reveal">
       <p class="u-meta text-ink-mute">{c.claimLabel}</p>
       <h2 id="default-behaviour" class={`${HEADING} mt-4 max-w-[38rem]`}>{c.claimTitle}</h2>
-      <p class="text-ink-body mt-6 max-w-[46rem]">{c.claimBody}</p>
+      <p class="text-ink-body u-measure mt-6">{c.claimBody}</p>
 
-      <ol class="mt-8 grid gap-6 md:grid-cols-3 md:gap-8">
+      <ol class="mt-8 grid gap-6 md:grid-cols-3 md:gap-10">
         {
           c.claimPoints.map((point, i) => (
             <li class="border-rule text-ink-body min-w-0 border-t pt-4 text-sm">
@@ -213,7 +225,7 @@ const HEADING = 'u-display text-title-sm';
     </section>
 
     {/* ---- 01 · problem ----------------------------------------------- */}
-    <section aria-labelledby="problem" class={`${SECTION} mt-16 md:mt-24`}>
+    <section aria-labelledby="problem" class={`${SECTION} u-band-open`}>
       <div class={HEAD}>
         <div class={RAIL}>
           <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.problem.index}</p>
@@ -225,7 +237,7 @@ const HEADING = 'u-display text-title-sm';
       <ul class="mt-12">
         {
           c.audiences.map((item) => (
-            <li class="border-rule grid gap-y-2 border-t py-6 lg:grid-cols-12 lg:gap-x-8">
+            <li class="border-rule grid gap-y-2 border-t py-6 lg:grid-cols-12 lg:gap-x-10">
               <span class="u-meta text-ink-mute tabular-nums lg:col-span-1">{item.index}</span>
               <h3 class="text-ink min-w-0 font-mono text-[0.9375rem] lg:col-span-3">
                 {item.term}
@@ -241,7 +253,7 @@ const HEADING = 'u-display text-title-sm';
         Rows, not a table: the bound is a sentence, and a fourth table column
         of sentences is unreadable on a phone. The bound gets its own labelled
         sub-block so it cannot be skimmed past. */}
-    <section aria-labelledby="loops" class={`${SECTION} mt-16 md:mt-24`}>
+    <section aria-labelledby="loops" class={`${SECTION} u-band-next`}>
       <div class={HEAD}>
         <div class={RAIL}>
           <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.loopsHead.index}</p>
@@ -253,7 +265,7 @@ const HEADING = 'u-display text-title-sm';
       <ul class="mt-12">
         {
           c.loops.map((loop) => (
-            <li class="border-rule grid gap-y-5 border-t py-8 lg:grid-cols-12 lg:gap-x-8">
+            <li class="border-rule grid gap-y-5 border-t py-8 lg:grid-cols-12 lg:gap-x-10">
               <div class="min-w-0 lg:col-span-4">
                 <div class="flex items-baseline gap-4">
                   <span class="u-meta text-ink-mute tabular-nums">{loop.index}</span>
@@ -275,7 +287,7 @@ const HEADING = 'u-display text-title-sm';
     </section>
 
     {/* ---- 03 · statistics -------------------------------------------- */}
-    <section aria-labelledby="stats" class={`${SECTION} mt-16 md:mt-24`}>
+    <section aria-labelledby="stats" class={`${SECTION} u-band-next`}>
       <div class={HEAD}>
         <div class={RAIL}>
           <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.statsHead.index}</p>
@@ -287,7 +299,7 @@ const HEADING = 'u-display text-title-sm';
       <ul class="mt-12">
         {
           c.stats.map((item) => (
-            <li class="border-rule grid gap-y-2 border-t py-6 lg:grid-cols-12 lg:gap-x-8">
+            <li class="border-rule grid gap-y-2 border-t py-6 lg:grid-cols-12 lg:gap-x-10">
               <span class="u-meta text-ink-mute tabular-nums lg:col-span-1">{item.index}</span>
               <h3 class="text-ink min-w-0 font-mono text-[0.9375rem] lg:col-span-3">
                 {item.term}
@@ -305,7 +317,7 @@ const HEADING = 'u-display text-title-sm';
         brand orange, an unverified one gets a dashed rule and muted ink —
         exactly how the index page marks unreleased work. Colour never carries
         it alone; every row states its status in words. */}
-    <section aria-labelledby="chatops" class={`${SECTION} mt-16 md:mt-24`}>
+    <section aria-labelledby="chatops" class={`${SECTION} u-band-next`}>
       <div class={HEAD}>
         <div class={RAIL}>
           <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.chatHead.index}</p>
@@ -318,7 +330,7 @@ const HEADING = 'u-display text-title-sm';
         {
           c.channels.map((channel) => (
             <li
-              class={`border-rule grid gap-y-3 py-7 lg:grid-cols-12 lg:gap-x-8 ${
+              class={`border-rule grid gap-y-3 py-7 lg:grid-cols-12 lg:gap-x-10 ${
                 channel.verified ? 'border-t' : 'border-t border-dashed'
               }`}
             >
@@ -363,7 +375,7 @@ const HEADING = 'u-display text-title-sm';
           thirteen two-word rows in a table wastes the whole measure. */}
       <div class="border-rule mt-14 border-t pt-8">
         <h3 class="u-meta text-ink-soft">{c.commandsLabel}</h3>
-        <dl class="mt-6 grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+        <dl class="mt-6 grid gap-x-10 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
           {
             c.commands.map((command) => (
               <div class="border-rule min-w-0 border-t pt-3">
@@ -382,7 +394,7 @@ const HEADING = 'u-display text-title-sm';
     </section>
 
     {/* ---- 05 · deployment -------------------------------------------- */}
-    <section aria-labelledby="deploy" class={`${SECTION} mt-16 md:mt-24`}>
+    <section aria-labelledby="deploy" class={`${SECTION} u-band-open`}>
       <div class={HEAD}>
         <div class={RAIL}>
           <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.installHead.index}</p>
@@ -391,16 +403,16 @@ const HEADING = 'u-display text-title-sm';
         <p class={`${MEASURE} text-ink-body`}>{c.installHead.lede}</p>
       </div>
 
-      <div class="mt-4 grid gap-x-8 lg:grid-cols-2">
+      <div class="mt-4 grid gap-x-10 lg:grid-cols-2">
         <InstallBlock lang={lang} label={c.installLabel} lines={c.install} />
         <InstallBlock lang={lang} label={c.usageLabel} lines={c.usage} />
       </div>
 
-      <p class="text-ink-mute mt-6 max-w-[46rem] text-sm">{c.installNote}</p>
+      <p class="text-ink-mute mt-6 u-measure text-sm">{c.installNote}</p>
     </section>
 
     {/* ---- 06 · stack ------------------------------------------------- */}
-    <section aria-labelledby="stack" class={`${SECTION} mt-16 md:mt-24`}>
+    <section aria-labelledby="stack" class={`${SECTION} u-band-tight`}>
       <div class={HEAD}>
         <div class={RAIL}>
           <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.stackHead.index}</p>
@@ -413,7 +425,7 @@ const HEADING = 'u-display text-title-sm';
     </section>
 
     {/* ---- 07 · boundary ---------------------------------------------- */}
-    <section aria-labelledby="limits" class={`${SECTION} mt-16 md:mt-24`}>
+    <section aria-labelledby="limits" class={`${SECTION} u-band-open`}>
       <div class={HEAD}>
         <div class={RAIL}>
           <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.limitsHead.index}</p>
@@ -425,7 +437,7 @@ const HEADING = 'u-display text-title-sm';
       <ul class="mt-12">
         {
           c.limits.map((item) => (
-            <li class="border-rule grid gap-y-2 border-t border-dashed py-6 lg:grid-cols-12 lg:gap-x-8">
+            <li class="border-rule grid gap-y-2 border-t border-dashed py-6 lg:grid-cols-12 lg:gap-x-10">
               <span class="u-meta text-ink-mute tabular-nums lg:col-span-1">{item.index}</span>
               <h3 class="text-ink-soft min-w-0 font-mono text-[0.9375rem] lg:col-span-3">
                 {item.term}
@@ -440,7 +452,7 @@ const HEADING = 'u-display text-title-sm';
     {/* ---- Closing ---------------------------------------------------- */}
     <section
       aria-labelledby="get"
-      class="border-rule u-reveal mt-16 grid gap-y-8 border-t pt-14 pb-20 md:mt-24 md:pb-28 lg:grid-cols-12 lg:gap-x-8"
+      class="border-rule u-reveal u-band-open grid gap-y-8 border-t pt-14 pb-20 md:pb-28 lg:grid-cols-12 lg:gap-x-10"
     >
       <div class="min-w-0 lg:col-span-7">
         <p class="u-meta text-ink-mute mb-4">{c.closeLabel}</p>

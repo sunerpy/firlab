@@ -5,22 +5,75 @@ import { useTranslations, type Lang } from '../i18n/ui';
 import type { PageContent } from '../i18n/content';
 
 /**
- * Hero — left-biased headline (never centred) with the product index in the
- * right columns, so the page announces itself as an index inside the first
- * viewport.
+ * Hero — left-biased headline (never centred) against the product index, so the
+ * page announces itself as an index inside the first viewport.
  *
- * The index rows are links to the product *pages*, not in-page anchors. As
- * anchors they scrolled the reader into a band and left them to scroll through
- * the other three; a table of contents on a site that has real pages should
- * lead to those pages. The trailing arrow is the site's existing "this is a
- * destination" mark, borrowed from the footer's way back and the pager.
+ * Three measured changes:
  *
- * Exactly three text elements: eyebrow, headline, lede. No trust strip, no
- * tagline under the fold line, no CTA pair — the ledger *is* the call to
- * action, and it is specific.
+ * 1. The display size is per-script (global.css). At the old single size a
+ *    17-hanzi Chinese headline in a 540px column ran to three lines and a
+ *    51-character English one to four. Both now set in two at every width from
+ *    414px up on the 7-of-12 measure this layout gives them.
+ * 2. The index is a PLATE, not five hairlines floating in the right columns.
+ *    Its rules previously ran straight into the page's margin rule — measured,
+ *    every row rule met it with 0px between them and the trailing arrow sat 8px
+ *    away. Inside a plate the rules end on the plate's own padding, which is
+ *    what a table edge should do.
+ * 3. Each row is a `.u-row`: the whole row is the link, so the whole row takes
+ *    a ground on hover. A colour change on the name alone under-reported a
+ *    64px-tall target.
  *
- * No reveal animation here: this block is above the fold on load, where a
- * scroll-triggered fade would read as a flash of missing content.
+ * The four items are also the four `.u-enter` steps, which is why they are
+ * direct children of the grid rather than nested in a column wrapper —
+ * `.u-enter > *` sequences direct children only. The index is placed by
+ * `row-start-1 / row-span-4` instead — the grid has three auto content rows
+ * plus a fourth `1fr` spacer — so it still sits beside the headline.
+ * Vertical rhythm is per-item margin rather than `gap-y`, because a row gap
+ * would also open between the three left-hand items and the grid rows they
+ * share with the index.
+ *
+ * The rail is 5 of 12, not 4, and that is arithmetic rather than taste. At 4 it
+ * left the index rows this much room for their two facts:
+ *
+ *     1024px  183.7px      1180px  ~217px      1280px  236.1px
+ *
+ * while the widest English pair — `ACTIVELY RELEASED` at 142.5px plus
+ * `v0.42.10` at 61.6px — needs 216px counting the gap. So at 1024px on `/en/`
+ * every released product's version was pushed clean out of the plate:
+ * CodeGraph by 42.3px, pt-tools by 34.6px and AgentLens by 19.4px past the
+ * plate's own border, and 72.3px past the link box it belongs to. Closing the
+ * grid gap does NOT recover it — at `gap-x-0` a 4-col rail still reaches only
+ * 210.4px, short of the 216px needed, so no gap, indent or type step inside a
+ * 4-col rail can fit those facts at 1024px. One more column buys 70.9px and
+ * takes the worst English row to 42.6px of slack at 1024px, 97.8px in Chinese.
+ * Do not take this back to 4.
+ *
+ * The headline pays for that column and stays within budget: at 1024px it sets
+ * in two lines in both scripts on a 456.5px measure, and the whole index plate
+ * still lands 603px down — inside the first viewport, which is the thing this
+ * layout exists to do. A `lg`→`xl` retreat would have fixed the overflow too,
+ * but it moves the index below the lede from 1024–1279px and pushes the plate
+ * to 915px, i.e. out of the fold. One column is the cheaper trade.
+ *
+ * Exactly four text elements, which is the budget: eyebrow, headline, lede,
+ * index. No trust strip, no sub-tagline, no CTA pair, no scroll cue — the index
+ * IS the call to action, and it is specific.
+ *
+ * The headline sets in two lines from 414px up. Below that the Chinese headline
+ * takes three, which is accepted rather than fixed: reaching two would mean
+ * dropping the display step to ~34px on the one screen size where the headline
+ * is already the smallest thing it will ever be.
+ *
+ * `.u-enter` rather than `.u-reveal`: this block is on screen when the document
+ * paints, and a `view()` timeline resolves as "already entered" there, which is
+ * why the hero previously arrived flat.
+ *
+ * The hero carries almost NO bottom padding, and that is deliberate: the gap to
+ * the first product is owned entirely by that entry's `.u-band-open` margin.
+ * With padding on both sides the two stacked — measured 304px from the index
+ * plate's bottom edge to the first product's first ink at 1180px, which read as
+ * an unfinished page rather than as breathing room. One side owns the gap; it is
+ * 208px, the same movement break every other band on the site opens with.
  */
 interface Props {
   lang: Lang;
@@ -31,43 +84,83 @@ const { lang, content } = Astro.props;
 const t = useTranslations(lang);
 ---
 
-<section class="grid gap-y-12 pt-16 pb-16 md:pt-24 md:pb-24 lg:grid-cols-12 lg:gap-x-8">
-  <div class="min-w-0 lg:col-span-7">
-    <p class="u-meta text-ink-mute mb-7">{t('hero.eyebrow')}</p>
+{/* The fourth row is a `1fr` spacer with no left-column content, and it is the
+    fix for a real defect: the index spans every row, so when it is taller than
+    the three text items the grid distributes the surplus into the rows they sit
+    in — measured at 1024px, the `h1` box grew from 110px to 152px and the lede
+    drifted 42px away from the headline it belongs to. With a `1fr` row present
+    the surplus lands there instead, and the three auto rows stay content-sized. */}
+<section
+  class="u-enter grid pt-14 pb-2 md:pt-20 md:pb-0 lg:grid-cols-12 lg:grid-rows-[auto_auto_auto_1fr] lg:gap-x-10"
+>
+  <p class="u-meta text-ink-mute mb-6 lg:col-span-7">{t('hero.eyebrow')}</p>
 
-    <h1 class="u-display text-display">{content.heroHeadline}</h1>
+  <h1 class="u-display text-display min-w-0 lg:col-span-7 lg:col-start-1">
+    {content.heroHeadline}
+  </h1>
 
-    <p class="u-lede text-ink-body mt-9 max-w-[42rem]">
-      <span class="text-ink-soft">{content.heroLedeAccent}</span>{' '}
-      {content.heroLede}
-    </p>
-  </div>
+  <p class="u-lede text-ink-body mt-8 min-w-0 lg:col-span-7 lg:col-start-1">
+    <span class="text-ink-soft">{content.heroLedeAccent}</span>{' '}
+    {content.heroLede}
+  </p>
 
-  <nav aria-label={t('hero.indexLabel')} class="min-w-0 lg:col-span-4 lg:col-start-9">
-    <h2 class="u-meta text-ink-mute border-rule border-b pb-3">{t('hero.indexTitle')}</h2>
-    <ul>
-      {
-        content.products.map((product) => (
-          <li class="border-rule border-b">
-            <a
-              href={getRelativeLocaleUrl(lang, product.detail)}
-              class="text-ink hover:text-accent group u-arrow-host flex items-baseline gap-4 py-4 no-underline"
-            >
-              <span class="u-meta text-ink-mute tabular-nums">{product.index}</span>
-              <span class="min-w-0 flex-1">
-                <span class="text-ink u-display-latin block font-mono text-[0.9375rem] group-hover:underline group-hover:underline-offset-4">
-                  {product.name}
+  <nav
+    aria-label={t('hero.indexLabel')}
+    class="u-plate mt-12 min-w-0 self-start lg:col-span-5 lg:col-start-8 lg:row-span-4 lg:row-start-1 lg:mt-0"
+  >
+    {/* The negative inline margin lets both the label's rule and the row rules
+        overhang the copy by 8px, so they read as a table's rules rather than as
+        underlines, while still ending inside the plate's own padding. */}
+    <div class="-mx-2">
+      <h2 class="u-meta text-ink-mute border-rule border-b px-2 pb-3">{t('hero.indexTitle')}</h2>
+
+      <ul>
+        {
+          content.products.map((product, i) => (
+            <li class={i > 0 ? 'border-rule border-t' : ''}>
+              {/* Two lines: the identifiers, then the facts. The status used to sit
+                  beside the version in one squeezed flex track — measured at
+                  1180px the name column was 95.8px and every status label wrapped
+                  to two lines inside a link, which is a defect. On its own line it
+                  has the full row width and no label wraps at any width from 320px
+                  up. */}
+              <a
+                href={getRelativeLocaleUrl(lang, product.detail)}
+                class="text-ink hover:text-accent u-row u-arrow-host block rounded-[var(--radius-chip)] px-2 py-3.5 no-underline"
+              >
+                <span class="flex items-baseline gap-3">
+                  <span class="u-meta text-ink-mute shrink-0 tabular-nums">{product.index}</span>
+                  <span class="text-ink u-display-latin min-w-0 flex-1 font-mono text-[0.9375rem]">
+                    {product.name}
+                  </span>
+                  <span aria-hidden="true" class="u-arrow text-ink-mute shrink-0 text-sm">→</span>
                 </span>
-                <StatusTag lang={lang} state={product.status} display="block" class="mt-1.5" />
-              </span>
-              <span class="text-ink-mute shrink-0 font-mono text-sm tabular-nums">
-                {product.version ?? '—'}
-              </span>
-              <span aria-hidden="true" class="u-arrow text-ink-mute shrink-0 text-sm">→</span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+
+                {/* Flush left, not indented under the name. The old
+                    `pl-[calc(1.5rem+0.75rem)]` reserved 36px for an index
+                    column that measures 15.1px — the name starts at 27.1px, so
+                    the indent was 8.9px past the thing it claimed to align to
+                    AND it was 36px of the width the two facts needed. Flush
+                    left, the status dot column-aligns with the index and the
+                    version aligns under the arrow: the row reads as two
+                    columns, identity over status and arrow over version.
+
+                    `gap-2` is a min-content guard, not a look: `justify-between`
+                    pushes the pair to the row's two edges at every width that
+                    has room, so the gap only ever binds at the narrowest one.
+                    At 320px the longest English pair needs 212.1px of the row's
+                    215px — 4px of gap is what buys that margin. */}
+                <span class="mt-2 flex items-baseline justify-between gap-2">
+                  <StatusTag lang={lang} state={product.status} class="whitespace-nowrap" />
+                  <span class="text-ink-mute shrink-0 font-mono text-sm tabular-nums">
+                    {product.version ?? '—'}
+                  </span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
   </nav>
 </section>

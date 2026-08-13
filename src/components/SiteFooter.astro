@@ -46,11 +46,16 @@ const isDetail = variant === 'detail';
 const home = getRelativeLocaleUrl(lang, '');
 ---
 
-<footer class={`border-rule relative border-t ${isDetail ? 'u-footer-slim' : ''}`}>
+{/* Both variants are recessed now, not just the detail one. The index footer
+    previously shared the page's own ground and was separated from the last
+    section by a single hairline identical to the eight above it, so the page
+    did not end — it just stopped. A recessed ground plus the shadow falling in
+    from above is the boundary; the hairline alone never was. */}
+<footer class={`u-footer-slim border-rule relative border-t ${isDetail ? '' : 'mt-24 md:mt-32'}`}>
   <div
     class:list={[
-      'u-shell grid md:grid-cols-12 md:gap-x-8',
-      isDetail ? 'gap-y-8 py-11 md:py-12' : 'gap-y-10 py-14 md:py-16',
+      'u-shell grid md:grid-cols-12 md:gap-x-10',
+      isDetail ? 'gap-y-8 py-11 md:py-12' : 'gap-y-10 py-14 md:py-20',
     ]}
   >
     <div class={isDetail ? 'md:col-span-12' : 'md:col-span-5'}>

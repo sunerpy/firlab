@@ -133,8 +133,11 @@ const jsonLd = {
     <meta name="twitter:image:alt" content={ogImageAlt} />
 
     <meta name="author" content="sunerpy" />
-    <meta name="theme-color" content="#fbfcfe" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#080d16" media="(prefers-color-scheme: dark)" />
+    {/* The desk tone (`--paper-1`), not the sheet: browser chrome continues the
+        colour at the viewport's own edge, and that edge is the desk now that
+        the page sits on an inset stage. */}
+    <meta name="theme-color" content="#f3f6fa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1723" media="(prefers-color-scheme: dark)" />
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
 
@@ -172,25 +175,33 @@ const jsonLd = {
 
         var meta = document.createElement('meta');
         meta.setAttribute('name', 'theme-color');
-        meta.setAttribute('content', mode === 'dark' ? '#080d16' : '#fbfcfe');
+        meta.setAttribute('content', mode === 'dark' ? '#0f1723' : '#f3f6fa');
         document.head.insertBefore(meta, document.head.firstChild);
       })();
     </script>
   </head>
 
-  <body class="bg-paper text-ink-body min-h-dvh antialiased">
+  <body class="text-ink-body min-h-dvh antialiased">
     <a
       href="#main"
-      class="focus-visible:bg-paper focus-visible:border-rule focus-visible:text-ink sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-3 focus-visible:left-3 focus-visible:z-50 focus-visible:rounded-[6px] focus-visible:border focus-visible:px-3 focus-visible:py-2 focus-visible:no-underline"
+      class="focus-visible:bg-paper focus-visible:border-rule focus-visible:text-ink sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-3 focus-visible:left-3 focus-visible:z-50 focus-visible:rounded-[var(--radius-control)] focus-visible:border focus-visible:px-3 focus-visible:py-2 focus-visible:no-underline"
     >
       {t('nav.skipToContent')}
     </a>
 
     <div class="u-progress" aria-hidden="true"></div>
 
-    <div class="u-guides" aria-hidden="true"></div>
+    {/*
+      The stage — the sheet every page sits on, and the outer of the two boxes
+      that make up the horizontal layout (see DESIGN.md §2). It replaces the
+      former `.u-guides` overlay, which drew its hairlines from the same token
+      the copy was padded by and therefore landed 3px from the first glyph.
 
-    <div class="relative z-10">
+      It has to be a real element rather than a decorative overlay: the footer
+      and the pager are full-bleed bands, and they must bleed to the sheet, not
+      to the viewport. Wrapping them is what makes that true for free.
+    */}
+    <div class="u-stage">
       <slot />
     </div>
 

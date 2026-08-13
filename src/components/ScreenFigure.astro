@@ -33,7 +33,7 @@ const { figure, label, index } = Astro.props;
     <span class="u-lat tabular-nums">{label} {index}</span>
   </figcaption>
 
-  <div class="bg-panel border-rule overflow-hidden rounded-[6px] border p-2 sm:p-3">
+  <div class="bg-panel border-rule overflow-hidden rounded-[var(--radius-plate)] border p-2 sm:p-3">
     <img
       src={figure.src}
       width={figure.width}
@@ -41,9 +41,9 @@ const { figure, label, index } = Astro.props;
       alt={figure.alt}
       loading="lazy"
       decoding="async"
-      class="border-rule block h-auto w-full rounded-[3px] border"
+      class="border-rule block h-auto w-full rounded-[var(--radius-chip)] border"
     />
   </div>
 
-  <p class="text-ink-body mt-4 max-w-prose text-sm">{figure.caption}</p>
+  <p class="text-ink-body u-measure mt-4 text-sm">{figure.caption}</p>
 </figure>

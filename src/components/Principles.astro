@@ -3,14 +3,20 @@ import { useTranslations, type Lang } from '../i18n/ui';
 import type { Principle } from '../i18n/content';
 
 /**
- * Principles — the commitments the three tools share.
+ * Principles — the commitments the four tools share.
  *
- * A different layout family from the product bands on purpose: a sticky section
- * heading in the left columns against a stacked, hanging-numeral list on the
- * right. Not three equal cards, and not another rail/main/meta band.
+ * A layout family none of the four product shapes uses, on purpose: a sticky
+ * heading in the left columns against a hanging-numeral list on the right. Not
+ * cards, not a rail / main / meta band, not a plate.
+ *
+ * The numerals are set at display size in the accent, hanging outside the text
+ * column rather than sitting in a fixed-width cell. That is the one place on
+ * this page where a numeral is allowed to be large — the product index numbers
+ * are all mono meta — so the section reads as a numbered argument instead of a
+ * third list of specs.
  *
  * Every claim maps to a shipped behaviour named elsewhere on the page, so this
- * section is a summary rather than a values statement.
+ * is a summary rather than a values statement.
  */
 interface Props {
   lang: Lang;
@@ -23,8 +29,12 @@ const t = useTranslations(lang);
 
 <section
   aria-labelledby="principles"
-  class="border-rule u-reveal grid gap-y-10 border-t py-14 md:py-24 lg:grid-cols-12 lg:gap-x-8"
+  class="border-rule u-reveal u-band u-band-open grid gap-y-10 lg:grid-cols-12 lg:gap-x-10"
 >
+  {/* No eyebrow: `principles.label` and `principles.title` are the same string in
+      both locales, so rendering both printed the heading twice at two sizes. The
+      heading alone is enough — the section's position on the page already says
+      what it is. */}
   <div class="lg:col-span-4">
     <h2 id="principles" class="u-display text-title-sm lg:sticky lg:top-32">
       {t('principles.title')}
@@ -34,21 +44,20 @@ const t = useTranslations(lang);
   <ol class="u-stagger min-w-0 lg:col-span-7 lg:col-start-6">
     {
       principles.map((principle, i) => (
-        <li
-          class={`grid grid-cols-[2.75rem_minmax(0,1fr)] gap-x-5 gap-y-2 ${
-            i > 0 ? 'border-rule mt-9 border-t pt-9' : ''
-          }`}
-        >
-          <span
-            aria-hidden="true"
-            class="u-display u-display-latin text-accent text-[1.75rem] tabular-nums"
-          >
-            {principle.index}
-          </span>
-          <div class="min-w-0">
-            <h3 class="u-display text-ink text-[1.25rem]">{principle.term}</h3>
-            <p class="text-ink-body mt-2.5">{principle.body}</p>
+        <li class={`min-w-0 ${i > 0 ? 'mt-10' : ''}`}>
+          <div class="flex items-baseline gap-5">
+            <span
+              aria-hidden="true"
+              class="u-display u-display-latin text-accent shrink-0 text-[2.25rem] tabular-nums"
+            >
+              {principle.index}
+            </span>
+            <h3 class="u-display text-ink min-w-0 text-[1.25rem]">{principle.term}</h3>
           </div>
+          {/* 3.5rem is the numeral's own width plus the 1.25rem gap, so the body
+              hangs under the term rather than under the numeral. Only from `sm`:
+              at 320px that indent costs more than the alignment is worth. */}
+          <p class="text-ink-body u-measure mt-3 sm:ml-14">{principle.body}</p>
         </li>
       ))
     }
