@@ -1,0 +1,321 @@
+---
+import Layout from '../layouts/Layout.astro';
+import FloatingNav from './FloatingNav.astro';
+import SiteFooter from './SiteFooter.astro';
+import ProductMark from './ProductMark.astro';
+import StatusTag from './StatusTag.astro';
+import SpecGrid from './SpecGrid.astro';
+import InstallBlock from './InstallBlock.astro';
+import DetailSection from './DetailSection.astro';
+import ScreenFigure from './ScreenFigure.astro';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { useTranslations, type Lang } from '../i18n/ui';
+import { getContent } from '../i18n/content';
+import {
+  getAgentLensContent,
+  getAgentLensSections,
+  AGENTLENS_REPO,
+  AGENTLENS_VERSION,
+  AGENTLENS_RELEASED,
+} from '../i18n/agentlens';
+
+/**
+ * The AgentLens detail page, assembled once and rendered per locale — the same
+ * single-source approach as HomePage, for the same reason: a section added to
+ * Chinese cannot silently go missing from English.
+ *
+ * The page deliberately goes further than the home page's band: full
+ * positioning, the four real screenshots, the two guarantees that are easy to
+ * get quietly wrong (a durable archive, read-only remote collection), the
+ * three-bucket cost model, and an honest maturity section that states the
+ * verification asymmetry between Windows and the other two platforms instead of
+ * rounding it up to "cross-platform, verified".
+ */
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const c = getAgentLensContent(lang);
+
+// FloatingNav and SiteFooter are reused unchanged; both take the index's
+// product list so their anchors and links stay identical to the home page.
+const site = getContent(lang);
+const sections = getAgentLensSections(c);
+
+const homeHref = getRelativeLocaleUrl(lang, '');
+
+// SoftwareApplication, plus a breadcrumb so the detail page is not treated as a
+// second root. No `offers` and no `aggregateRating`: there is no price and there
+// are no reviews, so neither is asserted.
+const structuredData = [
+  {
+    '@type': 'SoftwareApplication',
+    '@id': 'https://firlab.app/#agentlens',
+    name: 'AgentLens',
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Linux, Windows, macOS',
+    programmingLanguage: 'Rust',
+    softwareVersion: AGENTLENS_VERSION.replace(/^v/, ''),
+    datePublished: AGENTLENS_RELEASED,
+    description: c.description,
+    url: AGENTLENS_REPO,
+    author: { '@id': 'https://firlab.app/#sunerpy' },
+    license: 'https://opensource.org/licenses/MIT',
+  },
+  {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'FirLab', item: 'https://firlab.app' },
+      { '@type': 'ListItem', position: 2, name: 'AgentLens' },
+    ],
+  },
+];
+---
+
+<Layout
+  lang={lang}
+  title={c.title}
+  description={c.description}
+  ogImageAlt={c.ogAlt}
+  structuredData={structuredData}
+>
+  <FloatingNav lang={lang} products={site.products} />
+
+  <main id="main" class="mx-auto max-w-[76rem] px-6 md:px-10">
+    {/* ---- Masthead ------------------------------------------------------ */}
+    <header class="grid gap-y-10 pt-14 pb-12 md:pt-20 md:pb-16 lg:grid-cols-12 lg:gap-x-8">
+      <div class="min-w-0 lg:col-span-8">
+        <p class="u-meta text-ink-mute">
+          <a href={homeHref} class="text-ink-mute hover:text-accent no-underline">FirLab</a>
+          <span aria-hidden="true" class="mx-2">/</span>
+          <span class="u-lat tabular-nums">{c.eyebrow}</span>
+        </p>
+
+        <div class="mt-6 flex items-center gap-5">
+          <ProductMark product="agentlens" size={56} class="text-ink-soft" />
+          <h1 class="u-display u-display-latin text-display">AgentLens</h1>
+        </div>
+
+        <p class="text-ink-soft mt-5 font-mono text-sm">{c.role}</p>
+
+        <p class="u-lede text-ink-soft mt-8 max-w-[42rem]">
+          <span class="text-ink">{c.ledeAccent}</span> {c.lede}
+        </p>
+      </div>
+
+      {/* Meta rail — maturity, version, links, and the page's own index. */}
+      <div class="border-rule min-w-0 border-t pt-8 lg:col-span-3 lg:col-start-10 lg:border-t-0 lg:pt-1">
+        <StatusTag lang={lang} state="early" display="block" />
+
+        <dl class="mt-6 space-y-3">
+          <div>
+            <dt class="u-meta text-ink-mute">{t('product.version')}</dt>
+            <dd class="text-ink-soft font-mono text-sm tabular-nums">{AGENTLENS_VERSION}</dd>
+          </div>
+          <div>
+            <dt class="u-meta text-ink-mute">{t('product.released')}</dt>
+            <dd class="text-ink-soft font-mono text-sm tabular-nums">{AGENTLENS_RELEASED}</dd>
+          </div>
+        </dl>
+
+        <ul class="mt-6 space-y-2 text-sm">
+          {
+            c.links.items.map((link) => (
+              <li>
+                <a href={link.href} target="_blank" rel="noopener noreferrer">
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <nav aria-label={c.tocLabel} class="border-rule mt-8 border-t pt-6">
+          <h2 class="u-meta text-ink-mute">{c.tocLabel}</h2>
+          <ol class="mt-4 space-y-2">
+            {
+              sections.map((section) => (
+                <li class="flex gap-3">
+                  <span class="u-meta text-ink-mute pt-px tabular-nums">{section.num}</span>
+                  <a href={`#${section.id}`} class="text-sm no-underline hover:underline">
+                    {section.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ol>
+        </nav>
+      </div>
+    </header>
+
+    {/* ---- 01 Problem ---------------------------------------------------- */}
+    <DetailSection section={c.problem}>
+      <div class="mt-6 space-y-5">
+        {c.problem.paras.map((para) => <p class="max-w-prose">{para}</p>)}
+      </div>
+
+      <h3 class="u-meta text-ink-mute border-rule mt-10 border-t pt-8">{c.problem.whoLabel}</h3>
+      <dl class="mt-5 space-y-5">
+        {
+          c.problem.who.map((item) => (
+            <div>
+              <dt class="text-ink-soft font-mono text-sm">{item.term}</dt>
+              <dd class="mt-1.5 max-w-prose text-sm">{item.body}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </DetailSection>
+
+    {/* ---- 02 Interface -------------------------------------------------- */}
+    <DetailSection section={c.screens} layout="wide">
+      <p class="text-ink-body mt-6 max-w-prose">{c.screens.intro}</p>
+
+      <div class="mt-10 space-y-14">
+        {
+          c.screens.figures.map((figure, i) => (
+            <ScreenFigure
+              figure={figure}
+              label={c.screens.figureLabel}
+              index={String(i + 1).padStart(2, '0')}
+            />
+          ))
+        }
+      </div>
+    </DetailSection>
+
+    {/* ---- 03 Capabilities ---------------------------------------------- */}
+    <DetailSection section={c.capabilities} layout="wide">
+      {/* Two columns only from `xl`. At `lg` the 9-of-12 body is ~690px, and
+          splitting that gives each capability ~325px — around 23 hanzi a line,
+          which turns a 90-word entry into a tall narrow ribbon. */}
+      <dl class="border-rule mt-8 grid gap-x-10 gap-y-7 border-t pt-8 xl:grid-cols-2">
+        {
+          c.capabilities.groups.map((group) => (
+            <div class="min-w-0">
+              <dt class="u-meta text-accent">{group.term}</dt>
+              <dd class="mt-2 text-sm">{group.body}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </DetailSection>
+
+    {/* ---- 04 Guarantees ------------------------------------------------- */}
+    <DetailSection section={c.guarantees}>
+      <ol class="mt-8 space-y-10">
+        {
+          c.guarantees.items.map((item) => (
+            <li class="border-rule border-t pt-6">
+              <p class="u-meta text-ink-mute tabular-nums">{item.index}</p>
+              <h3 class="u-display mt-3 text-[1.375rem]">{item.term}</h3>
+              <p class="mt-3 max-w-prose">{item.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </DetailSection>
+
+    {/* ---- 05 Cost ------------------------------------------------------- */}
+    <DetailSection section={c.cost}>
+      <p class="text-ink-body mt-6 max-w-prose">{c.cost.intro}</p>
+
+      <ol class="border-rule mt-8 divide-rule divide-y border-y">
+        {
+          c.cost.buckets.map((bucket, i) => (
+            <li class="grid gap-x-5 gap-y-2 py-5 sm:grid-cols-[2rem_minmax(0,1fr)]">
+              <span class="u-meta text-ink-mute tabular-nums sm:pt-1">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <div class="min-w-0">
+                <p class="text-ink-soft font-mono text-sm">{bucket.term}</p>
+                <p class="mt-1.5 text-sm">{bucket.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+
+      <div class="bg-panel border-accent mt-8 rounded-[4px] border-l-2 px-5 py-4">
+        <p class="u-meta text-accent">{c.cost.ruleLabel}</p>
+        <p class="text-ink-soft mt-2 max-w-prose text-sm">{c.cost.rule}</p>
+      </div>
+    </DetailSection>
+
+    {/* ---- 06 Install ---------------------------------------------------- */}
+    <DetailSection section={c.install}>
+      <p class="text-ink-body mt-6 max-w-prose">{c.install.intro}</p>
+
+      <h3 class="u-meta text-ink-mute mt-9">{c.install.packagesLabel}</h3>
+      <dl class="border-rule mt-4 divide-rule divide-y border-y">
+        {
+          c.install.packages.map((pkg) => (
+            <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3">
+              <dt class="text-ink-soft font-mono text-sm">{pkg.platform}</dt>
+              <dd class="text-ink-mute font-mono text-sm">{pkg.artifact}</dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <InstallBlock label={c.install.commandsLabel} lines={c.install.lines} />
+
+      <h3 class="u-meta text-ink-mute mt-9">{c.install.afterLabel}</h3>
+      <p class="mt-3 max-w-prose text-sm">{c.install.after}</p>
+    </DetailSection>
+
+    {/* ---- 07 Stack ------------------------------------------------------ */}
+    <DetailSection section={c.stack} layout="wide">
+      <SpecGrid items={c.stack.specs} class="border-rule mt-8 border-t pt-8" />
+    </DetailSection>
+
+    {/* ---- 08 Maturity --------------------------------------------------- */}
+    <DetailSection section={c.maturity}>
+      <div class="mt-6 space-y-5">
+        {c.maturity.paras.map((para) => <p class="max-w-prose">{para}</p>)}
+      </div>
+
+      <h3 class="u-meta text-ink-mute mt-10">{c.maturity.verifiedLabel}</h3>
+      <dl class="mt-4 space-y-4">
+        {
+          c.maturity.verified.map((item, i) => (
+            <div
+              class={`bg-panel rounded-[4px] px-5 py-4 ${
+                i === 0 ? 'border-rule border' : 'border-rule border border-dashed'
+              }`}
+            >
+              <dt class="text-ink-soft font-mono text-sm">{item.term}</dt>
+              <dd class="mt-1.5 max-w-prose text-sm">{item.body}</dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <h3 class="u-meta text-ink-mute mt-9">{c.maturity.testsLabel}</h3>
+      <p class="mt-3 max-w-prose text-sm">{c.maturity.tests}</p>
+    </DetailSection>
+
+    {/* ---- 09 Links ------------------------------------------------------ */}
+    <DetailSection section={c.links}>
+      <ul class="mt-6 space-y-3">
+        {
+          c.links.items.map((link) => (
+            <li>
+              <a href={link.href} target="_blank" rel="noopener noreferrer" class="font-mono text-sm">
+                {link.href.replace('https://', '')}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="border-rule mt-10 border-t pt-8">
+        <a href={homeHref} class="text-sm">{c.backToIndex}</a>
+      </p>
+    </DetailSection>
+  </main>
+
+  <SiteFooter lang={lang} products={site.products} />
+</Layout>

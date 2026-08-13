@@ -1,0 +1,70 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import Wordmark from './Wordmark.astro';
+import SocialRow from './SocialRow.astro';
+import LangSwitch from './LangSwitch.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+import type { Product } from '../i18n/content';
+
+/**
+ * Floating navigation.
+ *
+ * `position: sticky` on a shell inset from the top edge, so the bar reads as an
+ * object on the page rather than a browser chrome strip. It settles — ground
+ * opacity up, hairline in, shadow in — as the page scrolls, driven by
+ * `animation-timeline: scroll(root)` in global.css. No scroll listener exists.
+ *
+ * Progressive disclosure rather than a squashed desktop bar:
+ *   under 640px  wordmark + language switch
+ *   640px and up  + social icons
+ *   900px and up  + product anchors
+ * Nothing becomes unreachable at any width — products are also the hero's
+ * ledger, and the socials are repeated with text labels in the footer.
+ */
+interface Props {
+  lang: Lang;
+  products: Product[];
+}
+
+const { lang, products } = Astro.props;
+const t = useTranslations(lang);
+
+const home = getRelativeLocaleUrl(lang, '');
+---
+
+<div class="pointer-events-none sticky top-0 z-40 pt-3 md:pt-4">
+  <div class="pointer-events-auto mx-auto w-full max-w-[76rem] px-4 md:px-8">
+    <nav
+      aria-label={t('nav.label')}
+      class="u-nav-shell flex items-center gap-3 rounded-[10px] px-3 py-2 md:gap-5 md:px-4"
+    >
+      <a
+        href={home}
+        class="text-ink hover:text-ink shrink-0 no-underline"
+        aria-label={t('nav.home')}
+      >
+        <Wordmark />
+      </a>
+
+      <ul class="ml-2 hidden items-center gap-1 min-[900px]:flex">
+        {
+          products.map((product) => (
+            <li>
+              <a
+                href={`${home}#${product.id}`}
+                class="text-ink-mute hover:text-accent hover:bg-panel rounded-[6px] px-2.5 py-1.5 font-mono text-[0.8125rem] no-underline"
+              >
+                {product.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="ml-auto flex items-center gap-2 md:gap-3">
+        <SocialRow lang={lang} variant="nav" placement="below" class="hidden sm:flex" />
+        <LangSwitch lang={lang} />
+      </div>
+    </nav>
+  </div>
+</div>

@@ -1,56 +1,96 @@
 ---
+import { getAbsoluteLocaleUrl } from 'astro:i18n';
 import '../styles/global.css';
+import {
+  useTranslations,
+  stripLocale,
+  htmlLang,
+  ogLocale,
+  languages,
+  defaultLang,
+  type Lang,
+} from '../i18n/ui';
 
 /**
- * Base layout. Every head tag is props-driven so a second page can reuse this
- * without inheriting the landing page's metadata.
+ * Base layout. Every head tag is props-driven so each locale — and later, each
+ * product detail page — reuses this without inheriting the home page's metadata.
  *
- * JSON-LD deliberately omits `offers` and `aggregateRating`: there is no
- * pricing and there are no reviews, and inventing either would be structured-
- * data spam.
+ * Locale handling:
+ *   - `<html lang>` carries the real BCP 47 tag (`zh-CN`), not the Astro locale
+ *     id (`zh-cn`). The CSS script metrics key off `:lang(zh-CN)`.
+ *   - Each document is self-canonical. Canonicalising both locales onto one URL
+ *     would tell crawlers the translation is a duplicate.
+ *   - `hreflang` alternates are emitted in both directions plus `x-default`,
+ *     which points at the Chinese root: that is the site's primary audience and
+ *     the URL already indexed at the apex.
+ *
+ * JSON-LD models a `Person` publishing a `WebSite`, not an `Organization`.
+ * FirLab is one person's project umbrella; asserting a company would be false
+ * structured data. `sameAs` is where the social profiles are declared.
  */
 interface Props {
+  lang: Lang;
   title: string;
   description: string;
   /** Path to the social card, relative to the site root. */
   ogImage?: string;
-  /** Extra JSON-LD graph nodes to emit alongside the Organization node. */
+  ogImageAlt: string;
+  /** Extra JSON-LD graph nodes to emit alongside the site and person nodes. */
   structuredData?: Record<string, unknown>[];
 }
 
 const {
+  lang,
   title,
   description,
   ogImage = '/og.png',
+  ogImageAlt,
   structuredData = [],
 } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname, Astro.site);
+const t = useTranslations(lang);
+
+const slug = stripLocale(Astro.url.pathname);
+const canonical = getAbsoluteLocaleUrl(lang, slug);
 const ogImageUrl = new URL(ogImage, Astro.site);
 
-const organization = {
-  '@type': 'Organization',
-  '@id': 'https://firlab.app/#firlab',
+const alternates = (Object.keys(languages) as Lang[]).map((code) => ({
+  hreflang: htmlLang[code],
+  href: getAbsoluteLocaleUrl(code, slug),
+}));
+const xDefault = getAbsoluteLocaleUrl(defaultLang, slug);
+
+const person = {
+  '@type': 'Person',
+  '@id': 'https://firlab.app/#sunerpy',
+  name: 'sunerpy',
+  url: 'https://github.com/sunerpy',
+  sameAs: [
+    'https://github.com/sunerpy',
+    'https://space.bilibili.com/35507467',
+    'https://www.zhihu.com/people/bluer-ain',
+    'https://x.com/sunerpy',
+  ],
+};
+
+const website = {
+  '@type': 'WebSite',
+  '@id': 'https://firlab.app/#website',
   name: 'FirLab',
   url: 'https://firlab.app',
-  description:
-    'FirLab is the project umbrella for local-first developer tools built by Shaonan Zhang.',
-  founder: {
-    '@type': 'Person',
-    name: 'Shaonan Zhang',
-    url: 'https://github.com/sunerpy',
-  },
-  sameAs: ['https://github.com/sunerpy'],
+  description,
+  inLanguage: htmlLang[lang],
+  publisher: { '@id': 'https://firlab.app/#sunerpy' },
 };
 
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@graph': [organization, ...structuredData],
+  '@graph': [website, person, ...structuredData],
 };
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={htmlLang[lang]}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -59,6 +99,9 @@ const jsonLd = {
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+
+    {alternates.map((alt) => <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />)}
+    <link rel="alternate" hreflang="x-default" href={xDefault} />
 
     {/* SVG first — modern browsers prefer it and it carries the theme-aware
         spine colour. The 512px PNG is the raster fallback for clients that
@@ -75,15 +118,21 @@ const jsonLd = {
     <meta property="og:image" content={ogImageUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="FirLab — developer tools by Shaonan Zhang" />
-    <meta property="og:locale" content="en" />
+    <meta property="og:image:alt" content={ogImageAlt} />
+    <meta property="og:locale" content={ogLocale[lang]} />
+    {
+      (Object.keys(languages) as Lang[])
+        .filter((code) => code !== lang)
+        .map((code) => <meta property="og:locale:alternate" content={ogLocale[code]} />)
+    }
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
 
-    <meta name="author" content="Shaonan Zhang" />
+    <meta name="author" content="sunerpy" />
     <meta name="theme-color" content="#fbfcfe" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#080d16" media="(prefers-color-scheme: dark)" />
 
@@ -91,6 +140,58 @@ const jsonLd = {
   </head>
 
   <body class="bg-paper text-ink-body min-h-dvh antialiased">
-    <slot />
+    <a
+      href="#main"
+      class="focus-visible:bg-paper focus-visible:border-rule focus-visible:text-ink sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-3 focus-visible:left-3 focus-visible:z-50 focus-visible:rounded-[6px] focus-visible:border focus-visible:px-3 focus-visible:py-2 focus-visible:no-underline"
+    >
+      {t('nav.skipToContent')}
+    </a>
+
+    <div class="u-guides" aria-hidden="true"></div>
+
+    <div class="relative z-10">
+      <slot />
+    </div>
+
+    {/*
+      The only script on the site. `<details>` already gives the WeChat QR a
+      working open/close and full keyboard support with scripting off; this adds
+      the two behaviours the element has no native equivalent for — Escape to
+      dismiss, and click-outside to dismiss. Inline so it costs no request.
+    */}
+    <script is:inline>
+      (function () {
+        var panels = document.querySelectorAll('details[data-popover]');
+        if (!panels.length) return;
+
+        function closeAll(except) {
+          panels.forEach(function (panel) {
+            if (panel !== except) panel.open = false;
+          });
+        }
+
+        panels.forEach(function (panel) {
+          panel.addEventListener('toggle', function () {
+            if (panel.open) closeAll(panel);
+          });
+        });
+
+        document.addEventListener('click', function (event) {
+          panels.forEach(function (panel) {
+            if (panel.open && !panel.contains(event.target)) panel.open = false;
+          });
+        });
+
+        document.addEventListener('keydown', function (event) {
+          if (event.key !== 'Escape') return;
+          panels.forEach(function (panel) {
+            if (!panel.open) return;
+            panel.open = false;
+            var summary = panel.querySelector('summary');
+            if (summary) summary.focus();
+          });
+        });
+      })();
+    </script>
   </body>
 </html>

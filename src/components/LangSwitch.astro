@@ -1,0 +1,58 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { useTranslations, stripLocale, type Lang } from '../i18n/ui';
+
+/**
+ * Language switch.
+ *
+ * Both locales are always rendered — the current one as a non-link with
+ * `aria-current`, so the control communicates state rather than only offering
+ * an action. The target URL is built from the *current* page's slug with its
+ * locale prefix stripped, so `/en/codegraph/` switches to `/codegraph/` rather
+ * than dumping the visitor back on the home page.
+ */
+interface Props {
+  lang: Lang;
+  class?: string;
+}
+
+const { lang, class: className = '' } = Astro.props;
+const t = useTranslations(lang);
+
+const slug = stripLocale(Astro.url.pathname);
+
+const options = [
+  { code: 'zh-cn' as Lang, label: t('lang.zh'), name: '中文' },
+  { code: 'en' as Lang, label: t('lang.en'), name: 'English' },
+];
+---
+
+<div
+  class={`border-rule flex items-center overflow-hidden rounded-[6px] border ${className}`}
+  role="group"
+  aria-label={t('lang.label')}
+>
+  {
+    options.map((option, i) =>
+      option.code === lang ? (
+        <span
+          aria-current="true"
+          lang={option.code === 'zh-cn' ? 'zh-CN' : 'en'}
+          class={`bg-block text-ink u-meta px-2.5 py-1.5 ${i > 0 ? 'border-rule border-l' : ''}`}
+        >
+          {option.label}
+        </span>
+      ) : (
+        <a
+          href={getRelativeLocaleUrl(option.code, slug)}
+          hreflang={option.code === 'zh-cn' ? 'zh-CN' : 'en'}
+          lang={option.code === 'zh-cn' ? 'zh-CN' : 'en'}
+          aria-label={`${t('lang.switchTo')}`}
+          class={`text-ink-mute hover:text-accent hover:bg-panel u-meta px-2.5 py-1.5 no-underline ${i > 0 ? 'border-rule border-l' : ''}`}
+        >
+          {option.label}
+        </a>
+      ),
+    )
+  }
+</div>

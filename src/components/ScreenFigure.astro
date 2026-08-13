@@ -1,0 +1,49 @@
+---
+import type { Figure } from '../i18n/agentlens';
+
+/**
+ * ScreenFigure — an editorial figure, not decoration.
+ *
+ * Every screenshot on this site is a real capture of the shipped application,
+ * so each one gets a number, a descriptive `alt` for anyone not seeing it, and
+ * a caption that says what the screen is doing rather than restating the
+ * heading above it.
+ *
+ * `width`/`height` are the intrinsic pixel dimensions, always passed: without
+ * them the image reserves no space and every figure below it shifts when the
+ * PNG lands.
+ *
+ * Every figure is lazy, including the first. The whole set sits well below the
+ * fold — the masthead and a full prose section come first — and the LCP element
+ * is the display heading, which is text. Fetching a screenshot eagerly would
+ * only spend the initial budget on something nobody is looking at yet.
+ */
+interface Props {
+  figure: Figure;
+  /** Mono figure label, e.g. 图 / Fig. */
+  label: string;
+  index: string;
+}
+
+const { figure, label, index } = Astro.props;
+---
+
+<figure class="min-w-0">
+  <figcaption class="u-meta text-ink-mute mb-3 flex items-center gap-2">
+    <span class="u-lat tabular-nums">{label} {index}</span>
+  </figcaption>
+
+  <div class="bg-panel border-rule overflow-hidden rounded-[6px] border p-2 sm:p-3">
+    <img
+      src={figure.src}
+      width={figure.width}
+      height={figure.height}
+      alt={figure.alt}
+      loading="lazy"
+      decoding="async"
+      class="border-rule block h-auto w-full rounded-[3px] border"
+    />
+  </div>
+
+  <p class="text-ink-body mt-4 max-w-prose text-sm">{figure.caption}</p>
+</figure>

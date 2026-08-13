@@ -1,14 +1,11 @@
 ---
+import type { Spec } from '../i18n/content';
+
 /**
  * SpecGrid — a definition list, not a feature grid. Developers scan for
  * specifics; this is where the version-, platform- and language-level detail
  * lives instead of in adjectives.
  */
-export interface Spec {
-  term: string;
-  value: string;
-}
-
 interface Props {
   items: Spec[];
   class?: string;
@@ -17,14 +14,12 @@ interface Props {
 const { items, class: className = '' } = Astro.props;
 ---
 
-<dl class={`grid gap-x-8 gap-y-4 sm:grid-cols-[10rem_1fr] ${className}`}>
+<dl class={`grid gap-x-8 gap-y-5 sm:grid-cols-[9rem_minmax(0,1fr)] ${className}`}>
   {
     items.map((item) => (
       <div class="contents">
-        <dt class="u-meta text-ink-mute pt-0.5">{item.term}</dt>
-        <dd class="text-sm leading-relaxed sm:border-l sm:border-rule sm:pl-6">
-          {item.value}
-        </dd>
+        <dt class="u-meta text-ink-mute pt-1">{item.term}</dt>
+        <dd class="min-w-0 text-sm sm:border-l sm:border-rule sm:pl-6">{item.value}</dd>
       </div>
     ))
   }

@@ -1,0 +1,99 @@
+---
+import SocialIcon, { type SocialId } from './SocialIcon.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+/**
+ * The five real destinations. There is deliberately no Facebook, no Mastodon
+ * and no LinkedIn placeholder: a link that goes nowhere is worse than an
+ * absent one.
+ *
+ * WeChat has no URL — it is a QR image — so it renders as a disclosure instead
+ * of an anchor. Its open/close behaviour is native `<details>`; the layout adds
+ * Escape and outside-click on top, so the control still works with scripting
+ * off.
+ */
+interface Props {
+  lang: Lang;
+  /** `nav` is icon-only; `footer` pairs each icon with its text label. */
+  variant?: 'nav' | 'footer';
+  /** Which side of the trigger the QR panel opens on. */
+  placement?: 'below' | 'above';
+  class?: string;
+}
+
+const { lang, variant = 'nav', placement = 'below', class: className = '' } = Astro.props;
+const t = useTranslations(lang);
+
+const links: { id: Exclude<SocialId, 'wechat'>; href: string; label: string }[] = [
+  { id: 'github', href: 'https://github.com/sunerpy', label: t('social.github') },
+  { id: 'bilibili', href: 'https://space.bilibili.com/35507467', label: t('social.bilibili') },
+  { id: 'zhihu', href: 'https://www.zhihu.com/people/bluer-ain', label: t('social.zhihu') },
+  { id: 'x', href: 'https://x.com/sunerpy', label: t('social.x') },
+];
+
+const showLabels = variant === 'footer';
+
+const itemClass = showLabels
+  ? 'text-ink-mute hover:text-accent inline-flex items-center gap-2.5 py-1 text-sm no-underline'
+  : 'text-ink-mute hover:text-accent inline-flex size-9 items-center justify-center rounded-[6px] no-underline';
+
+// The nav's panel is always an overlay — a bar cannot grow. The footer's opens
+// upward on wide screens, but goes IN-FLOW on mobile: the footer is a single
+// column there, so an upward overlay lands on top of the links stacked above
+// the trigger. Expanding in place pushes them instead of hiding them.
+const panelPosition =
+  placement === 'below'
+    ? 'absolute top-[calc(100%+0.625rem)] right-0 w-[13.5rem]'
+    : 'mt-2.5 w-[13.5rem] max-w-full sm:absolute sm:bottom-[calc(100%+0.625rem)] sm:left-0 sm:mt-0';
+---
+
+<ul class={`flex ${showLabels ? 'flex-col gap-1' : 'items-center gap-0.5'} ${className}`}>
+  {
+    links.map((link) => (
+      <li>
+        <a
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          class={itemClass}
+          aria-label={showLabels ? undefined : link.label}
+          title={showLabels ? undefined : link.label}
+        >
+          <SocialIcon id={link.id} />
+          {showLabels && <span>{link.label}</span>}
+        </a>
+      </li>
+    ))
+  }
+
+  <li class="relative">
+    <details data-popover class="group">
+      <summary
+        class={itemClass}
+        aria-label={showLabels ? undefined : t('social.wechat.open')}
+        title={showLabels ? undefined : t('social.wechat.open')}
+      >
+        <SocialIcon id="wechat" />
+        {showLabels && <span>{t('social.wechat')}</span>}
+      </summary>
+
+      <div
+        class={`bg-paper border-rule ${panelPosition} z-30 rounded-[8px] border p-3 shadow-[0_18px_44px_-28px_color-mix(in_oklab,var(--ink-900)_70%,transparent)]`}
+      >
+        {/* A QR needs a light ground to scan in either theme, so the plate is
+            white regardless of colour scheme — this is a scanner requirement,
+            not a styling slip. */}
+        <img
+          src="/wechat-qr.jpg"
+          alt={t('social.wechat.alt')}
+          width="430"
+          height="430"
+          loading="lazy"
+          decoding="async"
+          class="block w-full rounded-[4px] bg-white"
+        />
+        <p class="u-meta text-ink-mute mt-2.5 text-center">{t('social.wechat.caption')}</p>
+      </div>
+    </details>
+  </li>
+</ul>

@@ -32,6 +32,31 @@
   --accent: #b03a09;
   --accent-mark: #f97316;
   --live: #0d6b64;
+
+  /* ---- Script-dependent metrics -----------------------------------------
+     Latin defaults. Overridden per-language below; every prose and display
+     rule reads these instead of hard-coding a value, so switching locale
+     switches the whole typographic system in one place. */
+  --lh-prose: 1.65;
+  --ls-prose: 0em;
+  --lh-display: 1.05;
+  --ls-display: -0.021em;
+  --lh-lede: 1.6;
+}
+
+/* Chinese needs looser leading than Latin: hanzi are full-height square boxes
+   with no ascender/descender rhythm to create optical space, so 1.65 that reads
+   comfortably in English reads cramped in Chinese. A small positive tracking
+   separates adjacent glyph boxes; the tight negative Latin tracking would jam
+   them together. Display leading has to open up much further — at 1.05 two
+   lines of hanzi physically collide. */
+html:lang(zh-CN),
+html:lang(zh) {
+  --lh-prose: 1.8;
+  --ls-prose: 0.012em;
+  --lh-display: 1.22;
+  --ls-display: 0.006em;
+  --lh-lede: 1.85;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -68,20 +93,36 @@
 }
 
 @theme {
-  /* No web fonts: zero network cost, zero FOUT, zero layout shift.
-     Typographic contrast comes from serif display vs sans body vs mono detail. */
+  /* No web fonts. A single CJK weight is 15 MB+ subsetted badly and 5 MB+
+     subsetted well; loading one would trade the entire LCP budget for a
+     typeface. Both scripts therefore resolve from the system.
+
+     Each stack is Latin-first, CJK-tail: font fallback is per-glyph, so Latin
+     characters are found in Charter/system-ui and hanzi fall through to the
+     CJK face. The CJK tail is explicit rather than left to the `serif` /
+     `sans-serif` generic so the pairing is a decision, not a UA default.
+
+     Display pairs Charter (transitional serif) with Songti SC / Source Han
+     Serif — the CJK counterpart of a transitional serif. A CJK *sans* display
+     would break voice mid-line every time a Latin product name appears inside
+     a Chinese heading. */
   --font-display:
-    ui-serif, Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
+    ui-serif, Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, "Songti SC",
+    "Source Han Serif SC", "Noto Serif CJK SC", "Noto Serif SC", serif;
   --font-sans:
-    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
   --font-mono:
     ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono",
-    monospace;
+    "PingFang SC", "Microsoft YaHei", "Noto Sans SC", monospace;
 
-  --text-display: clamp(2.25rem, 4.4vw, 3.9rem);
-  --text-title: clamp(1.75rem, 2.9vw, 2.5rem);
-  --text-title-sm: clamp(1.5rem, 2.2vw, 1.95rem);
-  --text-lede: clamp(1.05rem, 1.5vw, 1.25rem);
+  /* Sharper scale contrast than a single-page index needs, deliberately: the
+     page's modernity comes from the distance between display and mono, not
+     from ornament. */
+  --text-display: clamp(2.35rem, 5vw, 4.35rem);
+  --text-title: clamp(1.85rem, 3.1vw, 2.7rem);
+  --text-title-sm: clamp(1.55rem, 2.3vw, 2.05rem);
+  --text-lede: clamp(1.0625rem, 1.5vw, 1.28rem);
   --text-meta: 0.75rem;
 
   --ease-brand: cubic-bezier(0.2, 0, 0, 1);
@@ -99,6 +140,9 @@
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+    /* `clip`, never `hidden`: `hidden` on the root turns the whole document
+       into a scroll container and silently kills `position: sticky`. */
+    overflow-x: clip;
   }
 
   body {
@@ -106,9 +150,34 @@
     color: var(--color-ink-body);
     font-family: var(--font-sans);
     font-size: 1rem;
-    line-height: 1.65;
+    line-height: var(--lh-prose);
+    letter-spacing: var(--ls-prose);
+    overflow-x: clip;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+  }
+
+  /* Tracking is a prose setting. Inherited into mono it destroys the column
+     alignment of a command block and double-spaces an already-tracked label. */
+  code,
+  kbd,
+  samp,
+  pre {
+    letter-spacing: normal;
+  }
+
+  /* Paragraph rag. `pretty` costs nothing and removes single-word (in Chinese,
+     single-character) orphans, which the loose CJK measure produces often. */
+  p,
+  dd,
+  li {
+    text-wrap: pretty;
+  }
+
+  /* Anchor targets sit under a sticky nav; without this they land beneath it. */
+  :target,
+  [id] {
+    scroll-margin-top: 6.5rem;
   }
 
   /* Links are underlined by default: colour alone must never carry meaning. */
@@ -137,6 +206,16 @@
     background-color: color-mix(in oklab, var(--color-accent) 24%, transparent);
     color: var(--color-ink);
   }
+
+  /* The disclosure marker is replaced by the icon inside the summary. */
+  summary {
+    list-style: none;
+    cursor: pointer;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -145,28 +224,190 @@
 --------------------------------------------------------------------------- */
 
 @layer components {
-  /* Display faces are optically large; tighten them deliberately. */
+  /* Display faces are optically large; the metrics come from the active
+     script, not from a fixed Latin value. */
   .u-display {
     font-family: var(--font-display);
     color: var(--color-ink);
     font-weight: 400;
-    line-height: 1.05;
-    letter-spacing: -0.021em;
+    line-height: var(--lh-display);
+    letter-spacing: var(--ls-display);
     text-wrap: balance;
+    /* Long Latin identifiers inside a display heading must break rather than
+       push the line past the viewport. */
+    overflow-wrap: anywhere;
+    min-width: 0;
   }
 
-  /* Mono uppercase label — the site's structural voice. */
+  /* Display text that is known to be Latin-only — product names, the wordmark.
+     Keeps the tight Latin tracking even on a Chinese page, where the global
+     display tokens have opened up for hanzi. */
+  .u-display-latin {
+    line-height: 1.05;
+    letter-spacing: -0.021em;
+  }
+
+  /* Mono uppercase label — the site's structural voice. `uppercase` is a no-op
+     on hanzi, so the same class serves both scripts. */
   .u-meta {
     font-family: var(--font-mono);
     font-size: var(--text-meta);
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    line-height: 1.4;
+    line-height: 1.5;
+  }
+
+  .u-lede {
+    font-size: var(--text-lede);
+    line-height: var(--lh-lede);
+  }
+
+  /* Inline Latin or numerals butting directly against hanzi. Chinese copy on
+     this site is authored with real spaces around Latin runs (the standard CJK
+     convention), so this is for the cases where a space would be wrong — next
+     to full-width punctuation, or inside a tightly-set label. */
+  .u-lat {
+    margin-inline: 0.14em;
+    letter-spacing: normal;
+  }
+
+  /* ---- Floating navigation shell --------------------------------------
+     The ground is 92% opaque on its own, so nav text stays legible over
+     scrolled content with NO blur and NO scroll timeline. Both of those are
+     enhancements layered on top:
+
+       - The blur is `backdrop-filter` ONLY. Do not hand-write the
+         `-webkit-` twin: Lightning CSS deduplicates the pair down to the
+         prefixed form alone, and Chrome 151 ignores `-webkit-backdrop-filter`
+         entirely — measured, `getComputedStyle().backdropFilter` returns
+         `none`. Writing just the standard property lets the build prefix for
+         the targets that actually need it.
+       - The settle animation (further down) only deepens the ground and adds
+         the hairline; it is never what makes the bar readable, which matters
+         because it does not run under `prefers-reduced-motion: reduce`. */
+  .u-nav-shell {
+    background-color: color-mix(in oklab, var(--paper-0) 92%, transparent);
+    border: 1px solid transparent;
+    backdrop-filter: saturate(150%) blur(12px);
+  }
+
+  /* Some users disable transparency at the OS level; honour it. */
+  @media (prefers-reduced-transparency: reduce) {
+    .u-nav-shell {
+      background-color: var(--paper-0);
+      backdrop-filter: none;
+      border-color: var(--rule);
+    }
+  }
+
+  /* Editorial margin rules on the text column's own edges — 76rem container
+     minus its 2.5rem gutters, so each rule lands exactly where the copy starts
+     rather than 40px outside it. Structural, not decorative, and only shown
+     above 1180px where a margin has room to exist. The gutter is `px-10`
+     (2.5rem) at every width this is visible. */
+  .u-guides {
+    position: fixed;
+    inset-block: 0;
+    left: 50%;
+    translate: -50% 0;
+    width: min(71rem, 100% - 10rem);
+    pointer-events: none;
+    z-index: 0;
+    display: none;
+  }
+
+  .u-guides::before,
+  .u-guides::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    width: 1px;
+    background-color: color-mix(in oklab, var(--rule) 62%, transparent);
+  }
+
+  .u-guides::before {
+    left: 0;
+  }
+
+  .u-guides::after {
+    right: 0;
+  }
+
+  @media (min-width: 1180px) {
+    .u-guides {
+      display: block;
+    }
   }
 }
 
-/* Only two transitions exist on this page (link colour, underline colour).
-   Both are neutralised here rather than merely shortened. */
+/* ---------------------------------------------------------------------------
+   Motion
+
+   Two mechanisms, both CSS-only:
+     1. section reveal, driven by `animation-timeline: view()`
+     2. nav settle, driven by `animation-timeline: scroll(root)`
+
+   No scroll listener, no IntersectionObserver, no rAF loop. Both are nested
+   inside `prefers-reduced-motion: no-preference` *and* an `@supports` gate, so
+   an unsupporting or motion-averse browser renders the final state statically
+   rather than an unrevealed blank page.
+--------------------------------------------------------------------------- */
+
+@keyframes u-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes u-nav-settle {
+  from {
+    background-color: color-mix(in oklab, var(--paper-0) 88%, transparent);
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  to {
+    background-color: var(--paper-0);
+    border-color: var(--rule);
+    box-shadow: 0 12px 30px -22px color-mix(in oklab, var(--ink-900) 65%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .u-reveal {
+      animation: u-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 8% cover 26%;
+      /* Only transform and opacity animate — no layout, no paint of children. */
+      will-change: opacity, transform;
+    }
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .u-nav-shell {
+      animation: u-nav-settle linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 6rem;
+    }
+  }
+
+  /* Cross-document view transitions, CSS-only. Product detail pages land under
+     this without needing a router. */
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+/* Transitions and animations are neutralised rather than merely shortened. The
+   scroll-driven rules above never apply under `reduce`, so nothing is left
+   mid-animation. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

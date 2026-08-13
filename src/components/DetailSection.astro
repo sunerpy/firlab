@@ -1,0 +1,44 @@
+---
+import type { SectionMeta } from '../i18n/agentlens';
+
+/**
+ * DetailSection — one numbered band on a product detail page.
+ *
+ * Same rail-plus-column grammar as ProductEntry on the index: a hairline top
+ * rule, a mono rail carrying the section number and label, and the prose in its
+ * own column. The rail is what makes a long page scannable without adding a
+ * second navigation widget.
+ *
+ * `layout`:
+ *   text  prose measure, 7 of 12 columns — the default. At 76rem that is
+ *         ~650px, which is a comfortable measure in Latin and wide enough in
+ *         Chinese that a spec value does not collapse to nine hanzi a line.
+ *   wide  10 of 12 columns, for figures and tables that need the width.
+ */
+interface Props {
+  section: SectionMeta;
+  layout?: 'text' | 'wide';
+}
+
+const { section, layout = 'text' } = Astro.props;
+
+const body = layout === 'wide' ? 'lg:col-span-9 lg:col-start-4' : 'lg:col-span-7 lg:col-start-4';
+---
+
+<section
+  id={section.id}
+  aria-labelledby={`${section.id}-heading`}
+  class="border-rule u-reveal grid gap-y-6 border-t py-12 md:py-16 lg:grid-cols-12 lg:gap-x-8"
+>
+  <div class="flex items-baseline gap-4 lg:col-span-3 lg:flex-col lg:gap-2 lg:pt-1.5">
+    {/* `text-accent`, not the brand orange: this is text, and #F97316 measures
+        2.7:1 on paper. The orange is reserved for marks and dots. */}
+    <span class="u-meta text-accent tabular-nums">{section.num}</span>
+    <span class="u-meta text-ink-mute">{section.label}</span>
+  </div>
+
+  <div class={`min-w-0 ${body}`}>
+    <h2 id={`${section.id}-heading`} class="u-display text-title-sm">{section.heading}</h2>
+    <slot />
+  </div>
+</section>

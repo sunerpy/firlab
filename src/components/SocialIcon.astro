@@ -1,0 +1,99 @@
+---
+/**
+ * Social marks, authored here as inline SVG.
+ *
+ * Why authored and not a brand-logo set: five vendor logos (octocat, Bilibili
+ * TV head, the 知乎 wordmark, X, the WeChat bubbles) arrive in five different
+ * visual languages, and dropping them into a page built on hairlines and
+ * geometric marks reads as a sticker sheet. These are drawn in one language —
+ * 24px grid, 1.8px stroke, square-ish caps, currentColor only — so the row
+ * looks like part of the page.
+ *
+ * The trade: a geometric abstraction is less instantly recognisable than a
+ * vendor logo. That is paid for two ways — every icon carries an accessible
+ * name, and the footer renders the icons *with* text labels. Only the nav is
+ * icon-only.
+ *
+ * Bilibili and WeChat keep their vendors' actual silhouettes (antenna'd screen,
+ * paired bubbles) because those shapes are already geometric. Zhihu's wordmark
+ * is not reducible to this grid, so it is drawn as what Zhihu is — a question
+ * inside a discussion bubble.
+ */
+export type SocialId = 'github' | 'bilibili' | 'zhihu' | 'x' | 'wechat';
+
+interface Props {
+  id: SocialId;
+  /** Rendered size in px. Every glyph is legible down to 20. */
+  size?: number;
+  class?: string;
+}
+
+const { id, size = 20, class: className = '' } = Astro.props;
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  aria-hidden="true"
+  class={`shrink-0 ${className}`}
+>
+  {
+    id === 'github' && (
+      /* Git graph: a commit spine with one branch resolving back out. */
+      <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <path d="M7.5 7.6 L7.5 16.4" />
+        <path d="M7.5 11.4 C 12.4 11.4, 16.5 11.1, 16.5 7.4" />
+        <circle cx="7.5" cy="5" r="2.4" />
+        <circle cx="7.5" cy="19" r="2.4" />
+        <circle cx="16.5" cy="5" r="2.4" />
+      </g>
+    )
+  }
+
+  {
+    id === 'bilibili' && (
+      /* Antenna'd screen with two eyes — the vendor silhouette, re-drawn. */
+      <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <path d="M7.6 3.2 L10.4 6.2" />
+        <path d="M16.4 3.2 L13.6 6.2" />
+        <rect x="3.1" y="6.2" width="17.8" height="14.6" rx="3.4" />
+        <path d="M8.8 12 L8.8 14.4" />
+        <path d="M15.2 12 L15.2 14.4" />
+      </g>
+    )
+  }
+
+  {
+    id === 'zhihu' && (
+      /* A question inside a discussion bubble. */
+      <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20.3 12.4 C 20.3 16.6, 16.6 20, 12 20 L7.4 20 L3.7 22.4 L4.4 18.6 C 3.6 17.3, 3.1 15.7, 3.1 14 C 3.1 9.4, 7.1 5.6, 12 5.6 C 16.6 5.6, 20.3 8.7, 20.3 12.4 Z" />
+        <path d="M9.9 11.1 C 9.9 9.9, 10.8 9.1, 12 9.1 C 13.2 9.1, 14.1 9.9, 14.1 11 C 14.1 12.5, 12 12.6, 12 14.2" />
+        <path d="M12 16.6 L12 16.7" stroke-width="2.1" />
+      </g>
+    )
+  }
+
+  {
+    id === 'x' && (
+      <g stroke="currentColor" stroke-width="1.9" stroke-linecap="square">
+        <path d="M4.6 4.6 L19.4 19.4" />
+        <path d="M19.4 4.6 L4.6 19.4" />
+      </g>
+    )
+  }
+
+  {
+    id === 'wechat' && (
+      /* Paired bubbles, the larger behind — the vendor silhouette, re-drawn. */
+      <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M13.1 8.5 C 13.1 5.4, 10.3 3, 6.9 3 C 3.5 3, 1.4 5.4, 1.4 8.5 C 1.4 10.2, 2.3 11.7, 3.7 12.7 L3.1 15.2 L5.9 13.8 C 6.2 13.9, 6.6 13.9, 6.9 13.9" />
+        <path d="M8.5 13.9 C 8.5 16.7, 11.2 19, 14.5 19 C 15.1 19, 15.7 18.9, 16.3 18.8 L19.1 20.2 L18.4 17.7 C 21 16.4, 22.6 13.6, 21.6 11.2 C 20.8 9.2, 18.4 8.2, 16 8.5" />
+        <path d="M5.2 7.4 L5.2 7.5" stroke-width="2.1" />
+        <path d="M8.7 7.4 L8.7 7.5" stroke-width="2.1" />
+      </g>
+    )
+  }
+</svg>

@@ -1,4 +1,6 @@
 ---
+import type { InstallLine } from '../i18n/content';
+
 /**
  * InstallBlock — real, copyable commands. Selectable <code>, never an image,
  * and only rendered when a command genuinely exists.
@@ -7,12 +9,6 @@
  * reads as broken, and a landing page visitor should be able to see the whole
  * command without dragging.
  */
-export interface InstallLine {
-  /** Optional comment printed above the command. */
-  note?: string;
-  command: string;
-}
-
 interface Props {
   label: string;
   lines: InstallLine[];

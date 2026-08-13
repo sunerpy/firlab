@@ -1,0 +1,73 @@
+---
+import Layout from '../layouts/Layout.astro';
+import FloatingNav from './FloatingNav.astro';
+import Hero from './Hero.astro';
+import ProductEntry from './ProductEntry.astro';
+import Principles from './Principles.astro';
+import SiteFooter from './SiteFooter.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+import { getContent } from '../i18n/content';
+
+/**
+ * The home page, assembled once and rendered per locale. Keeping both languages
+ * on one component is what guarantees they stay structurally identical — a
+ * section added to Chinese cannot silently go missing from English.
+ */
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const content = getContent(lang);
+
+// SoftwareApplication nodes. No `offers` and no `aggregateRating`: there is no
+// price and there are no reviews, so neither is asserted. Voxera carries no
+// `url` and no `softwareVersion` because it has neither a public repository nor
+// a release — an invented version number here would be structured-data spam.
+const structuredData = [
+  {
+    '@type': 'ItemList',
+    name: 'FirLab developer tools',
+    itemListOrder: 'https://schema.org/ItemListOrderAscending',
+    numberOfItems: content.products.length,
+    itemListElement: content.products.map((product, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: {
+        '@type': 'SoftwareApplication',
+        name: product.name,
+        applicationCategory: 'DeveloperApplication',
+        operatingSystem: 'Linux, macOS, Windows',
+        programmingLanguage: 'Rust',
+        description: product.body,
+        author: { '@id': 'https://firlab.app/#sunerpy' },
+        ...(product.version ? { softwareVersion: product.version.replace(/^v/, '') } : {}),
+        ...(product.links?.[0] ? { url: product.links[0].href } : {}),
+      },
+    })),
+  },
+];
+---
+
+<Layout
+  lang={lang}
+  title={content.title}
+  description={content.description}
+  ogImageAlt={content.ogAlt}
+  structuredData={structuredData}
+>
+  <FloatingNav lang={lang} products={content.products} />
+
+  <main id="main" class="mx-auto max-w-[76rem] px-6 md:px-10">
+    <Hero lang={lang} content={content} />
+
+    <section aria-label={t('product.label')}>
+      {content.products.map((product) => <ProductEntry lang={lang} product={product} />)}
+    </section>
+
+    <Principles lang={lang} principles={content.principles} />
+  </main>
+
+  <SiteFooter lang={lang} products={content.products} />
+</Layout>

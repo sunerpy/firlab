@@ -1,0 +1,23 @@
+---
+/**
+ * SectionHead — the label / heading / intro triad every band on a detail page
+ * opens with. One component so the vertical rhythm and the mono-label-to-serif
+ * heading distance are decided once rather than re-typed per section.
+ */
+interface Props {
+  label: string;
+  heading: string;
+  intro?: string;
+  /** Optional anchor id, placed on the heading so the crumb rail can target it. */
+  id?: string;
+  class?: string;
+}
+
+const { label, heading, intro, id, class: className = '' } = Astro.props;
+---
+
+<div class={className}>
+  <p class="u-meta text-ink-mute">{label}</p>
+  <h2 id={id} class="u-display text-title-sm mt-4 max-w-[34rem]">{heading}</h2>
+  {intro && <p class="text-ink-body mt-5 max-w-[42rem]">{intro}</p>}
+</div>

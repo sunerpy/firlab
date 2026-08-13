@@ -1,34 +1,69 @@
 ---
+import { getRelativeLocaleUrl } from 'astro:i18n';
 import Wordmark from './Wordmark.astro';
+import SocialRow from './SocialRow.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+import type { Product } from '../i18n/content';
+
+/**
+ * SiteFooter — three columns on desktop: identity, product index, contact.
+ *
+ * This is where the social marks get text labels. The nav renders them
+ * icon-only, which is fine for a secondary row but not sufficient on its own —
+ * the icons are authored geometric marks rather than vendor logos, so the page
+ * has to name each destination in words somewhere.
+ *
+ * The QR panel opens upward here because the footer sits at the bottom of the
+ * document.
+ */
+interface Props {
+  lang: Lang;
+  products: Product[];
+}
+
+const { lang, products } = Astro.props;
+const t = useTranslations(lang);
 
 const year = new Date().getFullYear();
 ---
 
-<footer class="border-rule border-t">
+<footer class="border-rule relative border-t">
   <div
-    class="mx-auto flex max-w-[76rem] flex-col gap-8 px-6 py-12 md:flex-row md:items-end md:justify-between md:px-10"
+    class="mx-auto grid max-w-[76rem] gap-y-10 px-6 py-14 md:grid-cols-12 md:gap-x-8 md:px-10 md:py-16"
   >
-    <div>
+    <div class="md:col-span-5">
       <Wordmark class="text-ink" />
-      <p class="text-ink-mute mt-4 max-w-[34rem] text-sm">
-        The project umbrella for developer tools built by Shaonan Zhang. Everything
-        here is a personal project, released under its own repository and its own
-        pace.
-      </p>
+      <p class="text-ink-mute mt-5 max-w-[30rem] text-sm">{t('footer.blurb')}</p>
     </div>
 
-    <div class="md:text-right">
-      <nav aria-label="Elsewhere">
-        <ul class="flex gap-6 text-sm md:justify-end">
-          <li><a href="https://github.com/sunerpy" rel="noopener">GitHub</a></li>
-          <li>
-            <a href="https://github.com/sunerpy/codegraph-rust" rel="noopener">CodeGraph</a>
-          </li>
-          <li><a href="https://github.com/sunerpy/AgentLens" rel="noopener">AgentLens</a></li>
-        </ul>
-      </nav>
-      <p class="u-meta text-ink-mute mt-6">
-        © {year} Shaonan Zhang · No analytics, no cookies
+    <nav aria-label={t('footer.nav')} class="md:col-span-3">
+      <h2 class="u-meta text-ink-mute">{t('product.label')}</h2>
+      <ul class="mt-4 space-y-2 text-sm">
+        {
+          products.map((product) => (
+            <li>
+              <a
+                href={getRelativeLocaleUrl(lang, product.detail)}
+                class="u-display-latin font-mono"
+              >
+                {product.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="md:col-span-3 md:col-start-10">
+      <h2 class="u-meta text-ink-mute">{t('social.label')}</h2>
+      <SocialRow lang={lang} variant="footer" placement="above" class="mt-4" />
+    </div>
+
+    <div class="border-rule md:col-span-12 md:border-t md:pt-8">
+      <p class="u-meta text-ink-mute">
+        <span class="u-lat">{t('footer.copyright', { year })}</span>
+        <span aria-hidden="true" class="mx-1.5">·</span>
+        {t('footer.privacy')}
       </p>
     </div>
   </div>

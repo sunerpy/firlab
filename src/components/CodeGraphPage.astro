@@ -1,0 +1,517 @@
+---
+import { getAbsoluteLocaleUrl, getRelativeLocaleUrl } from 'astro:i18n';
+import Layout from '../layouts/Layout.astro';
+import FloatingNav from './FloatingNav.astro';
+import SiteFooter from './SiteFooter.astro';
+import StatusTag from './StatusTag.astro';
+import SpecGrid from './SpecGrid.astro';
+import InstallBlock from './InstallBlock.astro';
+import ProductMark from './ProductMark.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+import { getContent } from '../i18n/content';
+import {
+  getCodeGraphContent,
+  codegraphLinks,
+  codegraphVersion,
+  codegraphReleased,
+} from '../i18n/codegraph';
+
+/**
+ * CodeGraph detail page, assembled once and rendered per locale — the same
+ * arrangement `HomePage.astro` uses, and for the same reason: a section added
+ * to Chinese cannot silently go missing from English.
+ *
+ * The page deliberately does NOT restate the home page band. It goes one level
+ * down: the problem and its audience, the four-stage pipeline, the three
+ * transports, a question-to-command map, install and first run, the three
+ * language-extraction tiers, the release matrix, the stack, and the boundary.
+ *
+ * Layout grammar, reused per section: a 4-column rail carrying the index and
+ * the heading, a 7-column measure carrying the lede. The rail is wide enough
+ * that a Chinese heading does not shred into three characters per line — a
+ * Latin-tuned narrow rail does not transfer to CJK.
+ *
+ * Brand orange appears only as a graphic: the spine dots and the callout's
+ * left rule. It never carries text — #F97316 measures ~2.7:1 on paper.
+ */
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const c = getCodeGraphContent(lang);
+
+// The nav and footer are shared chrome; both take the product list so their
+// anchors keep pointing back at the index page's bands.
+const site = getContent(lang);
+const home = getRelativeLocaleUrl(lang, '');
+
+const structuredData = [
+  {
+    '@type': 'SoftwareApplication',
+    '@id': 'https://firlab.app/#codegraph',
+    name: 'CodeGraph',
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Linux, macOS, Windows',
+    programmingLanguage: 'Rust',
+    softwareVersion: codegraphVersion.replace(/^v/, ''),
+    datePublished: codegraphReleased,
+    license: 'https://opensource.org/licenses/MIT',
+    url: codegraphLinks.repo,
+    downloadUrl: codegraphLinks.releases,
+    description: c.description,
+    author: { '@id': 'https://firlab.app/#sunerpy' },
+  },
+  {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: c.crumbHome,
+        item: getAbsoluteLocaleUrl(lang, ''),
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: c.crumbCurrent,
+        item: getAbsoluteLocaleUrl(lang, 'codegraph/'),
+      },
+    ],
+  },
+];
+
+// Section shell classes, named once so the rhythm cannot drift between the
+// nine sections below.
+const SECTION = 'border-rule u-reveal border-t pt-12 pb-4 md:pt-16';
+const HEAD = 'grid gap-y-5 lg:grid-cols-12 lg:gap-x-8';
+const RAIL = 'min-w-0 lg:col-span-4';
+const MEASURE = 'min-w-0 lg:col-span-7 lg:col-start-6';
+const HEADING = 'u-display text-title-sm';
+---
+
+<Layout
+  lang={lang}
+  title={c.title}
+  description={c.description}
+  ogImageAlt={c.ogAlt}
+  structuredData={structuredData}
+>
+  <FloatingNav lang={lang} products={site.products} />
+
+  <main id="main" class="mx-auto max-w-[76rem] px-6 md:px-10">
+    {/* ---- Breadcrumb ------------------------------------------------- */}
+    <nav aria-label={c.crumbLabel} class="pt-10 md:pt-14">
+      <ol class="u-meta text-ink-mute flex items-center gap-2">
+        <li>
+          <a href={home} class="text-ink-mute hover:text-accent no-underline hover:underline">
+            {c.crumbHome}
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li class="text-ink-soft" aria-current="page">{c.crumbCurrent}</li>
+      </ol>
+    </nav>
+
+    {/* ---- Masthead --------------------------------------------------- */}
+    <section class="grid gap-y-12 pt-8 pb-14 md:pt-10 md:pb-20 lg:grid-cols-12 lg:gap-x-8">
+      <div class="min-w-0 lg:col-span-7">
+        <p class="u-meta text-ink-mute mb-7">{c.eyebrow}</p>
+
+        <div class="flex items-start gap-5">
+          <ProductMark product="codegraph" size={52} class="text-mark mt-1 shrink-0" />
+          <h1 class="u-display u-display-latin text-display min-w-0">{c.name}</h1>
+        </div>
+
+        <p class="text-ink-soft mt-5 font-mono text-sm">{c.role}</p>
+
+        <p class="u-lede text-ink-body mt-8 max-w-[42rem]">
+          <span class="text-ink-soft">{c.ledeAccent}</span>{' '}
+          {c.lede}
+        </p>
+      </div>
+
+      {/* Release ledger. Facts only — no download button, because the honest
+          entry point is a shell command, and it is in section 05. */}
+      <aside class="min-w-0 lg:col-span-4 lg:col-start-9">
+        <h2 class="u-meta text-ink-mute border-rule border-b pb-3">{c.metaLabel}</h2>
+
+        <div class="border-rule border-b py-4">
+          <StatusTag lang={lang} state="live" display="block" />
+        </div>
+
+        <dl class="text-sm">
+          <div class="border-rule flex items-baseline justify-between gap-4 border-b py-3">
+            <dt class="u-meta text-ink-mute shrink-0">{t('product.version')}</dt>
+            <dd class="text-ink-soft font-mono tabular-nums">{codegraphVersion}</dd>
+          </div>
+          <div class="border-rule flex items-baseline justify-between gap-4 border-b py-3">
+            <dt class="u-meta text-ink-mute shrink-0">{t('product.released')}</dt>
+            <dd class="text-ink-soft font-mono tabular-nums">{codegraphReleased}</dd>
+          </div>
+          <div class="border-rule flex items-baseline justify-between gap-4 border-b py-3">
+            <dt class="u-meta text-ink-mute shrink-0">{c.licenseTerm}</dt>
+            <dd class="text-ink-soft font-mono">{c.licenseValue}</dd>
+          </div>
+          <div class="border-rule border-b py-3">
+            <dt class="u-meta text-ink-mute">{c.packageTerm}</dt>
+            <dd class="text-ink-soft mt-1 font-mono text-[0.8125rem]">{c.packageValue}</dd>
+          </div>
+        </dl>
+
+        <ul class="mt-5 space-y-2 text-sm">
+          <li>
+            <a href={codegraphLinks.repo} target="_blank" rel="noopener noreferrer">
+              {c.repoLabel}
+            </a>
+          </li>
+          <li>
+            <a href={codegraphLinks.releases} target="_blank" rel="noopener noreferrer">
+              {c.releasesLabel}
+            </a>
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    {/* ---- The premise ------------------------------------------------
+        Brand orange as a 2px left rule: graphic, load-bearing for hierarchy,
+        never asked to carry a glyph. */}
+    <section
+      aria-labelledby="premise"
+      class="bg-panel border-rule border-mark u-reveal border border-l-2 px-6 py-8 md:px-10 md:py-10"
+    >
+      <p class="u-meta text-ink-mute">{c.claimLabel}</p>
+      <h2 id="premise" class={`${HEADING} mt-4 max-w-[34rem]`}>{c.claimTitle}</h2>
+      <p class="text-ink-body mt-6 max-w-[46rem]">{c.claimBody}</p>
+
+      <ol class="mt-8 grid gap-6 md:grid-cols-3 md:gap-8">
+        {
+          c.claimPoints.map((point, i) => (
+            <li class="border-rule text-ink-body min-w-0 border-t pt-4 text-sm">
+              <span class="u-meta text-ink-mute mb-2 block tabular-nums">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              {point}
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    {/* ---- 01 · problem ----------------------------------------------- */}
+    <section aria-labelledby="problem" class={`${SECTION} mt-16 md:mt-24`}>
+      <div class={HEAD}>
+        <div class={RAIL}>
+          <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.problem.index}</p>
+          <h2 id="problem" class={HEADING}>{c.problem.title}</h2>
+        </div>
+        <p class={`${MEASURE} text-ink-body`}>{c.problem.lede}</p>
+      </div>
+
+      <ul class="mt-12">
+        {
+          c.audiences.map((item) => (
+            <li class="border-rule grid gap-y-2 border-t py-6 lg:grid-cols-12 lg:gap-x-8">
+              <span class="u-meta text-ink-mute tabular-nums lg:col-span-1">{item.index}</span>
+              <h3 class="text-ink min-w-0 font-mono text-[0.9375rem] lg:col-span-3">
+                {item.term}
+              </h3>
+              <p class="text-ink-body min-w-0 text-sm lg:col-span-7 lg:col-start-6">{item.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    {/* ---- 02 · pipeline ---------------------------------------------
+        A spine, not four cards: the stages are sequential, so they are drawn
+        on one vertical rule with the brand orange marking each node. */}
+    <section aria-labelledby="pipeline" class={`${SECTION} mt-16 md:mt-24`}>
+      <div class={HEAD}>
+        <div class={RAIL}>
+          <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.pipeline.index}</p>
+          <h2 id="pipeline" class={HEADING}>{c.pipeline.title}</h2>
+        </div>
+        <p class={`${MEASURE} text-ink-body`}>{c.pipeline.lede}</p>
+      </div>
+
+      <ol class="border-rule mt-12 ml-1 space-y-10 border-l pl-8 md:pl-10">
+        {
+          c.steps.map((step) => (
+            <li class="relative min-w-0 before:absolute before:top-[0.5rem] before:-left-8 before:size-2 before:-translate-x-1/2 before:rounded-full before:bg-mark md:before:-left-10">
+              <div class="flex items-baseline gap-4">
+                <span class="u-meta text-ink-mute tabular-nums">{step.index}</span>
+                <h3 class="u-display text-ink text-[1.25rem]">{step.term}</h3>
+              </div>
+              <p class="text-ink-body mt-3 max-w-[46rem] text-sm">{step.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    {/* ---- 03 · transports -------------------------------------------- */}
+    <section aria-labelledby="doors" class={`${SECTION} mt-16 md:mt-24`}>
+      <div class={HEAD}>
+        <div class={RAIL}>
+          <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.doorsHead.index}</p>
+          <h2 id="doors" class={HEADING}>{c.doorsHead.title}</h2>
+        </div>
+        <p class={`${MEASURE} text-ink-body`}>{c.doorsHead.lede}</p>
+      </div>
+
+      <ul class="mt-12">
+        {
+          c.doors.map((door) => (
+            <li class="border-rule grid gap-y-4 border-t py-8 lg:grid-cols-12 lg:gap-x-8">
+              <div class="min-w-0 lg:col-span-4">
+                <div class="flex items-baseline gap-4">
+                  <span class="u-meta text-ink-mute tabular-nums">{door.index}</span>
+                  <h3 class="u-display u-display-latin text-ink text-[1.35rem]">{door.term}</h3>
+                </div>
+                <p class="text-ink-mute mt-2 pl-[2.6rem] font-mono text-[0.75rem]">
+                  {door.audience}
+                </p>
+              </div>
+
+              <div class="min-w-0 lg:col-span-7 lg:col-start-6">
+                <code
+                  class="bg-block border-rule text-ink-soft block rounded-[4px] border px-4 py-2.5 font-mono text-[0.8125rem]"
+                  style="white-space: pre-wrap; overflow-wrap: anywhere;"
+                >
+                  <span class="text-ink-mute select-none">$ </span>{door.command}
+                </code>
+                <p class="text-ink-body mt-4 text-sm">{door.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    {/* ---- 04 · capability map ---------------------------------------- */}
+    <section aria-labelledby="questions" class={`${SECTION} mt-16 md:mt-24`}>
+      <div class={HEAD}>
+        <div class={RAIL}>
+          <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.capsHead.index}</p>
+          <h2 id="questions" class={HEADING}>{c.capsHead.title}</h2>
+        </div>
+        <p class={`${MEASURE} text-ink-body`}>{c.capsHead.lede}</p>
+      </div>
+
+      <div class="mt-12 overflow-x-auto">
+        <table class="w-full min-w-[36rem] border-collapse text-left">
+          <caption class="sr-only">{c.capsHead.title}</caption>
+          <thead>
+            <tr class="border-rule border-b">
+              <th scope="col" class="u-meta text-ink-mute pb-3 pr-6 font-normal">
+                {c.capsColumns.question}
+              </th>
+              <th scope="col" class="u-meta text-ink-mute pb-3 pr-6 font-normal">
+                {c.capsColumns.cli}
+              </th>
+              <th scope="col" class="u-meta text-ink-mute pb-3 font-normal">
+                {c.capsColumns.mcp}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              c.capabilities.map((row) => (
+                <tr class="border-rule border-b">
+                  <th scope="row" class="text-ink-soft py-4 pr-6 text-sm font-normal">
+                    {row.question}
+                  </th>
+                  <td class="text-ink-body py-4 pr-6 font-mono text-[0.8125rem]">{row.cli}</td>
+                  <td class="text-ink-body py-4 font-mono text-[0.8125rem]">{row.mcp}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-ink-mute mt-6 max-w-[46rem] text-sm">{c.capsNote}</p>
+    </section>
+
+    {/* ---- 05 · install ----------------------------------------------- */}
+    <section aria-labelledby="install" class={`${SECTION} mt-16 md:mt-24`}>
+      <div class={HEAD}>
+        <div class={RAIL}>
+          <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.installHead.index}</p>
+          <h2 id="install" class={HEADING}>{c.installHead.title}</h2>
+        </div>
+        <p class={`${MEASURE} text-ink-body`}>{c.installHead.lede}</p>
+      </div>
+
+      <div class="mt-4 grid gap-x-8 lg:grid-cols-2">
+        <InstallBlock label={c.installLabel} lines={c.install} />
+        <InstallBlock label={c.usageLabel} lines={c.usage} />
+      </div>
+
+      <p class="text-ink-mute mt-6 max-w-[46rem] text-sm">{c.installNote}</p>
+    </section>
+
+    {/* ---- 06 · language tiers ---------------------------------------
+        Rows rather than a table: the member list is long, and a table would
+        either clip it or force a horizontal scroll on a phone. Rows keep the
+        three tiers legible at every width — and the tiers are the whole point,
+        so they must never collapse into a single "38 languages" figure. */}
+    <section aria-labelledby="languages" class={`${SECTION} mt-16 md:mt-24`}>
+      <div class={HEAD}>
+        <div class={RAIL}>
+          <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.langHead.index}</p>
+          <h2 id="languages" class={HEADING}>{c.langHead.title}</h2>
+        </div>
+        <p class={`${MEASURE} text-ink-body`}>{c.langHead.lede}</p>
+      </div>
+
+      <dl class="mt-12">
+        {
+          c.langTiers.map((tier) => (
+            <div class="border-rule grid gap-y-3 border-t py-7 lg:grid-cols-12 lg:gap-x-8">
+              <dt class="min-w-0 lg:col-span-4">
+                <span class="u-meta text-ink-soft">{tier.tier}</span>
+                <span
+                  class="text-ink u-display-latin ml-3 font-mono text-[1.05rem] tabular-nums"
+                  aria-label={`${tier.count} ${c.langColumns.languages}`}
+                >
+                  {tier.count}
+                </span>
+                <span class="text-ink-body mt-1.5 block text-sm">{tier.depth}</span>
+              </dt>
+              <dd class="text-ink-body min-w-0 font-mono text-[0.8125rem] leading-relaxed lg:col-span-7 lg:col-start-6">
+                {tier.languages}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <p class="text-ink-mute mt-6 max-w-[46rem] text-sm">{c.langNote}</p>
+    </section>
+
+    {/* ---- 07 · release matrix ---------------------------------------- */}
+    <section aria-labelledby="platforms" class={`${SECTION} mt-16 md:mt-24`}>
+      <div class={HEAD}>
+        <div class={RAIL}>
+          <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.platHead.index}</p>
+          <h2 id="platforms" class={HEADING}>{c.platHead.title}</h2>
+        </div>
+        <p class={`${MEASURE} text-ink-body`}>{c.platHead.lede}</p>
+      </div>
+
+      <div class="mt-12 overflow-x-auto">
+        <table class="w-full min-w-[34rem] border-collapse text-left">
+          <caption class="sr-only">{c.platHead.title}</caption>
+          <thead>
+            <tr class="border-rule border-b">
+              <th scope="col" class="u-meta text-ink-mute pb-3 pr-6 font-normal">
+                {c.platColumns.platform}
+              </th>
+              <th scope="col" class="u-meta text-ink-mute pb-3 pr-6 font-normal">
+                {c.platColumns.arch}
+              </th>
+              <th scope="col" class="u-meta text-ink-mute pb-3 pr-6 font-normal">
+                {c.platColumns.target}
+              </th>
+              <th scope="col" class="u-meta text-ink-mute pb-3 font-normal">
+                {c.platColumns.ext}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              c.platforms.map((row) => (
+                <tr class="border-rule border-b">
+                  <th scope="row" class="text-ink-soft py-3.5 pr-6 text-sm font-normal">
+                    {row.platform}
+                  </th>
+                  <td class="text-ink-body py-3.5 pr-6 text-sm">{row.arch}</td>
+                  <td class="text-ink-body py-3.5 pr-6 font-mono text-[0.8125rem]">{row.target}</td>
+                  <td class="text-ink-mute py-3.5 font-mono text-[0.8125rem]">{row.ext}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-ink-mute mt-6 max-w-[46rem] text-sm">{c.platNote}</p>
+    </section>
+
+    {/* ---- 08 · stack ------------------------------------------------- */}
+    <section aria-labelledby="stack" class={`${SECTION} mt-16 md:mt-24`}>
+      <div class={HEAD}>
+        <div class={RAIL}>
+          <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.stackHead.index}</p>
+          <h2 id="stack" class={HEADING}>{c.stackHead.title}</h2>
+        </div>
+        <p class={`${MEASURE} text-ink-body`}>{c.stackHead.lede}</p>
+      </div>
+
+      <SpecGrid items={c.stack} class="border-rule mt-12 border-t pt-8" />
+    </section>
+
+    {/* ---- 09 · boundary ---------------------------------------------
+        Dashed rules, echoing how the index page marks an unfinished entry:
+        the boundary is drawn before any of it is read. */}
+    <section aria-labelledby="limits" class={`${SECTION} mt-16 md:mt-24`}>
+      <div class={HEAD}>
+        <div class={RAIL}>
+          <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.limitsHead.index}</p>
+          <h2 id="limits" class={HEADING}>{c.limitsHead.title}</h2>
+        </div>
+        <p class={`${MEASURE} text-ink-body`}>{c.limitsHead.lede}</p>
+      </div>
+
+      <ul class="mt-12">
+        {
+          c.limits.map((item) => (
+            <li class="border-rule grid gap-y-2 border-t border-dashed py-6 lg:grid-cols-12 lg:gap-x-8">
+              <span class="u-meta text-ink-mute tabular-nums lg:col-span-1">{item.index}</span>
+              <h3 class="text-ink-soft min-w-0 font-mono text-[0.9375rem] lg:col-span-3">
+                {item.term}
+              </h3>
+              <p class="text-ink-mute min-w-0 text-sm lg:col-span-7 lg:col-start-6">{item.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    {/* ---- Closing ---------------------------------------------------- */}
+    <section
+      aria-labelledby="get"
+      class="border-rule u-reveal mt-16 grid gap-y-8 border-t pt-14 pb-20 md:mt-24 md:pb-28 lg:grid-cols-12 lg:gap-x-8"
+    >
+      <div class="min-w-0 lg:col-span-7">
+        <p class="u-meta text-ink-mute mb-4">{c.closeLabel}</p>
+        <h2 id="get" class="u-display text-title max-w-[30rem]">{c.closeTitle}</h2>
+        <p class="text-ink-body mt-6 max-w-[38rem]">{c.closeBody}</p>
+      </div>
+
+      <div class="min-w-0 lg:col-span-4 lg:col-start-9">
+        <ul class="text-sm">
+          <li class="border-rule border-t py-3.5">
+            <a href={codegraphLinks.repo} target="_blank" rel="noopener noreferrer">
+              {c.repoLabel}
+            </a>
+          </li>
+          <li class="border-rule border-t py-3.5">
+            <a href={codegraphLinks.releases} target="_blank" rel="noopener noreferrer">
+              {c.releasesLabel}
+            </a>
+          </li>
+          <li class="border-rule border-y py-3.5">
+            <a href={home}>{c.backHome}</a>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter lang={lang} products={site.products} />
+</Layout>
