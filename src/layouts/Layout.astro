@@ -137,6 +137,45 @@ const jsonLd = {
     <meta name="theme-color" content="#080d16" media="(prefers-color-scheme: dark)" />
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+
+    {/*
+      Pre-paint theme applier. The one legitimate reason to run script in
+      `<head>`: a pinned theme has to be on `<html>` before the first paint, or
+      the reader watches the page load in the wrong palette and flip. Inline and
+      parser-blocking, so it runs before any of the body exists; it is 5 lines
+      and it fetches nothing, so `<script src>` stays at zero.
+
+      Two attributes, both consumed by CSS:
+        - `data-theme`  only ever `light` or `dark`. ABSENT means "ask the OS",
+          which is what keeps `prefers-color-scheme` the default for a visitor
+          who never touches the control.
+        - `data-js`     reveals the theme control, which ships hidden because it
+          cannot work without this script.
+
+      The matching `theme-color` meta is inserted first in `<head>` so it wins
+      over the two media-scoped ones below.
+    */}
+    <script is:inline>
+      (function () {
+        var root = document.documentElement;
+        root.setAttribute('data-js', '');
+
+        var mode;
+        try {
+          mode = localStorage.getItem('firlab-theme');
+        } catch (error) {
+          return;
+        }
+        if (mode !== 'light' && mode !== 'dark') return;
+
+        root.setAttribute('data-theme', mode);
+
+        var meta = document.createElement('meta');
+        meta.setAttribute('name', 'theme-color');
+        meta.setAttribute('content', mode === 'dark' ? '#080d16' : '#fbfcfe');
+        document.head.insertBefore(meta, document.head.firstChild);
+      })();
+    </script>
   </head>
 
   <body class="bg-paper text-ink-body min-h-dvh antialiased">

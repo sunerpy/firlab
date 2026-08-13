@@ -3,8 +3,9 @@ import { getRelativeLocaleUrl } from 'astro:i18n';
 import Wordmark from './Wordmark.astro';
 import SocialRow from './SocialRow.astro';
 import LangSwitch from './LangSwitch.astro';
+import ThemeSwitch from './ThemeSwitch.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
-import type { Product } from '../i18n/content';
+import type { Product, ProductId } from '../i18n/content';
 
 /**
  * Floating navigation.
@@ -14,19 +15,33 @@ import type { Product } from '../i18n/content';
  * opacity up, hairline in, shadow in — as the page scrolls, driven by
  * `animation-timeline: scroll(root)` in global.css. No scroll listener exists.
  *
+ * **A product name is a link to that product's page.** It used to be an in-page
+ * anchor (`/#codegraph`), which meant clicking CodeGraph scrolled the home page
+ * to the CodeGraph band and left the reader to keep scrolling into the other
+ * three — the detail page was only reachable from a secondary "详细介绍" link.
+ * The name is the primary affordance, so it now points at the primary
+ * destination, and it does so in the *current* locale: on `/en/` the entries
+ * lead to `/en/codegraph/`, never back to the Chinese page.
+ *
+ * On a detail page the entry for the product being read is not a link to itself.
+ * It is a marked `aria-current="page"` span, the same treatment the detail-page
+ * footer strip uses.
+ *
  * Progressive disclosure rather than a squashed desktop bar:
- *   under 640px  wordmark + language switch
+ *   under 640px  wordmark + theme + language switch
  *   640px and up  + social icons
- *   900px and up  + product anchors
+ *   900px and up  + product links
  * Nothing becomes unreachable at any width — products are also the hero's
- * ledger, and the socials are repeated with text labels in the footer.
+ * index, and the socials are repeated with text labels in the footer.
  */
 interface Props {
   lang: Lang;
   products: Product[];
+  /** Set on a product detail page. Marks that entry as the current page. */
+  currentId?: ProductId;
 }
 
-const { lang, products } = Astro.props;
+const { lang, products, currentId } = Astro.props;
 const t = useTranslations(lang);
 
 const home = getRelativeLocaleUrl(lang, '');
@@ -48,21 +63,34 @@ const home = getRelativeLocaleUrl(lang, '');
 
       <ul class="ml-2 hidden items-center gap-1 min-[900px]:flex">
         {
-          products.map((product) => (
-            <li>
-              <a
-                href={`${home}#${product.id}`}
-                class="text-ink-mute hover:text-accent hover:bg-panel rounded-[6px] px-2.5 py-1.5 font-mono text-[0.8125rem] no-underline"
-              >
-                {product.name}
-              </a>
-            </li>
-          ))
+          products.map((product) =>
+            product.id === currentId ? (
+              <li>
+                <span
+                  aria-current="page"
+                  class="bg-block text-ink inline-flex items-center gap-2 rounded-[6px] px-2.5 py-1.5 font-mono text-[0.8125rem]"
+                >
+                  <span aria-hidden="true" class="bg-mark size-1.5 rounded-full" />
+                  {product.name}
+                </span>
+              </li>
+            ) : (
+              <li>
+                <a
+                  href={getRelativeLocaleUrl(lang, product.detail)}
+                  class="text-ink-mute hover:text-accent hover:bg-panel rounded-[6px] px-2.5 py-1.5 font-mono text-[0.8125rem] no-underline"
+                >
+                  {product.name}
+                </a>
+              </li>
+            ),
+          )
         }
       </ul>
 
       <div class="ml-auto flex items-center gap-2 md:gap-3">
         <SocialRow lang={lang} variant="nav" placement="below" class="hidden sm:flex" />
+        <ThemeSwitch lang={lang} />
         <LangSwitch lang={lang} />
       </div>
     </nav>

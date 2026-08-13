@@ -10,22 +10,48 @@ changing a parameter; do not hand-edit the generated files.
 
 WHY THE MARK LOOKS LIKE THIS
 ----------------------------
-pt-tools routes PT-site RSS feeds through filter rules into downloaders and
-aggregates the results back. The mark states exactly that, top to bottom:
+pt-tools watches several private trackers at once and drives the numbers that
+decide your standing on them. The mark states that and nothing else:
 
-    three feeds  ->  they converge  ->  a filter engine  ->  one dispatch
+    three columns, rising, sharing one base
 
-Four shapes. No metaphor that needs explaining, and nothing that reduces the
-tool to "a downloader".
+Three columns because cross-site aggregation - one view over many trackers - is
+the tool's most distinctive job. Rising because ratio, bonus and level are the
+figures it exists to move. Flush, with no gaps, because it is ONE view rather
+than three separate dashboards. It reads secondarily as signal strength, which
+is also true: the tool probes each site and reports whether the session is
+still alive.
 
-CONSTRUCTION RULES (all three are load-bearing)
------------------------------------------------
+The rise is 4 -> 7 -> 12, not 4 -> 8 -> 12. The deltas are 3 then 5, so the
+climb accelerates instead of being linear. Column WIDTH stays a constant 4:
+unequal widths (3/4/5) were tried and read as inconsistent thickness rather
+than as rhythm, which looks like a mistake rather than a decision. The first
+column is 4 rather than 3 tall because at a 16px favicon that is the difference
+between a 4x4 and a 4x3 block, and it is the quietest element in the mark - it
+does not also need to be the thinnest.
+
+WHAT THE PREVIOUS MARK GOT WRONG
+--------------------------------
+It was three notched feeds -> a converging funnel -> an orange engine block ->
+a teal dispatch stub. The data path was honest, but nobody read it that way:
+asked to name it cold, viewers said funnel, then fork, then three-pin plug. Six
+shapes, and the funnel was a solid mass sitting directly under the feeds, so the
+gaps between the feeds closed visually and the top half became one white lump.
+Meaning, not pixels, was the failure - its feeds do measurably survive at 16px.
+
+CONSTRUCTION RULES (all four are load-bearing)
+----------------------------------------------
 1. Everything sits on a 64-unit grid inside a 1024 canvas. 1024 / 64 = 16, so at
-   a 16px favicon every edge in the mark lands on a whole pixel boundary. This is
-   the difference between a crisp 16px mark and grey mush: the first draft used
-   112-unit strokes off-grid and the feeds rendered as ~1.2px smears.
-2. Solid mass, never thin strokes. A stroke that reads at 512px disappears at 16.
-3. Zero opacity anywhere. Hierarchy comes from mass, length and position only. A
+   a 16px favicon every edge lands on a whole pixel boundary. Measured on the
+   output: zero antialiased pixels anywhere in icon-16.png.
+2. No mass below 3 units. The smallest element here is 4 x 3, which is 4 x 3 px
+   at a 16px favicon.
+3. No interior negative space. The three columns TOUCH; only a colour boundary
+   divides them. A gap fills in with antialiasing at small sizes and a hole
+   drawn in the plate colour dissolves into the plate - both were measured
+   failing during exploration. A colour edge between two opaque fills cannot.
+   This is how the sibling Voxera mark is built.
+4. Zero opacity anywhere. Hierarchy comes from mass, length and position only. A
    faded element degrades into a ghost at small sizes and silently changes what
    the mark means.
 
@@ -36,70 +62,70 @@ same four palette values, so the four product marks sit together.
 
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 
+# cairo inherits LCD subpixel antialiasing from fontconfig, which bakes coloured
+# fringes into a raster. Forced to greyscale here, before cairo is imported, so
+# the PNG ladder is reproducible on any host. Verified by rendering the same SVG
+# under rgba=none and rgba=rgb and diffing: the outputs must be byte-identical.
+FONTS_CONF = HERE / "fonts.conf"
+FONTS_CONF.write_text(
+    '<?xml version="1.0"?>\n'
+    '<!DOCTYPE fontconfig SYSTEM "fonts.dtd">\n'
+    "<fontconfig>\n"
+    '  <match target="font">\n'
+    '    <edit name="rgba" mode="assign"><const>none</const></edit>\n'
+    '    <edit name="antialias" mode="assign"><bool>true</bool></edit>\n'
+    "  </match>\n"
+    "</fontconfig>\n"
+)
+os.environ.setdefault("FONTCONFIG_FILE", str(FONTS_CONF))
+
 # --- palette: the four locked values. Nothing else may appear in an output. ---
-INK = "#0B1220"  # near-black navy — plate, wordmark slab
-PAPER = "#E7EDF5"  # cool off-white — feeds and funnel (the plumbing)
-BRAND = "#F97316"  # orange — the filter engine ONLY (2.7:1 on paper: never detail)
-TEAL = "#14B8A6"  # teal — the dispatch
+INK = "#0B1220"  # near-black navy - plate, wordmark slab
+PAPER = "#E7EDF5"  # cool off-white - the first tracked column
+BRAND = "#F97316"  # orange - the tallest column (2.7:1 on paper: never detail)
+TEAL = "#14B8A6"  # teal - the middle column
 
-# --- geometry, expressed in 16ths so the grid contract is visible ---
+# --- geometry, expressed in 16ths so the grid contract is visible ------------
 U = 64  # one 16px-pixel = 64 canvas units
-FEED_Y, FEED_H, FEED_W = 2, 4, 2  # three feeds, y=2..6, 2 wide
-FEED_XS = (2, 7, 12)  # 3-unit gaps; ink spans 2..14, centred on 8
-BAND_Y = 6  # funnel mouth — flush with the feet of the feeds
-TAPER_Y = 10  # funnel throat
-BLOCK_X, BLOCK_W, BLOCK_H = 6, 4, 3  # engine block, y=10..13
-OUT_X, OUT_W, OUT_H = 7, 2, 2  # dispatch, y=13..15
+COL_W = 4  # constant width; see the header on why it is not 3/4/5
+COL_X = (2, 6, 10)  # flush, spanning 2..14 - a 2-unit margin either side
+COL_H = (4, 7, 12)  # accelerating rise: deltas 3 then 5
+BASE_Y = 14  # shared base line - all three columns stand on it
+COL_FILL = (PAPER, TEAL, BRAND)
 
-# Feed width 2 (not 3) is load-bearing twice over: it keeps the ink box
-# symmetric about the canvas centre (2..14 -> centre 8, equal 2-unit margins),
-# and it keeps the gaps between feeds wider than the feeds themselves, which is
-# what makes three *separate* streams read at 16px. Widening the feeds to 3 or 4
-# closes the gaps into hairlines and the mark collapses into a notched slab.
-GLYPH_MIN, GLYPH_MAX = FEED_XS[0] * U, (FEED_XS[2] + FEED_W) * U
+GLYPH_MIN = COL_X[0] * U
+GLYPH_MAX = (COL_X[-1] + COL_W) * U
 GLYPH_SPAN = GLYPH_MAX - GLYPH_MIN
 
 
-def mark_body(feed: str, node: str, out: str, indent: str = "  ") -> str:
-    """The mark's four shapes, in draw order."""
-    i = indent
-    parts = [
-        f'{i}<rect x="{x * U}" y="{FEED_Y * U}" width="{FEED_W * U}" height="{FEED_H * U}" fill="{feed}"/>'
-        for x in FEED_XS
-    ]
-    parts.append(
-        f'{i}<path d="M {FEED_XS[0] * U} {BAND_Y * U} '
-        f"L {(FEED_XS[2] + FEED_W) * U} {BAND_Y * U} "
-        f"L {(BLOCK_X + BLOCK_W) * U} {TAPER_Y * U} "
-        f'L {BLOCK_X * U} {TAPER_Y * U} Z" fill="{feed}"/>'
+def mark_body(fills: tuple[str, ...], indent: str = "  ") -> str:
+    """The mark's three columns, left to right."""
+    return "\n".join(
+        f'{indent}<rect x="{x * U}" y="{(BASE_Y - h) * U}" '
+        f'width="{COL_W * U}" height="{h * U}" fill="{f}"/>'
+        for x, h, f in zip(COL_X, COL_H, fills)
     )
-    parts.append(
-        f'{i}<rect x="{BLOCK_X * U}" y="{TAPER_Y * U}" width="{BLOCK_W * U}" height="{BLOCK_H * U}" fill="{node}"/>'
-    )
-    parts.append(
-        f'{i}<rect x="{OUT_X * U}" y="{(TAPER_Y + BLOCK_H) * U}" width="{OUT_W * U}" height="{OUT_H * U}" fill="{out}"/>'
-    )
-    return "\n".join(parts)
 
 
-PLATE_R = 204.8  # 20% of 1024 — the same corner radius as the Voxera app icon
+PLATE_R = 204.8  # 20% of 1024 - the same corner radius as the Voxera app icon
 
 
 def write_logo() -> None:
     """Plated primary. Self-contained, so it holds on light, dark and coloured
     grounds with no media query and no <picture>. The PNG ladder comes from this.
-    The glyph is NOT scaled: its bounds are already 128..960, which leaves a
-    2-unit (12.5%) margin that keeps the feeds clear of the plate's corners."""
+    The glyph is NOT scaled: its bounds are already 128..896, which leaves a
+    2-unit (12.5%) margin on every side."""
     svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-label="pt-tools">
   <title>pt-tools</title>
   <!-- Generated by build.py. Do not hand-edit. -->
   <rect x="0" y="0" width="1024" height="1024" rx="{PLATE_R}" ry="{PLATE_R}" fill="{INK}"/>
-{mark_body(PAPER, BRAND, TEAL)}
+{mark_body(COL_FILL)}
 </svg>
 """
     (HERE / "logo.svg").write_text(svg)
@@ -107,12 +133,14 @@ def write_logo() -> None:
 
 def write_mono() -> None:
     """Plate-less, single-colour, currentColor so an inlined copy inherits the
-    host theme. The silhouette carries the whole mark here, which is the real
-    test of whether the geometry works."""
+    host theme. Here the stepped contour carries the entire mark with no colour
+    help, which is the real test of the geometry - and the reason this mark was
+    chosen over eight alternatives whose identity lived in an interior detail
+    that a single colour erases."""
     svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" role="img" aria-label="pt-tools">
   <title>pt-tools</title>
   <!-- Generated by build.py. Do not hand-edit. Inherits colour from the host. -->
-{mark_body("currentColor", "currentColor", "currentColor")}
+{mark_body(("currentColor",) * 3)}
 </svg>
 """
     (HERE / "logo-mono.svg").write_text(svg)
@@ -130,7 +158,7 @@ WORDMARK = "pt-tools"
 FONT = "/usr/share/fonts/truetype/noto/NotoSansMono-Bold.ttf"
 
 SLAB_H = 320
-SLAB_R = 64  # 20% of slab height — the plate's corner ratio, held
+SLAB_R = 64  # 20% of slab height - the plate's corner ratio, held
 PAD_L = 72
 GLYPH_H = 184  # mark height inside the slab
 GAP = 64
@@ -189,7 +217,7 @@ def write_wordmark() -> None:
   <!-- Generated by build.py. Do not hand-edit. Type is converted outlines, never a text element. -->
   <rect x="0" y="0" width="{slab_w}" height="{SLAB_H}" rx="{SLAB_R}" ry="{SLAB_R}" fill="{INK}"/>
   <g transform="translate({tx:.3f} {ty:.3f}) scale({gs:.6f})">
-{mark_body(PAPER, BRAND, TEAL, indent="    ")}
+{mark_body(COL_FILL, indent="    ")}
   </g>
   <g fill="{PAPER}" transform="translate({text_x:.2f} {baseline:.2f}) scale({scale:.6f} -{scale:.6f})">
       {joined}
@@ -204,7 +232,7 @@ SIZES = (512, 256, 128, 64, 32, 16)
 
 
 def write_pngs() -> None:
-    """Rendered natively at each size from logo.svg — never downscaled from the
+    """Rendered natively at each size from logo.svg - never downscaled from the
     512, so each raster is a true evaluation of the vector at that pixel budget
     and the 16px file is the geometry's real verdict."""
     import cairosvg

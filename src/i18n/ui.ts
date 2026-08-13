@@ -47,7 +47,17 @@ const zh = {
   'lang.en': 'EN',
   'lang.switchTo': '切换到 English',
 
-  'social.label': '在别处',
+  /**
+   * Theme control. `theme.system` is a real third state, not a reset button:
+   * choosing it removes the stored preference so the page goes back to tracking
+   * `prefers-color-scheme`.
+   */
+  'theme.label': '主题',
+  'theme.system': '跟随系统',
+  'theme.light': '浅色',
+  'theme.dark': '深色',
+
+  'social.label': '更多链接',
   'social.github': 'GitHub',
   'social.bilibili': '哔哩哔哩',
   'social.zhihu': '知乎',
@@ -96,7 +106,12 @@ const en: Record<keyof typeof zh, string> = {
   'lang.en': 'EN',
   'lang.switchTo': 'Switch to 中文',
 
-  'social.label': 'Elsewhere',
+  'theme.label': 'Theme',
+  'theme.system': 'Follow system',
+  'theme.light': 'Light',
+  'theme.dark': 'Dark',
+
+  'social.label': 'More links',
   'social.github': 'GitHub',
   'social.bilibili': 'Bilibili',
   'social.zhihu': 'Zhihu',

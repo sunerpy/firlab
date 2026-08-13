@@ -15,17 +15,40 @@ Do not hand-edit the generated SVGs — the next build overwrites them.
 
 ## What the mark means
 
-Read it top to bottom:
+Three columns, rising, sharing one base. Read left to right:
 
 | Element | Colour | Means |
 | --- | --- | --- |
-| Three feeds | paper | RSS feeds from multiple trackers |
-| Converging funnel | paper | they gather into one pipeline |
-| Solid block | orange | the filter/rule engine |
-| Single trunk out | teal | one dispatch to the downloader |
+| First column | paper | where a tracker starts |
+| Second column | teal | another tracker, further along |
+| Tallest column | orange | the one you have pushed furthest |
+| One shared base, no gaps | — | one view over all of them, not three dashboards |
 
-That is the tool's actual data path, not decoration. It is deliberately **not** a
-download arrow — pt-tools routes and filters, it is not a downloader.
+**Three columns because cross-site aggregation is the tool's most distinctive
+job** — one place to see upload, download, ratio, bonus and level across every
+tracker you are on. **Rising because those are the figures pt-tools exists to
+move.** The rise is 4 → 7 → 12, so the deltas are 3 then 5 and the climb
+accelerates rather than stepping evenly; that is a decision, not a default.
+
+It reads secondarily as signal strength, which is also true: pt-tools probes
+each site and tells you whether the session is still alive.
+
+It is deliberately **not** a download arrow — pt-tools routes, filters and
+reports; it is not a downloader.
+
+### Why the mark is not a funnel
+
+An earlier version was three notched feeds → a converging funnel → an orange
+engine block → a teal dispatch stub. The data path was accurate, but asked to
+name the shape cold, viewers said *funnel*, then *fork*, then *three-pin plug* —
+never "feeds being filtered". Six shapes, and the funnel was a solid mass
+directly beneath the feeds, so the gaps between the feeds closed visually and
+the top half read as one white lump. It failed on meaning rather than on pixels;
+its feeds do measurably survive at 16 px. Eight further concepts were drawn and
+measured before this one — a ledger, squared RSS brackets, a merge gate, a
+broken loop, a pinwheel, a ring-and-beam, a closed ring, and a node-and-bracket.
+Every one of them got named as something unrelated. This is the only mark whose
+naive reading matched its intent.
 
 ## Files
 
@@ -45,6 +68,13 @@ All PNGs are RGBA with real transparency, rendered natively at each size from
 `logo.svg` rather than downscaled from the largest, so each one is sharp at its
 own pixel budget.
 
+`build.py` also writes `fonts.conf`. That file exists because cairo inherits LCD
+subpixel antialiasing from the host's fontconfig, which bakes coloured fringes
+into a raster and makes the output depend on whose machine built it. Greyscale
+antialiasing is forced before cairo loads, so the ladder is reproducible
+anywhere. Verified by rendering `logo.svg` under both `rgba=none` and `rgba=rgb`
+and diffing: the outputs are byte-identical at every size.
+
 ### Suggested mapping
 
 | Destination | File |
@@ -63,9 +93,9 @@ Four values. Nothing else belongs in the mark.
 | Name | Hex | Role |
 | --- | --- | --- |
 | Ink | `#0B1220` | Plate, wordmark slab |
-| Paper | `#E7EDF5` | Feeds, funnel, wordmark type |
-| Brand orange | `#F97316` | The filter engine, and nothing else |
-| Teal | `#14B8A6` | The dispatch |
+| Paper | `#E7EDF5` | First column, wordmark type |
+| Brand orange | `#F97316` | The tallest column, and nothing else |
+| Teal | `#14B8A6` | The middle column |
 
 **Orange measures 2.7:1 on paper.** It fails text contrast, so it is restricted
 to graphic mass — never body text, never a thin line, never a detail that has to
@@ -95,11 +125,16 @@ instead of blurring. This is why 16 px is a real floor and not an optimistic one
 — but it is also why **the grid must be respected**: moving any edge off a
 64-unit multiple reintroduces sub-pixel blur at small sizes.
 
+Measured on `icon-16.png`, not asserted: the three columns land as 4 × 4, 4 × 7
+and 4 × 12 whole pixels, with **zero antialiased pixels anywhere in the glyph**.
+The only partially-transparent pixels in the file are the two that form the
+plate's corner radius.
+
 ## Do not
 
-- **Do not recolour** outside the four values above. In particular, do not swap
-  the orange and teal roles; the orange block is the filter engine and the teal
-  trunk is the output.
+- **Do not recolour** outside the four values above. In particular, keep orange
+  on the tallest column: the brand accent belongs on the outcome, and orange is
+  graphic mass here, never a detail that has to be read.
 - **Do not use opacity** to add depth or hierarchy. A faded element degrades into
   a ghost at 16 px and changes what the mark says. Hierarchy here comes from
   mass, length and position only.
@@ -107,13 +142,20 @@ instead of blurring. This is why 16 px is a real floor and not an optimistic one
   1149 × 320 and holds that ratio.
 - **Do not add effects** — no drop shadows, glows, gradients, bevels, strokes or
   outlines.
-- **Do not rebuild the feeds thicker.** The gaps between the three feeds are
-  wider than the feeds themselves on purpose; that ratio is what makes them read
-  as three separate streams rather than one notched slab.
+- **Do not put gaps between the columns.** They touch, and only a colour edge
+  divides them. A gap fills in with antialiasing at small sizes; a colour edge
+  between two opaque fills cannot. Two rejected concepts died precisely here, and
+  a hole drawn in the plate colour dissolves into the plate for the same reason.
+  This is also how the sibling Voxera mark is built.
+- **Do not give the columns unequal widths.** 3 / 4 / 5 was tried; it reads as
+  inconsistent thickness rather than as rhythm — a mistake rather than a
+  decision. The rhythm lives in the heights.
+- **Do not shorten the first column below 4 units.** It is the quietest element in
+  the mark; it does not also need to be the thinnest.
 - **Do not set the wordmark with a live font.** Use `wordmark.svg`, whose type is
   already outlines. Re-typing "pt-tools" in a `<text>` element makes it render
   differently on every machine.
-- **Do not rotate or reflect.** The flow reads top-to-bottom.
+- **Do not rotate or reflect.** The columns rise left to right.
 - **Do not put `logo-mono.svg` on a mid-tone background** without checking
   contrast — it is one colour, so it has no built-in separation from its ground.
 
@@ -129,6 +171,13 @@ canvas, flat fills, hard angles, no gradients, no opacity, and this palette. The
 siblings are AgentLens (faceted hexagon), Voxera (split chevron), and CodeGraph
 (three-node graph). Keep new assets inside that language so the set stays
 coherent.
+
+The rule the siblings share, and the one that matters most when editing this
+mark: **each of them is a small number of large masses divided by a colour
+boundary, never by a gap.** Voxera is two polygons meeting on a shared edge;
+AgentLens is one silhouette split into three facets. pt-tools is three flush
+columns. Adding a fourth element, or separating the existing three, breaks both
+the family resemblance and the 16 px floor at the same time.
 
 ## Licence
 

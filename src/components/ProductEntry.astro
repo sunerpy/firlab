@@ -14,6 +14,13 @@ import type { Product } from '../i18n/content';
  * column. Deliberately NOT one of three equal cards: `weight` scales the
  * title, drops the install block and softens the body so a visitor scanning
  * only the rail can tell which tool is usable today.
+ *
+ * One in-site affordance per band, and it is the name. The heading is the link
+ * to the product's page, marked with the site's trailing arrow; the band under
+ * it is the summary, read where it stands. The meta column therefore holds
+ * *external* destinations only — the old "详细介绍" item there was a second,
+ * quieter route to the same page, which is what taught readers that the name
+ * was not the way in.
  */
 interface Props {
   lang: Lang;
@@ -67,7 +74,12 @@ const links = product.links ?? [];
       class={`u-display u-display-latin ${titleSize}`}
       style={`view-transition-name: title-${product.id}`}
     >
-      {product.name}
+      <a href={detailHref} class="u-arrow-host text-ink hover:text-accent no-underline"
+        >{product.name}<span
+          aria-hidden="true"
+          class="u-arrow text-ink-mute ml-3 inline-block align-middle text-[0.4em]">→</span
+        ></a
+      >
     </h2>
     <p class="text-ink-soft mt-3 font-mono text-sm">{product.role}</p>
 
@@ -101,22 +113,19 @@ const links = product.links ?? [];
       )
     }
 
-    <ul class="mt-6 space-y-2 text-sm">
-      <li>
-        <a href={detailHref} aria-label={`${product.name} — ${t('product.detailAria')}`}>
-          {t('product.detail')}
-        </a>
-      </li>
-      {
-        links.map((link) => (
-          <li>
-            <a href={link.href} target="_blank" rel="noopener noreferrer">
-              {link.label}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    {
+      links.length > 0 && (
+        <ul class="mt-6 space-y-2 text-sm">
+          {links.map((link) => (
+            <li>
+              <a href={link.href} target="_blank" rel="noopener noreferrer">
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
 
     {product.note && <p class="text-ink-mute mt-6 max-w-[22rem] text-sm">{product.note}</p>}
   </div>

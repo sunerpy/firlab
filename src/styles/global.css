@@ -76,8 +76,24 @@ html:lang(zh) {
   --lh-lede: 1.85;
 }
 
+/* ---------------------------------------------------------------------------
+   Theme selection.
+
+   Two ways in, and the OS is still the default: the dark ramp applies when the
+   OS asks for dark AND the reader has not pinned light, or when the reader has
+   pinned dark. A visitor who never touches the control keeps tracking
+   `prefers-color-scheme` exactly as before.
+
+   The ramp is written twice because CSS cannot OR a media query with a plain
+   selector. THE TWO BLOCKS ARE ONE RAMP — change both or neither.
+
+   `color-scheme` has to follow the pinned theme too. Left at `light dark` it
+   makes the UA paint scrollbars, form controls and the canvas for the OS
+   preference, so a page pinned light on a dark OS gets dark scrollbars.
+--------------------------------------------------------------------------- */
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --ink-900: #f2f6fb;
     --ink-700: #dde5f0;
     --ink-500: #9fb0c6;
@@ -94,6 +110,30 @@ html:lang(zh) {
 
     --shade: #000000;
   }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --ink-900: #f2f6fb;
+  --ink-700: #dde5f0;
+  --ink-500: #9fb0c6;
+  --ink-400: #7c8ca3;
+
+  --paper-0: #080d16;
+  --paper-1: #0f1723;
+  --paper-2: #18222f;
+  --rule: #1f2a38;
+
+  --accent: #fb923c;
+  --accent-mark: #f97316;
+  --live: #2dd4bf;
+
+  --shade: #000000;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
 }
 
 @theme inline {
@@ -510,6 +550,67 @@ html:lang(zh) {
   .u-copy[data-state="failed"] {
     color: var(--color-accent);
     border-color: color-mix(in oklab, var(--accent) 55%, var(--color-rule));
+  }
+
+  /* ---- Theme control ---------------------------------------------------
+     Same shape as LangSwitch — a hairline segmented control — because both
+     answer "which of these am I in", and giving them two different shapes
+     would make the nav look assembled from parts.
+
+     Every rule lives here rather than as Tailwind utilities on the element.
+     `display` is the reason: `@layer utilities` outranks `@layer components`
+     regardless of specificity, so a `flex` utility on the element would beat
+     the `display: none` below and the control would be drawn on a client that
+     can never make it work. Same trap the `.u-social-inline` note describes. */
+  .u-theme {
+    display: none;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid var(--color-rule);
+    border-radius: 6px;
+  }
+
+  /* Revealed only once the pre-paint script has run, so it is present at first
+     paint on a scripting client and absent — not broken — without one. */
+  html[data-js] .u-theme {
+    display: flex;
+  }
+
+  .u-theme-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem 0.4375rem;
+    background-color: transparent;
+    color: var(--color-ink-mute);
+    cursor: pointer;
+    transition:
+      color 160ms var(--ease-brand),
+      background-color 160ms var(--ease-brand);
+  }
+
+  .u-theme-btn + .u-theme-btn {
+    border-left: 1px solid var(--color-rule);
+  }
+
+  .u-theme-btn:hover {
+    color: var(--color-accent);
+    background-color: var(--color-panel);
+  }
+
+  /* Never colour alone — `aria-pressed` is the real state, and each segment has
+     its own icon and its own visually hidden label. */
+  .u-theme-btn[aria-pressed="true"] {
+    color: var(--color-ink);
+    background-color: var(--color-block);
+  }
+
+  .u-theme-btn[aria-pressed="true"]:hover {
+    color: var(--color-ink);
+  }
+
+  .u-theme-btn svg {
+    display: block;
   }
 }
 

@@ -6,9 +6,9 @@
  *
  * The AgentLens hexagon and the Voxera chevron are lifted from the shipped
  * application icons (icons/source/*.svg in each repo) so the marks here match
- * the marks on the user's dock. CodeGraph and pt-tools have no icon yet, so
- * theirs are drawn to the same geometric language: a three-node graph, and
- * three feed arcs standing on a baseline.
+ * the marks on the user's dock. pt-tools is lifted from brand/pt-tools/logo.svg
+ * for the same reason. CodeGraph has no icon yet, so its three-node graph is
+ * drawn to the same geometric language.
  */
 interface Props {
   product: 'pttools' | 'codegraph' | 'agentlens' | 'voxera';
@@ -39,32 +39,17 @@ const label = {
   {
     product === 'pttools' && (
       <>
-        {/* Three feed arcs standing on a baseline, rising from one origin node.
-            The arcs are the subscriptions; the rule is where they land. Radii
-            decrease toward the origin so the structure survives at 38px —
-            measured: equal-radius arcs merge into a smudge below 40px. */}
-        <path
-          d="M12 13 A 25 25 0 0 1 37 38"
-          stroke="currentColor"
-          stroke-width="1.75"
-          stroke-linecap="round"
-          opacity="0.45"
-        />
-        <path
-          d="M12 21 A 17 17 0 0 1 29 38"
-          stroke="currentColor"
-          stroke-width="1.75"
-          stroke-linecap="round"
-          opacity="0.72"
-        />
-        <path
-          d="M12 29 A 9 9 0 0 1 21 38"
-          stroke="currentColor"
-          stroke-width="1.75"
-          stroke-linecap="round"
-        />
-        <path d="M8.5 38 L41.5 38" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
-        <circle cx="12" cy="38" r="4.2" fill="var(--color-mark)" />
+        {/* Three columns, rising, sharing one base — from brand/pt-tools, plate
+            removed. Three because the tool's distinctive job is one view over
+            many trackers; rising because ratio, bonus and level are what it
+            moves. The columns TOUCH: a gap fills in with antialiasing at small
+            sizes, a colour edge between two opaque fills does not. Heights
+            12/21/36 accelerate (deltas 9 then 15) rather than stepping evenly.
+            Solid mass, no strokes and no opacity, so the shape cannot degrade
+            into a ghost — the arcs this replaced faded out below 40px. */}
+        <rect x="6" y="30" width="12" height="12" fill="currentColor" />
+        <rect x="18" y="21" width="12" height="21" fill="currentColor" />
+        <rect x="30" y="6" width="12" height="36" fill="var(--color-mark)" />
       </>
     )
   }

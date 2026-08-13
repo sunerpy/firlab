@@ -1,0 +1,177 @@
+---
+import { useTranslations, type Lang } from '../i18n/ui';
+
+/**
+ * Theme control — three states, not two.
+ *
+ * `system` is a real option and the default: the site has always honoured
+ * `prefers-color-scheme`, and a two-state toggle would strand every visitor who
+ * wants exactly that. Choosing `system` *removes* the stored preference rather
+ * than storing a third value, which is why the CSS override is keyed on
+ * `[data-theme="dark"]` / `[data-theme="light"]` and absence means "ask the OS".
+ *
+ * Buttons rather than a radio group: `aria-pressed` on three buttons needs no
+ * arrow-key handling to be correct, where `role="radio"` would oblige us to
+ * reimplement roving focus. Each segment carries a visually hidden label, so the
+ * icon is never the only name.
+ *
+ * The control ships `display: none` and is revealed by `html[data-js]`, set by
+ * the pre-paint script in Layout — the same rule the copy buttons follow: an
+ * affordance that cannot work must not be drawn.
+ */
+interface Props {
+  lang: Lang;
+  class?: string;
+}
+
+const { lang, class: className = '' } = Astro.props;
+const t = useTranslations(lang);
+
+const modes = [
+  { value: 'system', label: t('theme.system') },
+  { value: 'light', label: t('theme.light') },
+  { value: 'dark', label: t('theme.dark') },
+] as const;
+---
+
+<div class={`u-theme ${className}`} role="group" aria-label={t('theme.label')} data-theme-switch>
+  {
+    modes.map((mode) => (
+      <button
+        type="button"
+        class="u-theme-btn"
+        data-theme-set={mode.value}
+        aria-pressed={mode.value === 'system' ? 'true' : 'false'}
+      >
+        {mode.value === 'system' && (
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="2" y="3" width="20" height="14" rx="2" />
+            <path d="M8 21h8" />
+            <path d="M12 17v4" />
+          </svg>
+        )}
+        {mode.value === 'light' && (
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M19.07 4.93l-1.41 1.41M6.34 17.66l-1.41 1.41" />
+          </svg>
+        )}
+        {mode.value === 'dark' && (
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+          </svg>
+        )}
+        <span class="sr-only">{mode.label}</span>
+      </button>
+    ))
+  }
+</div>
+
+{/*
+  Wiring, inline and colocated with the markup on purpose. Placed immediately
+  after the control so the parser runs it before the nav is painted: the served
+  HTML marks `system` as pressed, and a reader who pinned dark would otherwise
+  see the wrong segment highlighted for a frame. The pre-paint script in Layout
+  handles the *colours*; this handles the control's own state and the clicks.
+
+  Reads and writes are wrapped in try/catch because `localStorage` throws
+  outright in a partitioned or storage-blocked context, and a theme control must
+  not take the page down with it.
+*/}
+<script is:inline>
+  (function () {
+    var group = document.querySelector('[data-theme-switch]');
+    if (!group) return;
+
+    var buttons = group.querySelectorAll('[data-theme-set]');
+    var root = document.documentElement;
+    var KEY = 'firlab-theme';
+    var GROUND = { light: '#fbfcfe', dark: '#080d16' };
+
+    function stored() {
+      try {
+        var value = localStorage.getItem(KEY);
+        if (value === 'light' || value === 'dark') return value;
+      } catch (error) {
+        /* storage unavailable — fall through to the OS preference */
+      }
+      return 'system';
+    }
+
+    /* The two `theme-color` metas in the document are media-scoped, so a
+       media-less one placed first wins over both. Removed again for `system`,
+       which is what hands the decision back to those two. */
+    function ground(mode) {
+      var meta = document.head.querySelector('meta[name="theme-color"]:not([media])');
+      if (mode === 'system') {
+        if (meta) meta.remove();
+        return;
+      }
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', 'theme-color');
+        document.head.insertBefore(meta, document.head.firstChild);
+      }
+      meta.setAttribute('content', GROUND[mode]);
+    }
+
+    function apply(mode) {
+      if (mode === 'system') root.removeAttribute('data-theme');
+      else root.setAttribute('data-theme', mode);
+
+      ground(mode);
+
+      buttons.forEach(function (button) {
+        button.setAttribute(
+          'aria-pressed',
+          button.getAttribute('data-theme-set') === mode ? 'true' : 'false',
+        );
+      });
+    }
+
+    apply(stored());
+
+    buttons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        var mode = button.getAttribute('data-theme-set');
+        try {
+          if (mode === 'system') localStorage.removeItem(KEY);
+          else localStorage.setItem(KEY, mode);
+        } catch (error) {
+          /* the choice still applies for this document, it just will not persist */
+        }
+        apply(mode);
+      });
+    });
+  })();
+</script>

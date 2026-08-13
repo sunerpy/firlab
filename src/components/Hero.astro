@@ -1,12 +1,19 @@
 ---
+import { getRelativeLocaleUrl } from 'astro:i18n';
 import StatusTag from './StatusTag.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 import type { PageContent } from '../i18n/content';
 
 /**
- * Hero — left-biased headline (never centred) with the product ledger in the
+ * Hero — left-biased headline (never centred) with the product index in the
  * right columns, so the page announces itself as an index inside the first
- * viewport and the ledger doubles as in-page navigation.
+ * viewport.
+ *
+ * The index rows are links to the product *pages*, not in-page anchors. As
+ * anchors they scrolled the reader into a band and left them to scroll through
+ * the other three; a table of contents on a site that has real pages should
+ * lead to those pages. The trailing arrow is the site's existing "this is a
+ * destination" mark, borrowed from the footer's way back and the pager.
  *
  * Exactly three text elements: eyebrow, headline, lede. No trust strip, no
  * tagline under the fold line, no CTA pair — the ledger *is* the call to
@@ -43,8 +50,8 @@ const t = useTranslations(lang);
         content.products.map((product) => (
           <li class="border-rule border-b">
             <a
-              href={`#${product.id}`}
-              class="text-ink hover:text-accent group flex items-baseline gap-4 py-4 no-underline"
+              href={getRelativeLocaleUrl(lang, product.detail)}
+              class="text-ink hover:text-accent group u-arrow-host flex items-baseline gap-4 py-4 no-underline"
             >
               <span class="u-meta text-ink-mute tabular-nums">{product.index}</span>
               <span class="min-w-0 flex-1">
@@ -56,6 +63,7 @@ const t = useTranslations(lang);
               <span class="text-ink-mute shrink-0 font-mono text-sm tabular-nums">
                 {product.version ?? '—'}
               </span>
+              <span aria-hidden="true" class="u-arrow text-ink-mute shrink-0 text-sm">→</span>
             </a>
           </li>
         ))

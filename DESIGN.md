@@ -58,6 +58,43 @@ fails AA. The mark keeps the brand orange; text uses the darker/lighter step so 
 themes clear 4.5:1. This is the one place where the site diverges from the icons, and
 it is on purpose.
 
+### Theme selection — system is the default, not the only option
+
+Three states, exposed as a segmented control in the nav next to `LangSwitch`:
+`system` · `light` · `dark`.
+
+| State | `<html>` | Ramp source |
+| --- | --- | --- |
+| `system` (default) | no `data-theme` | `prefers-color-scheme` |
+| `light` | `data-theme="light"` | base `:root` |
+| `dark` | `data-theme="dark"` | dark override |
+
+- **Absence of `data-theme` is load-bearing.** `system` removes the stored key
+  rather than storing a third value, so a visitor who never touches the control
+  keeps tracking the OS exactly as the site always did. Dropping `system` for a
+  two-state toggle would be a regression, not a simplification.
+- The dark ramp is written **twice** in `global.css` — once under
+  `@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) }` and once
+  under `:root[data-theme="dark"]` — because CSS cannot OR a media query with a
+  plain selector. They are one ramp: change both or neither.
+- `color-scheme` follows the pinned theme (`light` / `dark`), not just
+  `light dark`. Left alone, a page pinned light on a dark OS gets dark scrollbars
+  and dark form controls.
+- `theme-color` is handled by inserting a **media-less** `<meta>` first in `<head>`,
+  which outranks the two media-scoped ones already there. Choosing `system` removes
+  it and hands the decision back to them.
+- Persistence is `localStorage['firlab-theme']`, and it is the only thing the site
+  stores. Reads and writes are wrapped in `try/catch` — `localStorage` throws
+  outright in a storage-blocked context, and a theme control must not take the page
+  down with it. This is a preference, not analytics; the footer's "no analytics, no
+  cookies" claim still holds.
+- **No flash.** A parser-blocking inline script in `<head>` applies the stored
+  theme before the first paint. This is the one legitimate reason to run script in
+  `<head>` on this site; it is inline, so `<script src>` stays at zero.
+- The control ships `display: none` and is revealed by `html[data-js]`, set by that
+  same script — the `.u-copy` rule, applied again: an affordance that cannot work
+  must not be drawn.
+
 ### Semantic aliases
 
 `--color-ink`, `--color-ink-soft`, `--color-ink-mute`, `--color-paper`,
@@ -176,16 +213,43 @@ multi-column rule is declared at the component that owns it.
 
 ### Navigation and footer
 
+**A product name is a link to that product's page. Everywhere.** Nav, hero index,
+band heading — one destination, one rule. The site shipped with those three all
+pointing at in-page anchors (`/#codegraph`), so clicking a product name scrolled
+the home page to its band and left the reader to keep scrolling through the other
+three; the detail page was reachable only from a secondary "详细介绍" link buried
+in the band's meta column. The name was the primary affordance pointing at the
+wrong destination, and the secondary link taught readers the name was not the way
+in. Both are fixed: the name links to the page, the "详细介绍" item is gone.
+
+The distinction the reader now learns:
+
+| Surface | Reads as | Affordance |
+| --- | --- | --- |
+| a product **name** | a door | link to `/<product>/`, marked with the trailing `→` |
+| a product **band** | the summary | read where it stands; no in-site link |
+| band **meta column** | outward | external links only (repo, releases) |
+
+The homepage bands stay. They give the index substance and they are the summary
+layer between the hero and a full page — but they are now unambiguously content,
+not a competing route.
+
+Locale is respected: links are built with `getRelativeLocaleUrl(lang, product.detail)`,
+so `/en/` leads to `/en/codegraph/` and never drops the reader onto the Chinese
+page. On a detail page the entry for the product being read is **not a link to
+itself** — it is `aria-current="page"` with the marked dot, the same treatment the
+detail-page footer strip uses.
+
 The nav reduces by **progressive disclosure**, never by squashing:
 
 | Width | Contents |
 | --- | --- |
-| under 640px | wordmark + language switch |
+| under 640px | wordmark + theme switch + language switch |
 | 640px+ | + social icon row |
-| 900px+ | + product anchors |
+| 900px+ | + product links |
 
-Nothing becomes unreachable at any width: the product anchors are also the hero
-ledger, and the socials repeat *with text labels* in the footer. The icon row's
+Nothing becomes unreachable at any width: the product links are also the hero
+index, and the socials repeat *with text labels* in the footer. The icon row's
 cutoff is measured — it needs 357px of the 332px available at 390px, and only
 clears around 430px, so `sm` is the correct threshold.
 
@@ -198,6 +262,7 @@ social marks get **text labels**, which the icon-only nav depends on (see §3).
 | --- | --- |
 | `FloatingNav` | sticky floating bar. Wordmark · product anchors · socials · language switch. Ground is 92% opaque *on its own* — see §5. |
 | `LangSwitch` | both locales always rendered; current one is a non-link with `aria-current`. Target is built from the current page's slug with its locale prefix stripped (`stripLocale` + `getRelativeLocaleUrl`), so `/en/x/` switches to `/x/`, never to the home page. |
+| `ThemeSwitch` | three `<button>`s — `system` · `light` · `dark` — in a `role="group"`, sharing `LangSwitch`'s hairline segmented shape because both answer "which of these am I in". `aria-pressed` is the state; each segment carries its own icon **and** its own visually hidden label, so the icon is never the only name. Buttons rather than `role="radio"`: `aria-pressed` needs no roving-focus implementation to be correct. Ships hidden, revealed by `html[data-js]`. See §1. |
 | `SocialIcon` | five marks on one 24px grid, `currentColor` only, legible at 20px. **GitHub is the official vendor mark** — Primer `mark-github-24`, one filled path, unmodified. The other four (bilibili · zhihu · x · wechat) stay authored geometric abstractions at 1.8px stroke — see §7. |
 | `SocialRow` | the five real destinations, nothing invented (there is no Facebook). External links carry `target="_blank" rel="noopener noreferrer"`. WeChat is a `<details>` disclosure holding the QR, not an anchor. |
 | `Principles` | sticky section heading + hanging-numeral list. A distinct layout family from the product bands — deliberately not three cards. |
@@ -351,6 +416,13 @@ full.
   5.1:1 / 8.6:1. `--ink-400` meta on `--paper-0` is 5.6:1 / 5.2:1 — used at ≥12px,
   passes AA for normal text.
 - Status is text + colour, never colour alone.
+- The theme control's selected segment is `aria-pressed="true"` plus a filled
+  ground plus a distinct icon per segment — three signals, none of them colour
+  alone. Each button holds a visually hidden label (`跟随系统` / `浅色` / `深色`),
+  so an icon-only control still has a real accessible name.
+- Both themes are now *chosen*, not just inherited, so contrast holds in both by
+  construction: the pinned ramps are byte-identical to the `prefers-color-scheme`
+  ones, which are the measured pairs above.
 - `alt` on every image; decorative marks are `aria-hidden` when the adjacent text
   already names the product.
 - Install commands are selectable text in a `<code>`, not an image.
