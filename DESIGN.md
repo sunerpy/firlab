@@ -177,6 +177,11 @@ Meta text is mono, uppercase, `letter-spacing: 0.08em`.
 Tailwind's default numeric scale (`2 / 4 / 6 / 8 / 12 / 16 / 24 / 32`), which maps to it
 exactly. No off-scale arbitrary values.
 
+The one deliberate exception is the horizontal gutter, which is fluid rather than
+stepped — see §2. It is a frame, not a spacing relationship between two pieces of
+content, and a frame that jumps at a breakpoint is what produced the cramped
+mid-width layout in the first place.
+
 ### Radius / rule
 
 `--radius-sm` `4px` (badges, code block), `--radius-md` `8px` (mark frame). No pill
@@ -185,7 +190,75 @@ unreleased work uses `1px dashed`.
 
 ## 2. Layout grammar
 
-Container: `max-width: 76rem`, gutter `--space-3` → `--space-5` at `md`.
+### The page shell
+
+Every band on the site — `main` on all five page components, the footer grid, the
+pager, the nav pill — is `.u-shell`. Nothing sets its own container width or
+gutter. Two tokens define it:
+
+| Token | Value | Meaning |
+| --- | --- | --- |
+| `--shell-measure` | `71rem` | the content column's cap |
+| `--shell-gutter` | `clamp(1.5rem, 6.5vw, 5.5rem)` | the air outside it |
+
+```css
+.u-shell {
+  max-width: calc(var(--shell-measure) + 2 * var(--shell-gutter));
+  margin-inline: auto;
+  padding-inline: var(--shell-gutter);
+}
+```
+
+**The content column is capped; the gutter is added outside it.** This is the
+opposite of what the site shipped with, and the inversion is the point. The old
+shell was `max-width: 76rem` with a fixed `padding: 0 2.5rem`, and a max-width
+only produces margin once the viewport *exceeds* it — so every width below
+~1300px fell through to the bare 40px padding while 1440px got 144px. Measured
+before the change: **40px of gutter at 1024px and at 1180px**, against 104px at
+1440px. The page was correct on a large display and cramped on every laptop,
+which is exactly why it went unnoticed.
+
+Capping `measure + 2 × gutter` rather than a flat 76rem keeps the wide-display
+result identical — the content column still reaches 71rem and its inset is
+unchanged. `--shell-measure` is 71rem, not 76rem, because 76rem was a *padding*
+box: its content was 76 − 2×2.5 = 71rem. Naming the real measure is what makes
+the two regimes agree.
+
+Measured, home page, before → after:
+
+| viewport | gutter before | gutter after | body copy |
+| --- | --- | --- | --- |
+| 320px | 24px | 24px | 15.9 hanzi/line |
+| 390px | 24px | 25px | 20.2 → 20.0 hanzi/line |
+| 768px | 40px | 50px | 37.7 hanzi/line (unchanged) |
+| 900px | 40px | 59px | — |
+| 1024px | **40px** | **67px** | 27.7 → 26.0 hanzi/line |
+| 1180px | **40px** | **77px** | 30.2 hanzi/line |
+| 1280px | 40px | 83px | 32.9 hanzi/line |
+| 1440px | 104px | 104px | 34.1 hanzi/line (unchanged) |
+| 1920px | 384px | 384px | 34.1 hanzi/line (unchanged) |
+
+The `6.5vw` slope is fitted so phones lose nothing: it resolves to 25px at
+390px, where the old fixed gutter was 24px. The `1.5rem` floor holds 320–369px
+at the old 24px exactly. The `5.5rem` ceiling stops the gutter from chasing the
+max-width crossover upward.
+
+Two things are derived from the same tokens rather than restated, so they cannot
+drift out of alignment with the copy:
+
+- **`.u-guides`** — `width: min(var(--shell-measure), 100% - 2 * var(--shell-gutter))`.
+  Before this, the margin rules were hard-coded to `100% - 10rem` and sat 40px
+  *inside* the copy at 1180px.
+- **`.u-shell-nav`** — `padding-inline: calc(var(--shell-gutter) - 0.5rem)`. The
+  nav pill's outer edge sits 0.5rem outside the content column so its own 1rem
+  of inner padding lands the wordmark 0.5rem inside the copy. That was the
+  measured relationship before the gutter became fluid; it is preserved, not
+  re-invented.
+
+**Full-bleed bands stay full-bleed.** The footer and the pager span the viewport
+(`[0, 1165]` at 1180px) while their *content* sits on the column (`[77, 1088]`),
+matching `main` to the pixel. Section hairlines are on the sections themselves,
+so they span the column, never the viewport.
 
 The page is a **12-column asymmetric editorial index**, not a card grid:
 
@@ -204,8 +277,17 @@ The page is a **12-column asymmetric editorial index**, not a card grid:
 **The 12-column split activates at `lg` (1024px), not `md`.** This was measured,
 not guessed: at 768px the `md` split gave `SpecGrid` a 145px value column — about
 nine hanzi per line, running to 8 lines. Moving the breakpoint to `lg` takes that
-to 497px / 2 lines. `md` still drives padding and the footer, whose content is
-short labels rather than prose.
+to 497px / 2 lines. `md` still drives the footer grid, whose content is short
+labels rather than prose. It no longer drives padding — the gutter is fluid and
+has no breakpoint at all.
+
+**The nav's product links also appear at `lg`,** not at the former ad-hoc 900px.
+Measured at 900px once the gutter went fluid: the pill has 784px of width and its
+contents need 822px, so the right-hand cluster rendered 38px outside its own
+rounded ground. It was already 1px over before the gutter change — 900px was
+never a width this bar fitted in. The tightest surviving fit is a detail page at
+1024px: 892px available, 861px needed, **31px slack**. A fifth product would
+exceed that and needs this breakpoint re-measured, not nudged.
 
 Responsive: single column below `1024px`; the ledger moves under the hero
 headline; the left rail becomes a horizontal row above the product name. Every

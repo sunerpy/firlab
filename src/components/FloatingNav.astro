@@ -30,9 +30,15 @@ import type { Product, ProductId } from '../i18n/content';
  * Progressive disclosure rather than a squashed desktop bar:
  *   under 640px  wordmark + theme + language switch
  *   640px and up  + social icons
- *   900px and up  + product links
+ *   1024px and up + product links
  * Nothing becomes unreachable at any width — products are also the hero's
  * index, and the socials are repeated with text labels in the footer.
+ *
+ * The product links appear at `lg`, the same breakpoint the 12-column grid
+ * activates at, and not at the former ad-hoc 900px. Measured at 900px with the
+ * fluid gutter: the pill has 784px and its contents need 822px, so the right
+ * cluster rendered 38px outside its own rounded ground. It was already 1px over
+ * before the gutter change — 900px was never a width this bar fitted in.
  */
 interface Props {
   lang: Lang;
@@ -48,7 +54,7 @@ const home = getRelativeLocaleUrl(lang, '');
 ---
 
 <div class="pointer-events-none sticky top-0 z-40 pt-3 md:pt-4">
-  <div class="pointer-events-auto mx-auto w-full max-w-[76rem] px-4 md:px-8">
+  <div class="u-shell u-shell-nav pointer-events-auto">
     <nav
       aria-label={t('nav.label')}
       class="u-nav-shell flex items-center gap-3 rounded-[10px] px-3 py-2 md:gap-5 md:px-4"
@@ -61,7 +67,7 @@ const home = getRelativeLocaleUrl(lang, '');
         <Wordmark />
       </a>
 
-      <ul class="ml-2 hidden items-center gap-1 min-[900px]:flex">
+      <ul class="ml-2 hidden items-center gap-1 lg:flex">
         {
           products.map((product) =>
             product.id === currentId ? (

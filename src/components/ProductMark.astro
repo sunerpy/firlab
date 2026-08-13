@@ -7,8 +7,9 @@
  * The AgentLens hexagon and the Voxera chevron are lifted from the shipped
  * application icons (icons/source/*.svg in each repo) so the marks here match
  * the marks on the user's dock. pt-tools is lifted from brand/pt-tools/logo.svg
- * for the same reason. CodeGraph has no icon yet, so its three-node graph is
- * drawn to the same geometric language.
+ * for the same reason — regenerate that first, then port the geometry here.
+ * CodeGraph has no icon yet, so its three-node graph is drawn to the same
+ * geometric language.
  */
 interface Props {
   product: 'pttools' | 'codegraph' | 'agentlens' | 'voxera';
@@ -39,17 +40,22 @@ const label = {
   {
     product === 'pttools' && (
       <>
-        {/* Three columns, rising, sharing one base — from brand/pt-tools, plate
-            removed. Three because the tool's distinctive job is one view over
-            many trackers; rising because ratio, bonus and level are what it
-            moves. The columns TOUCH: a gap fills in with antialiasing at small
-            sizes, a colour edge between two opaque fills does not. Heights
-            12/21/36 accelerate (deltas 9 then 15) rather than stepping evenly.
-            Solid mass, no strokes and no opacity, so the shape cannot degrade
-            into a ghost — the arcs this replaced faded out below 40px. */}
-        <rect x="6" y="30" width="12" height="12" fill="currentColor" />
-        <rect x="18" y="21" width="12" height="21" fill="currentColor" />
-        <rect x="30" y="6" width="12" height="36" fill="var(--color-mark)" />
+        {/* A shell prompt caret and the cursor block after it — from
+            brand/pt-tools/logo.svg, plate removed, that mark's 16ths scaled by 3.
+            pt-tools is a CLI, and this is what a terminal line looks like before
+            you type. The 6-unit stroke is heavy on purpose: it IS the element
+            rather than an outline of one, and a sibling-weight 1.75 hairline
+            would vanish at these sizes. The 6-unit gap is the meaning — two
+            tokens on a command line — so it must not close up. No opacity, so
+            neither half can degrade into a ghost. */}
+        <path
+          d="M9 15 L18 24 L9 33"
+          stroke="currentColor"
+          stroke-width="6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <rect x="27" y="18" width="15" height="12" fill="var(--color-mark)" />
       </>
     )
   }

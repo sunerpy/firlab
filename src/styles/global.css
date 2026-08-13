@@ -50,6 +50,26 @@
     0 10px 24px -20px color-mix(in oklab, var(--shade) 50%, transparent);
   --shadow-recess: inset 0 2px 5px -3px color-mix(in oklab, var(--shade) 42%, transparent);
 
+  /* ---- Page shell -------------------------------------------------------
+     The horizontal frame, and the only place it is defined. `max-width: 76rem`
+     with a fixed 2.5rem padding was the bug: a max-width only creates margin
+     once the viewport exceeds it, so the gutter was the bare 40px at both
+     1024px and 1180px while 1440px got 144px.
+
+     So the CONTENT column is what is capped and the gutter is added outside it:
+
+       outer = min(available, measure + 2 × gutter)
+
+     which is why `--shell-measure` is 71rem — the old 76rem was a padding box,
+     content 76 − 2×2.5. Capping `measure + 2 × gutter` keeps the wide-display
+     result identical: measured 144.5px inset at 1440px and 384.5px at 1920px,
+     before and after. Only the 900–1300px band moves.
+
+     The slope is fitted to leave phones alone: 6.5vw is 25px at 390px, where
+     the old gutter was 24px. 50px at 768, 67px at 1024, 77px at 1180. */
+  --shell-measure: 71rem;
+  --shell-gutter: clamp(1.5rem, 6.5vw, 5.5rem);
+
   /* ---- Script-dependent metrics -----------------------------------------
      Latin defaults. Overridden per-language below; every prose and display
      rule reads these instead of hard-coding a value, so switching locale
@@ -287,6 +307,22 @@ html:lang(zh) {
 --------------------------------------------------------------------------- */
 
 @layer components {
+  .u-shell {
+    width: 100%;
+    max-width: calc(var(--shell-measure) + 2 * var(--shell-gutter));
+    margin-inline: auto;
+    padding-inline: var(--shell-gutter);
+  }
+
+  /* The nav pill's outer edge sits 0.5rem OUTSIDE the content column, so its
+     own 1rem of inner padding lands the wordmark 0.5rem inside the copy. That
+     offset is what makes the bar read as a frame around the column rather than
+     a strip resting on its edge; it was the measured relationship before the
+     gutter became fluid, so it is preserved rather than re-invented. */
+  .u-shell-nav {
+    padding-inline: calc(var(--shell-gutter) - 0.5rem);
+  }
+
   /* Display faces are optically large; the metrics come from the active
      script, not from a fixed Latin value. */
   .u-display {
@@ -363,17 +399,17 @@ html:lang(zh) {
     }
   }
 
-  /* Editorial margin rules on the text column's own edges — 76rem container
-     minus its 2.5rem gutters, so each rule lands exactly where the copy starts
-     rather than 40px outside it. Structural, not decorative, and only shown
-     above 1180px where a margin has room to exist. The gutter is `px-10`
-     (2.5rem) at every width this is visible. */
+  /* Editorial margin rules on the text column's own edges. Derived from the
+     same two tokens `.u-shell` uses, so the rules track the copy at every
+     width instead of only where the old max-width happened to engage —
+     measured before this change, they sat 40px inside the copy at 1180px.
+     Shown above 1180px, where a margin has room to exist at all. */
   .u-guides {
     position: fixed;
     inset-block: 0;
     left: 50%;
     translate: -50% 0;
-    width: min(71rem, 100% - 10rem);
+    width: min(var(--shell-measure), 100% - 2 * var(--shell-gutter));
     pointer-events: none;
     z-index: 0;
     display: none;
