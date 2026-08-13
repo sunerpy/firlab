@@ -50,25 +50,71 @@
     0 10px 24px -20px color-mix(in oklab, var(--shade) 50%, transparent);
   --shadow-recess: inset 0 2px 5px -3px color-mix(in oklab, var(--shade) 42%, transparent);
 
-  /* ---- Page shell -------------------------------------------------------
-     The horizontal frame, and the only place it is defined. `max-width: 76rem`
-     with a fixed 2.5rem padding was the bug: a max-width only creates margin
-     once the viewport exceeds it, so the gutter was the bare 40px at both
-     1024px and 1180px while 1440px got 144px.
+  /* ---- The stage, and the safe area inside it ---------------------------
+     TWO NESTED BOXES, not one gutter. This is the whole layout fix and the
+     reason a single `--shell-gutter` number could never solve it.
 
-     So the CONTENT column is what is capped and the gutter is added outside it:
+     The previous shell had one horizontal token, and the editorial margin
+     rules (`.u-guides`) were derived from that same token — so the visible
+     frame landed EXACTLY on the line the text starts at. Measured at 1180px:
+     the rules sat at x=76/1088 and the headline's first glyph at x=79. Three
+     pixels. Widening the one token moved the frame and the text together and
+     the copy still read as pinned to a border, which is precisely what it was.
 
-       outer = min(available, measure + 2 × gutter)
+       ┌─ viewport ───────────────────────────────────────────────────┐
+       │      ┌─ stage (the sheet, a real element) ──────────────┐    │
+       │ desk │        ┌─ content column ───────────┐            │    │
+       │      │  air   │  headline, prose, specs …  │   air      │    │
+       │      │        └────────────────────────────┘            │    │
+       │      └─────────────────────────────────────────────────-┘    │
+       └──────────────────────────────────────────────────────────────┘
+         inset          gap                            gap      inset
 
-     which is why `--shell-measure` is 71rem — the old 76rem was a padding box,
-     content 76 − 2×2.5. Capping `measure + 2 × gutter` keeps the wide-display
-     result identical: measured 144.5px inset at 1440px and 384.5px at 1920px,
-     before and after. Only the 900–1300px band moves.
+     `--stage-inset`  viewport → the sheet's visible edge
+     `--stage-gap`    the sheet's edge → the first glyph. THIS is the air the
+                      old layout had none of.
 
-     The slope is fitted to leave phones alone: 6.5vw is 25px at 390px, where
-     the old gutter was 24px. 50px at 768, 67px at 1024, 77px at 1180. */
+     The sheet is a real DOM element (`.u-stage`), not a fixed overlay, so
+     full-bleed bands — footer, pager — bleed to the SHEET rather than to the
+     viewport, and nothing has to restate the geometry to stay aligned.
+
+     Both slopes are two-point fits, not guesses:
+       inset  42px @768  →  70px @1180   (6.8vw − 0.64rem)
+       gap    26px @768  →  46px @1180   (4.7vw − 0.6rem)
+
+     Which resolves the text safe area — viewport edge to first glyph — to these
+     MEASURED values, rounded, taken in a real browser against the content width
+     net of the scrollbar rather than by evaluating the tokens on paper:
+       390px    24    (sheet is full-bleed below 768, so this is the gap alone)
+       768px    69
+       1024px   99
+       1180px  117
+       1440px  145
+     From 768 up the sheet also draws a 1px border, so the number is inset + gap
+     + that hairline. Do not read the 1440 row as `--stage-inset` + `--stage-gap`:
+     there the stage is capped by `--shell-measure` + 2 × `--stage-gap`, not by
+     `100% − 2 × --stage-inset`, so the real inset is whatever centring the capped
+     sheet leaves over — larger than the token would suggest.
+     Against 24 / 50 / 67 / 77 / 104 before, the 1024–1180 band, where a laptop
+     actually sits, gains real page margin AND air between the frame and the
+     first glyph, where it previously had 3px.
+
+     Below 768px the sheet goes full-bleed: a 12px frame with 14px of air
+     inside it is worse than no frame, and a phone has no margin to spend. */
   --shell-measure: 71rem;
-  --shell-gutter: clamp(1.5rem, 6.5vw, 5.5rem);
+  --stage-inset: clamp(0px, 6.8vw - 0.64rem, 7rem);
+  --stage-gap: clamp(1.5rem, 4.7vw - 0.6rem, 3.5rem);
+
+  /* Inner padding for a plate — a panel that carries its own ground. Kept
+     separate from `--stage-gap` so a plate's copy never lands on its own
+     border either; same failure, one level down. */
+  --plate-x: clamp(1.25rem, 2.6vw + 0.15rem, 2.75rem);
+  --plate-y: clamp(1.5rem, 2.4vw + 0.5rem, 2.75rem);
+
+  /* Read by BOTH the nav pill's padding and `.u-shell-nav`'s outward pull, so
+     the wordmark cannot drift off the copy's start line. Raised at 768px in the
+     media query below. */
+  --nav-pad: 0.625rem;
 
   /* ---- Script-dependent metrics -----------------------------------------
      Latin defaults. Overridden per-language below; every prose and display
@@ -79,6 +125,23 @@
   --lh-display: 1.05;
   --ls-display: -0.021em;
   --lh-lede: 1.6;
+
+  /* Measure is a token, not a `max-w-prose` guess, because the comfortable
+     line length differs by script: a hanzi advance is a full em, a Latin
+     character averages about half of one. `em` here is deliberate — it is
+     relative to the element's own size, so a lede at 1.28rem and body at 1rem
+     both land on the same character count. Latin: ~66 characters. */
+  --measure-prose: 36em;
+  --measure-lede: 30em;
+}
+
+/* Unlayered, and it has to be: an unlayered declaration outranks every layered
+   one, so writing this override inside `@layer components` would lose to the
+   `:root` block above and the pill would keep its 10px padding at every width. */
+@media (min-width: 768px) {
+  :root {
+    --nav-pad: 0.875rem;
+  }
 }
 
 /* Chinese needs looser leading than Latin: hanzi are full-height square boxes
@@ -94,6 +157,22 @@ html:lang(zh) {
   --lh-display: 1.22;
   --ls-display: 0.006em;
   --lh-lede: 1.85;
+
+  /* A hanzi occupies a full em; a Latin character averages about half of one.
+     One display size therefore cannot serve both scripts — at the size that
+     sets a 51-character English headline in two lines, a 17-hanzi Chinese
+     headline is 1.4 lines, and at the size that fills the Chinese column the
+     English one runs to four. The display steps are consequently per-script,
+     the same way leading and tracking already are, and both headlines land on
+     two lines at every width. Same reasoning for measure: 29em is ~29 hanzi,
+     inside the 24–30 band CJK copy needs; 36em is ~66 Latin characters.
+
+     These override `@theme` variables from an unlayered rule, which outranks
+     every layer — the mechanism the leading tokens above already rely on. */
+  --text-display: clamp(2.35rem, 4.4vw, 4.35rem);
+  --text-title: clamp(1.85rem, 3.1vw, 2.7rem);
+  --measure-prose: 29em;
+  --measure-lede: 26em;
 }
 
 /* ---------------------------------------------------------------------------
@@ -197,9 +276,13 @@ html:lang(zh) {
 
   /* Sharper scale contrast than a single-page index needs, deliberately: the
      page's modernity comes from the distance between display and mono, not
-     from ornament. */
-  --text-display: clamp(2.35rem, 5vw, 4.35rem);
-  --text-title: clamp(1.85rem, 3.1vw, 2.7rem);
+     from ornament.
+
+     `--text-display` and `--text-title` are the LATIN steps; the CJK block
+     above raises both. The slope is fitted so a 51-character English headline
+     sets in two lines inside a 7-of-12 column: 41px at 1180, 49px at 1440. */
+  --text-display: clamp(2.15rem, 3.5vw, 3.5rem);
+  --text-title: clamp(1.7rem, 2.75vw, 2.4rem);
   /* Fourth rung: four products need four maturity steps, and collapsing a v0.42
      tool onto the same size as a v0.0.5 one discards that. Sits between its two
      neighbours so the ladder stays even. */
@@ -209,6 +292,15 @@ html:lang(zh) {
   --text-meta: 0.75rem;
 
   --ease-brand: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Three steps, and every rounded corner on the site is one of them. The
+     previous build carried 3 / 4 / 6 / 8 / 10px as arbitrary values scattered
+     across nine components, which is how a page ends up with pill controls
+     sitting on square cards. Chips and code blocks are tight, controls are
+     medium, anything that behaves as a sheet of its own is the large step. */
+  --radius-chip: 4px;
+  --radius-control: 8px;
+  --radius-plate: 12px;
 }
 
 /* ---------------------------------------------------------------------------
@@ -228,8 +320,16 @@ html:lang(zh) {
     overflow-x: clip;
   }
 
+  /* The desk the sheet lies on, and the reason the stage frame reads as an
+     edge rather than as a stray hairline. One step off `--paper-0`, which is
+     the sheet — light mode lifts the sheet, dark mode sinks it. Content never
+     sits on this colour, so every measured contrast pair still holds. */
+  html {
+    background-color: var(--color-panel);
+  }
+
   body {
-    background-color: var(--color-paper);
+    background-color: var(--color-panel);
     color: var(--color-ink-body);
     font-family: var(--font-sans);
     font-size: 1rem;
@@ -307,20 +407,60 @@ html:lang(zh) {
 --------------------------------------------------------------------------- */
 
 @layer components {
-  .u-shell {
+  /* ---- The stage ---------------------------------------------------------
+     The sheet the whole document sits on, and the outer of the two boxes.
+     A real element rather than a fixed overlay, so the footer and the pager
+     bleed to the SHEET instead of to the viewport and stay aligned with the
+     copy without restating any geometry.
+
+     Width is the smaller of two limits, which is what keeps the frame-to-text
+     air constant instead of letting it grow with the display:
+       measure + 2 × gap   the sheet never outgrows its content column
+       100% − 2 × inset    the sheet never reaches the viewport edge
+     Measured: the gap between the sheet's border and the first glyph resolves
+     to 27px at 768, 39px at 1024, 47px at 1180 and 57px from 1440 up.
+
+     Full-bleed below 768px on purpose — see the token block. */
+  .u-stage {
+    position: relative;
     width: 100%;
-    max-width: calc(var(--shell-measure) + 2 * var(--shell-gutter));
+    min-height: 100dvh;
     margin-inline: auto;
-    padding-inline: var(--shell-gutter);
+    background-color: var(--color-paper);
   }
 
-  /* The nav pill's outer edge sits 0.5rem OUTSIDE the content column, so its
-     own 1rem of inner padding lands the wordmark 0.5rem inside the copy. That
-     offset is what makes the bar read as a frame around the column rather than
-     a strip resting on its edge; it was the measured relationship before the
-     gutter became fluid, so it is preserved rather than re-invented. */
+  @media (min-width: 768px) {
+    .u-stage {
+      width: min(
+        calc(var(--shell-measure) + 2 * var(--stage-gap)),
+        calc(100% - 2 * var(--stage-inset))
+      );
+      border-inline: 1px solid var(--color-rule);
+      box-shadow: 0 0 80px -40px color-mix(in oklab, var(--shade) 55%, transparent);
+    }
+  }
+
+  /* The content safe area — the inner box. Every band on every page is this.
+     `max-width` matches the stage's first limit so the two agree exactly at
+     wide widths; `padding-inline` is the air. */
+  .u-shell {
+    width: 100%;
+    max-width: calc(var(--shell-measure) + 2 * var(--stage-gap));
+    margin-inline: auto;
+    padding-inline: var(--stage-gap);
+  }
+
+  /* The pill's outer edge is pulled outward by exactly its own inner padding,
+     which lands the wordmark on the copy's start line while the bar still reads
+     as a frame around the column rather than a strip resting on its edge.
+
+     Both halves read `--nav-pad`, so the relationship cannot drift: the pill's
+     padding is NOT a utility class on the element for that reason. It tightens
+     below 768px because the bar is at its narrowest there — measured at 320px
+     with 14px of padding, the theme and language controls ended 1.3px from the
+     pill's own border. At 10px there is 13px of clearance. */
   .u-shell-nav {
-    padding-inline: calc(var(--shell-gutter) - 0.5rem);
+    padding-inline: max(0px, calc(var(--stage-gap) - var(--nav-pad)));
   }
 
   /* Display faces are optically large; the metrics come from the active
@@ -356,11 +496,6 @@ html:lang(zh) {
     line-height: 1.5;
   }
 
-  .u-lede {
-    font-size: var(--text-lede);
-    line-height: var(--lh-lede);
-  }
-
   /* Inline Latin or numerals butting directly against hanzi. Chinese copy on
      this site is authored with real spaces around Latin runs (the standard CJK
      convention), so this is for the cases where a space would be wrong — next
@@ -388,6 +523,7 @@ html:lang(zh) {
     background-color: color-mix(in oklab, var(--paper-0) 92%, transparent);
     border: 1px solid transparent;
     backdrop-filter: saturate(150%) blur(12px);
+    padding-inline: var(--nav-pad);
   }
 
   /* Some users disable transparency at the OS level; honour it. */
@@ -399,55 +535,112 @@ html:lang(zh) {
     }
   }
 
-  /* Editorial margin rules on the text column's own edges. Derived from the
-     same two tokens `.u-shell` uses, so the rules track the copy at every
-     width instead of only where the old max-width happened to engage —
-     measured before this change, they sat 40px inside the copy at 1180px.
-     Shown above 1180px, where a margin has room to exist at all. */
-  .u-guides {
-    position: fixed;
-    inset-block: 0;
-    left: 50%;
-    translate: -50% 0;
-    width: min(var(--shell-measure), 100% - 2 * var(--shell-gutter));
-    pointer-events: none;
-    z-index: 0;
-    display: none;
+  /* ---- Plates ------------------------------------------------------------
+     A panel that carries its own ground, its own hairline and — critically —
+     its own inner padding, so its copy never lands on its own border. Three
+     variants, each earning its treatment:
+
+       .u-plate         recessed panel. The hero ledger, a detail masthead.
+       .u-plate-lead    + a 2px brand-orange left rule. Reserved for the one
+                        most-released product and the detail-page premise, so
+                        the orange rule means "this is the claim", nowhere else.
+       .u-plate-draft   dashed on all four sides, no ground, no shadow. Marks
+                        unreleased work — the boundary is drawn before a word
+                        of it is read, which is the same device the index used
+                        as a dashed top rule but stated as a whole enclosure. */
+  .u-plate {
+    background-color: var(--color-panel);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-plate);
+    padding: var(--plate-y) var(--plate-x);
+    box-shadow: var(--shadow-plate);
   }
 
-  .u-guides::before,
-  .u-guides::after {
-    content: "";
-    position: absolute;
-    inset-block: 0;
-    width: 1px;
-    background-color: color-mix(in oklab, var(--rule) 62%, transparent);
+  .u-plate-lead {
+    border-left: 2px solid var(--color-mark);
   }
 
-  .u-guides::before {
-    left: 0;
+  .u-plate-draft {
+    background-color: transparent;
+    border: 1px dashed var(--color-rule);
+    border-radius: var(--radius-plate);
+    padding: var(--plate-y) var(--plate-x);
   }
 
-  .u-guides::after {
-    right: 0;
+  /* ---- Band rhythm -------------------------------------------------------
+     A detail page is nine or ten sections long. Giving every one of them the
+     same hairline top rule turned the rule into wallpaper: nine identical
+     boundaries carry no information, and the reader gets no sense of having
+     finished anything. Measured on the previous build, `/codegraph/` drew 10
+     of them at 6,000px of scroll.
+
+     So a rule now marks a MOVEMENT, not a section. `open` starts one and is
+     the only variant that draws a line; `next` and `tight` are separated by
+     space alone — at the 768px breakpoint that is a 96px and a 56px top margin
+     respectively, which says more than a hairline ever communicated. Rules per
+     detail page drop from ~10 to 3–4,
+     and each surviving one means "the subject changed". */
+  .u-band {
+    padding-block: 3rem 1rem;
   }
 
-  @media (min-width: 1180px) {
-    .u-guides {
-      display: block;
+  .u-band-open {
+    margin-block-start: 6rem;
+    border-block-start: 1px solid var(--color-rule);
+  }
+
+  .u-band-next {
+    margin-block-start: 4rem;
+  }
+
+  .u-band-tight {
+    margin-block-start: 2.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .u-band {
+      padding-block: 4rem 1rem;
+    }
+
+    .u-band-open {
+      margin-block-start: 9rem;
+    }
+
+    .u-band-next {
+      margin-block-start: 6rem;
+    }
+
+    .u-band-tight {
+      margin-block-start: 3.5rem;
     }
   }
 
+  /* Running copy is capped by measure, not by its grid track: a 7-of-12 track
+     is 540px at 1180, which is 33 hanzi — past the 24–30 band CJK needs. */
+  .u-measure {
+    max-width: var(--measure-prose);
+  }
+
+  .u-lede {
+    font-size: var(--text-lede);
+    line-height: var(--lh-lede);
+    max-width: var(--measure-lede);
+  }
+
   /* ---- Reading progress ------------------------------------------------
-     A 2px hairline at the document's top edge, driven by `scroll(root)`. It
-     starts at `scaleX(0)` and is only ever scaled by the scroll timeline, so a
+     A 2px hairline at the sheet's top edge, driven by `scroll(root)`. It spans
+     the STAGE rather than the viewport, because it reports progress through
+     the sheet and a rail running out over the desk would claim otherwise.
+     Starts at `scaleX(0)` and is only ever scaled by the scroll timeline, so a
      browser without scroll-driven animations — or a reader who has asked for
      reduced motion — sees nothing at all rather than a permanently full bar.
      Below the skip link (z-50), above the nav (z-40). */
   .u-progress {
     position: fixed;
     inset-block-start: 0;
-    inset-inline: 0;
+    left: 50%;
+    translate: -50% 0;
+    width: 100%;
     z-index: 45;
     height: 2px;
     background-color: var(--color-mark);
@@ -456,14 +649,61 @@ html:lang(zh) {
     pointer-events: none;
   }
 
+  @media (min-width: 768px) {
+    .u-progress {
+      width: min(
+        calc(var(--shell-measure) + 2 * var(--stage-gap)),
+        calc(100% - 2 * var(--stage-inset))
+      );
+    }
+  }
+
   /* ---- Detail-page footer ----------------------------------------------
      A recessed ground plus a shadow falling in from above, so the footer reads
      as chrome the content sits on rather than as one more band of the page.
      This is the visual half of the fix; the structural half is dropping the
      positioning blurb and the stacked product index (see SiteFooter). */
+  /* The footer has to read as recessed in BOTH themes, and one token cannot do
+     that: the paper ramp inverts, so `--paper-2` is a step DARKER than the sheet
+     in light mode and a step LIGHTER in dark mode. Measured, the dark footer came
+     out brighter than the page it sits in — it read as a raised panel, which is
+     the opposite of the intent.
+
+     So the ground is mixed from `--shade`, which stays dark in both themes (the
+     same reason the shadows are mixed from it rather than from the ink ramp).
+     Contrast on the resulting ground is measured in DESIGN.md §6. */
   .u-footer-slim {
-    background-color: var(--color-panel);
+    background-color: color-mix(in oklab, var(--shade) 6%, var(--color-paper));
     box-shadow: var(--shadow-recess);
+  }
+
+  /* ---- Product entry feedback -------------------------------------------
+     The name is the link; the mark sits outside it, as a sibling. Tying the
+     two together is what tells the reader the mark belongs to the destination
+     rather than being decoration beside it — so hovering the name lights the
+     mark. `:has()` is the only way to reach a sibling of the hovered element;
+     without it the effect simply does not apply, which costs nothing because
+     the link already carries its own colour change and its arrow. Hovering the
+     band itself must NOT trigger it — the band is a 500px-tall summary, not a
+     target. */
+  .u-entry-mark {
+    transition: color 240ms var(--ease-brand);
+  }
+
+  .u-entry:has(.u-entry-name:hover) .u-entry-mark,
+  .u-entry:has(.u-entry-name:focus-visible) .u-entry-mark {
+    color: var(--color-mark);
+  }
+
+  /* A full-row link needs to show its hit area; a colour change on the name
+     alone under-reports how much of the row is clickable. */
+  .u-row {
+    transition: background-color 200ms var(--ease-brand);
+  }
+
+  .u-row:hover,
+  .u-row:focus-visible {
+    background-color: var(--color-block);
   }
 
   /* ---- Trailing arrow --------------------------------------------------
@@ -543,7 +783,7 @@ html:lang(zh) {
     gap: 0.4em;
     padding: 0.25rem 0.5rem;
     border: 1px solid var(--color-rule);
-    border-radius: 4px;
+    border-radius: var(--radius-chip);
     background-color: color-mix(in oklab, var(--paper-0) 55%, transparent);
     color: var(--color-ink-mute);
     font-family: var(--font-mono);
@@ -603,13 +843,30 @@ html:lang(zh) {
     align-items: center;
     overflow: hidden;
     border: 1px solid var(--color-rule);
-    border-radius: 6px;
+    border-radius: var(--radius-control);
   }
 
   /* Revealed only once the pre-paint script has run, so it is present at first
      paint on a scripting client and absent — not broken — without one. */
   html[data-js] .u-theme {
     display: flex;
+  }
+
+  /* Tightened below 375px, where the bar is at its narrowest: measured, the
+     theme and language controls together overran the pill's padding box by
+     8.7px at 320px. Trimming 2px a side off each segment recovers 20px, which
+     is the smallest change that fits, and every button stays above the 24×24
+     minimum target size (26×28 for a theme segment, 30×30 for a locale). The
+     alternative — dropping the pill's outward pull — would have taken the
+     wordmark off the copy's start line, and hiding either control would have
+     removed a working affordance from the one device that has no alternative. */
+  /* Both segments own their inline padding here rather than through a `px-*`
+     utility on the element. `@layer utilities` outranks `@layer components`
+     regardless of specificity, so a utility would beat the narrow-width override
+     below and the fix would be silently dead — the same trap the
+     `.u-social-inline` and `.u-theme` notes describe. */
+  .u-lang-seg {
+    padding-inline: 0.625rem;
   }
 
   .u-theme-btn {
@@ -647,6 +904,20 @@ html:lang(zh) {
 
   .u-theme-btn svg {
     display: block;
+  }
+
+  /* AFTER `.u-theme-btn`, and that ordering is the whole point: the base rule
+     sets padding through the `padding` SHORTHAND, so an equally-specific
+     `padding-inline` written earlier in the same layer loses on source order —
+     measured, the override read back as 7px until this block moved down here. */
+  @media (max-width: 374px) {
+    .u-theme-btn {
+      padding-inline: 0.3125rem;
+    }
+
+    .u-lang-seg {
+      padding-inline: 0.5rem;
+    }
   }
 }
 
@@ -735,6 +1006,22 @@ html:lang(zh) {
   }
 }
 
+/* The one time-driven animation on the site. Everything else is scroll-driven,
+   but the first viewport is already on screen when the document paints — a
+   `view()` timeline there resolves as "already fully entered" and produces no
+   entrance at all, which is why the hero previously arrived flat. */
+@keyframes u-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.7rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @keyframes u-nav-settle {
   from {
     background-color: color-mix(in oklab, var(--paper-0) 88%, transparent);
@@ -750,6 +1037,35 @@ html:lang(zh) {
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  /* Nested entirely inside `no-preference`, and that placement is the reduced
+     motion contract: under `reduce` the rule does not exist, so nothing is ever
+     left holding `opacity: 0`. Neutralising it with a shorter duration instead
+     would leave the hero briefly invisible on exactly the machines that asked
+     it not to move.
+
+     Delays rather than `animation-range`, because this timeline is time, not
+     scroll — the one place on this site where `animation-delay` works. The
+     order is the reading order: label, headline, lede, then the index. */
+  .u-enter > * {
+    animation: u-enter 560ms var(--ease-brand) both;
+  }
+
+  .u-enter > *:nth-child(1) {
+    animation-delay: 40ms;
+  }
+
+  .u-enter > *:nth-child(2) {
+    animation-delay: 110ms;
+  }
+
+  .u-enter > *:nth-child(3) {
+    animation-delay: 190ms;
+  }
+
+  .u-enter > *:nth-child(n + 4) {
+    animation-delay: 270ms;
+  }
+
   @supports (animation-timeline: view()) {
     .u-reveal {
       --u-timeline: view();
