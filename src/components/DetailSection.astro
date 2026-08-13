@@ -4,23 +4,14 @@ import type { SectionMeta } from '../i18n/agentlens';
 /**
  * DetailSection — one numbered band on a product detail page.
  *
- * Same rail-plus-column grammar as ProductEntry on the index: a hairline top
- * rule, a mono rail carrying the section number and label, and the prose in its
- * own column. The rail is what makes a long page scannable without adding a
- * second navigation widget.
- *
  * `layout`:
- *   text  prose measure, 7 of 12 columns — the default. At 76rem that is
- *         ~650px, which is a comfortable measure in Latin and wide enough in
- *         Chinese that a spec value does not collapse to nine hanzi a line.
- *   wide  10 of 12 columns, for figures and tables that need the width.
+ *   text  prose measure, 7 of 12 columns — the default.
+ *   wide  9 of 12 columns, for figures and tables that need the width.
  *
- * `rhythm`:
- *   open  starts a new movement on the page — a larger gap above, so the reader
- *         feels the subject change. Nine identically-spaced sections make a long
- *         page read as one undifferentiated run; the gap stops carrying meaning.
- *   next  continues the current movement. The default.
- *   tight binds a section to the one before it (sibling reference tables).
+ * `rhythm` maps onto the shared `.u-band*` vocabulary in global.css, and the
+ * mapping is the point: only `open` draws a rule. Ten sections each opening
+ * with the same hairline made the rule mean nothing, so a rule now marks a
+ * movement and `next` / `tight` are separated by space alone.
  */
 interface Props {
   section: SectionMeta;
@@ -33,20 +24,21 @@ const { section, layout = 'text', rhythm = 'next' } = Astro.props;
 const body = layout === 'wide' ? 'lg:col-span-9 lg:col-start-4' : 'lg:col-span-7 lg:col-start-4';
 
 const gap = {
-  open: 'mt-10 py-12 md:mt-20 md:py-16',
-  next: 'py-12 md:py-16',
-  tight: 'py-9 md:py-12',
+  open: 'u-band-open',
+  next: 'u-band-next',
+  tight: 'u-band-tight',
 }[rhythm];
 ---
 
 <section
   id={section.id}
   aria-labelledby={`${section.id}-heading`}
-  class={`border-rule u-reveal grid gap-y-6 border-t lg:grid-cols-12 lg:gap-x-8 ${gap}`}
+  class={`u-reveal u-band grid gap-y-6 lg:grid-cols-12 lg:gap-x-10 ${gap}`}
 >
   <div class="flex items-baseline gap-4 lg:col-span-3 lg:flex-col lg:gap-2 lg:pt-1.5">
     {/* `text-accent`, not the brand orange: this is text, and #F97316 measures
-        2.7:1 on paper. The orange is reserved for marks and dots. */}
+        2.7:1 on paper. The orange is reserved for marks, dots and the one
+        left rule that means "this is the claim". */}
     <span class="u-meta text-accent tabular-nums">{section.num}</span>
     <span class="u-meta text-ink-mute">{section.label}</span>
   </div>
