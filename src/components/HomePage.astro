@@ -62,6 +62,11 @@ const structuredData = [
   <main id="main" class="u-shell">
     <Hero lang={lang} content={content} />
 
+    {/* Each entry owns its own top rule and top margin — see `.u-band*` and
+        ProductEntry's four shapes. The section adds no spacing of its own,
+        because the boundary between two entries is information (a rule opens a
+        movement, space continues one) and a uniform gap here would flatten it
+        back into the four-identical-bands run this pass exists to remove. */}
     <section aria-label={t('product.label')}>
       {content.products.map((product) => <ProductEntry lang={lang} product={product} />)}
     </section>
