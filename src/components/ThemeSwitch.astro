@@ -116,7 +116,11 @@ const modes = [
     var buttons = group.querySelectorAll('[data-theme-set]');
     var root = document.documentElement;
     var KEY = 'firlab-theme';
-    var GROUND = { light: '#fbfcfe', dark: '#080d16' };
+    /* The desk tone (`--paper-1`), not the sheet — same pair Layout emits, and
+       byte-identical on purpose: browser chrome continues the colour at the
+       viewport's own edge, and that edge is the desk now that the page sits on
+       an inset stage. Diverging here would repaint the chrome on click. */
+    var GROUND = { light: '#f3f6fa', dark: '#0f1723' };
 
     function stored() {
       try {

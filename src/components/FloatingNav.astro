@@ -27,18 +27,23 @@ import type { Product, ProductId } from '../i18n/content';
  * It is a marked `aria-current="page"` span, the same treatment the detail-page
  * footer strip uses.
  *
- * Progressive disclosure rather than a squashed desktop bar:
- *   under 640px  wordmark + theme + language switch
- *   640px and up  + social icons
+ * Progressive disclosure rather than a squashed desktop bar. Each threshold is
+ * the width the group MEASURABLY fits at, not a round number:
+ *   under 1024px  wordmark + theme + language switch
  *   1024px and up + product links
- * Nothing becomes unreachable at any width — products are also the hero's
- * index, and the socials are repeated with text labels in the footer.
+ *   1280px and up + social icons
  *
- * The product links appear at `lg`, the same breakpoint the 12-column grid
- * activates at, and not at the former ad-hoc 900px. Measured at 900px with the
- * fluid gutter: the pill has 784px and its contents need 822px, so the right
- * cluster rendered 38px outside its own rounded ground. It was already 1px over
- * before the gutter change — 900px was never a width this bar fitted in.
+ * The social row moved up from `sm` (640px) because the stage narrowed the pill:
+ * at 1024px the pill is 856px wide with 828px usable, and wordmark + four
+ * product links + socials + theme + language needs 851px — a 23px overflow, i.e.
+ * the right-hand cluster rendered outside its own rounded ground. Dropping the
+ * socials to `xl` leaves 177px of slack at 1024px and 174px at 1280px where they
+ * return. Verified in the browser at 1024 / 1180 / 1280 / 1440.
+ *
+ * Nothing becomes unreachable at any width: the product links are also the
+ * hero's index, and all five socials are repeated WITH text labels in the
+ * footer — which is also where their accessible names are least dependent on
+ * `aria-label` (DESIGN.md §6). Moving them off the phone bar is a net a11y gain.
  */
 interface Props {
   lang: Lang;
@@ -53,11 +58,22 @@ const t = useTranslations(lang);
 const home = getRelativeLocaleUrl(lang, '');
 ---
 
-<div class="pointer-events-none sticky top-0 z-40 pt-3 md:pt-4">
+{/* `<header>` rather than a `<div>`: this is the page's banner landmark, and it was
+    missing on every page — DESIGN.md §6 claimed the site had one. `<header>` maps
+    to `role="banner"` only when it is not nested inside `article`/`section`/`main`,
+    which is why it is the outermost element here. */}
+<header class="pointer-events-none sticky top-0 z-40 pt-3 md:pt-4">
   <div class="u-shell u-shell-nav pointer-events-auto">
+    {/* No horizontal padding utility here on purpose: `.u-nav-shell` owns it via
+        `--nav-pad`, which `.u-shell-nav` also reads to pull the pill outward by
+        exactly that amount. That is what lands the wordmark on the copy's start
+        line, and a utility here would break the pair.
+
+        `flex-nowrap` is the single-line guarantee — a two-line nav at desktop is
+        a broken bar, so groups disappear at measured thresholds instead. */}
     <nav
       aria-label={t('nav.label')}
-      class="u-nav-shell flex items-center gap-3 rounded-[10px] px-3 py-2 md:gap-5 md:px-4"
+      class="u-nav-shell flex flex-nowrap items-center gap-2 rounded-[var(--radius-control)] py-2 sm:gap-4 md:py-2.5"
     >
       <a
         href={home}
@@ -67,14 +83,14 @@ const home = getRelativeLocaleUrl(lang, '');
         <Wordmark />
       </a>
 
-      <ul class="ml-2 hidden items-center gap-1 lg:flex">
+      <ul class="hidden min-w-0 items-center gap-0.5 lg:flex">
         {
           products.map((product) =>
             product.id === currentId ? (
               <li>
                 <span
                   aria-current="page"
-                  class="bg-block text-ink inline-flex items-center gap-2 rounded-[6px] px-2.5 py-1.5 font-mono text-[0.8125rem]"
+                  class="bg-block text-ink u-display-latin inline-flex items-center gap-2 rounded-[var(--radius-chip)] px-2.5 py-1.5 font-mono text-[0.8125rem] whitespace-nowrap"
                 >
                   <span aria-hidden="true" class="bg-mark size-1.5 rounded-full" />
                   {product.name}
@@ -84,7 +100,7 @@ const home = getRelativeLocaleUrl(lang, '');
               <li>
                 <a
                   href={getRelativeLocaleUrl(lang, product.detail)}
-                  class="text-ink-mute hover:text-accent hover:bg-panel rounded-[6px] px-2.5 py-1.5 font-mono text-[0.8125rem] no-underline"
+                  class="text-ink-mute hover:text-accent hover:bg-panel u-display-latin rounded-[var(--radius-chip)] px-2.5 py-1.5 font-mono text-[0.8125rem] whitespace-nowrap no-underline"
                 >
                   {product.name}
                 </a>
@@ -94,11 +110,11 @@ const home = getRelativeLocaleUrl(lang, '');
         }
       </ul>
 
-      <div class="ml-auto flex items-center gap-2 md:gap-3">
-        <SocialRow lang={lang} variant="nav" placement="below" class="hidden sm:flex" />
+      <div class="ml-auto flex shrink-0 items-center gap-2.5">
+        <SocialRow lang={lang} variant="nav" placement="below" class="hidden xl:flex" />
         <ThemeSwitch lang={lang} />
         <LangSwitch lang={lang} />
       </div>
     </nav>
   </div>
-</div>
+</header>

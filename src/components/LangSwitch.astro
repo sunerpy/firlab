@@ -28,7 +28,7 @@ const options = [
 ---
 
 <div
-  class={`border-rule flex items-center overflow-hidden rounded-[6px] border ${className}`}
+  class={`border-rule flex items-center overflow-hidden rounded-[var(--radius-control)] border ${className}`}
   role="group"
   aria-label={t('lang.label')}
 >
@@ -38,7 +38,7 @@ const options = [
         <span
           aria-current="true"
           lang={option.code === 'zh-cn' ? 'zh-CN' : 'en'}
-          class={`bg-block text-ink u-meta px-2.5 py-1.5 ${i > 0 ? 'border-rule border-l' : ''}`}
+          class={`bg-block text-ink u-meta u-lang-seg py-1.5 ${i > 0 ? 'border-rule border-l' : ''}`}
         >
           {option.label}
         </span>
@@ -48,7 +48,7 @@ const options = [
           hreflang={option.code === 'zh-cn' ? 'zh-CN' : 'en'}
           lang={option.code === 'zh-cn' ? 'zh-CN' : 'en'}
           aria-label={`${t('lang.switchTo')}`}
-          class={`text-ink-mute hover:text-accent hover:bg-panel u-meta px-2.5 py-1.5 no-underline ${i > 0 ? 'border-rule border-l' : ''}`}
+          class={`text-ink-mute hover:text-accent hover:bg-panel u-meta u-lang-seg py-1.5 no-underline ${i > 0 ? 'border-rule border-l' : ''}`}
         >
           {option.label}
         </a>
