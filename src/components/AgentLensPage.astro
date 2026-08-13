@@ -86,7 +86,7 @@ const structuredData = [
 
   <main id="main" class="u-shell">
     {/* ---- Masthead ------------------------------------------------------ */}
-    <header class="grid gap-y-10 pt-14 pb-12 md:pt-20 md:pb-16 lg:grid-cols-12 lg:gap-x-8">
+    <header class="u-enter grid gap-y-10 pt-14 pb-12 md:pt-20 md:pb-16 lg:grid-cols-12 lg:gap-x-10">
       <div class="min-w-0 lg:col-span-8">
         <p class="u-meta text-ink-mute">
           <a href={homeHref} class="text-ink-mute hover:text-accent no-underline">FirLab</a>
@@ -108,27 +108,29 @@ const structuredData = [
 
         <p class="text-ink-soft mt-5 font-mono text-sm">{c.role}</p>
 
-        <p class="u-lede text-ink-soft mt-8 max-w-[42rem]">
+        <p class="u-lede text-ink-soft mt-8">
           <span class="text-ink">{c.ledeAccent}</span> {c.lede}
         </p>
       </div>
 
-      {/* Meta rail — maturity, version, links, and the page's own index. */}
-      <div class="border-rule min-w-0 border-t pt-8 lg:col-span-3 lg:col-start-10 lg:border-t-0 lg:pt-1">
+      {/* Meta rail — maturity, version, links, and the page's own index. A plate
+          for the same reason every other masthead ledger is one: the bare stack
+          drew its rules out to the page's own frame with nothing between them. */}
+      <div class="u-plate min-w-0 self-start lg:col-span-3 lg:col-start-10">
         <StatusTag lang={lang} state="early" display="block" />
 
-        <dl class="mt-6 space-y-3">
-          <div>
-            <dt class="u-meta text-ink-mute">{t('product.version')}</dt>
-            <dd class="text-ink-soft font-mono text-sm tabular-nums">{AGENTLENS_VERSION}</dd>
+        <dl class="divide-rule border-rule mt-5 divide-y border-t text-sm">
+          <div class="flex items-baseline justify-between gap-4 py-2.5">
+            <dt class="u-meta text-ink-mute shrink-0">{t('product.version')}</dt>
+            <dd class="text-ink-soft font-mono tabular-nums">{AGENTLENS_VERSION}</dd>
           </div>
-          <div>
-            <dt class="u-meta text-ink-mute">{t('product.released')}</dt>
-            <dd class="text-ink-soft font-mono text-sm tabular-nums">{AGENTLENS_RELEASED}</dd>
+          <div class="flex items-baseline justify-between gap-4 py-2.5">
+            <dt class="u-meta text-ink-mute shrink-0">{t('product.released')}</dt>
+            <dd class="text-ink-soft font-mono tabular-nums">{AGENTLENS_RELEASED}</dd>
           </div>
         </dl>
 
-        <ul class="mt-6 space-y-2 text-sm">
+        <ul class="border-rule flex flex-wrap gap-x-6 gap-y-2 border-t pt-4 text-sm">
           {
             c.links.items.map((link) => (
               <li>
@@ -140,15 +142,18 @@ const structuredData = [
           }
         </ul>
 
-        <nav aria-label={c.tocLabel} class="border-rule mt-8 border-t pt-6">
+        <nav aria-label={c.tocLabel} class="border-rule mt-6 border-t pt-5">
           <h2 class="u-meta text-ink-mute">{c.tocLabel}</h2>
-          <ol class="mt-4 space-y-2">
+          <ol class="mt-3 -mx-1.5">
             {
               sections.map((section) => (
-                <li class="flex gap-3">
-                  <span class="u-meta text-ink-mute pt-px tabular-nums">{section.num}</span>
-                  <a href={`#${section.id}`} class="text-sm no-underline hover:underline">
-                    {section.label}
+                <li>
+                  <a
+                    href={`#${section.id}`}
+                    class="u-row text-ink-mute hover:text-accent flex gap-3 rounded-[var(--radius-chip)] px-1.5 py-1.5 text-sm no-underline"
+                  >
+                    <span class="u-meta text-ink-mute pt-px tabular-nums">{section.num}</span>
+                    <span class="min-w-0">{section.label}</span>
                   </a>
                 </li>
               ))
@@ -161,7 +166,7 @@ const structuredData = [
     {/* ---- 01 Problem ---------------------------------------------------- */}
     <DetailSection section={c.problem} rhythm="open">
       <div class="mt-6 space-y-5">
-        {c.problem.paras.map((para) => <p class="max-w-prose">{para}</p>)}
+        {c.problem.paras.map((para) => <p class="u-measure">{para}</p>)}
       </div>
 
       <h3 class="u-meta text-ink-mute border-rule mt-10 border-t pt-8">{c.problem.whoLabel}</h3>
@@ -170,7 +175,7 @@ const structuredData = [
           c.problem.who.map((item) => (
             <div>
               <dt class="text-ink-soft font-mono text-sm">{item.term}</dt>
-              <dd class="mt-1.5 max-w-prose text-sm">{item.body}</dd>
+              <dd class="mt-1.5 u-measure text-sm">{item.body}</dd>
             </div>
           ))
         }
@@ -178,8 +183,8 @@ const structuredData = [
     </DetailSection>
 
     {/* ---- 02 Interface -------------------------------------------------- */}
-    <DetailSection section={c.screens} layout="wide" rhythm="open">
-      <p class="text-ink-body mt-6 max-w-prose">{c.screens.intro}</p>
+    <DetailSection section={c.screens} layout="wide" rhythm="next">
+      <p class="text-ink-body mt-6 u-measure">{c.screens.intro}</p>
 
       <div class="mt-10 space-y-14">
         {
@@ -195,7 +200,7 @@ const structuredData = [
     </DetailSection>
 
     {/* ---- 03 Capabilities ---------------------------------------------- */}
-    <DetailSection section={c.capabilities} layout="wide" rhythm="open">
+    <DetailSection section={c.capabilities} layout="wide" rhythm="next">
       {/* Two columns only from `xl`. At `lg` the 9-of-12 body is ~690px, and
           splitting that gives each capability ~325px — around 23 hanzi a line,
           which turns a 90-word entry into a tall narrow ribbon. */}
@@ -212,14 +217,14 @@ const structuredData = [
     </DetailSection>
 
     {/* ---- 04 Guarantees ------------------------------------------------- */}
-    <DetailSection section={c.guarantees}>
+    <DetailSection section={c.guarantees} rhythm="open">
       <ol class="mt-8 space-y-10">
         {
           c.guarantees.items.map((item) => (
             <li class="border-rule border-t pt-6">
               <p class="u-meta text-ink-mute tabular-nums">{item.index}</p>
               <h3 class="u-display mt-3 text-[1.375rem]">{item.term}</h3>
-              <p class="mt-3 max-w-prose">{item.body}</p>
+              <p class="mt-3 u-measure">{item.body}</p>
             </li>
           ))
         }
@@ -227,8 +232,8 @@ const structuredData = [
     </DetailSection>
 
     {/* ---- 05 Cost ------------------------------------------------------- */}
-    <DetailSection section={c.cost}>
-      <p class="text-ink-body mt-6 max-w-prose">{c.cost.intro}</p>
+    <DetailSection section={c.cost} rhythm="next">
+      <p class="text-ink-body mt-6 u-measure">{c.cost.intro}</p>
 
       <ol class="border-rule mt-8 divide-rule divide-y border-y">
         {
@@ -246,15 +251,15 @@ const structuredData = [
         }
       </ol>
 
-      <div class="bg-panel border-accent mt-8 rounded-[4px] border-l-2 px-5 py-4">
+      <div class="u-plate u-plate-lead mt-8">
         <p class="u-meta text-accent">{c.cost.ruleLabel}</p>
-        <p class="text-ink-soft mt-2 max-w-prose text-sm">{c.cost.rule}</p>
+        <p class="text-ink-soft mt-2 u-measure text-sm">{c.cost.rule}</p>
       </div>
     </DetailSection>
 
     {/* ---- 06 Install ---------------------------------------------------- */}
     <DetailSection section={c.install} rhythm="open">
-      <p class="text-ink-body mt-6 max-w-prose">{c.install.intro}</p>
+      <p class="text-ink-body mt-6 u-measure">{c.install.intro}</p>
 
       <h3 class="u-meta text-ink-mute mt-9">{c.install.packagesLabel}</h3>
       <dl class="border-rule u-stagger mt-4 divide-rule divide-y border-y">
@@ -271,7 +276,7 @@ const structuredData = [
       <InstallBlock lang={lang} label={c.install.commandsLabel} lines={c.install.lines} />
 
       <h3 class="u-meta text-ink-mute mt-9">{c.install.afterLabel}</h3>
-      <p class="mt-3 max-w-prose text-sm">{c.install.after}</p>
+      <p class="mt-3 u-measure text-sm">{c.install.after}</p>
     </DetailSection>
 
     {/* ---- 07 Stack ------------------------------------------------------ */}
@@ -282,31 +287,30 @@ const structuredData = [
     {/* ---- 08 Maturity --------------------------------------------------- */}
     <DetailSection section={c.maturity} rhythm="open">
       <div class="mt-6 space-y-5">
-        {c.maturity.paras.map((para) => <p class="max-w-prose">{para}</p>)}
+        {c.maturity.paras.map((para) => <p class="u-measure">{para}</p>)}
       </div>
 
       <h3 class="u-meta text-ink-mute mt-10">{c.maturity.verifiedLabel}</h3>
+      {/* Verified on a real machine gets a solid plate; build-only gets the dashed
+          draft enclosure the index uses for unreleased work, so the boundary
+          states the verification gap before the row is read. */}
       <dl class="u-stagger mt-4 space-y-4">
         {
           c.maturity.verified.map((item, i) => (
-            <div
-              class={`bg-panel rounded-[4px] px-5 py-4 ${
-                i === 0 ? 'border-rule border' : 'border-rule border border-dashed'
-              }`}
-            >
+            <div class={i === 0 ? 'u-plate' : 'u-plate-draft'}>
               <dt class="text-ink-soft font-mono text-sm">{item.term}</dt>
-              <dd class="mt-1.5 max-w-prose text-sm">{item.body}</dd>
+              <dd class="mt-1.5 u-measure text-sm">{item.body}</dd>
             </div>
           ))
         }
       </dl>
 
       <h3 class="u-meta text-ink-mute mt-9">{c.maturity.testsLabel}</h3>
-      <p class="mt-3 max-w-prose text-sm">{c.maturity.tests}</p>
+      <p class="mt-3 u-measure text-sm">{c.maturity.tests}</p>
     </DetailSection>
 
     {/* ---- 09 Links ------------------------------------------------------ */}
-    <DetailSection section={c.links} rhythm="open">
+    <DetailSection section={c.links} rhythm="next">
       <ul class="mt-6 space-y-3">
         {
           c.links.items.map((link) => (
