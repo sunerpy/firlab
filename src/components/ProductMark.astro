@@ -6,11 +6,12 @@
  *
  * The AgentLens hexagon and the Voxera chevron are lifted from the shipped
  * application icons (icons/source/*.svg in each repo) so the marks here match
- * the marks on the user's dock. CodeGraph has no icon yet, so its mark is a
- * three-node graph drawn to the same geometric language.
+ * the marks on the user's dock. CodeGraph and pt-tools have no icon yet, so
+ * theirs are drawn to the same geometric language: a three-node graph, and
+ * three feed arcs standing on a baseline.
  */
 interface Props {
-  product: 'codegraph' | 'agentlens' | 'voxera';
+  product: 'pttools' | 'codegraph' | 'agentlens' | 'voxera';
   /** Rendered size in px. */
   size?: number;
   class?: string;
@@ -19,6 +20,7 @@ interface Props {
 const { product, size = 44, class: className = '' } = Astro.props;
 
 const label = {
+  pttools: 'pt-tools mark',
   codegraph: 'CodeGraph mark',
   agentlens: 'AgentLens mark',
   voxera: 'Voxera mark',
@@ -34,6 +36,38 @@ const label = {
   aria-label={label}
   class={`shrink-0 ${className}`}
 >
+  {
+    product === 'pttools' && (
+      <>
+        {/* Three feed arcs standing on a baseline, rising from one origin node.
+            The arcs are the subscriptions; the rule is where they land. Radii
+            decrease toward the origin so the structure survives at 38px —
+            measured: equal-radius arcs merge into a smudge below 40px. */}
+        <path
+          d="M12 13 A 25 25 0 0 1 37 38"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          opacity="0.45"
+        />
+        <path
+          d="M12 21 A 17 17 0 0 1 29 38"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          opacity="0.72"
+        />
+        <path
+          d="M12 29 A 9 9 0 0 1 21 38"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+        />
+        <path d="M8.5 38 L41.5 38" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+        <circle cx="12" cy="38" r="4.2" fill="var(--color-mark)" />
+      </>
+    )
+  }
   {
     product === 'codegraph' && (
       <>

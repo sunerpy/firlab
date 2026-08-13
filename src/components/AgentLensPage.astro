@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import FloatingNav from './FloatingNav.astro';
 import SiteFooter from './SiteFooter.astro';
+import NextProduct from './NextProduct.astro';
 import ProductMark from './ProductMark.astro';
 import StatusTag from './StatusTag.astro';
 import SpecGrid from './SpecGrid.astro';
@@ -94,8 +95,15 @@ const structuredData = [
         </p>
 
         <div class="mt-6 flex items-center gap-5">
-          <ProductMark product="agentlens" size={56} class="text-ink-soft" />
-          <h1 class="u-display u-display-latin text-display">AgentLens</h1>
+          <span class="inline-flex shrink-0" style="view-transition-name: mark-agentlens">
+            <ProductMark product="agentlens" size={56} class="text-ink-soft" />
+          </span>
+          <h1
+            class="u-display u-display-latin text-display min-w-0"
+            style="view-transition-name: title-agentlens"
+          >
+            AgentLens
+          </h1>
         </div>
 
         <p class="text-ink-soft mt-5 font-mono text-sm">{c.role}</p>
@@ -151,13 +159,13 @@ const structuredData = [
     </header>
 
     {/* ---- 01 Problem ---------------------------------------------------- */}
-    <DetailSection section={c.problem}>
+    <DetailSection section={c.problem} rhythm="open">
       <div class="mt-6 space-y-5">
         {c.problem.paras.map((para) => <p class="max-w-prose">{para}</p>)}
       </div>
 
       <h3 class="u-meta text-ink-mute border-rule mt-10 border-t pt-8">{c.problem.whoLabel}</h3>
-      <dl class="mt-5 space-y-5">
+      <dl class="u-stagger mt-5 space-y-5">
         {
           c.problem.who.map((item) => (
             <div>
@@ -170,7 +178,7 @@ const structuredData = [
     </DetailSection>
 
     {/* ---- 02 Interface -------------------------------------------------- */}
-    <DetailSection section={c.screens} layout="wide">
+    <DetailSection section={c.screens} layout="wide" rhythm="open">
       <p class="text-ink-body mt-6 max-w-prose">{c.screens.intro}</p>
 
       <div class="mt-10 space-y-14">
@@ -187,11 +195,11 @@ const structuredData = [
     </DetailSection>
 
     {/* ---- 03 Capabilities ---------------------------------------------- */}
-    <DetailSection section={c.capabilities} layout="wide">
+    <DetailSection section={c.capabilities} layout="wide" rhythm="open">
       {/* Two columns only from `xl`. At `lg` the 9-of-12 body is ~690px, and
           splitting that gives each capability ~325px — around 23 hanzi a line,
           which turns a 90-word entry into a tall narrow ribbon. */}
-      <dl class="border-rule mt-8 grid gap-x-10 gap-y-7 border-t pt-8 xl:grid-cols-2">
+      <dl class="u-stagger border-rule mt-8 grid gap-x-10 gap-y-7 border-t pt-8 xl:grid-cols-2">
         {
           c.capabilities.groups.map((group) => (
             <div class="min-w-0">
@@ -245,11 +253,11 @@ const structuredData = [
     </DetailSection>
 
     {/* ---- 06 Install ---------------------------------------------------- */}
-    <DetailSection section={c.install}>
+    <DetailSection section={c.install} rhythm="open">
       <p class="text-ink-body mt-6 max-w-prose">{c.install.intro}</p>
 
       <h3 class="u-meta text-ink-mute mt-9">{c.install.packagesLabel}</h3>
-      <dl class="border-rule mt-4 divide-rule divide-y border-y">
+      <dl class="border-rule u-stagger mt-4 divide-rule divide-y border-y">
         {
           c.install.packages.map((pkg) => (
             <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3">
@@ -260,25 +268,25 @@ const structuredData = [
         }
       </dl>
 
-      <InstallBlock label={c.install.commandsLabel} lines={c.install.lines} />
+      <InstallBlock lang={lang} label={c.install.commandsLabel} lines={c.install.lines} />
 
       <h3 class="u-meta text-ink-mute mt-9">{c.install.afterLabel}</h3>
       <p class="mt-3 max-w-prose text-sm">{c.install.after}</p>
     </DetailSection>
 
     {/* ---- 07 Stack ------------------------------------------------------ */}
-    <DetailSection section={c.stack} layout="wide">
+    <DetailSection section={c.stack} layout="wide" rhythm="tight">
       <SpecGrid items={c.stack.specs} class="border-rule mt-8 border-t pt-8" />
     </DetailSection>
 
     {/* ---- 08 Maturity --------------------------------------------------- */}
-    <DetailSection section={c.maturity}>
+    <DetailSection section={c.maturity} rhythm="open">
       <div class="mt-6 space-y-5">
         {c.maturity.paras.map((para) => <p class="max-w-prose">{para}</p>)}
       </div>
 
       <h3 class="u-meta text-ink-mute mt-10">{c.maturity.verifiedLabel}</h3>
-      <dl class="mt-4 space-y-4">
+      <dl class="u-stagger mt-4 space-y-4">
         {
           c.maturity.verified.map((item, i) => (
             <div
@@ -298,7 +306,7 @@ const structuredData = [
     </DetailSection>
 
     {/* ---- 09 Links ------------------------------------------------------ */}
-    <DetailSection section={c.links}>
+    <DetailSection section={c.links} rhythm="open">
       <ul class="mt-6 space-y-3">
         {
           c.links.items.map((link) => (
@@ -317,5 +325,7 @@ const structuredData = [
     </DetailSection>
   </main>
 
-  <SiteFooter lang={lang} products={site.products} />
+  <NextProduct lang={lang} products={site.products} currentId="agentlens" />
+
+  <SiteFooter lang={lang} products={site.products} variant="detail" currentId="agentlens" />
 </Layout>

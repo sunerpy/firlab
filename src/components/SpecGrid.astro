@@ -5,6 +5,16 @@ import type { Spec } from '../i18n/content';
  * SpecGrid — a definition list, not a feature grid. Developers scan for
  * specifics; this is where the version-, platform- and language-level detail
  * lives instead of in adjectives.
+ *
+ * Rows are hairline-divided rather than floated on vertical gap alone. The
+ * spec tables are the trust-building content on every page, and without a rule
+ * per row they read as another run of prose in a smaller size — the reader has
+ * to parse the type change to notice they are looking at data. Each row also
+ * becomes an animatable box this way, which `u-stagger` needs; `display:
+ * contents` children, which this used before, cannot be transformed at all.
+ *
+ * `divide-y` and not `border-t` per row: every caller already draws the top rule
+ * on the container, and two rules at the same y-position read as a double line.
  */
 interface Props {
   items: Spec[];
@@ -14,12 +24,12 @@ interface Props {
 const { items, class: className = '' } = Astro.props;
 ---
 
-<dl class={`grid gap-x-8 gap-y-5 sm:grid-cols-[9rem_minmax(0,1fr)] ${className}`}>
+<dl class={`divide-rule u-stagger divide-y ${className}`}>
   {
     items.map((item) => (
-      <div class="contents">
-        <dt class="u-meta text-ink-mute pt-1">{item.term}</dt>
-        <dd class="min-w-0 text-sm sm:border-l sm:border-rule sm:pl-6">{item.value}</dd>
+      <div class="grid gap-x-8 gap-y-1.5 py-4 sm:grid-cols-[9rem_minmax(0,1fr)]">
+        <dt class="u-meta text-ink-soft min-w-0 pt-1">{item.term}</dt>
+        <dd class="border-rule min-w-0 text-sm sm:border-l sm:pl-6">{item.value}</dd>
       </div>
     ))
   }

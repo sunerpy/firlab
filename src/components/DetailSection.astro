@@ -14,21 +14,35 @@ import type { SectionMeta } from '../i18n/agentlens';
  *         ~650px, which is a comfortable measure in Latin and wide enough in
  *         Chinese that a spec value does not collapse to nine hanzi a line.
  *   wide  10 of 12 columns, for figures and tables that need the width.
+ *
+ * `rhythm`:
+ *   open  starts a new movement on the page — a larger gap above, so the reader
+ *         feels the subject change. Nine identically-spaced sections make a long
+ *         page read as one undifferentiated run; the gap stops carrying meaning.
+ *   next  continues the current movement. The default.
+ *   tight binds a section to the one before it (sibling reference tables).
  */
 interface Props {
   section: SectionMeta;
   layout?: 'text' | 'wide';
+  rhythm?: 'open' | 'next' | 'tight';
 }
 
-const { section, layout = 'text' } = Astro.props;
+const { section, layout = 'text', rhythm = 'next' } = Astro.props;
 
 const body = layout === 'wide' ? 'lg:col-span-9 lg:col-start-4' : 'lg:col-span-7 lg:col-start-4';
+
+const gap = {
+  open: 'mt-10 py-12 md:mt-20 md:py-16',
+  next: 'py-12 md:py-16',
+  tight: 'py-9 md:py-12',
+}[rhythm];
 ---
 
 <section
   id={section.id}
   aria-labelledby={`${section.id}-heading`}
-  class="border-rule u-reveal grid gap-y-6 border-t py-12 md:py-16 lg:grid-cols-12 lg:gap-x-8"
+  class={`border-rule u-reveal grid gap-y-6 border-t lg:grid-cols-12 lg:gap-x-8 ${gap}`}
 >
   <div class="flex items-baseline gap-4 lg:col-span-3 lg:flex-col lg:gap-2 lg:pt-1.5">
     {/* `text-accent`, not the brand orange: this is text, and #F97316 measures

@@ -3,63 +3,137 @@ import { getRelativeLocaleUrl } from 'astro:i18n';
 import Wordmark from './Wordmark.astro';
 import SocialRow from './SocialRow.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
-import type { Product } from '../i18n/content';
+import { useWayfinding } from '../i18n/wayfinding';
+import type { Product, ProductId } from '../i18n/content';
 
 /**
- * SiteFooter — three columns on desktop: identity, product index, contact.
+ * SiteFooter — two shapes, because a footer has two different jobs on this site.
  *
- * This is where the social marks get text labels. The nav renders them
- * icon-only, which is fine for a secondary row but not sufficient on its own —
- * the icons are authored geometric marks rather than vendor logos, so the page
- * has to name each destination in words somewhere.
+ * `index` (the home page): identity, product index, contact. The FirLab
+ * positioning blurb belongs here — it is the page's own subject.
  *
- * The QR panel opens upward here because the footer sits at the bottom of the
- * document.
+ * `detail` (a product page): the SAME blurb and the SAME stacked product list
+ * made every detail page dissolve back into the home page. Scroll to the bottom
+ * of `/codegraph/` and you were reading the site's premise again, followed by an
+ * index of its siblings — the page stopped having an identity of its own.
+ *
+ * So `detail` drops the blurb entirely and demotes the product list from a
+ * content column to a single inline jump strip: mono, one line, the current
+ * entry marked and not a link. It is wayfinding, sized and voiced like
+ * wayfinding. The sequential "next product" move is handled *above* the footer
+ * by `NextProduct.astro`; this strip is the random-access counterpart.
+ *
+ * Both shapes keep the social row and the copyright line — those are genuinely
+ * site-wide, and the labelled social row is the accessible-name redundancy that
+ * the icon-only nav row depends on (DESIGN.md §6).
+ *
+ * The QR panel opens upward here because the footer sits at the document's end.
  */
 interface Props {
   lang: Lang;
   products: Product[];
+  variant?: 'index' | 'detail';
+  /** Which entry the reader is already on. Only meaningful for `detail`. */
+  currentId?: ProductId;
 }
 
-const { lang, products } = Astro.props;
+const { lang, products, variant = 'index', currentId } = Astro.props;
 const t = useTranslations(lang);
+const w = useWayfinding(lang);
 
 const year = new Date().getFullYear();
+const isDetail = variant === 'detail';
+const home = getRelativeLocaleUrl(lang, '');
 ---
 
-<footer class="border-rule relative border-t">
+<footer class={`border-rule relative border-t ${isDetail ? 'u-footer-slim' : ''}`}>
   <div
-    class="mx-auto grid max-w-[76rem] gap-y-10 px-6 py-14 md:grid-cols-12 md:gap-x-8 md:px-10 md:py-16"
+    class:list={[
+      'mx-auto grid max-w-[76rem] px-6 md:grid-cols-12 md:gap-x-8 md:px-10',
+      isDetail ? 'gap-y-8 py-11 md:py-12' : 'gap-y-10 py-14 md:py-16',
+    ]}
   >
-    <div class="md:col-span-5">
-      <Wordmark class="text-ink" />
-      <p class="text-ink-mute mt-5 max-w-[30rem] text-sm">{t('footer.blurb')}</p>
+    <div class={isDetail ? 'md:col-span-12' : 'md:col-span-5'}>
+      {/* On a detail page the wordmark is the way back to the index, so it is
+          labelled as a destination rather than as a mark. */}
+      <a href={home} class="text-ink hover:text-ink u-arrow-host inline-flex no-underline">
+        <Wordmark />
+        {
+          isDetail && (
+            <span class="u-meta text-ink-mute ml-3 self-center">
+              {w('footer.index')}
+              <span aria-hidden="true" class="u-arrow ml-1.5 inline-block">→</span>
+            </span>
+          )
+        }
+      </a>
+
+      {!isDetail && <p class="text-ink-mute mt-5 max-w-[30rem] text-sm">{t('footer.blurb')}</p>}
+
+      {
+        isDetail && (
+          <nav aria-label={w('footer.jumpNav')} class="mt-7">
+            <h2 class="u-meta text-ink-mute">{w('footer.jump')}</h2>
+            <ul class="mt-3 flex flex-wrap items-baseline gap-x-6 gap-y-2">
+              {products.map((product) =>
+                product.id === currentId ? (
+                  <li>
+                    <span
+                      aria-current="page"
+                      class="text-ink-soft u-display-latin inline-flex items-baseline gap-2 font-mono text-sm"
+                    >
+                      <span aria-hidden="true" class="bg-mark size-1.5 self-center rounded-full" />
+                      {product.name}
+                      <span class="sr-only">— {w('footer.jumpCurrent')}</span>
+                    </span>
+                  </li>
+                ) : (
+                  <li>
+                    <a
+                      href={getRelativeLocaleUrl(lang, product.detail)}
+                      class="u-display-latin u-link-draw text-ink-mute hover:text-accent font-mono text-sm no-underline"
+                    >
+                      {product.name}
+                    </a>
+                  </li>
+                ),
+              )}
+            </ul>
+          </nav>
+        )
+      }
     </div>
 
-    <nav aria-label={t('footer.nav')} class="md:col-span-3">
-      <h2 class="u-meta text-ink-mute">{t('product.label')}</h2>
-      <ul class="mt-4 space-y-2 text-sm">
-        {
-          products.map((product) => (
-            <li>
-              <a
-                href={getRelativeLocaleUrl(lang, product.detail)}
-                class="u-display-latin font-mono"
-              >
-                {product.name}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
+    {
+      !isDetail && (
+        <nav aria-label={t('footer.nav')} class="md:col-span-3">
+          <h2 class="u-meta text-ink-mute">{t('product.label')}</h2>
+          <ul class="mt-4 space-y-2 text-sm">
+            {products.map((product) => (
+              <li>
+                <a
+                  href={getRelativeLocaleUrl(lang, product.detail)}
+                  class="u-display-latin font-mono"
+                >
+                  {product.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )
+    }
 
-    <div class="md:col-span-3 md:col-start-10">
+    <div
+      class:list={[
+        isDetail ? 'u-social-inline md:col-span-12' : 'md:col-span-3 md:col-start-10',
+      ]}
+    >
       <h2 class="u-meta text-ink-mute">{t('social.label')}</h2>
       <SocialRow lang={lang} variant="footer" placement="above" class="mt-4" />
     </div>
 
-    <div class="border-rule md:col-span-12 md:border-t md:pt-8">
+    <div class={`border-rule md:col-span-12 md:border-t ${isDetail ? 'md:pt-6' : 'md:pt-8'}`}>
       <p class="u-meta text-ink-mute">
         <span class="u-lat">{t('footer.copyright', { year })}</span>
         <span aria-hidden="true" class="mx-1.5">·</span>

@@ -25,8 +25,12 @@ const t = useTranslations(lang);
 
 const { weight } = product;
 
-const titleSize =
-  weight === 'lead' ? 'text-title' : weight === 'standard' ? 'text-title-sm' : 'text-[1.5rem]';
+const titleSize = {
+  lead: 'text-title',
+  major: 'text-title-md',
+  standard: 'text-title-sm',
+  pending: 'text-[1.5rem]',
+}[weight];
 
 // The pending entry is separated by a dashed rule — the boundary itself says
 // "not finished" before any label is read.
@@ -43,26 +47,35 @@ const links = product.links ?? [];
   id={product.id}
   class={`border-rule u-reveal ${topRule} ${pad} grid gap-y-8 lg:grid-cols-12 lg:gap-x-8`}
 >
-  {/* Rail — index number and mark. Horizontal on small screens. */}
+  {/* Rail — index number and mark. Horizontal on small screens.
+
+      The mark and the title carry `view-transition-name`s that the matching
+      detail page repeats, so the cross-document transition morphs this entry
+      into that page's masthead instead of cross-fading two whole documents. The
+      names are derived from the product id, so a product added later is covered
+      without touching this file. */}
   <div class="flex items-center gap-4 lg:col-span-2 lg:items-start lg:pt-1">
     <span class="u-meta text-ink-mute tabular-nums">{product.index}</span>
-    <ProductMark
-      product={product.id}
-      size={weight === 'lead' ? 46 : 38}
-      class="text-ink-soft"
-    />
+    <span class="inline-flex" style={`view-transition-name: mark-${product.id}`}>
+      <ProductMark product={product.id} size={weight === 'lead' ? 46 : 38} class="text-ink-soft" />
+    </span>
   </div>
 
   {/* Main column */}
   <div class="min-w-0 lg:col-span-6">
-    <h2 class={`u-display u-display-latin ${titleSize}`}>{product.name}</h2>
+    <h2
+      class={`u-display u-display-latin ${titleSize}`}
+      style={`view-transition-name: title-${product.id}`}
+    >
+      {product.name}
+    </h2>
     <p class="text-ink-soft mt-3 font-mono text-sm">{product.role}</p>
 
     <p class={`mt-6 max-w-prose ${bodyTone}`}>{product.body}</p>
 
     <SpecGrid items={product.specs} class="border-rule mt-10 border-t pt-8" />
 
-    {product.install && <InstallBlock label={product.install.label} lines={product.install.lines} />}
+    {product.install && <InstallBlock lang={lang} label={product.install.label} lines={product.install.lines} />}
   </div>
 
   {/* Meta column */}

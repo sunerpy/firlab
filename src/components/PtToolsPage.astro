@@ -1,0 +1,479 @@
+---
+import { getAbsoluteLocaleUrl, getRelativeLocaleUrl } from 'astro:i18n';
+import Layout from '../layouts/Layout.astro';
+import FloatingNav from './FloatingNav.astro';
+import SiteFooter from './SiteFooter.astro';
+import NextProduct from './NextProduct.astro';
+import StatusTag from './StatusTag.astro';
+import SpecGrid from './SpecGrid.astro';
+import InstallBlock from './InstallBlock.astro';
+import ProductMark from './ProductMark.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+import { getContent } from '../i18n/content';
+import {
+  getPtToolsContent,
+  pttoolsLinks,
+  pttoolsVersion,
+  pttoolsReleased,
+} from '../i18n/pttools';
+
+/**
+ * pt-tools detail page, assembled once and rendered per locale — the same
+ * arrangement `CodeGraphPage.astro` uses, and for the same reason: a section
+ * added to Chinese cannot silently go missing from English.
+ *
+ * Two structures here exist because the subject matter demanded them, not for
+ * variety:
+ *
+ *   - The automation loops (02) are rows with a dedicated *bound* column. Every
+ *     loop on this page can delete data or spend bandwidth, so the constraint
+ *     that stops it is given the same visual weight as the action. A plain
+ *     feature list would have buried H&R protection and the disk floor.
+ *   - The ChatOps channels (04) carry a verification tag per row, and the two
+ *     unverified transports are drawn with dashed rules and muted ink — the
+ *     same language the index uses for unreleased work. The page must not let a
+ *     reader mistake an experimental webhook for a verified one.
+ *
+ * Brand orange appears only as a graphic: the mark, the callout's left rule and
+ * the verified dot. It never carries text — #F97316 measures ~2.7:1 on paper.
+ */
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const c = getPtToolsContent(lang);
+
+const site = getContent(lang);
+const home = getRelativeLocaleUrl(lang, '');
+
+const structuredData = [
+  {
+    '@type': 'SoftwareApplication',
+    '@id': 'https://firlab.app/#pt-tools',
+    name: 'pt-tools',
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Linux, Windows',
+    programmingLanguage: 'Go',
+    softwareVersion: pttoolsVersion.replace(/^v/, ''),
+    datePublished: pttoolsReleased,
+    license: 'https://opensource.org/licenses/MIT',
+    url: pttoolsLinks.repo,
+    downloadUrl: pttoolsLinks.releases,
+    description: c.description,
+    author: { '@id': 'https://firlab.app/#sunerpy' },
+  },
+  {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: c.crumbHome,
+        item: getAbsoluteLocaleUrl(lang, ''),
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: c.crumbCurrent,
+        item: getAbsoluteLocaleUrl(lang, 'pt-tools/'),
+      },
+    ],
+  },
+];
+
+const SECTION = 'border-rule u-reveal border-t pt-12 pb-4 md:pt-16';
+const HEAD = 'grid gap-y-5 lg:grid-cols-12 lg:gap-x-8';
+const RAIL = 'min-w-0 lg:col-span-4';
+const MEASURE = 'min-w-0 lg:col-span-7 lg:col-start-6';
+const HEADING = 'u-display text-title-sm';
+---
+
+<Layout
+  lang={lang}
+  title={c.title}
+  description={c.description}
+  ogImageAlt={c.ogAlt}
+  structuredData={structuredData}
+>
+  <FloatingNav lang={lang} products={site.products} />
+
+  <main id="main" class="mx-auto max-w-[76rem] px-6 md:px-10">
+    {/* ---- Breadcrumb ------------------------------------------------- */}
+    <nav aria-label={c.crumbLabel} class="pt-10 md:pt-14">
+      <ol class="u-meta text-ink-mute flex items-center gap-2">
+        <li>
+          <a href={home} class="text-ink-mute hover:text-accent no-underline hover:underline">
+            {c.crumbHome}
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li class="text-ink-soft" aria-current="page">{c.crumbCurrent}</li>
+      </ol>
+    </nav>
+
+    {/* ---- Masthead --------------------------------------------------- */}
+    <section class="grid gap-y-12 pt-8 pb-14 md:pt-10 md:pb-20 lg:grid-cols-12 lg:gap-x-8">
+      <div class="min-w-0 lg:col-span-7">
+        <p class="u-meta text-ink-mute mb-7">{c.eyebrow}</p>
+
+        <div class="flex items-start gap-5">
+          <ProductMark product="pttools" size={52} class="text-mark mt-1 shrink-0" />
+          <h1 class="u-display u-display-latin text-display min-w-0">{c.name}</h1>
+        </div>
+
+        <p class="text-ink-soft mt-5 font-mono text-sm">{c.role}</p>
+
+        <p class="u-lede text-ink-body mt-8 max-w-[42rem]">
+          <span class="text-ink-soft">{c.ledeAccent}</span>{' '}
+          {c.lede}
+        </p>
+      </div>
+
+      {/* Release ledger. Facts only. */}
+      <aside class="min-w-0 lg:col-span-4 lg:col-start-9">
+        <h2 class="u-meta text-ink-mute border-rule border-b pb-3">{c.metaLabel}</h2>
+
+        <div class="border-rule border-b py-4">
+          <StatusTag lang={lang} state="live" display="block" />
+        </div>
+
+        <dl class="text-sm">
+          <div class="border-rule flex items-baseline justify-between gap-4 border-b py-3">
+            <dt class="u-meta text-ink-mute shrink-0">{t('product.version')}</dt>
+            <dd class="text-ink-soft font-mono tabular-nums">{pttoolsVersion}</dd>
+          </div>
+          <div class="border-rule flex items-baseline justify-between gap-4 border-b py-3">
+            <dt class="u-meta text-ink-mute shrink-0">{t('product.released')}</dt>
+            <dd class="text-ink-soft font-mono tabular-nums">{pttoolsReleased}</dd>
+          </div>
+          <div class="border-rule flex items-baseline justify-between gap-4 border-b py-3">
+            <dt class="u-meta text-ink-mute shrink-0">{c.licenseTerm}</dt>
+            <dd class="text-ink-soft font-mono">{c.licenseValue}</dd>
+          </div>
+          <div class="border-rule flex items-baseline justify-between gap-4 border-b py-3">
+            <dt class="u-meta text-ink-mute shrink-0">{c.languageTerm}</dt>
+            <dd class="text-ink-soft font-mono">{c.languageValue}</dd>
+          </div>
+          <div class="border-rule flex items-baseline justify-between gap-4 border-b py-3">
+            <dt class="u-meta text-ink-mute shrink-0">{c.starsTerm}</dt>
+            <dd class="text-ink-soft font-mono tabular-nums">{c.starsValue}</dd>
+          </div>
+          <div class="border-rule border-b py-3">
+            <dt class="u-meta text-ink-mute">{c.imageTerm}</dt>
+            <dd class="text-ink-soft mt-1 font-mono text-[0.8125rem]">{c.imageValue}</dd>
+          </div>
+        </dl>
+
+        <ul class="mt-5 space-y-2 text-sm">
+          <li>
+            <a href={pttoolsLinks.repo} target="_blank" rel="noopener noreferrer">
+              {c.repoLabel}
+            </a>
+          </li>
+          <li>
+            <a href={pttoolsLinks.releases} target="_blank" rel="noopener noreferrer">
+              {c.releasesLabel}
+            </a>
+          </li>
+          <li>
+            <a href={pttoolsLinks.docker} target="_blank" rel="noopener noreferrer">
+              {c.dockerLabel}
+            </a>
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    {/* ---- The free-only default -------------------------------------
+        Given a callout rather than a spec row because getting it wrong costs
+        the reader real download volume. Brand orange as a 2px left rule:
+        graphic, load-bearing for hierarchy, never asked to carry a glyph. */}
+    <section
+      aria-labelledby="default-behaviour"
+      class="bg-panel border-rule border-mark u-reveal border border-l-2 px-6 py-8 md:px-10 md:py-10"
+    >
+      <p class="u-meta text-ink-mute">{c.claimLabel}</p>
+      <h2 id="default-behaviour" class={`${HEADING} mt-4 max-w-[38rem]`}>{c.claimTitle}</h2>
+      <p class="text-ink-body mt-6 max-w-[46rem]">{c.claimBody}</p>
+
+      <ol class="mt-8 grid gap-6 md:grid-cols-3 md:gap-8">
+        {
+          c.claimPoints.map((point, i) => (
+            <li class="border-rule text-ink-body min-w-0 border-t pt-4 text-sm">
+              <span class="u-meta text-ink-mute mb-2 block tabular-nums">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              {point}
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    {/* ---- 01 · problem ----------------------------------------------- */}
+    <section aria-labelledby="problem" class={`${SECTION} mt-16 md:mt-24`}>
+      <div class={HEAD}>
+        <div class={RAIL}>
+          <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.problem.index}</p>
+          <h2 id="problem" class={HEADING}>{c.problem.title}</h2>
+        </div>
+        <p class={`${MEASURE} text-ink-body`}>{c.problem.lede}</p>
+      </div>
+
+      <ul class="mt-12">
+        {
+          c.audiences.map((item) => (
+            <li class="border-rule grid gap-y-2 border-t py-6 lg:grid-cols-12 lg:gap-x-8">
+              <span class="u-meta text-ink-mute tabular-nums lg:col-span-1">{item.index}</span>
+              <h3 class="text-ink min-w-0 font-mono text-[0.9375rem] lg:col-span-3">
+                {item.term}
+              </h3>
+              <p class="text-ink-body min-w-0 text-sm lg:col-span-7 lg:col-start-6">{item.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    {/* ---- 02 · automation loops -------------------------------------
+        Rows, not a table: the bound is a sentence, and a fourth table column
+        of sentences is unreadable on a phone. The bound gets its own labelled
+        sub-block so it cannot be skimmed past. */}
+    <section aria-labelledby="loops" class={`${SECTION} mt-16 md:mt-24`}>
+      <div class={HEAD}>
+        <div class={RAIL}>
+          <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.loopsHead.index}</p>
+          <h2 id="loops" class={HEADING}>{c.loopsHead.title}</h2>
+        </div>
+        <p class={`${MEASURE} text-ink-body`}>{c.loopsHead.lede}</p>
+      </div>
+
+      <ul class="mt-12">
+        {
+          c.loops.map((loop) => (
+            <li class="border-rule grid gap-y-5 border-t py-8 lg:grid-cols-12 lg:gap-x-8">
+              <div class="min-w-0 lg:col-span-4">
+                <div class="flex items-baseline gap-4">
+                  <span class="u-meta text-ink-mute tabular-nums">{loop.index}</span>
+                  <h3 class="u-display text-ink text-[1.2rem]">{loop.term}</h3>
+                </div>
+              </div>
+
+              <div class="min-w-0 lg:col-span-7 lg:col-start-6">
+                <p class="text-ink-body text-sm">{loop.body}</p>
+                <div class="border-mark mt-5 border-l-2 pl-4">
+                  <p class="u-meta text-ink-mute">{c.loopsColumns.guard}</p>
+                  <p class="text-ink-soft mt-1.5 text-sm">{loop.guard}</p>
+                </div>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    {/* ---- 03 · statistics -------------------------------------------- */}
+    <section aria-labelledby="stats" class={`${SECTION} mt-16 md:mt-24`}>
+      <div class={HEAD}>
+        <div class={RAIL}>
+          <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.statsHead.index}</p>
+          <h2 id="stats" class={HEADING}>{c.statsHead.title}</h2>
+        </div>
+        <p class={`${MEASURE} text-ink-body`}>{c.statsHead.lede}</p>
+      </div>
+
+      <ul class="mt-12">
+        {
+          c.stats.map((item) => (
+            <li class="border-rule grid gap-y-2 border-t py-6 lg:grid-cols-12 lg:gap-x-8">
+              <span class="u-meta text-ink-mute tabular-nums lg:col-span-1">{item.index}</span>
+              <h3 class="text-ink min-w-0 font-mono text-[0.9375rem] lg:col-span-3">
+                {item.term}
+              </h3>
+              <p class="text-ink-body min-w-0 text-sm lg:col-span-7 lg:col-start-6">{item.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    {/* ---- 04 · ChatOps ----------------------------------------------
+        The verification state is the load-bearing fact in this section, so it
+        is drawn structurally: a verified channel gets a solid rule and a dot in
+        brand orange, an unverified one gets a dashed rule and muted ink —
+        exactly how the index page marks unreleased work. Colour never carries
+        it alone; every row states its status in words. */}
+    <section aria-labelledby="chatops" class={`${SECTION} mt-16 md:mt-24`}>
+      <div class={HEAD}>
+        <div class={RAIL}>
+          <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.chatHead.index}</p>
+          <h2 id="chatops" class={HEADING}>{c.chatHead.title}</h2>
+        </div>
+        <p class={`${MEASURE} text-ink-body`}>{c.chatHead.lede}</p>
+      </div>
+
+      <ul class="mt-12">
+        {
+          c.channels.map((channel) => (
+            <li
+              class={`border-rule grid gap-y-3 py-7 lg:grid-cols-12 lg:gap-x-8 ${
+                channel.verified ? 'border-t' : 'border-t border-dashed'
+              }`}
+            >
+              <div class="min-w-0 lg:col-span-4">
+                <div class="flex items-baseline gap-4">
+                  <span class="u-meta text-ink-mute tabular-nums">{channel.index}</span>
+                  <h3
+                    class={`u-display text-[1.2rem] ${
+                      channel.verified ? 'text-ink' : 'text-ink-mute'
+                    }`}
+                  >
+                    {channel.term}
+                  </h3>
+                </div>
+                <p class="text-ink-mute mt-2 pl-[2.6rem] font-mono text-[0.75rem]">
+                  {channel.transport}
+                </p>
+              </div>
+
+              <div class="min-w-0 lg:col-span-7 lg:col-start-6">
+                <p
+                  class={`u-meta flex items-center gap-2 before:block before:size-1.5 before:shrink-0 before:rounded-full ${
+                    channel.verified
+                      ? 'text-live before:bg-mark'
+                      : 'text-ink-mute before:bg-ink-mute'
+                  }`}
+                >
+                  {channel.verifiedLabel}
+                </p>
+                <p
+                  class={`mt-3 text-sm ${channel.verified ? 'text-ink-body' : 'text-ink-mute'}`}
+                >
+                  {channel.body}
+                </p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+
+      {/* The command set. A wrapped list of mono pairs rather than a table:
+          thirteen two-word rows in a table wastes the whole measure. */}
+      <div class="border-rule mt-14 border-t pt-8">
+        <h3 class="u-meta text-ink-soft">{c.commandsLabel}</h3>
+        <dl class="mt-6 grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+          {
+            c.commands.map((command) => (
+              <div class="border-rule min-w-0 border-t pt-3">
+                <dt class="text-ink-soft font-mono text-[0.8125rem]">{command.name}</dt>
+                <dd class="text-ink-body mt-1 text-sm">{command.body}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+
+      <div class="border-rule mt-14 border-t pt-8">
+        <h3 class="u-meta text-ink-soft">{c.chatSecurityLabel}</h3>
+        <SpecGrid items={c.chatSecurity} class="mt-6" />
+      </div>
+    </section>
+
+    {/* ---- 05 · deployment -------------------------------------------- */}
+    <section aria-labelledby="deploy" class={`${SECTION} mt-16 md:mt-24`}>
+      <div class={HEAD}>
+        <div class={RAIL}>
+          <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.installHead.index}</p>
+          <h2 id="deploy" class={HEADING}>{c.installHead.title}</h2>
+        </div>
+        <p class={`${MEASURE} text-ink-body`}>{c.installHead.lede}</p>
+      </div>
+
+      <div class="mt-4 grid gap-x-8 lg:grid-cols-2">
+        <InstallBlock lang={lang} label={c.installLabel} lines={c.install} />
+        <InstallBlock lang={lang} label={c.usageLabel} lines={c.usage} />
+      </div>
+
+      <p class="text-ink-mute mt-6 max-w-[46rem] text-sm">{c.installNote}</p>
+    </section>
+
+    {/* ---- 06 · stack ------------------------------------------------- */}
+    <section aria-labelledby="stack" class={`${SECTION} mt-16 md:mt-24`}>
+      <div class={HEAD}>
+        <div class={RAIL}>
+          <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.stackHead.index}</p>
+          <h2 id="stack" class={HEADING}>{c.stackHead.title}</h2>
+        </div>
+        <p class={`${MEASURE} text-ink-body`}>{c.stackHead.lede}</p>
+      </div>
+
+      <SpecGrid items={c.stack} class="border-rule mt-12 border-t pt-8" />
+    </section>
+
+    {/* ---- 07 · boundary ---------------------------------------------- */}
+    <section aria-labelledby="limits" class={`${SECTION} mt-16 md:mt-24`}>
+      <div class={HEAD}>
+        <div class={RAIL}>
+          <p class="u-meta text-ink-mute mb-3 tabular-nums">{c.limitsHead.index}</p>
+          <h2 id="limits" class={HEADING}>{c.limitsHead.title}</h2>
+        </div>
+        <p class={`${MEASURE} text-ink-body`}>{c.limitsHead.lede}</p>
+      </div>
+
+      <ul class="mt-12">
+        {
+          c.limits.map((item) => (
+            <li class="border-rule grid gap-y-2 border-t border-dashed py-6 lg:grid-cols-12 lg:gap-x-8">
+              <span class="u-meta text-ink-mute tabular-nums lg:col-span-1">{item.index}</span>
+              <h3 class="text-ink-soft min-w-0 font-mono text-[0.9375rem] lg:col-span-3">
+                {item.term}
+              </h3>
+              <p class="text-ink-mute min-w-0 text-sm lg:col-span-7 lg:col-start-6">{item.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    {/* ---- Closing ---------------------------------------------------- */}
+    <section
+      aria-labelledby="get"
+      class="border-rule u-reveal mt-16 grid gap-y-8 border-t pt-14 pb-20 md:mt-24 md:pb-28 lg:grid-cols-12 lg:gap-x-8"
+    >
+      <div class="min-w-0 lg:col-span-7">
+        <p class="u-meta text-ink-mute mb-4">{c.closeLabel}</p>
+        <h2 id="get" class="u-display text-title max-w-[30rem]">{c.closeTitle}</h2>
+        <p class="text-ink-body mt-6 max-w-[38rem]">{c.closeBody}</p>
+      </div>
+
+      <div class="min-w-0 lg:col-span-4 lg:col-start-9">
+        <ul class="text-sm">
+          <li class="border-rule border-t py-3.5">
+            <a href={pttoolsLinks.repo} target="_blank" rel="noopener noreferrer">
+              {c.repoLabel}
+            </a>
+          </li>
+          <li class="border-rule border-t py-3.5">
+            <a href={pttoolsLinks.releases} target="_blank" rel="noopener noreferrer">
+              {c.releasesLabel}
+            </a>
+          </li>
+          <li class="border-rule border-t py-3.5">
+            <a href={pttoolsLinks.docker} target="_blank" rel="noopener noreferrer">
+              {c.dockerLabel}
+            </a>
+          </li>
+          <li class="border-rule border-y py-3.5">
+            <a href={home}>{c.backHome}</a>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <NextProduct lang={lang} products={site.products} currentId="pttools" />
+
+  <SiteFooter lang={lang} products={site.products} variant="detail" currentId="pttools" />
+</Layout>

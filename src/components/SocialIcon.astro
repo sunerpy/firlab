@@ -1,18 +1,21 @@
 ---
 /**
- * Social marks, authored here as inline SVG.
+ * Social marks, inline SVG on one 24px grid.
  *
- * Why authored and not a brand-logo set: five vendor logos (octocat, Bilibili
- * TV head, the 知乎 wordmark, X, the WeChat bubbles) arrive in five different
- * visual languages, and dropping them into a page built on hairlines and
- * geometric marks reads as a sticker sheet. These are drawn in one language —
- * 24px grid, 1.8px stroke, square-ish caps, currentColor only — so the row
- * looks like part of the page.
+ * GitHub is the OFFICIAL mark — the Octocat silhouette shipped by GitHub in its
+ * own UI (Primer `mark-github-24`, one filled path, unmodified geometry). It is
+ * the single exception to the authored-abstraction rule below, and it is
+ * deliberate: GitHub is where every product on this site actually lives, so it
+ * is the one destination that has to be recognised without reading a label.
+ * Being a filled path rather than a stroke, it sets `fill="currentColor"`
+ * itself — the root carries `fill="none"` for the stroked marks.
  *
- * The trade: a geometric abstraction is less instantly recognisable than a
- * vendor logo. That is paid for two ways — every icon carries an accessible
- * name, and the footer renders the icons *with* text labels. Only the nav is
- * icon-only.
+ * The other four stay authored. Four vendor logos arrive in four visual
+ * languages, and dropping them into a page built on hairlines reads as a
+ * sticker sheet. They are drawn in one language — 24px grid, 1.8px stroke,
+ * square-ish caps, currentColor only. The trade (lower instant recognition) is
+ * paid for two ways: every icon carries an accessible name, and the footer
+ * renders all five *with* text labels. Only the nav is icon-only.
  *
  * Bilibili and WeChat keep their vendors' actual silhouettes (antenna'd screen,
  * paired bubbles) because those shapes are already geometric. Zhihu's wordmark
@@ -41,14 +44,13 @@ const { id, size = 20, class: className = '' } = Astro.props;
 >
   {
     id === 'github' && (
-      /* Git graph: a commit spine with one branch resolving back out. */
-      <g stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-        <path d="M7.5 7.6 L7.5 16.4" />
-        <path d="M7.5 11.4 C 12.4 11.4, 16.5 11.1, 16.5 7.4" />
-        <circle cx="7.5" cy="5" r="2.4" />
-        <circle cx="7.5" cy="19" r="2.4" />
-        <circle cx="16.5" cy="5" r="2.4" />
-      </g>
+      /* The official GitHub mark, verbatim from Primer's `mark-github-24`.
+         Not redrawn, not simplified — a hand-approximated Octocat is worse
+         than either a real logo or an honest abstraction. */
+      <path
+        fill="currentColor"
+        d="M10.226 17.284c-2.965-.36-5.054-2.493-5.054-5.256 0-1.123.404-2.336 1.078-3.144-.292-.741-.247-2.314.09-2.965.898-.112 2.111.36 2.83 1.01.853-.269 1.752-.404 2.853-.404 1.1 0 1.999.135 2.807.382.696-.629 1.932-1.1 2.83-.988.315.606.36 2.179.067 2.942.72.854 1.101 2 1.101 3.167 0 2.763-2.089 4.852-5.098 5.234.763.494 1.28 1.572 1.28 2.807v2.336c0 .674.561 1.056 1.235.786 4.066-1.55 7.255-5.615 7.255-10.646C23.5 6.188 18.334 1 11.978 1 5.62 1 .5 6.188.5 12.545c0 4.986 3.167 9.12 7.435 10.669.606.225 1.19-.18 1.19-.786V20.63a2.9 2.9 0 0 1-1.078.224c-1.483 0-2.359-.808-2.987-2.313-.247-.607-.517-.966-1.034-1.033-.27-.023-.359-.135-.359-.27 0-.27.45-.471.898-.471.652 0 1.213.404 1.797 1.235.45.651.921.943 1.483.943.561 0 .92-.202 1.437-.719.382-.381.674-.718.944-.943"
+      />
     )
   }
 

@@ -1,4 +1,6 @@
 ---
+import { useWayfinding } from '../i18n/wayfinding';
+import type { Lang } from '../i18n/ui';
 import type { InstallLine } from '../i18n/content';
 
 /**
@@ -8,33 +10,61 @@ import type { InstallLine } from '../i18n/content';
  * Long commands wrap rather than scroll horizontally: a clipped `curl` line
  * reads as broken, and a landing page visitor should be able to see the whole
  * command without dragging.
+ *
+ * The copy button is a progressive enhancement in the strict sense — it ships
+ * `display: none` and the layout's script reveals it only after confirming
+ * `navigator.clipboard.writeText`. The command is selectable text either way, so
+ * nothing is lost when the button never appears. Its accessible name carries the
+ * line's own comment where there is one, so three buttons in one block do not
+ * announce three identical names.
  */
 interface Props {
+  lang: Lang;
   label: string;
   lines: InstallLine[];
 }
 
-const { label, lines } = Astro.props;
+const { lang, label, lines } = Astro.props;
+const w = useWayfinding(lang);
+
+const copyAction = w('copy.action');
+const copyDone = w('copy.done');
+const copyFailed = w('copy.failed');
 ---
 
 <div class="mt-8 min-w-0">
   <p class="u-meta text-ink-mute mb-3">{label}</p>
-  <div class="bg-block border-rule min-w-0 rounded-[4px] border px-5 py-4">
+  <div
+    class="bg-block border-rule min-w-0 rounded-[4px] border px-5 py-4 shadow-[var(--shadow-plate)]"
+  >
     {
       lines.map((line, i) => (
         <div class={i > 0 ? 'mt-4' : ''}>
           {line.note && (
-            <p class="text-ink-mute font-mono text-[0.75rem] leading-relaxed">
-              # {line.note}
-            </p>
+            <p class="text-ink-mute font-mono text-[0.75rem] leading-relaxed"># {line.note}</p>
           )}
-          <code
-            class="text-ink-soft block font-mono text-[0.8125rem] leading-relaxed"
-            style="white-space: pre-wrap; overflow-wrap: anywhere;"
-          >
-            <span class="text-ink-mute select-none">$ </span>
-            {line.command}
-          </code>
+
+          <div class="flex items-start gap-3">
+            <code
+              class="text-ink-soft min-w-0 flex-1 font-mono text-[0.8125rem] leading-relaxed"
+              style="white-space: pre-wrap; overflow-wrap: anywhere;"
+            >
+              <span class="text-ink-mute select-none">$ </span>
+              {line.command}
+            </code>
+
+            <button
+              type="button"
+              class="u-copy mt-0.5 shrink-0"
+              data-copy={line.command}
+              data-idle={copyAction}
+              data-done={copyDone}
+              data-failed={copyFailed}
+              aria-label={line.note ? `${copyAction} — ${line.note}` : `${copyAction} ${i + 1}`}
+            >
+              <span data-copy-text>{copyAction}</span>
+            </button>
+          </div>
         </div>
       ))
     }

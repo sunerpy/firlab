@@ -198,7 +198,7 @@ social marks get **text labels**, which the icon-only nav depends on (see §3).
 | --- | --- |
 | `FloatingNav` | sticky floating bar. Wordmark · product anchors · socials · language switch. Ground is 92% opaque *on its own* — see §5. |
 | `LangSwitch` | both locales always rendered; current one is a non-link with `aria-current`. Target is built from the current page's slug with its locale prefix stripped (`stripLocale` + `getRelativeLocaleUrl`), so `/en/x/` switches to `/x/`, never to the home page. |
-| `SocialIcon` | five **authored** geometric marks (github · bilibili · zhihu · x · wechat), one visual language: 24px grid, 1.8px stroke, `currentColor` only. Legible at 20px. NOT vendor logos — see §7. |
+| `SocialIcon` | five marks on one 24px grid, `currentColor` only, legible at 20px. **GitHub is the official vendor mark** — Primer `mark-github-24`, one filled path, unmodified. The other four (bilibili · zhihu · x · wechat) stay authored geometric abstractions at 1.8px stroke — see §7. |
 | `SocialRow` | the five real destinations, nothing invented (there is no Facebook). External links carry `target="_blank" rel="noopener noreferrer"`. WeChat is a `<details>` disclosure holding the QR, not an anchor. |
 | `Principles` | sticky section heading + hanging-numeral list. A distinct layout family from the product bands — deliberately not three cards. |
 | `Hero` | one `h1`, one lede, one ledger. Exactly three text elements: eyebrow, headline, lede. No trust strip, no sub-tagline, no CTA pair — the ledger *is* the call to action. No image, no gradient, no blob. |
@@ -207,7 +207,9 @@ social marks get **text labels**, which the icon-only nav depends on (see §3).
 | `SpecGrid` | definition list; `dt` mono meta, `dd` sans small. Used for stack/platform/scope. |
 | `InstallBlock` | mono, `--color-block` ground, `--radius-sm`. Renders only when a real command exists. |
 | `ProductEntry` | composes the five above. `weight` prop drives §4. |
-| `SiteFooter` | three columns + a full-width copyright rule. Social marks with text labels, WeChat QR, product index. |
+| `SiteFooter` | **two variants.** `index`: three columns — identity + positioning blurb, product index, contact. `detail`: the blurb and the stacked product list are **dropped**; the wordmark becomes the labelled way back, and the products become a one-line inline jump strip with the current entry marked `aria-current="page"` and not a link. See §4a. |
+| `NextProduct` | the page-ending pager. A `<nav>` **outside `<main>`**, so it reads as chrome-level "advance" rather than one more product pitch. Wraps from the last product to the first, and says so when it does. Asks for nothing, so it works unchanged on Voxera, which has nothing to download. |
+| `SpecGrid` | hairline-divided rows (`divide-y`), not gap-separated `display: contents` cells. Two reasons: the spec tables are the trust-building content and without a rule per row they read as prose in a smaller size; and `display: contents` children cannot be transformed, so `.u-stagger` had nothing to animate. |
 
 ## 4. Hierarchy by maturity
 
@@ -215,27 +217,105 @@ Maturity is expressed structurally, so the layout carries information:
 
 | Product | Weight | Treatment |
 | --- | --- | --- |
-| CodeGraph | `lead` | largest title, full spec grid, install block, language-coverage detail, both links |
-| AgentLens | `standard` | title one step down, spec grid, release link, no install block |
+| pt-tools | `lead` | largest title (`--text-title`), 46px mark, full spec grid, install block, all links |
+| CodeGraph | `major` | title one rung down (`--text-title-md`), 42px mark, full spec grid, install block, both links |
+| AgentLens | `standard` | `--text-title-sm`, 38px mark, spec grid, release link, no install block |
 | Voxera | `pending` | `--color-ink-mute` body, dashed top rule, no link, no version, no install block, `aria-disabled` absent (nothing is interactive to disable) |
 
 A visitor scanning only the left rail can tell which tool is real today.
+
+**The order is by maturity, not by age, and it is load-bearing.** pt-tools leads
+because it is the most released thing here — v0.46.0, 136 stars, published Docker
+images — so it takes the index's `01` and the largest title. That forced a
+**fourth** weight rung (`major` / `--text-title-md`): with four products, dropping
+CodeGraph (v0.42.10) onto the same size as AgentLens (v0.0.5) would have thrown
+away information the ladder exists to carry. `content.ts`'s array order, each
+product's `index`, and each detail page's `eyebrow` are three copies of the same
+fact — changing one without the others leaves the site contradicting itself, so
+the ordering rule is stated at the top of `content.ts` as well.
+
+## 4a. Page endings and lateral movement
+
+A detail page used to end by re-stating the site's premise and re-listing its
+siblings — the footer carried the FirLab positioning blurb and the full product
+index on *every* page. Scrolling to the bottom of `/codegraph/` therefore landed the
+reader back in home-page-shaped content, and the page lost its own identity at
+exactly the moment it should have concluded.
+
+Three distinct jobs, now three distinct components, ordered by how committed the
+reader is:
+
+| Position | Component | Job | Voice |
+| --- | --- | --- | --- |
+| last band in `<main>` | the page's own closing section | conclude the argument; restate the repository / release links as the final action | content |
+| after `</main>` | `NextProduct` | one obvious next move, in index order | chrome, display-sized |
+| `<footer>` | `SiteFooter variant="detail"` | random access to any sibling, and the way back to the index | chrome, mono, one line |
+
+The blurb appears on the home page only, where the site's premise is the page's own
+subject. The social row and the copyright line stay in both variants: the labelled
+social row is the accessible-name redundancy the icon-only nav row depends on (§6).
 
 ## 5. Motion
 
 `--ease-brand` `cubic-bezier(0.2, 0, 0, 1)`, `160ms` for the two link transitions
 (colour, `text-decoration-color`) that were already here.
 
-Two scroll-driven mechanisms were added, both **CSS-only** — no scroll listener, no
-`IntersectionObserver`, no `rAF` loop:
+### Scroll-driven, CSS-only
+
+Four mechanisms, no scroll listener, no `IntersectionObserver`, no `rAF` loop:
 
 | Mechanism | Driver | What it does |
 | --- | --- | --- |
-| `.u-reveal` | `animation-timeline: view()`, range `entry 8% cover 26%` | Product bands and the principles section fade + rise 1.5rem as they enter. `opacity` and `transform` only. |
-| `.u-nav-settle` | `animation-timeline: scroll(root block)`, range `0 6rem` | Deepens the nav ground and brings in its hairline + shadow over the first 6rem of scroll. |
+| `.u-reveal` | `view()`, range `entry 8% cover 26%` | Section bands fade + rise 1.5rem as they enter. `opacity` and `transform` only. |
+| `.u-stagger > *` | `view()`, range offset per `nth-child` | Sequences the rows *within* a band: 6/12/18/24% entry offsets, 5th and later share 28%. Travel is 0.85rem, shorter than `.u-reveal`, because the two compose — 1.5rem inside 1.5rem reads as a slide. |
+| `.u-nav-settle` | `scroll(root block)`, range `0 6rem` | Deepens the nav ground, brings in its hairline + shadow over the first 6rem. |
+| `.u-progress` | `scroll(root block)`, full document | 2px reading-progress hairline at the top edge, `scaleX(0 → 1)`. |
 
-Plus `@view-transition { navigation: auto }` — cross-document, so the product
-detail pages land under it with no router.
+Scroll-driven animations ignore `animation-delay`, which is why the stagger is built
+from per-child `animation-range` offsets rather than delays.
+
+Plus `@view-transition { navigation: auto }` — cross-document, so index → detail
+needs no router. Each product's mark and title carry
+`view-transition-name: mark-<id>` / `title-<id>` on **both** the index band and the
+detail masthead, so the shared element morphs instead of the two documents
+cross-fading. Voxera pairs only the mark: its `h1` is a sentence, not the product
+name, so pairing the titles would cross-fade two boxes of very different size.
+
+> **Every timeline is assigned through `var(--u-timeline)`, never as a literal.**
+> This is not style preference — it is the only form that survives the build.
+> Given `animation: X linear both` beside `animation-timeline: view()`, Lightning
+> CSS folds the pair into `animation: linear both X view()`, and **Chrome rejects
+> that shorthand outright**: measured, `el.style.cssText` comes back empty and
+> `getComputedStyle().animationTimeline` reads `auto`. Lightning CSS cannot fold a
+> longhand whose value is a `var()`, so the indirection keeps it intact. See §8.
+
+### Transitions and interaction
+
+`--ease-brand` `cubic-bezier(0.2, 0, 0, 1)` throughout; no bounce or elastic easing
+anywhere — this is a publication, not a consumer app.
+
+| Helper | Property | Duration | Where |
+| --- | --- | --- | --- |
+| `a` (base) | `color`, `text-decoration-color` | 160ms | every link |
+| `.u-link-draw` | `transform: scaleX()` on `::after` | 220ms | links in an identifier row, where five static underlines would read as a stack of rules |
+| `.u-arrow` | `transform: translateX(0.3em)` | 240ms | trailing `→`, advanced by `.u-arrow-host:hover` / `:focus-visible` |
+| `.u-pager` | `background-color`; mark `color` | 260ms | the whole page-ending band |
+| `.u-copy` | `color`, `border-color`, `background-color`, `transform` | 160 / 120ms | command copy button |
+
+The full transition surface is **six declarations, all on `color`,
+`background-color`, `border-color`, `text-decoration-color` or `transform`**. Zero
+animate a layout property; there is no `transition: all`. Verified against the built
+CSS, not the source.
+
+### Depth
+
+Drawn with a hairline plus one tightly-spread shadow — never a blurred glass panel.
+`--shadow-plate` (command blocks, the premise callout) and `--shadow-recess` (the
+detail-page footer, so it reads as chrome the content sits on). Both mix from
+`--shade`, which is a **separate token from `--ink-900`**: the ink ramp inverts in
+dark mode, so a shadow mixed from it becomes a white glow. `--shade` stays dark in
+both themes. Both live on `:root`, not in `@theme` — Tailwind prunes theme variables
+it sees no utility for, and these are consumed through `var()`.
 
 **Legibility must not depend on motion, and does not.** Both mechanisms sit inside
 `@media (prefers-reduced-motion: no-preference)` *and* an `@supports` gate, so an
@@ -254,13 +334,11 @@ is a pure enhancement.
 
 The `reduce` block neutralises transitions and animations rather than shortening
 them; because the scroll-driven rules never apply under `reduce`, nothing is left
-mid-animation:
-
-```css
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition-duration: 0.01ms !important; animation: none !important; }
-}
-```
+mid-animation. Measured under emulated `reduce` on `/codegraph/`: **12 `.u-reveal`
+bands and 33 `.u-stagger` children, zero of them stuck below `opacity: 1` or holding
+a transform** — i.e. no content is hidden when the motion never runs. The progress
+hairline rests at `scaleX(0)` and is therefore invisible rather than permanently
+full.
 
 ## 6. Accessibility constraints
 
@@ -344,18 +422,49 @@ mid-animation:
    trigger) and click-outside to dismiss. It is inline, so it costs no request, and
    `<script src>` count in the output is still **0**.
 
-7. **The social marks are authored abstractions, not vendor logos.** Five real
-   vendor logos arrive in five visual languages and read as a sticker sheet on a
-   page built from hairlines. The cost is lower instant recognisability; it is paid
-   for twice — every icon has an accessible name, and the footer renders all five
+7. **Four of the five social marks are authored abstractions; GitHub is the real
+   logo.** Five vendor logos arrive in five visual languages and read as a sticker
+   sheet on a page built from hairlines, so bilibili, zhihu, x and wechat are drawn
+   to one grid instead. GitHub is the deliberate exception: it is where every
+   product on this site actually lives, so it is the one destination that must be
+   recognised without reading a label, and it now ships the **official Primer
+   `mark-github-24` path verbatim** — one filled `currentColor` path, geometry
+   untouched. It replaced an authored "commit spine" abstraction that was not
+   readable as GitHub. The rule this sets: use the real mark or an honest
+   abstraction, never a hand-approximated logo.
+
+   The cost of the four abstractions is lower instant recognisability, paid for
+   twice — every icon has an accessible name, and the footer renders all five
    *with* text labels. Bilibili and WeChat keep their vendors' actual silhouettes
    (antenna'd screen, paired bubbles) since those are already geometric; Zhihu's
    wordmark is not reducible to this grid, so it is drawn as what Zhihu *is* — a
    question inside a discussion bubble.
 
-8. **Product detail pages do not exist yet.** `/codegraph/`, `/agentlens/`,
-   `/voxera/` (and `/en/…`) are linked from every product band and from the footer,
-   and are owned by a separate task. Until then those links 404.
+   `SocialIcon`'s root keeps `fill="none"` for the stroked marks, so the GitHub
+   path sets `fill="currentColor"` on itself rather than on the `<svg>`.
+
+8. ~~**Product detail pages do not exist yet.**~~ **Superseded.** All four ship in
+   both locales: `/pt-tools/`, `/codegraph/`, `/agentlens/`, `/voxera/` and their
+   `/en/…` counterparts. 10 pages total.
+
+9. **pt-tools has no shipped application icon, so its mark is authored.** The other
+   three marks are lifted from real icon sources; pt-tools has none, so it is drawn
+   to the same language as CodeGraph's: three feed arcs rising from an origin node
+   onto a baseline — the subscriptions, and where they land. The arc radii decrease
+   toward the origin because equal-radius arcs merged into a smudge below 40px when
+   measured, and the mark renders at 38–46px in the index. If pt-tools ever ships an
+   icon, this should be replaced by it rather than kept.
+
+10. **The pt-tools page states what is *not* verified, and gives it structure.** Its
+    ChatOps section carries four transports, of which only QQ (OneBot/NapCat) and
+    Telegram are verified end to end upstream; WeCom group bot and the custom
+    HMAC-SHA256 webhook are shipped but unverified. Rather than a footnote, the two
+    unverified rows get the dashed rule and `--color-ink-mute` body that the index
+    uses for unreleased work, plus a per-row status in words — colour never carries
+    it alone. Same reasoning as AgentLens declaring its own verification gap: a page
+    that quietly promotes an experimental transport to "feature" costs the reader an
+    outage. The RSS free-only default gets a full callout for the same reason —
+    misreading it costs real download volume.
 
 ## 8. Verified
 
@@ -386,6 +495,38 @@ against the built `dist/` served over HTTP:
 - Editorial guide rules land exactly on the text column (measured 145 / 1281 at
   1440px, matching `h1` and the ledger edge).
 
+### Verified after the endings + motion pass
+
+Chrome 151, `dist/` over HTTP, measured at 390 / 1440px in both schemes:
+
+- `pnpm check` **0 / 0 / 0** (43 files); `pnpm build` exit 0, 10 pages.
+- Lighthouse on `/codegraph/` (desktop, navigation): **accessibility 100 · SEO 100 ·
+  agentic-browsing 100**. Best-practices 78 is the local HTTP server alone
+  (`is-on-https`, `redirects-http`); production is HTTPS-enforced and `.app` is
+  HSTS-preloaded. Console clean — no errors, warnings or issues.
+- `<script src>` count is still **0** on all six sampled pages; no `@font-face`,
+  no `fonts.googleapis`, no `fonts.gstatic` anywhere in `src/` or `dist/`.
+- Footer variant per page: `/` and `/en/` carry the blurb and no pager; all six
+  product pages carry `u-footer-slim`, **zero** blurb occurrences, and one pager.
+- All four scroll mechanisms register real timelines — `ViewTimeline` for
+  `u-reveal` / `u-rise`, `ScrollTimeline` for `u-nav-settle` / `u-progress` — each
+  `playState: running`. The stagger offsets resolve to 6 / 12 / 18 / 24 / 28 %
+  across an 8-child list.
+- Under emulated `reduce`: **0 of 12 `.u-reveal` bands and 0 of 33 `.u-stagger`
+  children** left below `opacity: 1` or holding a transform, on every page checked.
+- Zero horizontal scroll, zero over-wide elements, zero clickable text wrapping to
+  two lines, at 390 and 1440 in both schemes.
+- Contrast on the new surfaces, measured against their own grounds: detail footer
+  min **5.29:1**, pager min **5.59:1**, copy button idle **4.87** / done **5.40** /
+  failed **5.16** — all AA at 11px.
+- The copy affordance, driven end-to-end against a stubbed clipboard: hidden until
+  `navigator.clipboard.writeText` is confirmed, copies the command **byte-exact**,
+  announces through the `role="status"` region, reverts after 2.2 s, reports
+  failure, and takes a visible 2px focus ring.
+- CSS **33,338 → 38,945 bytes** (+5,607, +16.8 %) for two extra keyframes, three
+  extra transitions, the stagger cascade, the progress rail, the pager, the copy
+  button and the two footer variants.
+
 ### Four defects found by measuring, and fixed
 
 1. **`backdrop-filter` was dead in the shipped CSS.** Hand-writing both the
@@ -401,6 +542,41 @@ against the built `dist/` served over HTTP:
    (105px) while text started at 145px. Now derived as `71rem` / `100% - 10rem`.
 4. **The footer QR popover covered the links above it** in the single-column mobile
    footer. It now expands *in-flow* below `sm` and only overlays where there is room.
+
+### Four more defects found by measuring, and fixed
+
+5. **Every scroll-driven animation on the shipped site was dead — including the two
+   that predate this pass.** Lightning CSS folds `animation: X linear both` plus
+   `animation-timeline: view()` into the single shorthand
+   `animation: linear both X view()`, and Chrome rejects that form outright:
+   `el.style.cssText` came back **empty** and
+   `getComputedStyle().animationTimeline` read `auto` on `.u-reveal`,
+   `.u-nav-shell` and every new rule. Nothing was animating; the site only looked
+   correct because the final state is also the static state. Fixed by routing every
+   timeline through `var(--u-timeline)`, which Lightning CSS cannot fold into a
+   shorthand — measured afterwards as real `ViewTimeline` / `ScrollTimeline`
+   objects in `running` state.
+6. **`.u-social-inline ul` in `@layer components` lost to a plain `flex-col`.**
+   Layer order beats specificity, and `components` sits below `utilities`, so the
+   more specific rule still measured `flexDirection: column`. Moved to
+   `@layer utilities`, where 0,1,1 beats 0,1,0 as expected. Same family of trap as
+   the `@layer base` note in §1.
+7. **A concurrency race left `/pt-tools/` on the index footer variant.** The
+   footer rework and the task adding pt-tools as a fourth product landed together,
+   so the newest page rendered `<SiteFooter>` with no `variant` — measured as **1**
+   occurrence of the positioning blurb and **0** pagers, i.e. exactly the defect
+   this pass exists to remove, on the one page nobody had looked at. `astro check`
+   could not catch it: both props are optional, which is correct for the home page.
+   Note the id is `pttools` (the `ProductId` union) while the route slug is
+   `pt-tools`; passing the slug would have silently left the current entry unmarked.
+   The pager needed no sequence change — `NextProduct` derives order from
+   `content.ts`, so inserting pt-tools at `01` rewired the chain to
+   01 → 02 → 03 → 04 → 01 by itself.
+8. **Nine identically-spaced sections made a 9,000px page read as one run.** Every
+   numbered band measured `margin-top: 96px; padding-top: 64px` — the gap carried
+   no information. Replaced with a three-level scale (open / next / tight → 160 /
+   96 / 56px at 1440) grouped by movement, and `DetailSection` gained a `rhythm`
+   prop so AgentLens and Voxera share the same vocabulary.
 
 ## 9. Reference fidelity
 

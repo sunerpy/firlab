@@ -95,7 +95,7 @@ const zh: AgentLensContent = {
     '一个跨平台桌面看板，把本机与 SSH 远端上 OpenCode、Claude Code、Codex 与 Hermes 的用量记录汇总进同一份持久 SQLite 归档，按时区、Agent、模型与项目切分。未知成本标记为缺失，绝不渲染成 0。',
   ogAlt: 'AgentLens — 编码 Agent 用量归档，由 sunerpy 构建',
 
-  eyebrow: '02 · 产品',
+  eyebrow: '03 · 产品',
   role: '编码 Agent 用量归档 · 跨平台桌面应用',
   ledeAccent: '一个桌面看板，回答「这些 Agent 到底做了什么、在哪台机器上做的」。',
   lede: '几台机器、四种编码 Agent、几万条会话之后，「这个月跑了多少、花在哪、哪台机器上跑的」就没人能凭记忆回答了。AgentLens 把这些记录采到一处，然后老实告诉你哪些数字算得准、哪些算不准。',
@@ -373,7 +373,7 @@ const en: AgentLensContent = {
     'A cross-platform desktop dashboard that pulls OpenCode, Claude Code, Codex and Hermes usage records off the local host and remote hosts over SSH into one durable SQLite archive, sliced by timezone, agent, model and project. An unknown cost is marked missing, never rendered as zero.',
   ogAlt: 'AgentLens — usage archive for coding agents, built by sunerpy',
 
-  eyebrow: '02 · Product',
+  eyebrow: '03 · Product',
   role: 'Usage archive for coding agents · cross-platform desktop app',
   ledeAccent:
     'A desktop dashboard for the question “what have these agents actually been doing, and on which machines”.',

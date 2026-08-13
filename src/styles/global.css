@@ -33,6 +33,23 @@
   --accent-mark: #f97316;
   --live: #0d6b64;
 
+  /* Shadow ink. A separate token from `--ink-900` on purpose: the ink ramp
+     inverts in dark mode, so a shadow mixed from it turns into a white glow.
+     Shade stays dark in both themes, which is what a shadow is. */
+  --shade: #0b1220;
+
+  /* Depth is a hairline plus one tightly-spread shadow, never a blurred glass
+     panel. The large negative spread keeps the shadow under the element instead
+     of hazing the paper around it.
+
+     These live on `:root`, NOT in `@theme`: Tailwind prunes theme variables it
+     sees no utility for, and these are consumed through `var()` in arbitrary
+     values and in the component layer — which is not a usage Tailwind counts. */
+  --shadow-plate:
+    0 1px 0 color-mix(in oklab, var(--shade) 5%, transparent),
+    0 10px 24px -20px color-mix(in oklab, var(--shade) 50%, transparent);
+  --shadow-recess: inset 0 2px 5px -3px color-mix(in oklab, var(--shade) 42%, transparent);
+
   /* ---- Script-dependent metrics -----------------------------------------
      Latin defaults. Overridden per-language below; every prose and display
      rule reads these instead of hard-coding a value, so switching locale
@@ -74,6 +91,8 @@ html:lang(zh) {
     --accent: #fb923c;
     --accent-mark: #f97316;
     --live: #2dd4bf;
+
+    --shade: #000000;
   }
 }
 
@@ -121,6 +140,10 @@ html:lang(zh) {
      from ornament. */
   --text-display: clamp(2.35rem, 5vw, 4.35rem);
   --text-title: clamp(1.85rem, 3.1vw, 2.7rem);
+  /* Fourth rung: four products need four maturity steps, and collapsing a v0.42
+     tool onto the same size as a v0.0.5 one discards that. Sits between its two
+     neighbours so the ladder stays even. */
+  --text-title-md: clamp(1.7rem, 2.7vw, 2.35rem);
   --text-title-sm: clamp(1.55rem, 2.3vw, 2.05rem);
   --text-lede: clamp(1.0625rem, 1.5vw, 1.28rem);
   --text-meta: 0.75rem;
@@ -338,19 +361,205 @@ html:lang(zh) {
       display: block;
     }
   }
+
+  /* ---- Reading progress ------------------------------------------------
+     A 2px hairline at the document's top edge, driven by `scroll(root)`. It
+     starts at `scaleX(0)` and is only ever scaled by the scroll timeline, so a
+     browser without scroll-driven animations — or a reader who has asked for
+     reduced motion — sees nothing at all rather than a permanently full bar.
+     Below the skip link (z-50), above the nav (z-40). */
+  .u-progress {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    z-index: 45;
+    height: 2px;
+    background-color: var(--color-mark);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    pointer-events: none;
+  }
+
+  /* ---- Detail-page footer ----------------------------------------------
+     A recessed ground plus a shadow falling in from above, so the footer reads
+     as chrome the content sits on rather than as one more band of the page.
+     This is the visual half of the fix; the structural half is dropping the
+     positioning blurb and the stacked product index (see SiteFooter). */
+  .u-footer-slim {
+    background-color: var(--color-panel);
+    box-shadow: var(--shadow-recess);
+  }
+
+  /* ---- Trailing arrow --------------------------------------------------
+     Advances when its host is hovered or focused. `transform` only. */
+  .u-arrow {
+    transition: transform 240ms var(--ease-brand);
+  }
+
+  .u-arrow-host:hover .u-arrow,
+  .u-arrow-host:focus-visible .u-arrow {
+    transform: translateX(0.3em);
+  }
+
+  /* ---- Underline that draws in ----------------------------------------
+     For links that carry no static underline because they sit in a row of
+     identifiers and five underlines would read as a stack of rules. The drawn
+     rule is `transform` on a pseudo-element, so nothing reflows, and it appears
+     on `:focus-visible` as well as hover — the focus ring is never the only
+     signal, but it is also never the only *change*. */
+  .u-link-draw {
+    position: relative;
+    text-decoration-line: none;
+  }
+
+  .u-link-draw::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: -0.24em;
+    height: 1px;
+    background-color: currentcolor;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform 220ms var(--ease-brand);
+  }
+
+  .u-link-draw:hover::after,
+  .u-link-draw:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  /* ---- Pager -----------------------------------------------------------
+     The whole band is the target, so the whole band responds: the ground fills
+     and the product mark takes the brand orange. No lift, no scale — a
+     full-width band that rises off the page reads as a card, and this is a
+     page ending, not a card. */
+  .u-pager {
+    color: inherit;
+    text-decoration-line: none;
+    transition: background-color 260ms var(--ease-brand);
+  }
+
+  .u-pager:hover {
+    background-color: var(--color-panel);
+  }
+
+  .u-pager-mark {
+    transition: color 260ms var(--ease-brand);
+  }
+
+  .u-pager:hover .u-pager-mark,
+  .u-pager:focus-visible .u-pager-mark {
+    color: var(--color-mark);
+  }
+
+  /* ---- Copy affordance -------------------------------------------------
+     Eight states are spelled out here rather than left to a hover-only rule:
+     `:focus-visible` inherits the global ring, `:active` presses 1px,
+     `[disabled]` is dimmed and un-hoverable, and the two outcome states are
+     driven by `data-state`, set by the layout's inline script. The button is
+     hidden from print and from copy-less clients by the script itself, which
+     only reveals it when `navigator.clipboard` exists — an affordance that
+     cannot work must not be drawn. */
+  .u-copy {
+    display: none;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--color-rule);
+    border-radius: 4px;
+    background-color: color-mix(in oklab, var(--paper-0) 55%, transparent);
+    color: var(--color-ink-mute);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.4;
+    cursor: pointer;
+    transition:
+      color 160ms var(--ease-brand),
+      border-color 160ms var(--ease-brand),
+      background-color 160ms var(--ease-brand),
+      transform 120ms var(--ease-brand);
+  }
+
+  .u-copy[data-ready] {
+    display: inline-flex;
+  }
+
+  .u-copy:hover:not([disabled]) {
+    color: var(--color-accent);
+    border-color: color-mix(in oklab, var(--accent) 45%, var(--color-rule));
+    background-color: var(--color-paper);
+  }
+
+  .u-copy:active:not([disabled]) {
+    transform: translateY(1px);
+  }
+
+  .u-copy[disabled] {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .u-copy[data-state="done"] {
+    color: var(--color-live);
+    border-color: color-mix(in oklab, var(--live) 45%, var(--color-rule));
+  }
+
+  .u-copy[data-state="failed"] {
+    color: var(--color-accent);
+    border-color: color-mix(in oklab, var(--accent) 55%, var(--color-rule));
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Utility-layer overrides.
+
+   `@layer utilities` and NOT `@layer components`: layer order beats specificity
+   outright, and `components` sits *below* `utilities` in Tailwind's cascade — a
+   `.u-x ul` rule there loses to a plain `flex-col` on the element even though it
+   is the more specific selector (measured: `flexDirection` still read `column`).
+   Inside `utilities` the two are in the same layer, so 0,1,1 beats 0,1,0.
+--------------------------------------------------------------------------- */
+
+@layer utilities {
+  /* The labelled social row stacks vertically, which is right for the index
+     footer's narrow third column. In the slim detail-page footer it is the
+     tallest thing present, forcing ~380px of height around two lines of
+     content, so it lays out horizontally there. */
+  .u-social-inline ul {
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: 1.5rem;
+    row-gap: 0.25rem;
+  }
 }
 
 /* ---------------------------------------------------------------------------
    Motion
 
-   Two mechanisms, both CSS-only:
+   Four mechanisms, all CSS-only:
      1. section reveal, driven by `animation-timeline: view()`
-     2. nav settle, driven by `animation-timeline: scroll(root)`
+     2. row stagger, same timeline, offset per child by `animation-range`
+     3. nav settle, driven by `animation-timeline: scroll(root)`
+     4. reading progress, same timeline, spanning the whole document
 
-   No scroll listener, no IntersectionObserver, no rAF loop. Both are nested
+   No scroll listener, no IntersectionObserver, no rAF loop. All are nested
    inside `prefers-reduced-motion: no-preference` *and* an `@supports` gate, so
    an unsupporting or motion-averse browser renders the final state statically
    rather than an unrevealed blank page.
+
+   EVERY timeline is assigned through `var(--u-timeline)`, never written as a
+   literal. This is not a style preference — it is the only form that survives
+   the build. Given `animation: X linear both` next to `animation-timeline:
+   view()`, Lightning CSS folds the pair into `animation: linear both X view()`,
+   and Chrome REJECTS that shorthand outright: measured, `el.style.cssText`
+   comes back empty and `getComputedStyle().animationTimeline` reads `auto`, so
+   the animation silently never runs. Lightning CSS cannot fold a longhand whose
+   value is a `var()`, so the indirection keeps the declaration intact.
+   Measured after this change: `animationTimeline` reads `view()` / `scroll(root)`
+   on the real elements. Do not "simplify" these back to literals.
 --------------------------------------------------------------------------- */
 
 @keyframes u-reveal {
@@ -362,6 +571,30 @@ html:lang(zh) {
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* Shorter travel than `u-reveal`: this runs on individual rows inside a band
+   that is already rising, and 1.5rem on top of 1.5rem reads as a slide. */
+@keyframes u-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.85rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes u-progress {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
   }
 }
 
@@ -382,19 +615,59 @@ html:lang(zh) {
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     .u-reveal {
+      --u-timeline: view();
       animation: u-reveal linear both;
-      animation-timeline: view();
+      animation-timeline: var(--u-timeline);
       animation-range: entry 8% cover 26%;
       /* Only transform and opacity animate — no layout, no paint of children. */
       will-change: opacity, transform;
     }
   }
 
+  /* Staggered reveal. A view() timeline measures each child's OWN progress
+     through the viewport, so a vertical list already staggers on its own — but
+     a row of three, or a band whose rows land together, arrives as one block.
+     Offsetting `animation-range` per child is what separates them; scroll-driven
+     animations ignore `animation-delay`, so the time-based approach does not
+     work here. Fifth and later rows share one offset: past ~4 the cascade stops
+     reading as sequence and starts reading as lag. */
+  @supports (animation-timeline: view()) {
+    .u-stagger > * {
+      --u-timeline: view();
+      animation: u-rise linear both;
+      animation-timeline: var(--u-timeline);
+      animation-range: entry 6% entry 56%;
+    }
+
+    .u-stagger > *:nth-child(2) {
+      animation-range: entry 12% entry 62%;
+    }
+
+    .u-stagger > *:nth-child(3) {
+      animation-range: entry 18% entry 68%;
+    }
+
+    .u-stagger > *:nth-child(4) {
+      animation-range: entry 24% entry 74%;
+    }
+
+    .u-stagger > *:nth-child(n + 5) {
+      animation-range: entry 28% entry 78%;
+    }
+  }
+
   @supports (animation-timeline: scroll()) {
     .u-nav-shell {
+      --u-timeline: scroll(root block);
       animation: u-nav-settle linear both;
-      animation-timeline: scroll(root block);
+      animation-timeline: var(--u-timeline);
       animation-range: 0 6rem;
+    }
+
+    .u-progress {
+      --u-timeline: scroll(root block);
+      animation: u-progress linear both;
+      animation-timeline: var(--u-timeline);
     }
   }
 

@@ -7,19 +7,31 @@
  *
  * Every factual claim here was checked against the product's own source and
  * release tags. Notably:
+ *   - pt-tools' RSS path downloads FREE torrents only when no filter rule is
+ *     enabled. Filter rules (keyword / wildcard / regex) are what widen it.
+ *     Never state "downloads everything from a feed".
+ *   - pt-tools' ChatOps is verified end-to-end on QQ (OneBot/NapCat) and
+ *     Telegram ONLY. WeCom group bot and the custom webhook are experimental
+ *     and unverified; that caveat ships on the page.
  *   - CodeGraph parses 38 languages but only 29 get full symbol extraction —
  *     never flatten that to "38 languages".
  *   - CodeGraph contains no model of any kind. It is not semantic search.
  *   - CodeGraph is not on crates.io.
  *   - Voxera has no public repository, no release and no version. It therefore
  *     carries no external link and no version number anywhere on the site.
+ *
+ * ORDER IS MEANING. The array order is the index order, and it is sorted by
+ * maturity, not by age — pt-tools leads because it is the most released thing
+ * here (v0.46.0, published Docker images, 136 stars). Reordering this array
+ * without also renumbering `index` and each detail page's `eyebrow` leaves the
+ * site contradicting itself.
  */
 
 import type { Lang } from './ui';
 
 export type Status = 'live' | 'early' | 'wip';
-export type Weight = 'lead' | 'standard' | 'pending';
-export type ProductId = 'codegraph' | 'agentlens' | 'voxera';
+export type Weight = 'lead' | 'major' | 'standard' | 'pending';
+export type ProductId = 'pttools' | 'codegraph' | 'agentlens' | 'voxera';
 
 export interface Spec {
   term: string;
@@ -72,30 +84,92 @@ export interface PageContent {
   principles: Principle[];
 }
 
+const PTTOOLS_REPO = 'https://github.com/sunerpy/pt-tools';
 const CODEGRAPH_REPO = 'https://github.com/sunerpy/codegraph-rust';
 const AGENTLENS_REPO = 'https://github.com/sunerpy/AgentLens';
 
 const zh: PageContent = {
   title: 'FirLab — 本地优先的开发者工具',
   description:
-    '一个确定性的代码知识图谱、一个面向编码 Agent 的用量归档工具，以及面向编辑器与终端的语音输入。三个用 Rust 写的工具，作者 sunerpy。',
+    'PT 站点订阅与统计的自动化工具、确定性的代码知识图谱、编码 Agent 的用量归档，以及面向编辑器与终端的语音输入。四个自部署的工具，作者 sunerpy。',
   ogAlt: 'FirLab — sunerpy 构建的开发者工具',
 
   // No trailing 。 — a full-width period at display size opens a visible hole
   // at the end of the line, and Chinese display headings conventionally omit it.
-  heroHeadline: '三个工具，数据都留在你自己的机器上',
+  heroHeadline: '四个工具，数据都留在你自己的机器上',
   heroLede:
-    '目前三个：确定性的代码知识图谱、编码 Agent 的用量归档，以及面向编辑器与终端的语音输入。都用 Rust 写，索引和记录都落在本机，不往外传。',
+    '目前四个：PT 站点的订阅与统计自动化、确定性的代码知识图谱、编码 Agent 的用量归档，以及面向编辑器与终端的语音输入。全部自部署，索引、归档和凭据都落在你运行它的那台机器上。',
   heroLedeAccent: 'FirLab 是 sunerpy 的工具集合。',
 
   products: [
     {
-      id: 'codegraph',
+      id: 'pttools',
       index: '01',
+      name: 'pt-tools',
+      role: 'PT 站点订阅、搜索与统计自动化 · Go',
+      status: 'live',
+      weight: 'lead',
+      version: 'v0.46.0',
+      released: '2026-08-10',
+      detail: 'pt-tools/',
+      body: '把 PT 站点上手工重复的那几件事接过去：解析 RSS 订阅并把符合条件的种子推给下载器、跨站点批量搜索、把各站的上传下载分享率与魔力值汇总成一张表、按做种时长或分享率清理已完成的种子。免费期结束时自动暂停，H&R 保护和磁盘水位都是硬约束。全部自部署，站点 Cookie 和统计数据只存在你自己那台机器上。',
+      specs: [
+        {
+          term: 'RSS 订阅',
+          value:
+            '定时解析订阅源并推送给下载器。未启用过滤规则时只下载免费种子；关键词、通配符与正则三种过滤规则用于扩展到非免费内容。',
+        },
+        {
+          term: '搜索与推送',
+          value:
+            '跨站点搜索种子，可批量下载、批量推送到下载器，或直接把 .torrent 存到本地。',
+        },
+        {
+          term: '统计',
+          value:
+            '汇总各站点的上传量、下载量、分享率、魔力值与等级进度，并可渲染成一张数据卡片图片。',
+        },
+        {
+          term: '下载器管理',
+          value: '支持多个下载器实例，每个实例可单独配置保存目录与添加后的启动策略。',
+        },
+        {
+          term: '自动清理',
+          value:
+            '按做种时长、分享率或无活动时间清理种子，带 H&R 保护与磁盘剩余空间下限；免费期结束时自动暂停，未完成的种子可选自动删除。',
+        },
+        {
+          term: '远程管理',
+          value:
+            'Web 管理界面，以及 QQ（OneBot / NapCat）与 Telegram 两条已端到端验证的 ChatOps 通道，13 条内置指令。',
+        },
+        {
+          term: '部署',
+          value: 'Go 1.25+ 单二进制，MIT 许可。提供 Docker 镜像，支持 Linux 与 Windows。',
+        },
+      ],
+      install: {
+        label: '运行',
+        lines: [
+          { note: 'Docker', command: 'docker pull sunerpy/pt-tools' },
+          {
+            note: '或从发布页取对应平台的二进制',
+            command: 'pt-tools --help',
+          },
+        ],
+      },
+      links: [
+        { label: '仓库', href: PTTOOLS_REPO },
+        { label: '发布页', href: `${PTTOOLS_REPO}/releases` },
+      ],
+    },
+    {
+      id: 'codegraph',
+      index: '02',
       name: 'CodeGraph',
       role: '确定性代码知识图谱 · CLI + MCP',
       status: 'live',
-      weight: 'lead',
+      weight: 'major',
       version: 'v0.42.10',
       released: '2026-08-07',
       detail: 'codegraph/',
@@ -149,7 +223,7 @@ const zh: PageContent = {
     },
     {
       id: 'agentlens',
-      index: '02',
+      index: '03',
       name: 'AgentLens',
       role: '编码 Agent 用量归档 · 桌面应用',
       status: 'early',
@@ -194,7 +268,7 @@ const zh: PageContent = {
     },
     {
       id: 'voxera',
-      index: '03',
+      index: '04',
       name: 'Voxera',
       role: '面向桌面与编码 Agent 的语音输入',
       status: 'wip',
@@ -244,22 +318,82 @@ const zh: PageContent = {
 const en: PageContent = {
   title: 'FirLab — local-first developer tools',
   description:
-    'A deterministic code knowledge graph, a usage archive for coding agents, and voice input for editors and terminals. Three Rust tools by sunerpy.',
+    'Feed, search and statistics automation for private trackers, a deterministic code knowledge graph, a usage archive for coding agents, and voice input for editors and terminals. Four self-hosted tools by sunerpy.',
   ogAlt: 'FirLab — developer tools by sunerpy',
 
-  heroHeadline: 'Three tools that keep your data on your own machine.',
+  heroHeadline: 'Four tools that keep your data on your own machine.',
   heroLede:
-    'Three so far: a deterministic code knowledge graph, a usage archive for coding agents, and voice input aimed at editors and terminals. All written in Rust, all keeping their index and their records on the host you run them on.',
+    'Four so far: feed, search and statistics automation for private trackers, a deterministic code knowledge graph, a usage archive for coding agents, and voice input aimed at editors and terminals. All self-hosted — the index, the archive and the credentials stay on the host you run them on.',
   heroLedeAccent: 'FirLab is where sunerpy builds developer tools.',
 
   products: [
     {
-      id: 'codegraph',
+      id: 'pttools',
       index: '01',
+      name: 'pt-tools',
+      role: 'Feed, search and statistics automation for private trackers · Go',
+      status: 'live',
+      weight: 'lead',
+      version: 'v0.46.0',
+      released: '2026-08-10',
+      detail: 'pt-tools/',
+      body: 'Takes over the repetitive parts of running an account on a private tracker: parsing RSS feeds and handing matching torrents to a downloader, searching across sites, collecting upload, download, ratio and bonus figures into one table, and cleaning up finished torrents by seed time or ratio. Torrents are paused when their free window closes, and H&R protection and a disk floor are hard constraints rather than suggestions. Everything is self-hosted — site cookies and statistics exist only on your own machine.',
+      specs: [
+        {
+          term: 'RSS',
+          value:
+            'Feeds are polled and matching torrents pushed to a downloader. With no filter rule enabled it downloads free torrents only; keyword, wildcard and regex rules are what widen it beyond that.',
+        },
+        {
+          term: 'Search',
+          value:
+            'Search torrents across sites, then batch-download, batch-push to a downloader, or save the .torrent files locally.',
+        },
+        {
+          term: 'Statistics',
+          value:
+            'Upload, download, ratio, bonus points and level progress collected across every configured site, and renderable as a shareable data card image.',
+        },
+        {
+          term: 'Downloaders',
+          value:
+            'Multiple downloader instances, each with its own save directory and post-add start policy.',
+        },
+        {
+          term: 'Cleanup',
+          value:
+            'Torrents are removed by seed time, ratio or inactivity, subject to H&R protection and a minimum free-disk floor. Paused automatically when a free window ends; incomplete torrents can optionally be deleted at that point.',
+        },
+        {
+          term: 'Remote control',
+          value:
+            'A web management UI, plus two ChatOps channels verified end to end — QQ (OneBot / NapCat) and Telegram — with 13 built-in commands.',
+        },
+        {
+          term: 'Deployment',
+          value:
+            'A single Go 1.25+ binary under MIT. Docker images are published; Linux and Windows are supported.',
+        },
+      ],
+      install: {
+        label: 'Run it',
+        lines: [
+          { note: 'Docker', command: 'docker pull sunerpy/pt-tools' },
+          { note: 'or take a binary for your platform off the releases page', command: 'pt-tools --help' },
+        ],
+      },
+      links: [
+        { label: 'Repository', href: PTTOOLS_REPO },
+        { label: 'Releases', href: `${PTTOOLS_REPO}/releases` },
+      ],
+    },
+    {
+      id: 'codegraph',
+      index: '02',
       name: 'CodeGraph',
       role: 'Deterministic code knowledge graph · CLI + MCP',
       status: 'live',
-      weight: 'lead',
+      weight: 'major',
       version: 'v0.42.10',
       released: '2026-08-07',
       detail: 'codegraph/',
@@ -313,7 +447,7 @@ const en: PageContent = {
     },
     {
       id: 'agentlens',
-      index: '02',
+      index: '03',
       name: 'AgentLens',
       role: 'Usage archive for coding agents · desktop',
       status: 'early',
@@ -358,7 +492,7 @@ const en: PageContent = {
     },
     {
       id: 'voxera',
-      index: '03',
+      index: '04',
       name: 'Voxera',
       role: 'Voice input for desktop and coding agents',
       status: 'wip',

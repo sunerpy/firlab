@@ -147,6 +147,8 @@ const jsonLd = {
       {t('nav.skipToContent')}
     </a>
 
+    <div class="u-progress" aria-hidden="true"></div>
+
     <div class="u-guides" aria-hidden="true"></div>
 
     <div class="relative z-10">
@@ -154,10 +156,26 @@ const jsonLd = {
     </div>
 
     {/*
-      The only script on the site. `<details>` already gives the WeChat QR a
-      working open/close and full keyboard support with scripting off; this adds
-      the two behaviours the element has no native equivalent for — Escape to
-      dismiss, and click-outside to dismiss. Inline so it costs no request.
+      Announcement target for the copy affordance. Empty in the served HTML and
+      only ever written by the script below, so a scripting-off client renders
+      nothing here.
+    */}
+    <p class="sr-only" role="status" aria-live="polite" data-copy-status></p>
+
+    {/*
+      The only script on the site, and it does exactly two things the platform
+      has no declarative equivalent for.
+
+      1. `<details>` already gives the WeChat QR a working open/close and full
+         keyboard support with scripting off; this adds Escape-to-dismiss and
+         click-outside-to-dismiss.
+      2. The copy buttons in command blocks. They ship `display: none` and are
+         only revealed once `navigator.clipboard.writeText` is confirmed to
+         exist — an affordance that cannot work must never be drawn. The command
+         itself is always selectable text in a `<code>`, so copying never
+         *depends* on this.
+
+      Inline, so it still costs no request and `<script src>` stays at zero.
     */}
     <script is:inline>
       (function () {
@@ -189,6 +207,47 @@ const jsonLd = {
             panel.open = false;
             var summary = panel.querySelector('summary');
             if (summary) summary.focus();
+          });
+        });
+      })();
+
+      (function () {
+        var buttons = document.querySelectorAll('button.u-copy');
+        if (!buttons.length) return;
+        if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') return;
+
+        var status = document.querySelector('[data-copy-status]');
+        var timers = new WeakMap();
+
+        function settle(button, state, message) {
+          var text = button.querySelector('[data-copy-text]');
+          button.setAttribute('data-state', state);
+          if (text) text.textContent = message;
+          if (status) status.textContent = message;
+
+          clearTimeout(timers.get(button));
+          timers.set(
+            button,
+            setTimeout(function () {
+              button.removeAttribute('data-state');
+              if (text) text.textContent = button.getAttribute('data-idle') || '';
+              if (status) status.textContent = '';
+            }, 2200),
+          );
+        }
+
+        buttons.forEach(function (button) {
+          button.setAttribute('data-ready', '');
+
+          button.addEventListener('click', function () {
+            navigator.clipboard.writeText(button.getAttribute('data-copy') || '').then(
+              function () {
+                settle(button, 'done', button.getAttribute('data-done') || '');
+              },
+              function () {
+                settle(button, 'failed', button.getAttribute('data-failed') || '');
+              },
+            );
           });
         });
       })();

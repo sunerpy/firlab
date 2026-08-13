@@ -127,7 +127,7 @@ const zh: VoxeraContent = {
 
   home: 'FirLab',
 
-  eyebrow: '产品 03 · 开发中 · 里程碑 M0（基础设施）',
+  eyebrow: '产品 04 · 开发中 · 里程碑 M0（基础设施）',
   headline: 'Voxera',
   role: '面向桌面与编码 Agent 的语音输入',
   lede: '按下一个全局热键，说话，文字落在你原本正在输入的那个地方 —— 编辑器、终端、写给编码 Agent 的提示框。识别交给本地引擎，或者交给你自己配置的云端引擎；投递交给当前获得焦点的输入框，或者交给一个只监听 127.0.0.1 的桥。',
@@ -398,7 +398,7 @@ const en: VoxeraContent = {
 
   home: 'FirLab',
 
-  eyebrow: 'Product 03 · in development · milestone M0 (infrastructure)',
+  eyebrow: 'Product 04 · in development · milestone M0 (infrastructure)',
   headline: 'Voxera',
   role: 'Voice input for desktop and coding agents',
   lede: 'Press a global hotkey, speak, and the text lands where you were already typing — an editor, a terminal, a prompt to a coding agent. Recognition goes to a local engine or to a cloud engine you configured yourself; delivery goes to the focused input, or to a bridge that listens only on 127.0.0.1.',

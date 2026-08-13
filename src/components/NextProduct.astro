@@ -1,0 +1,84 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import ProductMark from './ProductMark.astro';
+import { useWayfinding } from '../i18n/wayfinding';
+import type { Lang } from '../i18n/ui';
+import type { Product, ProductId } from '../i18n/content';
+
+/**
+ * NextProduct — the pager that gives a detail page an ending.
+ *
+ * Before this existed, a product page simply stopped: the last band closed and
+ * the footer began. The reader had finished something without being told they
+ * had. A sequential pager is the editorial answer — it closes the page *and*
+ * offers the one obvious next move, in the order the index already establishes.
+ *
+ * It is deliberately a `<nav>` OUTSIDE `<main>`, not another section inside it.
+ * That is the whole point of the change: the bottom of a detail page must read
+ * as chrome-level "advance", not as one more product pitch. The random-access
+ * jump strip lives in the footer below; this is the sequence.
+ *
+ * The sequence wraps, so the last product points back at the first rather than
+ * dead-ending. When it wraps, the label says so — an unannounced jump backwards
+ * would read as a bug.
+ *
+ * Voxera has nothing to download, and this component asks for nothing: it is a
+ * destination link, not a call to action, so it works identically on a page with
+ * no links of its own.
+ */
+interface Props {
+  lang: Lang;
+  products: Product[];
+  currentId: ProductId;
+}
+
+const { lang, products, currentId } = Astro.props;
+const w = useWayfinding(lang);
+
+const at = products.findIndex((product) => product.id === currentId);
+const nextIndex = at === -1 ? 0 : (at + 1) % products.length;
+const next = products[nextIndex]!;
+const wrapped = at !== -1 && nextIndex < at;
+---
+
+{
+  next.id !== currentId && (
+    <nav aria-label={w('pager.nav')} class="border-rule u-reveal border-t">
+      <a href={getRelativeLocaleUrl(lang, next.detail)} class="u-pager u-arrow-host block">
+        <div class="mx-auto flex max-w-[76rem] flex-wrap items-end justify-between gap-x-10 gap-y-6 px-6 py-12 md:px-10 md:py-16">
+          <div class="min-w-0">
+            <p class="u-meta text-ink-mute">
+              {w('pager.label')}
+              <span aria-hidden="true" class="mx-2">·</span>
+              <span class="tabular-nums">{next.index}</span>
+              {wrapped && (
+                <>
+                  <span aria-hidden="true" class="mx-2">·</span>
+                  {w('pager.wrap')}
+                </>
+              )}
+            </p>
+
+            <div class="mt-4 flex items-center gap-4">
+              <ProductMark
+                product={next.id}
+                size={34}
+                class="text-ink-mute u-pager-mark shrink-0"
+              />
+              <span class="u-display u-display-latin text-title text-ink min-w-0">{next.name}</span>
+            </div>
+
+            <p class="text-ink-soft mt-3 max-w-[34rem] font-mono text-sm">{next.role}</p>
+          </div>
+
+          <span
+            aria-hidden="true"
+            class="u-arrow u-display text-accent shrink-0 text-[2.25rem] leading-none"
+          >
+            →
+          </span>
+        </div>
+      </a>
+    </nav>
+  )
+}

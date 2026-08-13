@@ -3,6 +3,7 @@ import { getRelativeLocaleUrl } from 'astro:i18n';
 import Layout from '../layouts/Layout.astro';
 import FloatingNav from './FloatingNav.astro';
 import SiteFooter from './SiteFooter.astro';
+import NextProduct from './NextProduct.astro';
 import ProductMark from './ProductMark.astro';
 import StatusTag from './StatusTag.astro';
 import SectionHead from './SectionHead.astro';
@@ -117,9 +118,11 @@ const tone = {
       </div>
 
       <aside class="min-w-0 lg:col-span-3 lg:col-start-10">
-        <ProductMark product="voxera" size={92} class="text-ink-soft" />
+        <span class="inline-flex" style="view-transition-name: mark-voxera">
+          <ProductMark product="voxera" size={92} class="text-ink-soft" />
+        </span>
         <StatusTag lang={lang} state="wip" display="block" class="mt-7" />
-        <dl class="border-rule mt-6 space-y-4 border-t pt-6">
+        <dl class="border-rule u-stagger mt-6 space-y-4 border-t pt-6">
           {
             c.heroFacts.map((fact) => (
               <div>
@@ -148,9 +151,9 @@ const tone = {
     </section>
 
     {/* ---- The loop ---------------------------------------------------- */}
-    <section class="border-rule u-reveal border-t py-14 md:py-20">
+    <section class="border-rule u-reveal mt-10 border-t py-14 md:mt-20 md:py-20">
       <SectionHead label={c.loop.label} heading={c.loop.heading} intro={c.loop.intro} />
-      <ol class="mt-12 grid gap-y-10 lg:grid-cols-3 lg:gap-x-8">
+      <ol class="u-stagger mt-12 grid gap-y-10 lg:grid-cols-3 lg:gap-x-8">
         {
           c.steps.map((step) => (
             <li class="border-rule min-w-0 border-t pt-6">
@@ -166,13 +169,13 @@ const tone = {
     </section>
 
     {/* ---- Boundaries -------------------------------------------------- */}
-    <section class="border-rule u-reveal border-t py-14 md:py-20">
+    <section class="border-rule u-reveal mt-10 border-t py-14 md:mt-20 md:py-20">
       <SectionHead
         label={c.negations.label}
         heading={c.negations.heading}
         intro={c.negations.intro}
       />
-      <ol class="divide-rule border-rule mt-12 divide-y border-t">
+      <ol class="divide-rule u-stagger border-rule mt-12 divide-y border-t">
         {
           c.negationItems.map((item, i) => (
             <li class="grid gap-x-8 gap-y-3 py-8 lg:grid-cols-12">
@@ -191,10 +194,10 @@ const tone = {
     {/* ---- Privacy ledger ----------------------------------------------
         The spine of the page. One axis only: what is transmitted. The tone
         dot reinforces; the words carry it. */}
-    <section class="border-rule u-reveal border-t py-14 md:py-20">
+    <section class="border-rule u-reveal mt-10 border-t py-14 md:mt-20 md:py-20">
       <SectionHead label={c.privacy.label} heading={c.privacy.heading} intro={c.privacy.intro} />
 
-      <ul class="divide-rule border-rule mt-12 divide-y border-t">
+      <ul class="divide-rule u-stagger border-rule mt-12 divide-y border-t">
         {
           c.privacyModes.map((mode) => (
             <li class="grid gap-x-8 gap-y-4 py-8 lg:grid-cols-[13rem_12rem_minmax(0,1fr)]">
@@ -229,7 +232,7 @@ const tone = {
     </section>
 
     {/* ---- Architecture ------------------------------------------------ */}
-    <section class="border-rule u-reveal border-t py-14 md:py-20">
+    <section class="border-rule u-reveal mt-10 border-t py-14 md:mt-20 md:py-20">
       <SectionHead label={c.arch.label} heading={c.arch.heading} intro={c.arch.intro} />
       <DefRows items={c.crates} variant="mono" class="border-rule mt-12 border-t" />
       <p class="text-ink-body mt-10 max-w-[42rem] text-sm">{c.archNote}</p>
@@ -241,13 +244,13 @@ const tone = {
     </section>
 
     {/* ---- Platform ---------------------------------------------------- */}
-    <section class="border-rule u-reveal border-t py-14 md:py-20">
+    <section class="border-rule u-reveal border-t py-10 md:py-14">
       <SectionHead label={c.platform.label} heading={c.platform.heading} intro={c.platform.intro} />
       <DefRows items={c.platformRows} class="border-rule mt-12 border-t" />
     </section>
 
     {/* ---- Licence ----------------------------------------------------- */}
-    <section class="border-rule u-reveal border-t py-14 md:py-20">
+    <section class="border-rule u-reveal border-t py-10 md:py-14">
       <SectionHead label={c.licence.label} heading={c.licence.heading} intro={c.licence.intro} />
       <DefRows items={c.licenceRows} class="border-rule mt-12 border-t" />
     </section>
@@ -256,7 +259,7 @@ const tone = {
         No call to action, because there is nothing to act on. What the
         visitor gets instead is an honest ending and two tools that do
         exist today. */}
-    <section class="border-rule u-reveal border-t border-dashed py-14 md:py-20">
+    <section class="border-rule u-reveal mt-10 border-t border-dashed py-14 md:mt-20 md:py-20">
       <div class="grid gap-y-10 lg:grid-cols-12 lg:gap-x-8">
         <div class="min-w-0 lg:col-span-7">
           <SectionHead label={c.close.label} heading={c.close.heading} />
@@ -268,7 +271,7 @@ const tone = {
 
         <div class="min-w-0 lg:col-span-4 lg:col-start-9">
           <h2 class="u-meta text-ink-mute">{c.siblingsLabel}</h2>
-          <ul class="divide-rule border-rule mt-5 divide-y border-t">
+          <ul class="divide-rule u-stagger border-rule mt-5 divide-y border-t">
             {
               c.siblings.map((sibling) => (
                 <li class="py-5">
@@ -289,5 +292,7 @@ const tone = {
     </section>
   </main>
 
-  <SiteFooter lang={lang} products={products} />
+  <NextProduct lang={lang} products={products} currentId="voxera" />
+
+  <SiteFooter lang={lang} products={products} variant="detail" currentId="voxera" />
 </Layout>

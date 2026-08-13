@@ -174,7 +174,7 @@ const zh: CodeGraphContent = {
   crumbHome: 'FirLab',
   crumbCurrent: 'CodeGraph',
 
-  eyebrow: '产品 01 · 确定性代码知识图谱',
+  eyebrow: '产品 02 · 确定性代码知识图谱',
   name: 'CodeGraph',
   role: 'tree-sitter → SQLite + FTS5 · CLI + MCP · 无模型',
   ledeAccent: '一份索引，三个入口。',
@@ -450,7 +450,7 @@ const en: CodeGraphContent = {
   crumbHome: 'FirLab',
   crumbCurrent: 'CodeGraph',
 
-  eyebrow: 'Product 01 · deterministic code knowledge graph',
+  eyebrow: 'Product 02 · deterministic code knowledge graph',
   name: 'CodeGraph',
   role: 'tree-sitter → SQLite + FTS5 · CLI + MCP · no model',
   ledeAccent: 'One index, three front doors.',
