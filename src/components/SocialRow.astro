@@ -35,7 +35,7 @@ const showLabels = variant === 'footer';
 
 const itemClass = showLabels
   ? 'text-ink-mute hover:text-accent inline-flex items-center gap-2.5 py-1 text-sm no-underline'
-  : 'text-ink-mute hover:text-accent inline-flex size-9 items-center justify-center rounded-[6px] no-underline';
+  : 'text-ink-mute hover:text-accent inline-flex size-9 items-center justify-center rounded-[var(--radius-chip)] no-underline';
 
 // The nav's panel is always an overlay — a bar cannot grow. The footer's opens
 // upward on wide screens, but goes IN-FLOW on mobile: the footer is a single
@@ -78,7 +78,7 @@ const panelPosition =
       </summary>
 
       <div
-        class={`bg-paper border-rule ${panelPosition} z-30 rounded-[8px] border p-3 shadow-[0_18px_44px_-28px_color-mix(in_oklab,var(--ink-900)_70%,transparent)]`}
+        class={`bg-paper border-rule ${panelPosition} z-30 rounded-[var(--radius-control)] border p-3 shadow-[0_18px_44px_-28px_color-mix(in_oklab,var(--ink-900)_70%,transparent)]`}
       >
         {/* A QR needs a light ground to scan in either theme, so the plate is
             white regardless of colour scheme — this is a scanner requirement,
@@ -90,7 +90,7 @@ const panelPosition =
           height="430"
           loading="lazy"
           decoding="async"
-          class="block w-full rounded-[4px] bg-white"
+          class="block w-full rounded-[var(--radius-chip)] bg-white"
         />
         <p class="u-meta text-ink-mute mt-2.5 text-center">{t('social.wechat.caption')}</p>
       </div>

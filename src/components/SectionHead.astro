@@ -19,5 +19,5 @@ const { label, heading, intro, id, class: className = '' } = Astro.props;
 <div class={className}>
   <p class="u-meta text-ink-mute">{label}</p>
   <h2 id={id} class="u-display text-title-sm mt-4 max-w-[34rem]">{heading}</h2>
-  {intro && <p class="text-ink-body mt-5 max-w-[42rem]">{intro}</p>}
+  {intro && <p class="text-ink-body mt-5 u-measure">{intro}</p>}
 </div>
