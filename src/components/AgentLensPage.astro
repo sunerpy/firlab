@@ -18,6 +18,7 @@ import {
   AGENTLENS_REPO,
 } from '../i18n/agentlens';
 import { AGENTLENS_RELEASED, AGENTLENS_VERSION } from '../i18n/versions';
+import { entityId, PERSON_ID, FREE_OFFER } from '../i18n/schema';
 
 /**
  * The AgentLens detail page, assembled once and rendered per locale — the same
@@ -47,21 +48,24 @@ const sections = getAgentLensSections(c);
 const homeHref = getRelativeLocaleUrl(lang, '');
 
 // SoftwareApplication, plus a breadcrumb so the detail page is not treated as a
-// second root. No `offers` and no `aggregateRating`: there is no price and there
-// are no reviews, so neither is asserted.
+// second root. `offers` says free-of-charge, which is a fact; there is still no
+// `aggregateRating` and no `review`, because there are no real ratings to report
+// and inventing them is a policy violation. No `programmingLanguage` either — it
+// belongs to `SoftwareSourceCode` and validator.schema.org rejects it on this
+// type. Full reasoning for all three lives in `i18n/schema.ts`.
 const structuredData = [
   {
     '@type': 'SoftwareApplication',
-    '@id': 'https://firlab.app/#agentlens',
+    '@id': entityId(lang, 'agentlens'),
     name: 'AgentLens',
     applicationCategory: 'DeveloperApplication',
     operatingSystem: 'Linux, Windows, macOS',
-    programmingLanguage: 'Rust',
     softwareVersion: AGENTLENS_VERSION.replace(/^v/, ''),
     datePublished: AGENTLENS_RELEASED,
     description: c.description,
     url: AGENTLENS_REPO,
-    author: { '@id': 'https://firlab.app/#sunerpy' },
+    offers: FREE_OFFER,
+    author: { '@id': PERSON_ID },
     license: 'https://opensource.org/licenses/MIT',
   },
   {

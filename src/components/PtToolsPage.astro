@@ -12,6 +12,7 @@ import { useTranslations, type Lang } from '../i18n/ui';
 import { getContent } from '../i18n/content';
 import { getPtToolsContent, pttoolsLinks } from '../i18n/pttools';
 import { pttoolsReleased, pttoolsVersion } from '../i18n/versions';
+import { entityId, PERSON_ID, FREE_OFFER } from '../i18n/schema';
 
 /**
  * pt-tools detail page, assembled once and rendered per locale — the same
@@ -44,21 +45,25 @@ const c = getPtToolsContent(lang);
 const site = getContent(lang);
 const home = getRelativeLocaleUrl(lang, '');
 
+// Per-locale `@id`, free-of-charge `offers`, and no `programmingLanguage` — that
+// last one is a `SoftwareSourceCode` property that validator.schema.org rejects
+// on this type. `i18n/schema.ts` carries the reasoning for all three, including
+// why no `aggregateRating` will ever appear here.
 const structuredData = [
   {
     '@type': 'SoftwareApplication',
-    '@id': 'https://firlab.app/#pt-tools',
+    '@id': entityId(lang, 'pt-tools'),
     name: 'pt-tools',
     applicationCategory: 'DeveloperApplication',
     operatingSystem: 'Linux, Windows',
-    programmingLanguage: 'Go',
     softwareVersion: pttoolsVersion.replace(/^v/, ''),
     datePublished: pttoolsReleased,
     license: 'https://opensource.org/licenses/MIT',
     url: pttoolsLinks.repo,
     downloadUrl: pttoolsLinks.releases,
+    offers: FREE_OFFER,
     description: c.description,
-    author: { '@id': 'https://firlab.app/#sunerpy' },
+    author: { '@id': PERSON_ID },
   },
   {
     '@type': 'BreadcrumbList',
