@@ -8,7 +8,8 @@
  *
  * Every claim here was checked against the product's own README and shipped
  * release. The load-bearing ones, which must never be softened or embellished:
- *   - v0.0.5, released 2026-08-12. Early. Not "mature", not "production-grade".
+ *   - Release metadata comes from `versions.ts`. Early. Not "mature", not
+ *     "production-grade".
  *   - Unknown cost is marked missing, NEVER rendered as zero.
  *   - Remote collection is read-only.
  *   - Windows has had real-machine install + GUI acceptance. Linux and macOS
@@ -19,11 +20,10 @@
 
 import type { Lang } from './ui';
 import type { InstallLine, Spec } from './content';
+import { AGENTLENS_RELEASED, AGENTLENS_VERSION } from './versions';
 
 export const AGENTLENS_REPO = 'https://github.com/sunerpy/AgentLens';
 export const AGENTLENS_RELEASES = `${AGENTLENS_REPO}/releases`;
-export const AGENTLENS_VERSION = 'v0.0.5';
-export const AGENTLENS_RELEASED = '2026-08-12';
 
 /** A numbered page section. `label` is the mono rail caption. */
 export interface SectionMeta {

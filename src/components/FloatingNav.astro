@@ -61,9 +61,24 @@ const home = getRelativeLocaleUrl(lang, '');
 {/* `<header>` rather than a `<div>`: this is the page's banner landmark, and it was
     missing on every page — DESIGN.md §6 claimed the site had one. `<header>` maps
     to `role="banner"` only when it is not nested inside `article`/`section`/`main`,
-    which is why it is the outermost element here. */}
-<header class="pointer-events-none sticky top-0 z-40 pt-3 md:pt-4">
-  <div class="u-shell u-shell-nav pointer-events-auto">
+    which is why it is the outermost element here.
+
+    `u-nav-scrim` hangs the bar's ground off this element rather than off the pill,
+    and it has to be this one: the header is a sibling of `main` inside `.u-stage`,
+    so its box already spans the sheet's interior exactly, and being the nearest
+    positioned ancestor it is also the containing block the scrim's `inset: 0`
+    resolves against. Both halves of the scrim therefore cover the whole sheet
+    width and stop precisely on the pill's bottom edge with no geometry restated.
+    See `.u-nav-scrim` in global.css for the artifact it repairs. */}
+<header class="u-nav-scrim pointer-events-none sticky top-0 z-40">
+  {/* The bar's top inset lives HERE, not on the header, and the two are not
+      interchangeable. The rendered layout is identical either way — the header's
+      height is this element's height — but this element is `pointer-events-auto`
+      and the header is not, so putting the padding here is what extends the hit
+      area up over the strip above the pill. Without that, the scrim covers the
+      strip visually while a content link underneath stays clickable, i.e. the
+      fix would trade a visual artifact for a phantom-click one. */}
+  <div class="u-shell u-shell-nav pointer-events-auto pt-3 md:pt-4">
     {/* No horizontal padding utility here on purpose: `.u-nav-shell` owns it via
         `--nav-pad`, which `.u-shell-nav` also reads to pull the pill outward by
         exactly that amount. That is what lands the wordmark on the copy's start

@@ -22,12 +22,20 @@
  *
  * ORDER IS MEANING. The array order is the index order, and it is sorted by
  * maturity, not by age — pt-tools leads because it is the most released thing
- * here (v0.46.0, published Docker images, 136 stars). Reordering this array
+ * here (published Docker images, 136 stars). Reordering this array
  * without also renumbering `index` and each detail page's `eyebrow` leaves the
  * site contradicting itself.
  */
 
 import type { Lang } from './ui';
+import {
+  AGENTLENS_RELEASED,
+  AGENTLENS_VERSION,
+  codegraphReleased,
+  codegraphVersion,
+  pttoolsReleased,
+  pttoolsVersion,
+} from './versions';
 
 export type Status = 'live' | 'early' | 'wip';
 export type Weight = 'lead' | 'major' | 'standard' | 'pending';
@@ -109,8 +117,8 @@ const zh: PageContent = {
       role: 'PT 站点订阅、搜索与统计自动化 · Go',
       status: 'live',
       weight: 'lead',
-      version: 'v0.46.0',
-      released: '2026-08-10',
+      version: pttoolsVersion,
+      released: pttoolsReleased,
       detail: 'pt-tools/',
       body: '把 PT 站点上手工重复的那几件事接过去：解析 RSS 订阅并把符合条件的种子推给下载器、跨站点批量搜索、把各站的上传下载分享率与魔力值汇总成一张表、按做种时长或分享率清理已完成的种子。免费期结束时自动暂停，H&R 保护和磁盘水位都是硬约束。全部自部署，站点 Cookie 和统计数据只存在你自己那台机器上。',
       specs: [
@@ -170,8 +178,8 @@ const zh: PageContent = {
       role: '确定性代码知识图谱 · CLI + MCP',
       status: 'live',
       weight: 'major',
-      version: 'v0.42.10',
-      released: '2026-08-07',
+      version: codegraphVersion,
+      released: codegraphReleased,
       detail: 'codegraph/',
       body: 'tree-sitter 把仓库解析成项目级的符号、调用与依赖索引，再针对它回答结构性问题：谁调用了这个函数、它能到达什么、改动它会牵连到哪里。二进制里没有任何模型 —— 没有 embedding，没有向量，没有 LLM —— 所以同一个问题在任何机器上都返回同样的字节。正是这一点让它敢交给 Agent 用，也敢放进 CI 里做 diff。',
       specs: [
@@ -228,8 +236,8 @@ const zh: PageContent = {
       role: '编码 Agent 用量归档 · 桌面应用',
       status: 'early',
       weight: 'standard',
-      version: 'v0.0.5',
-      released: '2026-08-12',
+      version: AGENTLENS_VERSION,
+      released: AGENTLENS_RELEASED,
       detail: 'agentlens/',
       body: '一个跨平台桌面看板，回答"这些 Agent 到底做了什么、在哪台机器上做的"。它把本机与 SSH 远端的用量记录汇总进同一份持久归档，再按时区、Agent、模型或项目切分。功夫花在容易悄悄出错的地方：历史比它的来源活得更久、远端访问只读、成本数字承认自己是估算。',
       specs: [
@@ -334,8 +342,8 @@ const en: PageContent = {
       role: 'Feed, search and statistics automation for private trackers · Go',
       status: 'live',
       weight: 'lead',
-      version: 'v0.46.0',
-      released: '2026-08-10',
+      version: pttoolsVersion,
+      released: pttoolsReleased,
       detail: 'pt-tools/',
       body: 'Takes over the repetitive parts of running an account on a private tracker: parsing RSS feeds and handing matching torrents to a downloader, searching across sites, collecting upload, download, ratio and bonus figures into one table, and cleaning up finished torrents by seed time or ratio. Torrents are paused when their free window closes, and H&R protection and a disk floor are hard constraints rather than suggestions. Everything is self-hosted — site cookies and statistics exist only on your own machine.',
       specs: [
@@ -394,8 +402,8 @@ const en: PageContent = {
       role: 'Deterministic code knowledge graph · CLI + MCP',
       status: 'live',
       weight: 'major',
-      version: 'v0.42.10',
-      released: '2026-08-07',
+      version: codegraphVersion,
+      released: codegraphReleased,
       detail: 'codegraph/',
       body: 'tree-sitter parses a repository into a project-level index of symbols, calls and dependencies, then answers structural questions against it: who calls this, what does this reach, what does changing it touch. There is no model anywhere in the binary — no embeddings, no vectors, no LLM — so the same question returns the same bytes on every machine. That is what makes it safe to hand to an agent, and safe to diff in CI.',
       specs: [
@@ -452,8 +460,8 @@ const en: PageContent = {
       role: 'Usage archive for coding agents · desktop',
       status: 'early',
       weight: 'standard',
-      version: 'v0.0.5',
-      released: '2026-08-12',
+      version: AGENTLENS_VERSION,
+      released: AGENTLENS_RELEASED,
       detail: 'agentlens/',
       body: 'A cross-platform desktop dashboard for the question "what have these agents actually been doing, and on which machines". It pulls usage records off the local host and off remote hosts over SSH into a single durable archive, then lets you slice it by timezone, agent, model or project. The care went into the parts that are easy to get quietly wrong: history that outlives its sources, remote access that only reads, and cost figures that admit when they are estimates.',
       specs: [
