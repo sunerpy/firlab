@@ -44,7 +44,18 @@
 
      These live on `:root`, NOT in `@theme`: Tailwind prunes theme variables it
      sees no utility for, and these are consumed through `var()` in arbitrary
-     values and in the component layer — which is not a usage Tailwind counts. */
+     values and in the component layer — which is not a usage Tailwind counts.
+
+     `--shadow-plate`'s FIRST line is theme-dependent and is overridden in the
+     dark blocks below. Here it is a dark 1px contact hairline under the plate,
+     which is what a sheet resting on paper looks like. On a dark ground that
+     same hairline reads as a seam rather than a lift — a shadow needs something
+     to darken and there is nothing left — so dark mode replaces it with a white
+     inset hairline along the plate's top inner edge. That is the mechanism
+     Material's dark-theme guidance prescribes (a white overlay, 2% for a card,
+     12% for a raised bar) for exactly this reason: shadows are near-invisible
+     against a dark surface, so elevation has to be carried by light instead.
+     The soft drop shadow on the second line is unchanged in both themes. */
   --shadow-plate:
     0 1px 0 color-mix(in oklab, var(--shade) 5%, transparent),
     0 10px 24px -20px color-mix(in oklab, var(--shade) 50%, transparent);
@@ -116,6 +127,14 @@
      media query below. */
   --nav-pad: 0.625rem;
 
+  /* Depth of the dissolve below the floating bar — see `.u-nav-scrim`. Consumed
+     only through `var()` in the component layer, which is why it lives here and
+     NOT in `@theme`: Tailwind prunes theme variables it sees no utility for, the
+     same reason `--shadow-plate` sits on `:root`. Raised at 768px alongside
+     `--nav-pad`, because the bar it trails grows there too — the header box
+     measures 62px at 375 and 74.8px from 768 up. */
+  --nav-scrim-fade: 1.5rem;
+
   /* ---- Script-dependent metrics -----------------------------------------
      Latin defaults. Overridden per-language below; every prose and display
      rule reads these instead of hard-coding a value, so switching locale
@@ -141,6 +160,7 @@
 @media (min-width: 768px) {
   :root {
     --nav-pad: 0.875rem;
+    --nav-scrim-fade: 2.5rem;
   }
 }
 
@@ -189,46 +209,114 @@ html:lang(zh) {
    `color-scheme` has to follow the pinned theme too. Left at `light dark` it
    makes the UA paint scrollbars, form controls and the canvas for the OS
    preference, so a page pinned light on a dark OS gets dark scrollbars.
+
+   ---- Why the dark ramp reads the way it does -----------------------------
+   The previous dark ramp was reported as oppressive, and the intuitive reading
+   — "too dark" — was wrong. Measured, its ground sat at L 15.9–20.3, squarely
+   inside the band every reference system uses (Linear 13.9, Primer 17.6, Radix
+   slate1 17.9, Material 18.2, Resend 19.5). Lightness was never the defect.
+   Four things were, and all four are fixed here.
+
+   1. CHROMA. The ground carried C 0.021–0.027 at H≈258 — 7–9x Linear (0.0029),
+      5–6x Radix slate1 (0.0041), ~2x Primer (0.0140), and Primer is the most
+      navy-tinted mainstream system that exists. A navy at that chroma spread
+      across a whole viewport reads as a heavy coloured wash rather than a
+      neutral dark room, and because every surface above it inherited the same
+      cast, nothing read as *lighter* — only as *more navy*. The ground is now
+      C≈0.0095. Still cool, deliberately: the brand ink is #0B1220 (H 263) and
+      the palette's coolness is derived from the shipped product marks, so this
+      is a reduction to Radix-slate territory, not a neutralisation.
+      Chroma now RISES up the ramp (0.0095 → 0.0129 → 0.0162), which is what
+      the references do — Radix slate runs 0.0041 → 0.0103 → 0.0155. Tint is a
+      mid-scale accent, never a ground property. This ramp used to do the
+      opposite.
+
+   2. INK CHROMA compounded it. `--ink-500` was C 0.0370 — 2.4x Linear, 3.9x
+      Radix slate11 — so foreground and background shared one hue at high
+      chroma and the separation read muddy even though the LIGHTNESS was right.
+      Lightness is therefore held (75.5, against Radix step-11's 76.9) and only
+      chroma is cut, to 0.0115. `--ink-900` also drops from L 97.2 to 95.1:
+      Radix caps step 12 at 94.9 and Linear runs body text at 87.4, and
+      near-white on a near-black ground causes halation.
+
+   3. `--rule` WAS UNDER-LIT at +12.3 L above the sheet, where the convergent
+      norm is +16.8 (Radix slate6) to +20.7 (Primer). At Radix numbering that
+      was a step-4 value doing a step-6 border's job, so structure vanished.
+      Now +16.5. This matters more than any surface step: Radix puts card
+      backgrounds within +3.5 L of the app background and makes the card read
+      as a card entirely through a step-6 border. Bigger surface jumps are the
+      wrong lever; the lit hairline is the right one.
+
+   4. THE RAMP WAS TRUNCATED at +9.0 L (`--paper-2`), so there was no surface
+      left for hover or elevated state — the real reason panels did not read as
+      distinct. Now +11.7, against Radix step 5 at +13.3 and Raycast bg-300 at
+      +13.8.
+
+   And one structural inversion, which is the direct cause of the "oppressive"
+   feeling: THE SHEET USED TO BE SUNKEN. Light mode lifts it (sheet 99.1, desk
+   97.2, +1.9); dark mode sank it (sheet 15.9, desk 20.3, −4.4), which made
+   `.u-stage` — where every word on the site lives — the darkest surface on the
+   page. The reader's whole reading area was a well. The polarity now matches:
+   sheet 18.5, desk 16.7, +1.8 against light's +1.9. Note the knock-on: because
+   `.u-plate` grounds itself in `--paper-1`, plates are now recessed against the
+   sheet in BOTH themes, which is what the plate comment always claimed.
+
+   Every pair is re-measured in DESIGN.md §6; the tightest is `--ink-400` on
+   `--paper-2` at 4.71:1, and nothing is below AA.
 --------------------------------------------------------------------------- */
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --ink-900: #f2f6fb;
-    --ink-700: #dde5f0;
-    --ink-500: #9fb0c6;
-    --ink-400: #7c8ca3;
+    /* L 95.1 / 88.1 / 75.5 / 68.1 — C 0.0063 / 0.0081 / 0.0115 / 0.0118 */
+    --ink-900: #eceff3;
+    --ink-700: #d4d8dd;
+    --ink-500: #abb0b7;
+    --ink-400: #9499a0;
 
-    --paper-0: #080d16;
-    --paper-1: #0f1723;
-    --paper-2: #18222f;
-    --rule: #1f2a38;
+    /* Sheet L 18.5, desk L 16.7 — the sheet is LIGHTER, as in light mode.
+       Block +11.7 and rule +16.5 above the sheet. */
+    --paper-0: #101317;
+    --paper-1: #0c0f13;
+    --paper-2: #2a2f35;
+    --rule: #353b43;
 
     --accent: #fb923c;
     --accent-mark: #f97316;
     --live: #2dd4bf;
 
     --shade: #000000;
+
+    --shadow-plate:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.06),
+      0 10px 24px -20px color-mix(in oklab, var(--shade) 50%, transparent);
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --ink-900: #f2f6fb;
-  --ink-700: #dde5f0;
-  --ink-500: #9fb0c6;
-  --ink-400: #7c8ca3;
+  /* L 95.1 / 88.1 / 75.5 / 68.1 — C 0.0063 / 0.0081 / 0.0115 / 0.0118 */
+  --ink-900: #eceff3;
+  --ink-700: #d4d8dd;
+  --ink-500: #abb0b7;
+  --ink-400: #9499a0;
 
-  --paper-0: #080d16;
-  --paper-1: #0f1723;
-  --paper-2: #18222f;
-  --rule: #1f2a38;
+  /* Sheet L 18.5, desk L 16.7 — the sheet is LIGHTER, as in light mode.
+     Block +11.7 and rule +16.5 above the sheet. */
+  --paper-0: #101317;
+  --paper-1: #0c0f13;
+  --paper-2: #2a2f35;
+  --rule: #353b43;
 
   --accent: #fb923c;
   --accent-mark: #f97316;
   --live: #2dd4bf;
 
   --shade: #000000;
+
+  --shadow-plate:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.06),
+    0 10px 24px -20px color-mix(in oklab, var(--shade) 50%, transparent);
 }
 
 :root[data-theme="light"] {
@@ -357,10 +445,16 @@ html:lang(zh) {
     text-wrap: pretty;
   }
 
-  /* Anchor targets sit under a sticky nav; without this they land beneath it. */
+  /* Anchor targets sit under a sticky nav; without this they land beneath it.
+     The clearance is measured against the bar's whole footprint, not the pill:
+     `.u-nav-scrim`'s dissolve extends `--nav-scrim-fade` past the header, so the
+     chrome ends at 74.8 + 40 = 114.8px at 1440 and 62 + 24 = 86px at 375. The
+     previous 6.5rem (104px) was 11px SHORT of that at desktop, which would have
+     landed every anchored heading inside the fade with its first line washed
+     out. 8rem clears the widest case by 13px. */
   :target,
   [id] {
-    scroll-margin-top: 6.5rem;
+    scroll-margin-top: 8rem;
   }
 
   /* Links are underlined by default: colour alone must never carry meaning. */
@@ -517,11 +611,31 @@ html:lang(zh) {
          `none`. Writing just the standard property lets the build prefix for
          the targets that actually need it.
        - The settle animation (further down) only deepens the ground and adds
-         the hairline; it is never what makes the bar readable, which matters
-         because it does not run under `prefers-reduced-motion: reduce`. */
+         the shadow; it is never what makes the bar readable, which matters
+         because it does not run under `prefers-reduced-motion: reduce`.
+
+     The hairline is part of the BASE state for the same reason, and it did not
+     used to be — the settle keyframes brought it in, and its `from` step still
+     hides it at scroll 0, so a reader with motion enabled sees no change here.
+     What changed is what sits behind the pill once the page scrolls. It used to
+     be moving content, which gave the pill its edges for free; it is now
+     `.u-nav-scrim`, a flat band of the same paper the pill is mixed from.
+     Measured with the scrim in place and no settle: the pill's composited ground
+     against the scrim's is 1.01:1 — they are the same colour, so the bar had
+     literally no edge and the nav read as loose text on a blank strip. That is
+     only ever visible under `prefers-reduced-motion: reduce`, i.e. on exactly
+     the machines that get no settle, which is how it would have shipped unseen.
+     A lit 1px rule is also the right lever rather than a surface step: it is the
+     mechanism the dark-ramp note above argues for at length, where `--rule` sits
+     +16.5 L above the sheet precisely so structure is carried by the hairline.
+     It measures 1.65:1 against that ground — below the 3:1 that WCAG 1.4.11 asks
+     of a component boundary, and deliberately so: it is the same `--rule` every
+     plate and segmented control on the site is bounded by, and the pill's edge
+     is decoration rather than an affordance — every control inside it carries
+     its own hit area, its own hover and its own focus ring. */
   .u-nav-shell {
     background-color: color-mix(in oklab, var(--paper-0) 92%, transparent);
-    border: 1px solid transparent;
+    border: 1px solid var(--color-rule);
     backdrop-filter: saturate(150%) blur(12px);
     padding-inline: var(--nav-pad);
   }
@@ -533,6 +647,79 @@ html:lang(zh) {
       backdrop-filter: none;
       border-color: var(--rule);
     }
+  }
+
+  /* ---- The ground the bar floats on ------------------------------------
+     Content used to scroll THROUGH the pill rather than behind it, and the
+     pill's own geometry is why. The bar is deliberately an object on the page:
+     inset from the viewport's top edge by the header's `pt-3`/`pt-4`, and
+     narrower than the sheet by twice `.u-shell-nav`'s outward pull. Measured at
+     1440px while scrolled, the pill's box was `top 16, left 131.5, w 1162`
+     inside a `left 88.5, w 1248` sheet — so a 16px strip above it and 43px on
+     each flank were bare sheet with live content sliding under them, and
+     `elementFromPoint(713, y)` returned `article.u-entry` for y = 2, 6, 10 and
+     14. In a screenshot that is a code block guillotined by a floating bar:
+     a hard edge, no separation, and it reads as a rendering fault rather than
+     as a design.
+
+     The repair is a scrim, not a wider pill. The floating geometry IS the
+     design, so the bar gets a ground to float on instead of being flattened
+     into a chrome strip. Two pseudo-elements, and the split between them is
+     the whole point:
+
+       ::before  the opaque band, and the load-bearing half. `inset: 0` against
+                 the header's padding box is exactly the region that has to be
+                 covered, and it needs no arithmetic to say so — the header is a
+                 sibling of `main` inside `.u-stage`, so its box already spans
+                 the sheet's interior (1246px against the sheet's 1248px, net of
+                 the stage's two 1px borders), and its height is its own top
+                 padding plus the pill: 16 + 58.8 = 74.8 at 1440, 12 + 50 = 62
+                 at 375. The band therefore ends precisely on the pill's bottom
+                 edge at every width and in both scripts, with no measurement to
+                 re-fit when the pill's content or the active script changes.
+                 Being load-bearing, it is a flat rectangle of one colour: no
+                 mask, no filter, nothing that can silently fail open.
+
+       ::after   the dissolve. Starts at `top: 100%`, the header's bottom, so its
+                 seam sits under the pill's own edge, and fades the same paper
+                 out over `--nav-scrim-fade`. This is what stops the boundary
+                 reading as a cut instead of as depth.
+
+     A `mask-image` over a solid fill is what most implementations of this reach
+     for, and it buys exactly one thing a gradient background does not: it fades
+     a `backdrop-filter` too. The scrim deliberately has no blur — CSS cannot
+     gate one on scroll position without a listener, so a blurred tail would
+     also blur the top of the hero at scroll 0 — which leaves `mask-image` with
+     nothing to do and a real cost, since a mask that fails open leaves an
+     opaque band sitting on the content it was supposed to dissolve.
+     `linear-gradient()` cannot fail in either direction. The pill keeps the
+     blur; the scrim is a colour.
+
+     Both halves are `pointer-events: none`. That is inherited from the header
+     and restated here because it is a contract, not an accident: the scrim is
+     decoration and must never answer a click. What DOES answer a hit test under
+     the band is `.u-shell-nav`, which is `pointer-events: auto` and — now that
+     the header's top padding lives on it rather than on the header — spans the
+     strip above the pill as well as the flanks it already covered. So no
+     invisible link under an opaque band stays clickable, and nothing inside the
+     pill loses a target. */
+  .u-nav-scrim::before,
+  .u-nav-scrim::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    pointer-events: none;
+  }
+
+  .u-nav-scrim::before {
+    inset-block: 0;
+    background-color: var(--color-paper);
+  }
+
+  .u-nav-scrim::after {
+    inset-block-start: 100%;
+    height: var(--nav-scrim-fade);
+    background-image: linear-gradient(to bottom, var(--color-paper), transparent);
   }
 
   /* ---- Plates ------------------------------------------------------------

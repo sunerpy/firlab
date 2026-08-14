@@ -1,0 +1,110 @@
+name: Product version drift
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: product-version-drift
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    name: Check latest stable releases
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+
+      # Exit 1 means proven drift and may create an issue. Exit 2 means the API
+      # could not produce a verdict, so it fails the run without crying drift.
+      - name: Check published versions
+        id: release-check
+        shell: bash
+        run: |
+          set +e
+          node scripts/check-versions.mjs 2>&1 | tee version-check.log
+          exit_code=${PIPESTATUS[0]}
+          set -e
+          echo "exit_code=${exit_code}" >> "$GITHUB_OUTPUT"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Open or update the drift issue
+        if: ${{ steps.release-check.outputs.exit_code == '1' }}
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- firlab-product-version-drift -->';
+            const output = fs.readFileSync('version-check.log', 'utf8').trim();
+            const indentedOutput = output.split('\n').map((line) => `    ${line}`).join('\n');
+            const body = `${marker}
+            The daily check found that FirLab's committed product metadata no longer matches a latest stable GitHub Release.
+
+            ${indentedOutput}
+
+            Update the named constants in \`src/i18n/versions.ts\` through a reviewed pull request. Do not auto-commit to \`main\`; it triggers the public deploy.
+
+            _Last checked: ${new Date().toISOString()}_`;
+            const { owner, repo } = context.repo;
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: 'open',
+              per_page: 100,
+            });
+            const existing = issues.find((issue) => issue.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.update({ owner, repo, issue_number: existing.number, body });
+            } else {
+              await github.rest.issues.create({
+                owner,
+                repo,
+                title: 'Product release metadata is stale',
+                body,
+              });
+            }
+
+      - name: Close the resolved drift issue
+        if: ${{ steps.release-check.outputs.exit_code == '0' }}
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const marker = '<!-- firlab-product-version-drift -->';
+            const { owner, repo } = context.repo;
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: 'open',
+              per_page: 100,
+            });
+            for (const issue of issues.filter((item) => item.body?.includes(marker))) {
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: issue.number,
+                state: 'closed',
+                state_reason: 'completed',
+              });
+            }
+
+      - name: Fail an incomplete check without reporting drift
+        if: ${{ steps.release-check.outputs.exit_code != '0' && steps.release-check.outputs.exit_code != '1' }}
+        run: |
+          {
+            echo '### Version check incomplete'
+            echo 'GitHub could not provide a stable-release verdict. No drift issue was opened.'
+            sed 's/^/> /' version-check.log
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 2

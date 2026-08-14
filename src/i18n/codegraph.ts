@@ -7,7 +7,7 @@
  * detail page cannot drift into repeating the index verbatim.
  *
  * Every claim below was read out of the product's own README and release tags:
- *   - v0.42.10, released 2026-08-07.
+ *   - Published release metadata is centralized in `versions.ts`.
  *   - 38 languages PARSED, at three different extraction depths — 29 full
  *     symbol extraction, 6 embedded/template, 3 file-level only. Never flatten
  *     that to "38 languages"; the tiers are the honest number.
@@ -153,8 +153,6 @@ const INSTALL_PS = `irm https://raw.githubusercontent.com/sunerpy/codegraph-rust
 const CARGO_GIT = `cargo install --git ${REPO} codegraph-rs`;
 
 export const codegraphLinks = { repo: REPO, releases: RELEASES } as const;
-export const codegraphVersion = 'v0.42.10';
-export const codegraphReleased = '2026-08-07';
 
 /* Tier membership is quoted from the product's own language table. Listing the
    members rather than only the counts is what stops the three-tier fact from

@@ -41,22 +41,88 @@ single class set serves both themes; the raw values swap under
 
 | Token | Light | Dark | Role |
 | --- | --- | --- | --- |
-| `--ink-900` | `#0B1220` | `#F2F6FB` | strongest text |
-| `--ink-700` | `#1E293B` | `#DDE5F0` | headings |
-| `--ink-500` | `#475569` | `#9FB0C6` | body |
-| `--ink-400` | `#64748B` | `#7C8CA3` | meta, captions |
-| `--paper-0` | `#FBFCFE` | `#080D16` | page ground |
-| `--paper-1` | `#F3F6FA` | `#0F1723` | recessed panel |
-| `--paper-2` | `#E7EDF5` | `#18222F` | code / spec block |
-| `--rule` | `#DCE4EE` | `#1F2A38` | hairline |
-| `--accent` | `#C2410C` | `#FB923C` | links, emphasis |
+| `--ink-900` | `#0B1220` | `#ECEFF3` | strongest text |
+| `--ink-700` | `#1E293B` | `#D4D8DD` | headings |
+| `--ink-500` | `#475569` | `#ABB0B7` | body |
+| `--ink-400` | `#5B6779` | `#9499A0` | meta, captions |
+| `--paper-0` | `#FBFCFE` | `#101317` | **the sheet** — `.u-stage`, where content sits |
+| `--paper-1` | `#F3F6FA` | `#0C0F13` | **the desk** — `html`/`body`; also a plate's ground |
+| `--paper-2` | `#E7EDF5` | `#2A2F35` | code / spec block, row hover |
+| `--rule` | `#DCE4EE` | `#353B43` | hairline |
+| `--accent` | `#B03A09` | `#FB923C` | links, emphasis |
 | `--accent-mark` | `#F97316` | `#F97316` | product marks only — never text |
-| `--live` | `#0F766E` | `#2DD4BF` | "actively released" status |
+| `--live` | `#0D6B64` | `#2DD4BF` | "actively released" status |
+
+Three light values in this table were stale before this pass and are corrected here to
+match what `global.css` actually ships: `--ink-400` is `#5B6779` (was documented
+`#64748B`), `--accent` is `#B03A09` (was `#C2410C`), `--live` is `#0D6B64` (was
+`#0F766E`). The CSS was not changed — the doc had drifted.
 
 `--accent` is deliberately *not* `#F97316` for text: orange-500 on paper is 2.9:1 and
 fails AA. The mark keeps the brand orange; text uses the darker/lighter step so both
 themes clear 4.5:1. This is the one place where the site diverges from the icons, and
 it is on purpose.
+
+**Note the naming trap.** `--paper-0` is the SHEET (`.u-stage`), not the page ground;
+`--paper-1` is the DESK that `html` and `body` paint. The numbering predates the
+two-box stage and reads backwards. Any change to the outermost surface therefore has
+to touch `--paper-1` *and* the three `theme-color` sites (see §1 theme selection).
+
+### Dark ramp, measured in OKLCH
+
+The dark ramp was rebuilt after "the background and content area feel oppressive".
+The intuitive reading — too dark — was wrong: the old ground sat at L 15.9–20.3,
+inside the band every reference system uses (Linear 13.9, Primer 17.6, Radix slate1
+17.9, Material 18.2, Resend 19.5). Four things were actually wrong.
+
+| Token | Hex | L% | C | H | Δ L vs sheet |
+| --- | --- | --- | --- | --- | --- |
+| `--paper-1` desk | `#0C0F13` | 16.7 | 0.0097 | 255.7 | −1.8 |
+| `--paper-0` sheet | `#101317` | 18.5 | 0.0095 | 255.6 | — |
+| `--paper-2` block | `#2A2F35` | 30.3 | 0.0129 | 253.0 | +11.7 |
+| `--rule` | `#353B43` | 35.0 | 0.0162 | 255.6 | +16.5 |
+| `--ink-400` | `#9499A0` | 68.1 | 0.0118 | 256.7 | |
+| `--ink-500` | `#ABB0B7` | 75.5 | 0.0115 | 256.7 | |
+| `--ink-700` | `#D4D8DD` | 88.1 | 0.0081 | 253.9 | |
+| `--ink-900` | `#ECEFF3` | 95.1 | 0.0063 | 255.5 | |
+
+1. **Chroma.** The ground carried C 0.021–0.027 — 7–9× Linear (0.0029), 5–6× Radix
+   slate1 (0.0041), ~2× Primer (0.0140), and Primer is the most navy-tinted
+   mainstream system there is. At that chroma a navy spread over a whole viewport
+   reads as a coloured wash, not a dark room, and since every surface inherited the
+   cast, nothing read as *lighter* — only as *more navy*. Now ≈0.0095, and chroma
+   RISES up the ramp (0.0095 → 0.0129 → 0.0162) the way the references do (Radix
+   slate: 0.0041 → 0.0103 → 0.0155). Tint is a mid-scale accent, never a ground
+   property; this ramp used to have it backwards. Still cool (H≈256) on purpose —
+   the brand ink is `#0B1220` at H 263, so this is a reduction to Radix-slate
+   territory, not a neutralisation.
+2. **Ink chroma compounded it.** `--ink-500` was C 0.0370 — 2.4× Linear, 3.9× Radix
+   slate11 — so text and ground shared one hue at high chroma and read muddy despite
+   correct lightness. Lightness is held (75.5 vs Radix step-11's 76.9); only chroma
+   is cut. `--ink-900` also drops 97.2 → 95.1: Radix caps step 12 at 94.9, Linear
+   runs body at 87.4, and near-white on near-black causes halation.
+3. **`--rule` was under-lit** at +12.3 L, where the norm is +16.8 (Radix slate6) to
+   +20.7 (Primer) — a step-4 value doing a step-6 border's job, so structure
+   vanished. Now +16.5. This matters more than any surface step: Radix keeps card
+   grounds within +3.5 L of the app ground and makes a card read as a card purely
+   through its step-6 border.
+4. **The ramp was truncated** at +9.0 L, leaving no surface for hover or elevated
+   state — the real reason panels did not read as distinct. Now +11.7 (Radix step 5
+   is +13.3, Raycast bg-300 +13.8).
+
+And the structural inversion that caused the "oppressive" reading: **the sheet used
+to be sunken.** Light lifts it (99.1 vs 97.2, +1.9); dark sank it (15.9 vs 20.3,
+−4.4), making `.u-stage` — where every word lives — the darkest surface on the page.
+The reader's whole reading area was a well. Polarity now matches: +1.8 dark against
++1.9 light. Knock-on: because `.u-plate` grounds in `--paper-1`, plates are now
+recessed against the sheet in **both** themes, which is what §2 Plates always claimed.
+
+`--shadow-plate`'s contact hairline is also theme-dependent now. Light keeps a dark
+1px top edge; dark replaces it with `inset 0 1px 0 0 rgb(255 255 255 / 0.06)`, because
+on a dark ground a dark top edge reads as a seam — a shadow needs something to darken
+and there is nothing left. That is the mechanism Material's dark-theme guidance
+prescribes (a white overlay, 2% for a card, 12% for a raised bar) for exactly this
+reason. The soft drop shadow is unchanged in both themes.
 
 ### Theme selection — system is the default, not the only option
 
@@ -407,6 +473,62 @@ Verified across **90 page × width combinations** (10 routes × 9 widths, 320–
 zero horizontal overflow, zero over-wide elements, zero clickable text wrapping
 to two lines, nav on one line everywhere, exactly one `h1` per page.
 
+### The nav scrim — the third layer of the stage
+
+The pill's floating geometry has a cost, and it went unpaid until it was measured.
+The bar is inset from the viewport's top edge by the header's `pt-3`/`pt-4` and is
+narrower than the sheet by twice `.u-shell-nav`'s outward pull. Measured at 1440px
+while scrolled, the pill's box was `top 16, left 131.5, w 1162` inside a
+`left 88.5, w 1248` sheet — so **a 16px strip above it and 43px on each flank were
+bare sheet with live content sliding under them**, and
+`elementFromPoint(713, y)` returned `article.u-entry` for y = 2, 6, 10 and 14. In a
+screenshot that is a code block guillotined by a floating bar: a hard edge, no
+separation, and it reads as a rendering fault rather than as a design.
+
+The repair is a scrim, **not a wider pill**. The floating geometry *is* the design,
+so the bar gets a ground to float on instead of being flattened into a browser
+chrome strip. `.u-nav-scrim` hangs off the `<header>`, and it has to be that
+element: the header is a sibling of `main` inside `.u-stage`, so its box already
+spans the sheet's interior (1246px against the sheet's 1248px, net of the stage's
+two 1px borders) and its height is already its own top padding plus the pill
+(16 + 58.8 = 74.8 at 1440; 12 + 50 = 62 at 375). **`inset: 0` is therefore the
+exact geometry with no arithmetic to restate and nothing to re-fit** when the
+pill's content or the active script changes. Two pseudo-elements:
+
+| Half | Role |
+| --- | --- |
+| `::before` | the opaque band, and the load-bearing half. A flat rectangle of one colour — no mask, no filter, nothing that can silently fail open. |
+| `::after` | the dissolve. Starts at `top: 100%` so its seam sits under the pill's own edge, and fades the same paper out over `--nav-scrim-fade` (40px from 768, 24px below it). |
+
+**No `mask-image`, deliberately.** A mask buys exactly one thing a gradient
+background does not: it would fade a `backdrop-filter` too. But the scrim carries
+no blur on purpose — CSS cannot gate blur on scroll position without a listener,
+and a blurred tail would haze the top of the hero at scroll 0. So the mask would
+have nothing to do while introducing a real failure mode: if the build dropped it,
+the result is an opaque band sitting on content that was supposed to dissolve.
+`linear-gradient()` cannot fail in that direction.
+
+Two consequences that are not optional:
+
+- **The bar's top inset lives on `.u-shell-nav`, not on the `<header>`.** The
+  rendered layout is identical either way, but the header is `pointer-events: none`
+  and that element is `auto` — putting the padding there is what extends the *hit
+  area* up over the strip. Without it the scrim covers the strip visually while a
+  content link underneath stays clickable, i.e. the fix would trade a visual
+  artifact for a phantom-click one. Verified: zero reachable content links in the
+  scrim region, and all 14 nav controls still hit-testable.
+- **`scroll-margin-top` is now coupled to `--nav-scrim-fade`.** The chrome ends at
+  74.8 + 40 = 114.8px at 1440 and 62 + 24 = 86px at 375. The previous `6.5rem`
+  (104px) was 11px short at desktop, which would have landed every anchored
+  heading inside the fade with its first line washed out. `8rem` clears the widest
+  case by 13px. **Change one and recompute the other.**
+
+Verified at 320 / 375 / 768 / 1024 / 1180 / 1440 in both themes: the sliver band
+and both flanks sample as pure `--paper-0` (dark `rgb(16,19,23)`, light
+`rgb(251,252,254)`) or the desk beyond the sheet's edge — never a content colour.
+Zero horizontal overflow. The 1024px detail page, the tightest documented nav fit,
+keeps 234px of slack inside the pill; the padding migration consumed none of it.
+
 ### Navigation and footer
 
 **A product name is a link to that product's page. Everywhere.** Nav, hero index,
@@ -464,6 +586,78 @@ social marks get **text labels**, which the icon-only nav depends on (see §3).
 | `NextProduct` | the page-ending pager. A `<nav>` **outside `<main>`**, so it reads as chrome-level "advance" rather than one more product pitch. Wraps from the last product to the first, and says so when it does. Asks for nothing, so it works unchanged on Voxera, which has nothing to download. |
 | `SpecGrid` | hairline-divided rows (`divide-y`), not gap-separated `display: contents` cells. Two reasons: the spec tables are the trust-building content and without a rule per row they read as prose in a smaller size; and `display: contents` children cannot be transformed, so `.u-stagger` had nothing to animate. |
 
+### Version provenance — one constant per fact, checked against the tag
+
+A version is a claim about the world, and this site got one wrong. AgentLens
+shipped **`v0.0.5` on the page while its repository was at `v0.0.7`**, because the
+same string was written in three places per product — the `zh` array in
+`content.ts`, the `en` array in `content.ts`, and the product's own i18n module.
+Four products, three copies: **nine hand-maintained duplicates of four facts.** A
+bump touched one or two of them and the survivors read as deliberate.
+
+`src/i18n/versions.ts` now owns every version and release date, one exported
+constant each, and every rendered surface imports from it. There is no second copy
+to fall out of step.
+
+| Product | Repository | Version | Released (UTC) |
+| --- | --- | --- | --- |
+| pt-tools | `sunerpy/pt-tools` | `v0.46.0` | `2026-08-10` |
+| CodeGraph | `sunerpy/codegraph-rust` | `v0.42.10` | `2026-08-07` |
+| AgentLens | `sunerpy/AgentLens` | `v0.0.7` | `2026-08-13` |
+| Voxera | — | **none, by design** | — |
+
+**The source of truth is the GitHub release tag, never a product manifest.** The
+products' own manifests trail their tags: measured, AgentLens's `Cargo.toml` read
+`0.0.4` while the published tag was `v0.0.5`. So the check reads `tag_name`, and
+specifically **not** the release title, because the titles are not one format —
+`pt-tools` publishes `Release 0.46.0` and `codegraph-rust` publishes `v0.42.10`,
+so title-matching yields garbage on at least one repo. Dates come from
+`published_at` converted in **UTC explicitly**: AgentLens's
+`2026-08-13T08:58:48Z` lands on the 13th in UTC and on the 14th in a
+local-timezone conversion east of it.
+
+**The build does not fetch this, and adding a fetch would not fix anything.** Two
+reasons, both structural. The site only rebuilds on push, so a build-time fetch
+still would not put a new release on the live page without a scheduled rebuild —
+the freshness problem is the deploy trigger, not the data source. And a network
+call makes the build non-reproducible: a failed fetch either breaks the deploy or
+silently serves a stale fallback, which is the exact bug this module exists to
+prevent, wearing a different hat. **The network belongs in the check, not the
+build.**
+
+`scripts/check-versions.mjs` does the fetching, and its **three-way exit code is
+the contract** — conflating the last two is the failure mode:
+
+| Exit | Meaning | Consequence |
+| --- | --- | --- |
+| `0` | committed values match the latest stable release | pass; closes any open drift issue |
+| `1` | proven drift | fails, and may open or update the drift issue with a diff naming the constant |
+| `2` | the API could not produce a verdict | fails the run and prints `VERSION CHECK INCOMPLETE`, **without** reporting drift |
+
+A rate limit, a rejected token or an unreachable host is not evidence that a
+version is wrong. Exit `2` exists so a transient network error can never be
+published as a stale-version claim. Verified by hand: passing state → `0`;
+AgentLens perturbed to `v0.0.6` → `1` with the diff naming the constant;
+unreachable network → `2`.
+
+`ci.yml` runs the check on pull requests. `version-drift.yml` runs it on a daily
+`17 3 * * *` cron and keeps **one** marker-tagged issue, updating it while drift
+persists and closing it on exit `0`. It never auto-commits the fix, because a
+commit to `main` triggers the public deploy — a bot must not publish a version
+claim no human reviewed.
+
+**Voxera is deliberately excluded from the check.** Its repository is private with
+zero releases, the site publishes no version for it at all (§8), and this
+repository's `GITHUB_TOKEN` cannot read it. Adding it would convert an honest
+omission into a permanently red CI job.
+
+One rendering rule follows from the same constant: **the `standard` variant does
+not render a release date; only `lead` and `major` do.** The data exists for all
+three — the omission is the point. Information density is itself a maturity
+signal (§4), so handing the least-released entry the same fact count as the lead
+product would flatten the very hierarchy the shapes are built to carry. This is
+not a missing field, and it has already been "fixed" once by mistake and reverted.
+
 ## 4. Hierarchy by maturity — four shapes, not four sizes
 
 **Maturity changes the SHAPE, or it is decoration.** The previous build expressed
@@ -477,7 +671,7 @@ was usable today.
 | --- | --- | --- |
 | pt-tools | `lead` | **Full width, no rail.** A `.u-plate-lead` masthead carries mark, title, role and the release facts on one ground; specs run two-up (`grid`) across the full measure; install block and outward links close it. The most-released tool is the only entry with a masthead. |
 | CodeGraph | `major` | **A 4/7 split.** Identity rail (mark, title, status, version, links) against a reading column (prose, ruled specs, install). Recognisably a documented product, deliberately not a masthead. |
-| AgentLens | `standard` | **One header line** — mark, title, role, status inline — then prose and unruled specs (`plain`) two-up beneath. No meta column at all: a v0.0.5 tool has three facts, and a column drawn for eight makes the three look like omissions. |
+| AgentLens | `standard` | **One header line** — mark, title, role, status inline — then prose and unruled specs (`plain`) two-up beneath. No meta column at all: an early-release tool has three facts, and a column drawn for eight makes the three look like omissions. |
 | Voxera | `pending` | **A `.u-plate-draft` enclosure** — dashed on all four sides, no ground, no shadow, muted body, no install block, no version, no external link. It reads as a record of intent, which is what it is. |
 
 The mark sits **outside** the link, as a sibling, and is lit by
@@ -626,12 +820,33 @@ full.
 - Contrast re-measured across **26 surfaces × both themes** after the stage /
   plate / footer rework, each against its own *composited* ground (the nav's is
   92%-opaque, so the ground has to be composited rather than read): **zero
-  failures**. Worst case is the footer's muted text at **4.87:1 light / 4.69:1
-  dark** against a 4.5 floor. Nothing on the site relies on the desk colour, which
-  is why introducing it changed no measured pair.
-- Body `--ink-500` on `--paper-0` is 7.4:1 light / 8.1:1 dark. `--accent` on
-  `--paper-0` is 5.3:1 / 7.9:1. `--live` is 5.1:1 / 8.6:1. `--ink-400` meta is
-  5.6:1 / 5.2:1 — used at ≥12px, passes AA for normal text.
+  failures**. Nothing on the site relies on the desk colour, which is why
+  introducing it changed no measured pair.
+- **Re-measured again after the dark-ramp rebuild**, by walking every element that
+  owns a text node on `/en/` and `/codegraph/` and compositing each one's real
+  ancestor-chain ground: 19–20 distinct (text, ground) pairs per page, **zero below
+  4.5:1**. Every dark pair improved except the tightest, which improved too. The
+  ramp is *lower* contrast than the one it replaces at the top end and that is
+  deliberate — `--ink-900` moved from 97.2 L to 95.1 to stop near-white halation.
+
+  | Dark pair | Before | After |
+  | --- | --- | --- |
+  | `--ink-500` body on the sheet | 8.80:1 | 8.54:1 |
+  | `--ink-400` meta on the sheet | 5.69:1 | 6.49:1 |
+  | `--ink-400` meta on `--paper-2` | 4.69:1 | **4.71:1** ← tightest on the site |
+  | `--accent` on the sheet | 8.60:1 | 8.23:1 |
+  | `--ink-900` on the sheet | — | 16.15:1 |
+  | `--ink-500` on the footer ground | — | 8.68:1 |
+  | `--ink-400` on the nav's composited ground | — | 6.46:1 |
+
+  `--ink-400` was lifted from L 65.0 to 68.1 during construction *because* of that
+  last row: at 65.0 it measured 4.20:1 on `--paper-2` and failed. `--paper-2` moving
+  up to +11.7 L is what created the pressure — the surface the ramp needed for hover
+  state is also the darkest ground muted text ever sits on, so the two constraints
+  are coupled and the ink step had to follow the surface step.
+- Body `--ink-500` on `--paper-0` is 7.4:1 light / 8.5:1 dark. `--accent` on
+  `--paper-0` is 5.3:1 / 8.2:1. `--live` is 5.1:1 / 10.0:1. `--ink-400` meta is
+  5.6:1 / 6.5:1 — used at ≥12px, passes AA for normal text.
 - Target size: below 375px the theme and language segments tighten to recover the
   measured 8.7px nav overflow, and every button stays above 24×24 (26×28 for a
   theme segment, 30×30 for a locale). Hiding a control was rejected — it would
@@ -644,6 +859,22 @@ full.
 - Both themes are now *chosen*, not just inherited, so contrast holds in both by
   construction: the pinned ramps are byte-identical to the `prefers-color-scheme`
   ones, which are the measured pairs above.
+- **The nav pill's hairline is part of its base state, not something the settle
+  keyframes bring in.** Once the scrim sits behind the pill (§2), the pill's
+  composited ground measures **1.01:1** against the scrim's — the same colour, to
+  measurement — so with the hairline deferred to `.u-nav-settle` the bar had no
+  edge at all and the nav read as loose text on a blank strip. That state is only
+  ever reachable under `prefers-reduced-motion: reduce`, where the settle never
+  runs: the machines that would have shipped it are exactly the machines nobody
+  looks at it on. The settle still *deepens* the ground and adds the shadow; it no
+  longer owns whether the bar has a boundary. Legibility itself was never at stake
+  — nav text holds its measured contrast with the motion absent (see the
+  composited-ground row above; light reads **5.59:1**, and under
+  `prefers-reduced-transparency: reduce` both themes hold at **6.49:1** dark /
+  **5.59:1** light). What was missing was the edge, not the text.
+- That hairline measures **1.65:1** against its own ground, below the 3:1 WCAG
+  1.4.11 asks of a component boundary. This is accepted debt with a stated
+  justification, not an oversight — see §7.
 - `alt` on every image; decorative marks are `aria-hidden` when the adjacent text
   already names the product.
 - Install commands are selectable text in a `<code>`, not an image.
@@ -771,6 +1002,18 @@ full.
 12. **Em-dashes remain throughout the copy** (164 occurrences across
     `src/i18n/*.ts`). They are the author's own prose and this pass does not touch
     product copy; the house style used for anything authored here avoids them.
+
+13. **The nav pill's hairline is 1.65:1, under WCAG 1.4.11's 3:1 for a component
+    boundary.** Accepted, on two grounds. It is the same `--rule` that bounds every
+    plate, every spec table and every segmented control on the site, so raising it
+    for the pill alone would either break that one consistency or re-light every
+    hairline on the page — and `--rule`'s value is pinned by the dark ramp's step
+    spacing (§1), where it is doing structural work at +16.5 L. And the pill's edge
+    is decoration rather than an affordance: nothing is actuated by the pill, every
+    control inside it carries its own hit area, its own hover state and its own
+    2px focus ring, and each is independently above the 24×24 target floor. The
+    hairline says "this is one object"; it never says "click here". The boundary
+    that 1.4.11 exists to protect is the control's, and each control has one.
 
 ## 8. Verified
 

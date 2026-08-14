@@ -15,9 +15,9 @@
  *      ONLY. WeCom group bot and the custom HMAC-SHA256 webhook are shipped
  *      but experimental and NOT end-to-end verified — that caveat is content
  *      on this page, not a footnote to be dropped.
- *   3. 136 stars, v0.46.0, 2026-08-10, MIT, Go 1.25+, Docker published. No
- *      other figure is asserted anywhere: there is no download count and no
- *      benchmark, so neither appears.
+ *   3. 136 stars, MIT, Go 1.25+, Docker published. Release metadata is
+ *      centralized in `versions.ts`. No other figure is asserted anywhere:
+ *      there is no download count and no benchmark, so neither appears.
  *
  * `en` is typed against the Chinese shape, so a field added to one locale and
  * forgotten in the other is a build error rather than a hole in the page.
@@ -132,8 +132,6 @@ const RELEASES = `${REPO}/releases`;
 const DOCKER = 'https://hub.docker.com/r/sunerpy/pt-tools';
 
 export const pttoolsLinks = { repo: REPO, releases: RELEASES, docker: DOCKER } as const;
-export const pttoolsVersion = 'v0.46.0';
-export const pttoolsReleased = '2026-08-10';
 
 const zh: PtToolsContent = {
   title: 'pt-tools — PT 站点订阅、搜索与统计自动化 · FirLab',

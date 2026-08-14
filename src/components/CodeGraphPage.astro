@@ -10,12 +10,8 @@ import InstallBlock from './InstallBlock.astro';
 import ProductMark from './ProductMark.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 import { getContent } from '../i18n/content';
-import {
-  getCodeGraphContent,
-  codegraphLinks,
-  codegraphVersion,
-  codegraphReleased,
-} from '../i18n/codegraph';
+import { getCodeGraphContent, codegraphLinks } from '../i18n/codegraph';
+import { codegraphReleased, codegraphVersion } from '../i18n/versions';
 
 /**
  * CodeGraph detail page, assembled once and rendered per locale — the same

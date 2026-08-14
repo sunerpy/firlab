@@ -137,7 +137,7 @@ const jsonLd = {
         colour at the viewport's own edge, and that edge is the desk now that
         the page sits on an inset stage. */}
     <meta name="theme-color" content="#f3f6fa" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0f1723" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#0c0f13" media="(prefers-color-scheme: dark)" />
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
 
@@ -175,7 +175,7 @@ const jsonLd = {
 
         var meta = document.createElement('meta');
         meta.setAttribute('name', 'theme-color');
-        meta.setAttribute('content', mode === 'dark' ? '#0f1723' : '#f3f6fa');
+        meta.setAttribute('content', mode === 'dark' ? '#0c0f13' : '#f3f6fa');
         document.head.insertBefore(meta, document.head.firstChild);
       })();
     </script>

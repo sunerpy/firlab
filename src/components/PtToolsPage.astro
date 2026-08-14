@@ -10,12 +10,8 @@ import InstallBlock from './InstallBlock.astro';
 import ProductMark from './ProductMark.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 import { getContent } from '../i18n/content';
-import {
-  getPtToolsContent,
-  pttoolsLinks,
-  pttoolsVersion,
-  pttoolsReleased,
-} from '../i18n/pttools';
+import { getPtToolsContent, pttoolsLinks } from '../i18n/pttools';
+import { pttoolsReleased, pttoolsVersion } from '../i18n/versions';
 
 /**
  * pt-tools detail page, assembled once and rendered per locale — the same
