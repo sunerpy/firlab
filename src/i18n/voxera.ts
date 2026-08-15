@@ -393,7 +393,7 @@ const zh: VoxeraContent = {
 const en: VoxeraContent = {
   title: 'Voxera — voice input for desktop and coding agents · FirLab',
   description:
-    'Press a global hotkey, speak, and the text lands in whatever input has focus — or goes to a bridge bound to 127.0.0.1. Offline local recognition and a cloud engine you configure yourself are both first-class. In development, milestone M0, no release yet.',
+    'Press a global hotkey, speak, and the text lands in the focused input. Local offline recognition or your own cloud engine. In development, milestone M0.',
   ogAlt: 'Voxera — voice input for desktop and coding agents',
 
   home: 'FirLab',
