@@ -12,6 +12,7 @@ import { useTranslations, type Lang } from '../i18n/ui';
 import { getContent } from '../i18n/content';
 import { getCodeGraphContent, codegraphLinks } from '../i18n/codegraph';
 import { codegraphReleased, codegraphVersion } from '../i18n/versions';
+import { entityId, PERSON_ID, FREE_OFFER } from '../i18n/schema';
 
 /**
  * CodeGraph detail page, assembled once and rendered per locale — the same
@@ -44,21 +45,30 @@ const c = getCodeGraphContent(lang);
 const site = getContent(lang);
 const home = getRelativeLocaleUrl(lang, '');
 
+// `@id` is per-locale and `offers` is free-of-charge; both are explained in
+// `i18n/schema.ts`, including why no `aggregateRating` will ever appear here.
+//
+// No `programmingLanguage`: it is a property of `SoftwareSourceCode`, not of
+// `SoftwareApplication`, and validator.schema.org flags it as UNKNOWN_FIELD.
+// Carrying it correctly would mean co-typing this node as `SoftwareSourceCode`
+// or linking a second node for the repository — machinery bought only to restate
+// a fact the page's own stack section already gives a reader in prose. Dropped
+// instead of relocated.
 const structuredData = [
   {
     '@type': 'SoftwareApplication',
-    '@id': 'https://firlab.app/#codegraph',
+    '@id': entityId(lang, 'codegraph'),
     name: 'CodeGraph',
     applicationCategory: 'DeveloperApplication',
     operatingSystem: 'Linux, macOS, Windows',
-    programmingLanguage: 'Rust',
     softwareVersion: codegraphVersion.replace(/^v/, ''),
     datePublished: codegraphReleased,
     license: 'https://opensource.org/licenses/MIT',
     url: codegraphLinks.repo,
     downloadUrl: codegraphLinks.releases,
+    offers: FREE_OFFER,
     description: c.description,
-    author: { '@id': 'https://firlab.app/#sunerpy' },
+    author: { '@id': PERSON_ID },
   },
   {
     '@type': 'BreadcrumbList',

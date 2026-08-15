@@ -7,6 +7,7 @@ import Principles from './Principles.astro';
 import SiteFooter from './SiteFooter.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 import { getContent } from '../i18n/content';
+import { PERSON_ID, FREE_OFFER } from '../i18n/schema';
 
 /**
  * The home page, assembled once and rendered per locale. Keeping both languages
@@ -21,10 +22,26 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 const content = getContent(lang);
 
-// SoftwareApplication nodes. No `offers` and no `aggregateRating`: there is no
-// price and there are no reviews, so neither is asserted. Voxera carries no
-// `url` and no `softwareVersion` because it has neither a public repository nor
-// a release — an invented version number here would be structured-data spam.
+// SoftwareApplication nodes, one per product.
+//
+// `offers` is free-of-charge and rides on the same `product.version` gate as
+// `softwareVersion`, because that flag is the site's one signal for "has a public
+// release". Voxera has none, so it carries no version, no `url` and no price: it
+// is not offered yet, and `price: 0` would assert that it is. There is no
+// `aggregateRating` and no `review` on any of them — see `i18n/schema.ts` for why
+// that is permanent and not an oversight.
+//
+// These nodes are deliberately left WITHOUT an `@id`, unlike their detail-page
+// counterparts. Giving them the product IRI would put two different
+// `description` values on one IRI — the summary line here, the full lede there —
+// which is precisely the contradiction the per-locale `@id` work removed. An
+// anonymous node inside the list says "this list contains a thing like this"
+// without claiming to be the authoritative record of it.
+//
+// No `programmingLanguage`: it is not a valid `SoftwareApplication` property.
+// Worth noting that this loop used to hardcode `'Rust'` for all four products,
+// so it was also reporting pt-tools — which is Go — incorrectly. Removing it
+// fixes a validator warning and a factual error in the same edit.
 const structuredData = [
   {
     '@type': 'ItemList',
@@ -39,10 +56,11 @@ const structuredData = [
         name: product.name,
         applicationCategory: 'DeveloperApplication',
         operatingSystem: 'Linux, macOS, Windows',
-        programmingLanguage: 'Rust',
         description: product.body,
-        author: { '@id': 'https://firlab.app/#sunerpy' },
-        ...(product.version ? { softwareVersion: product.version.replace(/^v/, '') } : {}),
+        author: { '@id': PERSON_ID },
+        ...(product.version
+          ? { softwareVersion: product.version.replace(/^v/, ''), offers: FREE_OFFER }
+          : {}),
         ...(product.links?.[0] ? { url: product.links[0].href } : {}),
       },
     })),

@@ -40,18 +40,25 @@ export default defineConfig({
   },
 
   integrations: [
-    // `i18n` makes the sitemap emit `xhtml:link rel="alternate"` pairs, so the
-    // locale relationship is declared to crawlers in the sitemap as well as in
-    // each document's <head>. Keys are the Astro locale ids; values are the
-    // hreflang codes that actually ship.
+    // Deliberately NO `i18n` option, which is what would make the sitemap emit
+    // `xhtml:link rel="alternate"` pairs.
+    //
+    // hreflang is declared in exactly one place: each document's own head, via
+    // `Layout.astro`. Google treats head links, sitemap alternates and HTTP
+    // headers as equivalent and says outright that using more than one buys
+    // nothing in Search and costs you the job of keeping them in sync. This site
+    // shipped two of them and they had already drifted — the head set carried
+    // `x-default`, the sitemap set did not. The head implementation is the richer
+    // and better-verified one, so the sitemap stops declaring alternates.
+    // https://developers.google.com/search/docs/specialty/international/localized-versions
+    //
+    // `namespaces.xhtml: false` then drops the now-unused `xmlns:xhtml`
+    // declaration from `urlset`. Note it only controls that declaration: on its
+    // own, with `i18n` still set, it would emit `xhtml:link` elements whose
+    // prefix is undeclared — invalid XML. Removing `i18n` is what actually stops
+    // the elements; this just cleans up after it.
     sitemap({
-      i18n: {
-        defaultLocale: 'zh-cn',
-        locales: {
-          'zh-cn': 'zh-CN',
-          en: 'en',
-        },
-      },
+      namespaces: { xhtml: false },
     }),
   ],
 });

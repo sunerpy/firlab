@@ -10,6 +10,8 @@ import {
   defaultLang,
   type Lang,
 } from '../i18n/ui';
+import { entityId, PERSON_ID } from '../i18n/schema';
+import { getContent } from '../i18n/content';
 
 /**
  * Base layout. Every head tag is props-driven so each locale — and later, each
@@ -27,6 +29,11 @@ import {
  * JSON-LD models a `Person` publishing a `WebSite`, not an `Organization`.
  * FirLab is one person's project umbrella; asserting a company would be false
  * structured data. `sameAs` is where the social profiles are declared.
+ *
+ * Entity IRIs come from `i18n/schema.ts`, never from a literal written here.
+ * `WebSite` is per-locale because its `description` and `inLanguage` are the
+ * site's in *this* language; `Person` is shared because sunerpy is one human
+ * either way. That module holds the full reasoning for both.
  */
 interface Props {
   lang: Lang;
@@ -62,7 +69,7 @@ const xDefault = getAbsoluteLocaleUrl(defaultLang, slug);
 
 const person = {
   '@type': 'Person',
-  '@id': 'https://firlab.app/#sunerpy',
+  '@id': PERSON_ID,
   name: 'sunerpy',
   url: 'https://github.com/sunerpy',
   sameAs: [
@@ -73,14 +80,28 @@ const person = {
   ],
 };
 
+/**
+ * The site entity. `description` is the SITE's description, taken from the home
+ * page's copy — deliberately not the `description` prop, which is this page's.
+ *
+ * That distinction is the whole point. This node is keyed by one IRI per locale,
+ * and five zh routes resolve to `https://firlab.app/#website`. Feeding it the
+ * page description made those five routes assert five different values for one
+ * IRI — the same "one IRI, contradictory property sets" defect that the
+ * per-locale `@id` split fixed on the language axis, reappearing on the page
+ * axis. It was also just wrong: the site's description is not whatever page you
+ * happen to be reading.
+ *
+ * Every remaining property is locale-invariant, so all five routes now agree.
+ */
 const website = {
   '@type': 'WebSite',
-  '@id': 'https://firlab.app/#website',
+  '@id': entityId(lang, 'website'),
   name: 'FirLab',
   url: 'https://firlab.app',
-  description,
+  description: getContent(lang).description,
   inLanguage: htmlLang[lang],
-  publisher: { '@id': 'https://firlab.app/#sunerpy' },
+  publisher: { '@id': PERSON_ID },
 };
 
 const jsonLd = {

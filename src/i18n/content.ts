@@ -326,7 +326,7 @@ const zh: PageContent = {
 const en: PageContent = {
   title: 'FirLab — local-first developer tools',
   description:
-    'Feed, search and statistics automation for private trackers, a deterministic code knowledge graph, a usage archive for coding agents, and voice input for editors and terminals. Four self-hosted tools by sunerpy.',
+    'Private-tracker automation, deterministic code knowledge graph, usage archives for coding agents, and voice input for editors and terminals. Self-hosted.',
   ogAlt: 'FirLab — developer tools by sunerpy',
 
   heroHeadline: 'Four tools that keep your data on your own machine.',

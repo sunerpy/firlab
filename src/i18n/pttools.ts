@@ -412,7 +412,7 @@ const zh: PtToolsContent = {
 const en: PtToolsContent = {
   title: 'pt-tools — feed, search and statistics automation for private trackers · FirLab',
   description:
-    'Parses RSS feeds and hands matching torrents to a downloader, searches across sites, collects upload, download, ratio and bonus figures into one view, and cleans up by seed time or ratio. Web UI plus QQ and Telegram ChatOps. A single Go binary, MIT, self-hosted.',
+    'Pushes matching torrents from RSS feeds to your downloader, searches across sites, aggregates site stats, and prunes by seed time or ratio. One Go binary.',
   ogAlt: 'pt-tools — private-tracker automation by sunerpy',
 
   crumbLabel: 'Breadcrumb',

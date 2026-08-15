@@ -370,7 +370,7 @@ const zh: AgentLensContent = {
 const en: AgentLensContent = {
   title: 'AgentLens — usage archive for coding agents · FirLab',
   description:
-    'A cross-platform desktop dashboard that pulls OpenCode, Claude Code, Codex and Hermes usage records off the local host and remote hosts over SSH into one durable SQLite archive, sliced by timezone, agent, model and project. An unknown cost is marked missing, never rendered as zero.',
+    'Desktop dashboard archiving OpenCode, Claude Code, Codex and Hermes usage from local and SSH hosts in one SQLite store. Unknown cost is missing, not zero.',
   ogAlt: 'AgentLens — usage archive for coding agents, built by sunerpy',
 
   eyebrow: '03 · Product',

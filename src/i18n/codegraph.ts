@@ -441,7 +441,7 @@ const zh: CodeGraphContent = {
 const en: CodeGraphContent = {
   title: 'CodeGraph — deterministic code knowledge graph · FirLab',
   description:
-    'tree-sitter parses a repository into a per-project SQLite index that answers who calls this and what changing it touches. No model in the binary, so the same question returns the same bytes anywhere. One index behind a CLI, MCP over stdio, and MCP over HTTP.',
+    'tree-sitter parses a repo into a per-project SQLite index that answers who calls this and what changing it touches. No model inside: same bytes anywhere.',
   ogAlt: 'CodeGraph — a deterministic code knowledge graph by sunerpy',
 
   crumbLabel: 'Breadcrumb',
