@@ -1,23 +1,34 @@
 /* ---------------------------------------------------------------------------
    Zuno docs palette, aligned with firlab.app.
 
-   Every value here is lifted from `src/styles/global.css` in this repository, so
-   the documentation site and the marketing site are visibly the same product. The
-   rationale for each colour is in DESIGN.md and is not repeated here; what matters
-   for this file is which FirLab token each VitePress variable is bound to.
+   The ink and paper ramps come from `src/styles/global.css` in this repository, so
+   the documentation site and the marketing site share one surface treatment. The
+   ACCENT deliberately does not.
 
-   WHY `--accent` AND NOT THE BRAND ORANGE
+   WHY THE ACCENT IS NOT FIRLAB'S ORANGE
 
-   FirLab's brand orange (#f97316) measures ~2.9:1 on paper and fails WCAG AA for
-   text. DESIGN.md §6 resolves this by reserving the orange for product marks —
-   decoration — and using a darker step (#b03a09) wherever the colour carries
-   content. A documentation site is almost entirely content: links, active sidebar
-   items and inline code are all text. So `--vp-c-brand-1`, which the default theme
-   uses for link text, gets the accessible step, and the orange appears only in the
-   hero glow where nothing depends on reading it.
+   firlab.app uses the orange as a product mark: a small amount of decoration on a
+   page that is mostly prose. A documentation site inverts that ratio. Links, active
+   sidebar entries, inline code, anchor markers, the search affordance and every
+   `code-group` tab all take the brand colour, so an orange-family accent tints most
+   of what a reader looks at and the whole page reads warm brown-yellow.
 
-   Full WCAG conformance still requires manual testing with assistive technology
-   and expert review; matching these contrast ratios is necessary, not sufficient.
+   The accent is therefore a cool slate blue drawn from the same ink ramp the
+   surfaces already use, which is what keeps the two sites coherent without carrying
+   the marketing page's warmth into a reference manual. mise's own docs make the same
+   structural choice — one saturated accent against near-neutral surfaces — and this
+   is that structure with a cool hue instead of mise's wine and cream.
+
+   The orange survives only as `--zuno-accent-mark`, used in the hero gradient where
+   nothing depends on reading it.
+
+   CONTRAST
+
+   Both accent steps clear WCAG AA for body text against their own background.
+   Computed, not estimated: #1d4ed8 on #fbfcfe is 6.53:1 and #7aa2f7 on #0b1220 is
+   7.43:1; the hover steps #2563eb and #9ab8f9 are 5.03:1 and 9.45:1. Full
+   conformance still requires manual testing with assistive technology and expert
+   review; matching a ratio is necessary, not sufficient.
 --------------------------------------------------------------------------- */
 
 :root {
@@ -33,15 +44,15 @@
   --zuno-paper-2: #e7edf5;
   --zuno-rule: #dce4ee;
 
-  /* Accent: the accessible step for content, the brand orange for marks only. */
-  --zuno-accent: #b03a09;
+  /* Accent: cool slate blue for content, the brand orange kept for marks only. */
+  --zuno-accent: #1d4ed8;
   --zuno-accent-mark: #f97316;
   --zuno-live: #0d6b64;
 
   /* ---- Brand ---------------------------------------------------------- */
   --vp-c-brand-1: var(--zuno-accent);
-  --vp-c-brand-2: #c8481a;
-  --vp-c-brand-3: var(--zuno-accent-mark);
+  --vp-c-brand-2: #2563eb;
+  --vp-c-brand-3: #3b82f6;
   --vp-c-brand-soft: color-mix(in oklab, var(--zuno-accent) 12%, transparent);
 
   /* ---- Surfaces ------------------------------------------------------- */
@@ -83,14 +94,14 @@
   --zuno-paper-2: #1a2436;
   --zuno-rule: #263148;
 
-  /* On a dark ground the contrast problem reverses: the darker step is now the
-     unreadable one, so the brand orange becomes the accessible choice. */
-  --zuno-accent: #fb923c;
+  /* The accent lightens rather than darkens on a dark ground: #1d4ed8 is close to
+     unreadable here, so the same hue is taken several steps up the ramp. */
+  --zuno-accent: #7aa2f7;
   --zuno-live: #4fd1c5;
 
   --vp-c-brand-1: var(--zuno-accent);
-  --vp-c-brand-2: #fdba74;
-  --vp-c-brand-3: #f97316;
+  --vp-c-brand-2: #9ab8f9;
+  --vp-c-brand-3: #5d87e8;
 
   --vp-c-bg: var(--zuno-paper-0);
   --vp-c-bg-alt: #070c16;
@@ -99,19 +110,21 @@
 }
 
 /* ---- Home hero ------------------------------------------------------------
-   The one place the brand orange is used at full strength, because it is a glow
-   behind the logo and carries no information. */
+   The only place the brand orange still appears, and only as the first stop of a
+   gradient that resolves to the cool accent. That keeps a visual tie to
+   firlab.app without the landing page reading as an orange banner. Nothing here
+   carries information, so contrast is not a constraint. */
 :root {
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: linear-gradient(
     120deg,
-    var(--zuno-accent-mark) 30%,
-    var(--zuno-accent)
+    var(--zuno-accent-mark) 20%,
+    var(--zuno-accent) 70%
   );
   --vp-home-hero-image-background-image: linear-gradient(
     -45deg,
-    color-mix(in oklab, var(--zuno-accent-mark) 60%, transparent),
-    color-mix(in oklab, var(--zuno-live) 45%, transparent)
+    color-mix(in oklab, var(--zuno-accent) 55%, transparent),
+    color-mix(in oklab, var(--zuno-live) 40%, transparent)
   );
   --vp-home-hero-image-filter: blur(48px);
 }
