@@ -121,6 +121,37 @@ jobs:
           print('created', d['result']['name'], d['result'].get('subdomain'))
           PY
 
+      # Bind zuno.firlab.app on first run. Cloudflare creates the CNAME in the
+      # firlab.app zone itself as part of this call, which is why no DNS record is
+      # added by hand — a pre-existing record makes the binding fail validation.
+      # Idempotent: an already-attached domain returns an error this tolerates.
+      - name: Ensure the custom domain is attached
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          base="https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/pages/projects/zuno-docs/domains"
+          code=$(curl -s -o /tmp/dom.json -w '%{http_code}' \
+            "${base}/zuno.firlab.app" -H "Authorization: Bearer ${CF_TOKEN}")
+          if [ "$code" = "200" ]; then
+            python3 -c "import json;d=json.load(open('/tmp/dom.json'));r=d.get('result',{});print('domain already attached, status:', r.get('status'))"
+            exit 0
+          fi
+          echo "attaching zuno.firlab.app"
+          curl -s -X POST "$base" \
+            -H "Authorization: Bearer ${CF_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"name":"zuno.firlab.app"}' > /tmp/attach.json
+          python3 - <<'PY'
+          import json
+          d = json.load(open('/tmp/attach.json'))
+          if not d.get('success'):
+              print('::error::could not attach domain:', json.dumps(d.get('errors'))[:300])
+              raise SystemExit(1)
+          print('attached, status:', d['result'].get('status'))
+          PY
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
