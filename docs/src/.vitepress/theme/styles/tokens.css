@@ -1,0 +1,164 @@
+/* ---------------------------------------------------------------------------
+   Zuno docs palette, aligned with firlab.app.
+
+   Every value here is lifted from `src/styles/global.css` in this repository, so
+   the documentation site and the marketing site are visibly the same product. The
+   rationale for each colour is in DESIGN.md and is not repeated here; what matters
+   for this file is which FirLab token each VitePress variable is bound to.
+
+   WHY `--accent` AND NOT THE BRAND ORANGE
+
+   FirLab's brand orange (#f97316) measures ~2.9:1 on paper and fails WCAG AA for
+   text. DESIGN.md §6 resolves this by reserving the orange for product marks —
+   decoration — and using a darker step (#b03a09) wherever the colour carries
+   content. A documentation site is almost entirely content: links, active sidebar
+   items and inline code are all text. So `--vp-c-brand-1`, which the default theme
+   uses for link text, gets the accessible step, and the orange appears only in the
+   hero glow where nothing depends on reading it.
+
+   Full WCAG conformance still requires manual testing with assistive technology
+   and expert review; matching these contrast ratios is necessary, not sufficient.
+--------------------------------------------------------------------------- */
+
+:root {
+  /* Cool slate ink ramp */
+  --zuno-ink-900: #0b1220;
+  --zuno-ink-700: #1e293b;
+  --zuno-ink-500: #475569;
+  --zuno-ink-400: #5b6779;
+
+  /* Paper ramp */
+  --zuno-paper-0: #fbfcfe;
+  --zuno-paper-1: #f3f6fa;
+  --zuno-paper-2: #e7edf5;
+  --zuno-rule: #dce4ee;
+
+  /* Accent: the accessible step for content, the brand orange for marks only. */
+  --zuno-accent: #b03a09;
+  --zuno-accent-mark: #f97316;
+  --zuno-live: #0d6b64;
+
+  /* ---- Brand ---------------------------------------------------------- */
+  --vp-c-brand-1: var(--zuno-accent);
+  --vp-c-brand-2: #c8481a;
+  --vp-c-brand-3: var(--zuno-accent-mark);
+  --vp-c-brand-soft: color-mix(in oklab, var(--zuno-accent) 12%, transparent);
+
+  /* ---- Surfaces ------------------------------------------------------- */
+  --vp-c-bg: var(--zuno-paper-0);
+  --vp-c-bg-alt: var(--zuno-paper-1);
+  --vp-c-bg-soft: var(--zuno-paper-1);
+  --vp-c-bg-elv: #ffffff;
+
+  /* ---- Text ----------------------------------------------------------- */
+  --vp-c-text-1: var(--zuno-ink-900);
+  --vp-c-text-2: var(--zuno-ink-500);
+  --vp-c-text-3: var(--zuno-ink-400);
+
+  /* ---- Dividers ------------------------------------------------------- */
+  --vp-c-divider: var(--zuno-rule);
+  --vp-c-border: var(--zuno-rule);
+  --vp-c-gutter: var(--zuno-rule);
+
+  /* ---- Semantic ------------------------------------------------------- */
+  --vp-c-tip-1: var(--zuno-live);
+  --vp-c-tip-soft: color-mix(in oklab, var(--zuno-live) 10%, transparent);
+
+  /* Typography. `ui-monospace` first so each platform uses the face its own
+     terminal does — this site is mostly shell transcripts and config. */
+  --vp-font-family-mono:
+    ui-monospace, 'SF Mono', 'Cascadia Mono', 'JetBrains Mono', 'Fira Code',
+    Menlo, Consolas, monospace;
+}
+
+.dark {
+  /* The ink ramp inverts wholesale, exactly as global.css does it. */
+  --zuno-ink-900: #eef2f8;
+  --zuno-ink-700: #d3dae5;
+  --zuno-ink-500: #9aa7b8;
+  --zuno-ink-400: #8391a3;
+
+  --zuno-paper-0: #0b1220;
+  --zuno-paper-1: #111a2b;
+  --zuno-paper-2: #1a2436;
+  --zuno-rule: #263148;
+
+  /* On a dark ground the contrast problem reverses: the darker step is now the
+     unreadable one, so the brand orange becomes the accessible choice. */
+  --zuno-accent: #fb923c;
+  --zuno-live: #4fd1c5;
+
+  --vp-c-brand-1: var(--zuno-accent);
+  --vp-c-brand-2: #fdba74;
+  --vp-c-brand-3: #f97316;
+
+  --vp-c-bg: var(--zuno-paper-0);
+  --vp-c-bg-alt: #070c16;
+  --vp-c-bg-soft: var(--zuno-paper-1);
+  --vp-c-bg-elv: var(--zuno-paper-1);
+}
+
+/* ---- Home hero ------------------------------------------------------------
+   The one place the brand orange is used at full strength, because it is a glow
+   behind the logo and carries no information. */
+:root {
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(
+    120deg,
+    var(--zuno-accent-mark) 30%,
+    var(--zuno-accent)
+  );
+  --vp-home-hero-image-background-image: linear-gradient(
+    -45deg,
+    color-mix(in oklab, var(--zuno-accent-mark) 60%, transparent),
+    color-mix(in oklab, var(--zuno-live) 45%, transparent)
+  );
+  --vp-home-hero-image-filter: blur(48px);
+}
+
+/* Code blocks carry most of this site's content, so they get the paper-2 step
+   rather than the near-black the default theme uses in light mode: a page of
+   shell transcripts should not read as a page of black rectangles. */
+:root {
+  --vp-code-block-bg: var(--zuno-paper-2);
+}
+
+.dark {
+  --vp-code-block-bg: #070c16;
+}
+
+/* Line numbers are enabled globally in `shared.ts`, which only helps if the
+   gutter is legible without competing with the code. */
+.vp-doc div[class*='language-'] .line-numbers-wrapper {
+  color: var(--zuno-ink-400);
+}
+
+/* A wider content column than the 688px default. The configuration reference has
+   five-column tables, and the CLI pages have option tables whose Description
+   column wraps to three lines at the default width. */
+.VPDoc:not(.has-aside) .content-container {
+  max-width: 960px;
+}
+
+/* Tables are a primary content type here, not an occasional aside. */
+.vp-doc table {
+  display: table;
+  width: 100%;
+  font-size: 0.9rem;
+}
+
+.vp-doc th {
+  background: var(--vp-c-bg-alt);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.vp-doc td code {
+  white-space: nowrap;
+}
+
+/* CJK paragraphs need more leading than Latin at the same size. */
+html[lang='zh-CN'] .vp-doc p,
+html[lang='zh-CN'] .vp-doc li {
+  line-height: 1.85;
+}

@@ -1,0 +1,96 @@
+name: Deploy docs
+
+# Publishes the Zuno documentation site to zuno.firlab.app.
+#
+# WHY THIS IS A SEPARATE WORKFLOW FROM deploy.yml
+#
+# `deploy.yml` publishes firlab.app to GitHub Pages, and `public/CNAME` binds that
+# deployment to the apex domain. GitHub Pages allows one custom domain per
+# repository, so a second site cannot reuse it. The docs site therefore goes to
+# Cloudflare Pages, which also keeps the two deployments independent: a docs build
+# failure cannot take firlab.app down, and vice versa.
+#
+# WHERE THE CONTENT COMES FROM
+#
+# `docs/src/` is populated by `scripts/sync-zuno-docs.sh`, which the zuno
+# repository runs when its documentation changes. The Markdown is committed here,
+# so this workflow builds from the checkout and needs no access to zuno at all —
+# which matters because this repository is public and zuno is private.
+
+on:
+  push:
+    branches: [main]
+    # Only rebuild when something the docs site actually renders changed.
+    paths:
+      - 'docs/**'
+      - '.github/workflows/deploy-docs.yml'
+  workflow_dispatch:
+
+# A Pages deploy is not safely interruptible: cancelling one mid-flight can leave
+# the live site on a partially published artifact. Queue instead. Separate group
+# from the firlab.app deploy so the two never block each other.
+concurrency:
+  group: pages-docs
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment:
+      name: docs
+      url: https://zuno.firlab.app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # pnpm before setup-node, otherwise `cache: pnpm` cannot resolve the store
+      # directory and the setup step fails.
+      #
+      # No `version:` — action-setup reads it from `packageManager` in
+      # docs/package.json, one pin and one source of truth.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+          cache-dependency-path: docs/pnpm-lock.yaml
+
+      # `docs/` installs on its own. The repository root is deliberately not a pnpm
+      # workspace — `pnpm-workspace.yaml` documents why — so this must run with
+      # docs/ as the working directory rather than filtering from the root.
+      - name: Install dependencies
+        working-directory: docs
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: docs
+        run: pnpm build
+
+      # The build must produce both locales. A misconfigured locale silently emits
+      # only the root one, which looks like a successful build and ships a site with
+      # no Chinese pages.
+      - name: Verify both locales were emitted
+        run: |
+          set -euo pipefail
+          test -f docs/dist/index.html || { echo "::error::English home page missing"; exit 1; }
+          test -f docs/dist/zh/index.html || { echo "::error::Chinese home page missing"; exit 1; }
+          en=$(find docs/dist -name '*.html' -not -path '*/zh/*' | wc -l)
+          zh=$(find docs/dist/zh -name '*.html' | wc -l)
+          echo "emitted $en English and $zh Chinese pages"
+          # Not an equality check: the two locales legitimately differ in page count
+          # while translation is in progress. This only catches a locale that
+          # collapsed to nothing.
+          test "$zh" -gt 20 || { echo "::error::only $zh Chinese pages emitted"; exit 1; }
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy docs/dist --project-name=zuno-docs --branch=main

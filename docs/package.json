@@ -1,0 +1,18 @@
+{
+  "name": "zuno-docs",
+  "private": true,
+  "type": "module",
+  "description": "Zuno documentation site, published at https://zuno.firlab.app",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "packageManager": "pnpm@10.25.0",
+  "scripts": {
+    "dev": "vitepress dev src",
+    "build": "vitepress build src",
+    "preview": "vitepress preview src"
+  },
+  "devDependencies": {
+    "vitepress": "1.6.4"
+  }
+}

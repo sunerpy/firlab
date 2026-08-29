@@ -26,3 +26,8 @@ pnpm-debug.log*
 
 # agent scratch space
 .omo/
+
+# docs sub-site build output and its own dependency tree. `docs/` installs
+# separately from the root — see docs/pnpm-workspace.yaml.
+docs/dist/
+docs/.vitepress-cache/

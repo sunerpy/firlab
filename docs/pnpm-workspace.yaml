@@ -1,0 +1,18 @@
+# pnpm settings for the docs sub-site.
+#
+# This directory is DELIBERATELY NOT part of a pnpm workspace. The repository
+# root's `pnpm-workspace.yaml` documents that firlab is a single-package repo and
+# omits `packages:` on purpose, because adding one changes pnpm's install layout
+# for the site that is already in production. Rather than reopen that decision for
+# a documentation site, `docs/` installs on its own: run `pnpm install` here and
+# `pnpm install` at the root, and the two never interact.
+#
+# The cost is a second lockfile, which is the intended trade. The benefit is that
+# nothing about the firlab.app build changes.
+
+# esbuild (via Vite, via VitePress) ships its platform binary through a
+# postinstall script. Approving it keeps `pnpm install` non-interactive and
+# actually materialises the binary instead of leaving an "ignored build script"
+# warning and a broken build.
+onlyBuiltDependencies:
+  - esbuild
