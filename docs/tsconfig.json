@@ -1,0 +1,29 @@
+{
+  "// why this file exists": [
+    "Vite walks up from a source file looking for the nearest tsconfig.json. Without",
+    "one here it finds the repository root's, which extends astro/tsconfigs/strict.",
+    "Astro is a dependency of the ROOT package, not of this sub-site, so that extends",
+    "cannot resolve and the build fails with:",
+    "  [vite:esbuild] failed to resolve \"extends\":\"astro/tsconfigs/strict\"",
+    "It passed locally only because the root node_modules happened to be installed;",
+    "CI installs docs/ alone and had no astro to find. Measured on firlab run 33258994612.",
+    "This file stops the upward walk at the sub-site boundary, which is also the",
+    "correct scope: docs/ is deliberately not part of the root workspace."
+  ],
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "types": ["vite/client"]
+  },
+  "include": ["src/.vitepress/**/*.ts", "src/.vitepress/**/*.mts"],
+  "exclude": ["dist", "node_modules"]
+}
