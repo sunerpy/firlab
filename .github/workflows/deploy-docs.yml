@@ -88,6 +88,39 @@ jobs:
           # collapsed to nothing.
           test "$zh" -gt 20 || { echo "::error::only $zh Chinese pages emitted"; exit 1; }
 
+      # Create the Pages project on first run. `wrangler pages deploy` requires an
+      # existing project and fails with "Project not found" otherwise, and the
+      # project cannot be created with a DNS-scoped token — so it is created here,
+      # with the same Pages-scoped credential the deploy uses. Idempotent: an
+      # existing project returns an error this step deliberately tolerates.
+      - name: Ensure the Pages project exists
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          code=$(curl -s -o /tmp/cf.json -w '%{http_code}' \
+            "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/pages/projects/zuno-docs" \
+            -H "Authorization: Bearer ${CF_TOKEN}")
+          if [ "$code" = "200" ]; then
+            echo "project zuno-docs already exists"
+            exit 0
+          fi
+          echo "creating project zuno-docs"
+          curl -s -X POST \
+            "https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/pages/projects" \
+            -H "Authorization: Bearer ${CF_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"name":"zuno-docs","production_branch":"main"}' > /tmp/create.json
+          python3 - <<'PY'
+          import json
+          d = json.load(open('/tmp/create.json'))
+          if not d.get('success'):
+              print('::error::could not create Pages project:', json.dumps(d.get('errors'))[:300])
+              raise SystemExit(1)
+          print('created', d['result']['name'], d['result'].get('subdomain'))
+          PY
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
