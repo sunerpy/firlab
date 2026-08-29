@@ -80,36 +80,45 @@ down.
 
 ### One-time setup
 
-Neither step can be automated with a DNS-scoped API token, so both are done by
-hand once.
+Only the credentials are manual. The Pages project and the custom-domain binding
+are created by `deploy-docs.yml` itself, idempotently, so a fresh account needs no
+dashboard clicking beyond issuing the token.
 
-1. **Create the Cloudflare Pages project.**
-
-   In the Cloudflare dashboard: Workers & Pages, Create, Pages, Direct Upload.
-   Name it `zuno-docs` — `deploy-docs.yml` passes that name to
-   `wrangler pages deploy` and will fail if it differs.
-
-2. **Add the repository secrets.**
+1. **Add the repository secrets.**
 
    | Secret | Value | Scope |
    | --- | --- | --- |
    | `CLOUDFLARE_API_TOKEN` | API token with `Cloudflare Pages: Edit` | This repository |
    | `CLOUDFLARE_ACCOUNT_ID` | The account id | This repository |
 
-   A DNS-only token is not sufficient; the token needs the Pages permission.
+   A DNS-only token is **not** sufficient. Measured: with a zone-scoped token every
+   account-level endpoint answers `403`, including `pages/projects`, while
+   `zones/:id/dns_records` answers `200`.
 
    ```sh
    gh secret set CLOUDFLARE_API_TOKEN --repo sunerpy/firlab
    gh secret set CLOUDFLARE_ACCOUNT_ID --repo sunerpy/firlab
    ```
 
-3. **Bind the custom domain.**
+2. **Add the DNS record.**
 
-   In the `zuno-docs` project: Custom domains, Set up a custom domain,
-   `zuno.firlab.app`. Cloudflare creates the CNAME itself, so do not add a DNS
-   record by hand first — a pre-existing record makes the binding fail validation.
+   Attaching a custom domain to a Pages project does **not** create the DNS record,
+   even when the zone is in the same account. Measured on the first real run: the
+   attach call returned `success` with `status: initializing`, and the zone still
+   held zero records for `zuno.firlab.app` five minutes later. The domain only
+   resolved after the CNAME was created explicitly:
 
-4. **Add the docs token to zuno.**
+   ```sh
+   curl -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records" \
+     -H "Authorization: Bearer $CF_TOKEN" -H "Content-Type: application/json" \
+     --data '{"type":"CNAME","name":"zuno","content":"zuno-docs-nae.pages.dev","proxied":true}'
+   ```
+
+   `zuno-docs-nae.pages.dev` is this project's assigned subdomain; a project
+   recreated from scratch gets a different one, so read it from the deploy log
+   rather than copying this value.
+
+3. **Add the docs token to zuno.**
 
    zuno's publish workflow needs `FIRLAB_DOCS_TOKEN`: a fine-grained personal
    access token scoped to `sunerpy/firlab` **only**, with `Contents: read and
