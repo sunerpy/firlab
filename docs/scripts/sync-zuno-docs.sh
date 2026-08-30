@@ -4,18 +4,15 @@
 #
 # WHAT THIS IS FOR
 #
-# The zuno repository owns ALL documentation content. This repository owns only the
-# site: the VitePress configuration, the theme, the deploy pipeline, and this
-# script. Nothing under `src/` is authored here.
+# The zuno repository owns all Markdown content. This repository owns the site
+# configuration, theme, deploy pipeline, and generated public presentation.
 #
-# That split is the point. Documentation lives next to the code it describes, where
-# `crates/zuno-cli/tests/docs.rs` asserts on it and a developer changing behaviour
-# updates the prose in the same commit. Publishing is a separate concern with a
-# separate lifecycle, so it lives separately.
+# Documentation stays next to the code it describes, where
+# `crates/zuno-cli/tests/docs.rs` asserts on it and behavior changes can update prose
+# in the same commit. This repository handles publishing.
 #
-# Practical consequence: to change a sentence on zuno.firlab.app, edit the zuno
-# repository. An edit made here is overwritten on the next sync, silently, because
-# every path this script writes is deleted and recreated first.
+# To change a sentence on zuno.firlab.app, edit the zuno repository. Paths written
+# by this script are replaced on every sync.
 #
 # USAGE
 #   scripts/sync-zuno-docs.sh <path-to-zuno-checkout>
@@ -43,7 +40,7 @@ fi
 # Every documentation path. Adding a page to zuno means adding it here (or to a
 # directory already listed), otherwise it will not appear on the site.
 #
-# `guides/`, `readme/`, `audits/` and `upstream/` are deliberately NOT synced:
+# `guides/`, `readme/`, `audits/` and `upstream/` are deliberately not synced:
 # `srcExclude` in shared.ts already drops them, so copying them in would only
 # create files the build ignores.
 SYNCED_DIRS=(
@@ -70,6 +67,11 @@ SYNCED_FILES=(
   session-retention.md
 )
 
+BRAND_ASSETS=(
+  zuno-logo.svg
+  zuno-logo.png
+)
+
 echo "syncing from $SRC"
 
 for dir in "${SYNCED_DIRS[@]}"; do
@@ -93,6 +95,16 @@ for file in "${SYNCED_FILES[@]}"; do
   fi
   cp "$SRC/$file" "$DEST/$file"
   printf '  %-12s ok\n' "$file"
+done
+
+mkdir -p "$DEST/public"
+for asset in "${BRAND_ASSETS[@]}"; do
+  if [ ! -f "$SRC/assets/$asset" ]; then
+    echo "error: expected brand asset $SRC/assets/$asset is missing" >&2
+    exit 1
+  fi
+  cp "$SRC/assets/$asset" "$DEST/public/$asset"
+  printf '  %-12s ok\n' "public/$asset"
 done
 
 # A stamp so a stale sync is visible in the built site rather than invisible.

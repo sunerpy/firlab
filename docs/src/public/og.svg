@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="background" x1="120" y1="30" x2="1080" y2="600" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111827"/>
+      <stop offset="1" stop-color="#070B14"/>
+    </linearGradient>
+    <radialGradient id="purpleGlow" cx="0" cy="0" r="1" gradientTransform="translate(325 285) rotate(45) scale(360)">
+      <stop stop-color="#9C6CF6" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#9C6CF6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="peachGlow" cx="0" cy="0" r="1" gradientTransform="translate(900 165) rotate(120) scale(340)">
+      <stop stop-color="#FDAD76" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#FDAD76" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" rx="44" fill="url(#background)"/>
+  <rect width="1200" height="630" rx="44" fill="url(#purpleGlow)"/>
+  <rect width="1200" height="630" rx="44" fill="url(#peachGlow)"/>
+
+  <image href="zuno-logo.svg" x="96" y="105" width="420" height="420"/>
+
+  <text x="590" y="270" fill="#F8FAFC"
+        font-family="Inter, ui-sans-serif, system-ui, sans-serif"
+        font-size="92" font-weight="700" letter-spacing="-2">Zuno</text>
+  <text x="594" y="342" fill="#C4B5FD"
+        font-family="Inter, ui-sans-serif, system-ui, sans-serif"
+        font-size="30" font-weight="600">Durable work. Explicit boundaries.</text>
+  <text x="594" y="405" fill="#94A3B8"
+        font-family="Inter, ui-sans-serif, system-ui, sans-serif"
+        font-size="25">A local Rust coding agent.</text>
+
+  <rect x="594" y="458" width="118" height="5" rx="2.5" fill="#9C6CF6"/>
+  <rect x="720" y="458" width="74" height="5" rx="2.5" fill="#FDAD76"/>
+</svg>

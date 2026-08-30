@@ -1,14 +1,4 @@
-/**
- * English locale: navigation, sidebar, chrome.
- *
- * The groups follow the three user-facing sections zuno's own `docs/README.md`
- * committed to — Learn, Operate, Reference — rather than a new taxonomy this repo
- * would then have to keep in sync. The CLI is its own group because `zuno --help`
- * exposes twenty-six commands, too many to bury in a reference page.
- *
- * Links whose target is a SYNCED page are marked. Renaming one requires the
- * corresponding change in the zuno repository, not here.
- */
+/** English navigation, sidebar, and interface labels. */
 import { defineConfig, type DefaultTheme } from 'vitepress';
 
 const guide: DefaultTheme.SidebarItem[] = [
@@ -37,7 +27,6 @@ const guide: DefaultTheme.SidebarItem[] = [
     items: [
       { text: 'The terminal application', link: '/guide/tui' },
       { text: 'Headless runs', link: '/guide/headless' },
-      // synced
       { text: 'Orchestration and delegation', link: '/orchestration' },
       { text: 'Images and file references', link: '/reference/attachments' },
     ],
@@ -45,7 +34,6 @@ const guide: DefaultTheme.SidebarItem[] = [
   {
     text: 'Integrations',
     items: [
-      // synced
       { text: 'Editors and ACP', link: '/reference/zed-acp' },
       { text: 'MCP servers', link: '/guide/mcp' },
       { text: 'Plugins and extensions', link: '/plugins' },
@@ -60,7 +48,6 @@ const config: DefaultTheme.SidebarItem[] = [
     items: [
       { text: 'Overview', link: '/config/' },
       { text: 'Files and precedence', link: '/config/files' },
-      // synced — the authoritative key-by-key reference
       { text: 'Configuration reference', link: '/reference/configuration' },
       { text: 'Variables and substitution', link: '/config/variables' },
       { text: 'Instructions and AGENTS.md', link: '/config/instructions' },
@@ -69,7 +56,6 @@ const config: DefaultTheme.SidebarItem[] = [
   {
     text: 'Providers and models',
     items: [
-      // synced
       { text: 'Providers and credentials', link: '/reference/providers' },
       { text: 'Authentication', link: '/config/authentication' },
       { text: 'Model routing', link: '/config/models' },
@@ -90,7 +76,6 @@ const operate: DefaultTheme.SidebarItem[] = [
   {
     text: 'Operations',
     items: [
-      // all synced
       { text: 'Self-update', link: '/reference/self-update' },
       { text: 'Portable bundles', link: '/reference/portable-bundles' },
       { text: 'Session retention', link: '/session-retention' },
@@ -102,7 +87,6 @@ const operate: DefaultTheme.SidebarItem[] = [
   {
     text: 'Troubleshooting',
     items: [
-      // synced
       { text: 'FAQ', link: '/faq' },
       { text: 'Diagnosing a failure', link: '/operate/diagnostics' },
     ],
@@ -111,7 +95,6 @@ const operate: DefaultTheme.SidebarItem[] = [
     text: 'Architecture',
     collapsed: true,
     items: [
-      // synced
       { text: 'Harness runtime', link: '/harness-runtime' },
       { text: 'Performance methodology', link: '/perf-methodology' },
       { text: 'Design notes', link: '/operate/design-notes' },
@@ -168,7 +151,8 @@ const cli: DefaultTheme.SidebarItem[] = [
 
 export const en = defineConfig({
   lang: 'en-US',
-  description: 'A single-binary coding agent CLI in Rust, with no runtime dependency.',
+  description:
+    'A local Rust coding agent with durable sessions, explicit permissions, and native orchestration.',
 
   themeConfig: {
     nav: [
@@ -225,8 +209,6 @@ export const en = defineConfig({
     },
 
     editLink: {
-      // Points at zuno, not at this repository: that is where documentation is
-      // authored and where its tests live.
       pattern: 'https://github.com/sunerpy/zuno/edit/main/docs/:path',
       text: 'Edit this page on GitHub',
     },

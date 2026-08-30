@@ -1,29 +1,19 @@
-/**
- * Locale-independent site configuration.
- *
- * Anything true regardless of language: output paths, what counts as a page, code
- * highlighting, search. Translated prose belongs in `en.ts` / `zh.ts`.
- */
+/** Locale-independent build, metadata, search, and theme settings. */
 import { defineConfig } from 'vitepress';
 
 export const shared = defineConfig({
   title: 'Zuno',
+  description: 'A local Rust coding agent for durable, bounded work.',
   lang: 'en',
 
-  // Served at a subdomain root, so no `base` prefix.
   srcDir: '.',
   outDir: '../dist',
   cacheDir: '../.vitepress-cache',
 
   sitemap: { hostname: 'https://zuno.firlab.app' },
 
-  // A documentation site whose own cross-references 404 is worse than one that
-  // refuses to publish. Kept strict deliberately — the synced pages arrive from
-  // another repository, and this is what catches a link that only resolved there.
   ignoreDeadLinks: false,
 
-  // The zuno repository's own index is replaced by this site's navigation, and its
-  // hand-maintained translated README is not a page here.
   srcExclude: ['README.md', 'readme/**', 'upstream/**', 'guides/**'],
 
   markdown: {
@@ -32,9 +22,9 @@ export const shared = defineConfig({
   },
 
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
-    ['link', { rel: 'icon', type: 'image/png', href: '/favicon.png' }],
-    ['meta', { name: 'theme-color', content: '#1d4ed8' }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/zuno-logo.svg' }],
+    ['link', { rel: 'icon', type: 'image/png', href: '/zuno-logo.png' }],
+    ['meta', { name: 'theme-color', content: '#6d28d9' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'Zuno' }],
     ['meta', { property: 'og:image', content: 'https://zuno.firlab.app/og.png' }],
@@ -42,14 +32,12 @@ export const shared = defineConfig({
   ],
 
   themeConfig: {
-    logo: '/favicon.svg',
+    logo: '/zuno-logo.svg',
     externalLinkIcon: true,
 
     socialLinks: [{ icon: 'github', link: 'https://github.com/sunerpy/zuno' }],
 
     search: {
-      // Local, not Algolia: zuno is a private repository, so a hosted crawler
-      // could not index it, and a build-time index has no runtime dependency.
       provider: 'local',
       options: {
         detailedView: true,

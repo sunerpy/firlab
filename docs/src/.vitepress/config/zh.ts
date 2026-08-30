@@ -1,11 +1,4 @@
-/**
- * 简体中文 locale。
- *
- * 分组与 `en.ts` 严格对应，所有 `link` 带 `/zh/` 前缀。中文页面是独立文档而非
- * 构建期转换产物：翻译需要评审，派生产物不需要。
- *
- * 注意中文侧没有 synced 页面 —— zuno 仓库的文档是英文的，中文全部在本仓库编写。
- */
+/** 简体中文导航、侧边栏与界面文案。Markdown 内容由 Zuno 仓库同步。 */
 import { defineConfig, type DefaultTheme } from 'vitepress';
 
 const guide: DefaultTheme.SidebarItem[] = [
@@ -153,7 +146,7 @@ const cli: DefaultTheme.SidebarItem[] = [
 
 export const zh = defineConfig({
   lang: 'zh-CN',
-  description: '用 Rust 编写的单二进制编码 Agent CLI，无运行时依赖。',
+  description: '面向持久会话、明确权限与原生编排的本地 Rust 编程 Agent。',
 
   themeConfig: {
     nav: [
@@ -190,7 +183,7 @@ export const zh = defineConfig({
     },
 
     editLink: {
-      pattern: 'https://github.com/sunerpy/firlab/edit/main/docs/src/:path',
+      pattern: 'https://github.com/sunerpy/zuno/edit/main/docs/:path',
       text: '在 GitHub 上编辑此页',
     },
 
