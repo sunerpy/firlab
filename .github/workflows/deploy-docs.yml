@@ -14,8 +14,8 @@ name: Deploy docs
 #
 # `docs/src/` is populated by `scripts/sync-zuno-docs.sh`, which the zuno
 # repository runs when its documentation changes. The Markdown is committed here,
-# so this workflow builds from the checkout and needs no access to zuno at all —
-# which matters because this repository is public and zuno is private.
+# so this workflow builds from the checkout and needs no credential for zuno at
+# all: a docs deploy cannot be a path to write access on the source repository.
 
 on:
   push:
