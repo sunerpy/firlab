@@ -14,7 +14,7 @@ export const shared = defineConfig({
 
   ignoreDeadLinks: false,
 
-  srcExclude: ['README.md', 'readme/**', 'upstream/**', 'guides/**'],
+  srcExclude: ['README.md', 'readme/**', 'upstream/**'],
 
   markdown: {
     lineNumbers: true,

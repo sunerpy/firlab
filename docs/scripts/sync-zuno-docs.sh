@@ -40,9 +40,8 @@ fi
 # Every documentation path. Adding a page to zuno means adding it here (or to a
 # directory already listed), otherwise it will not appear on the site.
 #
-# `guides/`, `readme/`, `audits/` and `upstream/` are deliberately not synced:
-# `srcExclude` in shared.ts already drops them, so copying them in would only
-# create files the build ignores.
+# `readme/` and `upstream/` are deliberately not synced: `srcExclude` in shared.ts
+# already drops them, so copying them in would only create files the build ignores.
 SYNCED_DIRS=(
   zh
   guide

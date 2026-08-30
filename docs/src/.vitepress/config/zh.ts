@@ -93,7 +93,10 @@ const operate: DefaultTheme.SidebarItem[] = [
   {
     text: '架构',
     collapsed: true,
-    items: [{ text: 'Harness 运行时', link: '/zh/operate/harness-runtime' }],
+    items: [
+      { text: 'Harness 运行时', link: '/zh/operate/harness-runtime' },
+      { text: '提示词与工作流', link: '/zh/operate/prompt-workflow' },
+    ],
   },
 ];
 

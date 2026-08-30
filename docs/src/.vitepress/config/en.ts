@@ -97,7 +97,6 @@ const operate: DefaultTheme.SidebarItem[] = [
     items: [
       { text: 'Harness runtime', link: '/harness-runtime' },
       { text: 'Performance methodology', link: '/perf-methodology' },
-      { text: 'Design notes', link: '/operate/design-notes' },
     ],
   },
 ];
