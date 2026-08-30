@@ -7,8 +7,8 @@
 zuno self-update --check
 zuno self-update
 zuno self-update --yes
-zuno self-update --tag v0.2.0
-zuno self-update --tag v0.2.0 --force --yes
+zuno self-update --tag v0.0.1
+zuno self-update --tag v0.0.1 --force --yes
 ```
 
 - `--check` 只比较正在运行的包版本与最新发布版本。它与所有会产生变更的选项互斥。

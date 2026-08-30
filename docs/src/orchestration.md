@@ -543,7 +543,7 @@ The model invokes the immutable template through:
 ```json
 {
   "workflow": "release-check",
-  "prompt": "Review release candidate v0.4.0.",
+  "prompt": "Review release candidate v0.0.1.",
   "description": "Release readiness",
   "background": true,
   "reportDelivery": "nextStep"

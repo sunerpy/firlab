@@ -46,6 +46,9 @@ Goal 是续跑的授权来源。一个活跃的 goal 会持续下去，直到它
 | 认证失败、用户中断、事件消费者已关闭 | 暂停，等待人工处理 |
 | provider 协议无效、不支持的类型化输入、Agent 或模型不可用、持久状态损坏 | 阻塞 |
 
+永久运行时失败会把稳定的类型化代码和已脱敏说明写入 `blocked_reason`；Goal 不会再以
+“已阻塞但没有原因”的状态落盘。
+
 在终端应用中用 `/goal` 检查与管理它：
 
 ```text
@@ -63,7 +66,10 @@ Goal 是续跑的授权来源。一个活跃的 goal 会持续下去，直到它
 
 `/goal` 显示当前状态。`/goal <目标>` 会在尚无 Goal，或上一条 Goal 已完成、已取消时
 创建新 Goal；否则直接更新当前目标，同时保留已有状态、预算和累计用量。生命周期管理仍可
-使用显式 action 形式。
+使用显式 action 形式。创建、编辑或简写更新目标时，宿主也会同步活跃 Plan：上一
+活跃 epoch 尚未完成的步骤会转为 `completed`，并在标题前加 `Superseded:` 以明确
+表示被新目标替代；多阶段目标建立新 epoch，并将活跃 Plan 绑定到当前 `goal_id`。
+若新目标是原子任务，已终态的历史 Plan 不会改绑。
 
 当首词为已知 action 时，action 优先：`show`、`get`、`status`、`history`、`create`、
 `edit`、`pause`、`resume`、`block`、`complete`、`cancel` 和 `help`。如果目标本身以
@@ -80,7 +86,16 @@ Plan 承载阶段、它们的依赖顺序，以及它们的验收状态。它存
 
 - 步骤 id 在各次修订之间保持稳定。一次更新要携带上次读取返回的 revision，过期的 revision 会被拒绝且不改变任何东西。
 - 只要还有 pending 的步骤，就恰好有一个步骤处于进行中。
+- `completed` 是不可回退的终态。
 - 一个完全完成的 plan 没有进行中的步骤。
+- 有界回答、原子操作或明确的“继续”会维持当前 epoch。新的实质性普通目标会把旧的
+  `in_progress` 步骤退回 `pending`，再追加一个新 epoch，避免新请求被陈旧 Plan
+  静默吞掉。
+- 验证证据只属于实际检查过的 commit、build、tag、部署、配置和输入。任一项发生变化
+  后都要追加新的验收门，不能复用旧的已完成结果。
+- Task job 由宿主绑定到准入它的 Plan 步骤。关联 job 仍为 queued、running、
+  uncertain，或报告尚未被消费时，该步骤不能完成。显式的新 Goal 可以替代旧步骤，
+  但不会假装已经结算或取消关联 Job。
 
 Plan 模式在提示词之下强制执行其只读的一面：一层默认拒绝的覆盖层允许检查、只读搜索与 LSP、提问、Skill 以及类型化的 Goal/Plan/Todo 操作，同时拒绝 shell 与文件修改。回到 Work 模式要求已存在一个持久 plan，确认信息会指出它的标题、revision 和已完成步骤数。
 
@@ -107,7 +122,11 @@ Todo 条目是某个 plan 步骤之下的具体工作。它们携带稳定 id、
 
 压缩改变的是 provider 对话边界。它不会删除 Goal、Plan、Todo、Job、inbox、事件日志或提示词收据状态。
 
-相反，每一次相关的 provider 请求都会从 SQLite 重新生成一个有界的 `runtime.work_state` 开发者分段：当前的 plan revision 与步骤、Todo 身份与依赖、活跃或不确定的 job、报告尚未被消费的终态 job、待处理报告的身份，以及最近一条先前提示词收据的 id。一个 deferred 事务从同一个快照读取全部内容。
+相反，每一次相关的 provider 请求都会从 SQLite 重新生成一个有界的
+`runtime.work_state` 开发者分段：当前的 plan revision 与步骤、Todo 身份与依赖、
+活跃或不确定的 job、仍关联到未完成 Plan 步骤的终态 job、报告尚未被消费的终态
+job、待处理报告的身份，以及最近一条先前提示词收据的 id。存在关联时，job 条目还会
+带版本化的 Plan `workContext`。一个 deferred 事务从同一个快照读取全部内容。
 
 每个集合上限 64 条，渲染出的分段上限 16 KiB。冗长文本会先以 UTF-8 安全的方式缩短，之后才整条省略尾部条目，被省略的数量始终显式给出，身份字段一律保留。如果连身份字段都装不下，组装会失败即拒绝，因为一个静默丢掉了身份的工作状态分段，比没有这个分段更糟。
 
@@ -116,6 +135,13 @@ Todo 条目是某个 plan 步骤之下的具体工作。它们携带稳定 id、
 后台委派会产生持久 job，它们的生命周期也是这套状态的一部分。
 
 一个后台 job 会在等待委派容量之前提交 `queued`，只有在被准入时才变为 `running`。重启时，仍处于 queued 的 job 会结算为 `cancelled`，因为它的 runner 从未启动；running 的 job 结算为 `uncertain`，并且绝不会被重放。
+
+原生 Task 准入会把可选 Goal id、Plan id、准入时的 revision 和活跃 Plan 步骤 id
+写入 Job 的 `workContext`。只要该步骤尚未结束，已完成或失败的子任务证据在压缩和重启
+之后仍会对模型可见，避免同一失败调查在没有新假设时被重复委派。
+
+对于长时间运行的 CI watcher 或发布命令，应只启动一个后台执行，让其持久终态报告恢复
+会话；仅在需要具体证据时使用 `bg output`，不要叠加 watcher 或手写轮询循环。
 
 在还有活跃 job 或未被消费的报告时，不要完成父级。报告投递见[编排](/zh/guide/orchestration)。
 

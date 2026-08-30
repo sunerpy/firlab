@@ -8,8 +8,8 @@ invoke an installer script, package manager, or shell.
 zuno self-update --check
 zuno self-update
 zuno self-update --yes
-zuno self-update --tag v0.2.0
-zuno self-update --tag v0.2.0 --force --yes
+zuno self-update --tag v0.0.1
+zuno self-update --tag v0.0.1 --force --yes
 ```
 
 - `--check` only compares the running package version with the latest release.

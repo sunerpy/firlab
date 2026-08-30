@@ -131,8 +131,11 @@ cannot shadow a runtime control.
 
 The direct `/goal <objective>` form is handled by the same durable host command as ACP.
 It creates a new goal when none exists or the previous one is complete or cancelled;
-otherwise it updates the current goal. Explicit actions such as `/goal show`,
-`/goal edit ...`, and `/goal complete` remain available.
+otherwise it updates the current goal. Objective changes also reconcile an active durable
+Plan by terminalizing unfinished prior steps with a `Superseded:` title and binding the
+current `goal_id`; multi-stage work seeds a new epoch. An atomic objective does not rebind
+an already terminal historical Plan. Explicit actions such as `/goal show`, `/goal edit ...`,
+and `/goal complete` remain available.
 
 Resource pickers follow the same naming: `/model`, `/agent`, `/session`, `/skill`,
 `/theme`, `/mcp`, `/diff`, `/commands`, `/help`.

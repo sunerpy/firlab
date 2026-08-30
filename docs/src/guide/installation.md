@@ -43,7 +43,7 @@ Both installers read two environment variables:
 | `ZUNO_INSTALL_DIR` | Destination directory | `$HOME/.local/bin`; on Windows, `%LOCALAPPDATA%\Programs\zuno` |
 
 ```sh
-ZUNO_VERSION=v0.2.0 ZUNO_INSTALL_DIR="$HOME/bin" sh -c "$(curl -fsSL https://raw.githubusercontent.com/sunerpy/zuno/main/scripts/install.sh)"
+ZUNO_VERSION=v0.0.1 ZUNO_INSTALL_DIR="$HOME/bin" sh -c "$(curl -fsSL https://raw.githubusercontent.com/sunerpy/zuno/main/scripts/install.sh)"
 ```
 
 If the destination is not already on `PATH`, the installer prints the line to add.
@@ -68,7 +68,7 @@ Doing it by hand is the same three steps the installer performs, and is the righ
 when a policy forbids piping a remote script to a shell.
 
 ```sh
-version=0.2.0
+version=0.0.1
 target=x86_64-unknown-linux-musl
 base="https://github.com/sunerpy/zuno/releases/download/v${version}"
 
@@ -138,7 +138,7 @@ zuno completion bash > /etc/bash_completion.d/zuno
 ```sh
 zuno self-update --check
 zuno self-update
-zuno self-update --tag v0.2.0
+zuno self-update --tag v0.0.1
 ```
 
 `self-update` replaces the running executable from a checksum-verified GitHub release. It

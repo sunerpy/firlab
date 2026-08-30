@@ -64,6 +64,9 @@ Recovery is selected from typed errors:
 | Authentication failures, user interruption, human input, permissions, or an uncertain side effect | Pause with a typed reason |
 | Invalid provider protocol, unsupported typed input, unavailable agent or model, corrupt durable state | Block |
 
+Permanent runtime failures store a stable typed code and scrubbed explanation in
+`blocked_reason`; a blocked Goal is never left without a diagnosis.
+
 Inspect and manage it with `/goal` in the terminal application:
 
 ```text
@@ -82,7 +85,11 @@ Inspect and manage it with `/goal` in the terminal application:
 `/goal` shows the current state. `/goal <objective>` creates a goal when none exists or
 the previous goal is complete or cancelled. Otherwise it updates the current objective
 without resetting its status, budget, or accumulated usage. The explicit action forms
-remain available for lifecycle management.
+remain available for lifecycle management. Create, edit, and shorthand objective changes
+also reconcile an active Plan: unfinished prior steps become terminal `completed` entries
+titled `Superseded: ...`, a multi-stage objective gets a new epoch, and the active Plan is
+bound to the current `goal_id`. An already terminal historical Plan is not rebound for an
+atomic objective.
 
 Known action names take precedence when they are the first token: `show`, `get`, `status`,
 `history`, `create`, `edit`, `pause`, `resume`, `block`, `complete`, `cancel`, and `help`.
@@ -129,7 +136,17 @@ Rules that matter in practice:
 - Step ids stay stable across revisions. An update carries the revision returned by the
   last read, and a stale revision is rejected without changing anything.
 - While steps remain pending, exactly one step is in progress.
+- Completed steps are terminal and cannot regress.
 - A fully completed plan has no in-progress step.
+- A bounded answer, atomic action, or explicit “continue” keeps the active epoch. A
+  substantial new ordinary objective moves the old active step back to pending and appends
+  a new epoch, so the new request cannot disappear into stale plan state.
+- Verification is scoped to the exact commit, build, tag, deployment, configuration, and
+  inputs inspected. When any of them changes, append a new gate instead of reusing an older
+  completed result.
+- Task jobs are host-linked to the Plan step that admitted them. A step cannot complete while
+  a linked job is queued, running, uncertain, or still has an unconsumed report. An explicit
+  new Goal may supersede that step, but it does not settle or cancel the Job implicitly.
 
 Plan mode enforces the read-only side of this below the prompt: a deny-by-default overlay
 allows inspection, read-only search and LSP, questions, Skills, and typed
@@ -172,9 +189,10 @@ Job, inbox, event log, or prompt receipt state.
 
 Instead, every relevant provider request regenerates a bounded `runtime.work_state`
 developer section from SQLite: the current plan revision and steps, Todo identities and
-dependencies, active or uncertain jobs, terminal jobs with an unconsumed report, pending
-report identities, and the latest prior prompt receipt id. One deferred transaction reads
-all of it from the same snapshot.
+dependencies, active or uncertain jobs, terminal jobs linked to an unfinished Plan step,
+terminal jobs with an unconsumed report, pending report identities, and the latest prior
+prompt receipt id. Job entries include their versioned Plan `workContext` when present. One
+deferred transaction reads all of it from the same snapshot.
 
 Each collection is capped at 64 entries and the rendered section at 16 KiB. Verbose text is
 shortened UTF-8-safely before whole tail entries are omitted, omitted counts stay explicit,
@@ -188,6 +206,12 @@ Background delegation produces durable jobs, and their lifecycle is part of this
 A background job commits `queued` before waiting for delegation capacity and becomes
 `running` only at admission. On restart, a still-queued job settles as `cancelled` because
 its runner never started; a running job settles as `uncertain` and is never replayed.
+
+Native Task admission records the optional Goal id, Plan id, admission revision, and active
+Plan step id in the Job's `workContext`. Completed or failed child evidence remains
+model-visible while that step is unfinished, including after compaction or restart. This
+keeps a failed investigation from disappearing and being delegated again without a changed
+hypothesis.
 
 Do not complete a parent while active jobs or unconsumed reports remain. See
 [Orchestration](/orchestration) for report delivery.
@@ -207,6 +231,10 @@ product-agent, workflow, and council reports perform that transition before the
 pending inbox scan, so the recovered report can wake an idle parent without a
 new user prompt. A consumed, cancelled, or failed input is terminal and is
 never synthesized again.
+
+For a long-running CI watcher or release command, start one background execution
+and let its durable terminal report resume the session. Use `bg output` for
+specific evidence; do not launch overlapping watchers or hand-written poll loops.
 
 ## See also
 

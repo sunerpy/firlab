@@ -93,7 +93,7 @@ Shell 执行受 OS 沙箱约束。`read-only` 与 `workspace-write` 都要求一
 
 ## 提示词工作流 V2 验收
 
-提示词工作流 V2 的验收条件与证据记录在 [中文用户指南](https://github.com/sunerpy/zuno/blob/main/docs/guides/prompt-workflow-v2.zh-CN.md) 与 [设计文档](https://github.com/sunerpy/zuno/blob/main/docs/design/prompt-workflow-v2.zh-CN.md)。
+提示词工作流 V2 的验收条件与证据记录在 [提示词与工作流指南](/zh/operate/prompt-workflow) 与 [设计文档](https://github.com/sunerpy/zuno/blob/main/docs/design/prompt-workflow-v2.zh-CN.md)。
 
 ## 构建一个 harness
 

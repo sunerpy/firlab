@@ -53,12 +53,12 @@ The generated developer instructions use stable ids and sources:
 | section | purpose | presence |
 | --- | --- | --- |
 | `runtime.intent` | Follow the current user request or delegated objective without inventing broader authority. | Always. |
-| `runtime.execution` | Choose the smallest coherent workflow, batch independent reads, avoid unchanged re-reads or repeated checks, keep tool-driven work visible, and stop using tools once the outcome and evidence are complete. | Always; tool communication and termination guidance are added only when tools exist, and Plan guidance only when `plan_update` exists. |
+| `runtime.execution` | Choose the smallest coherent workflow, batch independent reads, avoid unchanged re-reads or repeated checks, use one durable background observer for asynchronous work, and stop once evidence is complete. | Always; tool communication and termination guidance are added only when tools exist, Plan guidance only when `plan_update` exists, and background guidance only when `bg` exists. |
 | `runtime.sandbox` | State that Shell is using host authority, including requested/effective mode and the typed reason that confinement was unavailable. | Only while a trusted unavailable-sandbox fallback is active. |
 | `runtime.editing` | Preserve unrelated changes, edit the owning abstraction, and inspect uncertain side effects before retry. | Only when an effective edit/write surface or workspace-writing Shell exists. |
-| `runtime.verification` | Require observed evidence and disclose blockers or unverified claims. | Always, with wording adjusted when no tools are available. |
+| `runtime.verification` | Require observed evidence scoped to the exact artifact and inputs, and disclose blockers or unverified claims. | Always, with wording adjusted when no tools are available. |
 | `runtime.delegation` | Require bounded non-overlapping delegation and durable result reconciliation. | Only when `task` and at least one valid target are effective. |
-| `runtime.persistence` | Treat Goal, Plan, Todo, inbox, and Job state as authoritative continuation state. | When durable work state is active or its tools are effective. |
+| `runtime.persistence` | Treat Goal, Plan, Todo, inbox, and Job state as authoritative continuation state, including host-owned Job-to-Plan links. | When durable work state is active or its tools are effective. |
 
 Each section is recorded with source `zuno-runtime:<section-id>`, exact content,
 estimated tokens, and a SHA-256 digest. A prompt cannot describe an editor,
@@ -77,7 +77,12 @@ The built-in role prompts remain intentionally small:
 
 - `orchestrator` handles one clear action directly and constructs a dependency
   graph only when bounded specialization or parallelism has value. It owns
-  integration, conflict resolution, and the final audit.
+  integration, conflict resolution, and the final audit. A repeated failure at
+  one integration boundary forces a recorded end-to-end
+  producer/artifact/consumer hypothesis reset before another release or
+  deployment. Verification is tied to the exact commit, build, tag, deployment,
+  configuration, and inputs; asynchronous external work keeps one authoritative
+  observer rather than overlapping poll loops.
 - `build` owns one end-to-end implementation lane and cannot delegate.
 - `deep` owns reproduction, ranked hypotheses, causal tracing, root repair, and
   recovery verification without recursive delegation.
@@ -89,11 +94,18 @@ The built-in role prompts remain intentionally small:
 
 Durable planning is host policy rather than model ceremony. Before the first
 provider request for a user or resolved-command input, the host applies one
-deterministic classifier shared by CLI, TUI, ACP, server, and child turns. An
-active Plan is retained. A completed Plan does not suppress later work: a new
-multi-stage user objective appends a new epoch while preserving prior completed
-steps. Child reports, steering, and retry continuations never manufacture a new
-Plan.
+deterministic classifier shared by CLI, TUI, ACP, server, and child turns. A
+bounded answer, atomic action, or explicit continuation retains an active Plan.
+A substantial new ordinary user or resolved-command objective preempts the
+current `in_progress` step back to `pending` and appends a new epoch, preserving
+the prior backlog for explicit resumption or supersession. A completed Plan also
+allows a later multi-stage objective to append a new epoch. Creating or
+materially editing a durable Goal is a stronger objective boundary: the host
+terminalizes unfinished steps in an active prior epoch as `completed` with a
+`Superseded:` title, binds that Plan to the exact `goal_id`, and seeds a new epoch
+when the objective is multi-stage. An already terminal historical Plan remains
+attached to the Goal that produced it. Child reports, steering, and retry
+continuations never manufacture a new Plan.
 
 A direct answer, one bounded read, or one short commit of already-prepared
 changes may proceed atomically. Other ordinary engineering work receives an
@@ -109,6 +121,17 @@ detail beneath Plan steps for ownership, dependency, or recovery tracking. They
 must not mechanically mirror every Plan step. Refinement preserves existing
 step ids and completed states while updating titles/statuses or appending new
 steps, so concurrent clients and recovery snapshots retain stable identities.
+Completed verification steps are immutable historical evidence. If their commit,
+build, tag, deployment, configuration, or other relevant input changes, the
+model appends a new artifact-scoped verification step or epoch.
+
+Native Task admission also captures the active Plan location in the Job's
+versioned `workContext`: optional Goal id, Plan id, Plan revision, and Plan step
+id. A Plan step cannot complete while one of its linked Jobs is queued, running,
+uncertain, or still has an unconsumed report. Completed and failed child evidence
+remains in `runtime.work_state` until that linked step reaches a terminal state.
+An explicit new Goal objective may supersede the step, but it never settles or
+cancels the linked Job implicitly.
 
 Plan and Work are also typed collaboration contracts. `collaboration.mode` is a
 runtime-trust prompt block, separate from the native kernel, agent role, project
@@ -865,9 +888,13 @@ and ACP. Compact runs the hidden compaction agent. Goal accepts either a direct
 objective or show/history/create/edit/pause/resume/block/complete/cancel against
 the durable goal store. A direct objective creates a goal when none exists or
 the previous goal is complete or cancelled; otherwise it updates the objective
-while preserving lifecycle state, budget, and usage. Recognized action words
-take precedence over the shorthand. Neither surface sends the slash text to the
-model or synthesizes a private client-only result. Goal output is a typed
+while preserving lifecycle state, budget, and usage. Create, edit, and shorthand
+objective changes also reconcile an active durable Plan: unfinished prior steps become
+terminal `completed` entries titled `Superseded: ...`, a multi-stage objective
+receives a new epoch, and the active Plan stores the current `goal_id`. An atomic
+objective does not rebind an already terminal historical Plan. Recognized action
+words take precedence over the shorthand.
+Neither surface sends the slash text to the model or synthesizes a private client-only result. Goal output is a typed
 session-command output event, not reasoning. Invalid explicit action arguments
 remain typed command failures; ACP maps them to JSON-RPC invalid params rather
 than an internal session error.
@@ -892,9 +919,11 @@ remain durable inbox inputs and are recovered from the same row after restart.
 Every relevant provider request also regenerates a bounded
 `runtime.work_state` developer instruction from SQLite. It includes the current
 Plan revision and steps, Todo/WorkItem identities and dependencies, active or
-uncertain Jobs, terminal Jobs with an unconsumed `nextStep` report, pending
-report identities and states, and the latest prior prompt receipt id. One
-deferred SQLite transaction reads all of those tables from the same snapshot.
+uncertain Jobs, terminal Jobs linked to a still-unfinished Plan step, terminal
+Jobs with an unconsumed `nextStep` report, pending report identities and states,
+and the latest prior prompt receipt id. Job entries expose their versioned
+`workContext` when present. One deferred SQLite transaction reads all of those
+tables from the same snapshot.
 Each collection is capped at 64 entries and the complete rendered section is
 capped at 16 KiB. Verbose text is UTF-8-safely shortened before whole tail
 entries are omitted; omitted counts remain explicit and authoritative identity
@@ -977,7 +1006,7 @@ Recovery is selected from typed errors, never rendered messages:
 - A timeout or lost response around a non-replayable side effect pauses with
   `uncertain_side_effect`; recovery requires authoritative-state inspection and never
   automatically invokes the tool again.
-- Invalid provider protocol, unsupported typed input such as an image sent to a text-only model, unavailable agent/model configuration, corrupt durable state, and other permanent failures block the goal.
+- Invalid provider protocol, unsupported typed input such as an image sent to a text-only model, unavailable agent/model configuration, corrupt durable state, and other permanent failures block the goal. The same transaction stores a stable typed code and scrubbed explanation in `blocked_reason`; a permanent runtime failure never produces an unexplained blocked Goal.
 
 OpenAI and Compatible Responses decoders treat `response.failed` as a typed
 provider failure, not as an ordinary assistant `MessageEnd(Error)`. When the
@@ -1318,7 +1347,8 @@ Enabled `productAgent` instances register independent static tools backed by a h
 
 For every native child, the host generates `TaskReportMetadata`; the child model
 supplies only final prose. The metadata records schema version, optional job id,
-child and parent session ids, Agent, terminal status, final text, usage,
+optional host-captured Plan `workContext`, child and parent session ids, Agent,
+terminal status, final text, usage,
 typed-written paths, typed verification records, uncertain side effects, and
 evidence collection errors. Changed paths and verification records are derived
 only from durable tool metadata, never parsed from prose or arbitrary Shell
@@ -1432,8 +1462,8 @@ report admission and wake behavior, prompt receipts, and final evidence. It
 must use a real authorized provider response; an unavailable account, model, or
 service is reported as a blocker rather than replaced with a mock.
 
-See [提示词与工作流 V2 用户指南](https://github.com/sunerpy/zuno/blob/main/docs/guides/prompt-workflow-v2.zh-CN.md) for the
-commands, expected observations, and current implementation boundaries.
+See [提示词与工作流用户指南](/zh/operate/prompt-workflow) for the commands, expected
+observations, and current implementation boundaries.
 
 ## Building a harness
 

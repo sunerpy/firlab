@@ -24,10 +24,8 @@ The next implementation task will:
 - ship a first-party orchestration pack containing agent profiles, workflow
   templates, and selected Skills while keeping scheduling, authorization,
   provider access, persistence, and cleanup in the native core;
-- implement Phase 0 and Phase 1 of the
-  [Cordis semantics roadmap](cordis-semantics-roadmap.md) only where they remove
-  duplicate lifecycle ownership or enable transactional contribution
-  replacement.
+- adopt Cordis lifecycle semantics only where they remove duplicate lifecycle
+  ownership or enable transactional contribution replacement.
 
 The earlier request used the name `doris`. This document treats that as a
 reference to the already approved Cordis plan. A separate Apache Doris or other
@@ -360,10 +358,6 @@ table.
 
 ## 4. Prompt system
 
-The structured design described in
-[Build-agent prompt and request comparison](agent-prompt-request-comparison.md)
-remains the foundation.
-
 Each Agent prompt contains six typed contracts:
 
 1. purpose and success condition;
@@ -621,9 +615,8 @@ policy so parallel research cannot fill the disk.
 
 ## 10. Cordis Phase 0 and Phase 1
 
-This work follows the existing
-[Cordis semantics roadmap](cordis-semantics-roadmap.md), not a new independent
-Cordis runtime.
+This work adapts Cordis lifecycle semantics into the existing native component
+kernel; it does not add an independent Cordis runtime.
 
 ### Phase 0: contracts
 

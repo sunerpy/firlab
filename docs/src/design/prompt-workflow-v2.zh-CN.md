@@ -481,8 +481,15 @@ parent authority
 
 ```jsonc
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "jobId": "job_*",
+  "workContext": {
+    "schemaVersion": 1,
+    "goalId": null,
+    "planId": "plan_*",
+    "planRevision": 3,
+    "planStepId": "verify-release"
+  },
   "sessionId": "ses_child",
   "parentSessionId": "ses_parent",
   "agent": "explorer",
@@ -508,6 +515,8 @@ parent authority
 
 `changed_paths` 和 `verification_records` 只有在存在宿主级 typed durable event 时才能
 填充。不得解析模型自然语言或任意 Shell 输出伪造这些字段。每个 internal Job 在
+准入时还会由宿主捕获当前 Plan 位置并写入 `workContext`；该关联不是模型参数。只要
+对应步骤尚未完成，终态 Job 证据会继续进入恢复上下文。
 admission 时持久化 `evidence_start_rowid`；继续已有 child session 时，只查询该游标
 之后的 typed tool parts，防止先前轮次证据污染当前报告。foreground task 同样拥有
 internal Job id，只是执行仍附着在当前 parent tool call。
@@ -860,8 +869,7 @@ git diff --check
    16 KiB `runtime.work_state`、无默认 step 上限、宿主 Plan 分类器和两个 debug
    命令已落地。
 6. GPT 5.6 Sol / Claude Opus 5 已分别完成原子任务、深度 Debug、并行委派和
-   Plan-only E2E；最终 gate 结果和剩余风险以
-   [验收审计](https://github.com/sunerpy/zuno/blob/main/docs/audits/prompt-workflow-v2-validation-2026-08-28.zh-CN.md) 为准。
+   Plan-only E2E。
 7. 完整 provider-visible Prompt 在已知 context limit 下执行总预算门禁；typed
    child report 可从数据库一致回放到 TUI、ACP 与 CLI。
 8. 上游只作为 adopt/adapt/reject 的设计来源，不复制完整 Prompt 或专属工作流。

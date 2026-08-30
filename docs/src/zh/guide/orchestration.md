@@ -408,7 +408,7 @@ TUI 把每个观察到的原生子级当作一个完整的会话界面，而不�
 ```json
 {
   "workflow": "release-check",
-  "prompt": "Review release candidate v0.4.0.",
+  "prompt": "Review release candidate v0.0.1.",
   "description": "Release readiness",
   "background": true,
   "reportDelivery": "nextStep"

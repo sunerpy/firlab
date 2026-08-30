@@ -52,7 +52,7 @@ zuno self-update --yes
 重新安装一个确切的较早 tag，以回退一次糟糕的更新。
 
 ```sh
-zuno self-update --tag v0.1.0 --force --yes
+zuno self-update --tag v0.0.1 --force --yes
 ```
 
 ## 参见

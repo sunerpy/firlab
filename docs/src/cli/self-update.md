@@ -54,7 +54,7 @@ zuno self-update --yes
 Reinstall an exact earlier tag to roll back a bad update.
 
 ```sh
-zuno self-update --tag v0.1.0 --force --yes
+zuno self-update --tag v0.0.1 --force --yes
 ```
 
 ## See also

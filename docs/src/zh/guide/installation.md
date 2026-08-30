@@ -37,7 +37,7 @@ irm https://raw.githubusercontent.com/sunerpy/zuno/main/scripts/install.ps1 | ie
 | `ZUNO_INSTALL_DIR` | 目标目录 | `$HOME/.local/bin`；Windows 上为 `%LOCALAPPDATA%\Programs\zuno` |
 
 ```sh
-ZUNO_VERSION=v0.2.0 ZUNO_INSTALL_DIR="$HOME/bin" sh -c "$(curl -fsSL https://raw.githubusercontent.com/sunerpy/zuno/main/scripts/install.sh)"
+ZUNO_VERSION=v0.0.1 ZUNO_INSTALL_DIR="$HOME/bin" sh -c "$(curl -fsSL https://raw.githubusercontent.com/sunerpy/zuno/main/scripts/install.sh)"
 ```
 
 如果目标目录还不在 `PATH` 上，安装脚本会打印需要添加的那一行。
@@ -59,7 +59,7 @@ Linux 始终使用静态 musl 产物。`aarch64-pc-windows-msvc` 是有意缺失
 手动做就是安装脚本执行的那三步，在策略禁止把远程脚本管道给 shell 时，这是正确选择。
 
 ```sh
-version=0.2.0
+version=0.0.1
 target=x86_64-unknown-linux-musl
 base="https://github.com/sunerpy/zuno/releases/download/v${version}"
 
@@ -121,7 +121,7 @@ zuno completion bash > /etc/bash_completion.d/zuno
 ```sh
 zuno self-update --check
 zuno self-update
-zuno self-update --tag v0.2.0
+zuno self-update --tag v0.0.1
 ```
 
 `self-update` 用一个经 checksum 校验的 GitHub release 替换正在运行的可执行文件。它会下载 `SHA256SUMS`，要求所选归档恰好有一条摘要，并且在任何不匹配的情况下都在触碰当前可执行文件之前停止。没有 `--yes` 时，非交互式调用会失败即拒绝，而不是静默替换二进制文件。
