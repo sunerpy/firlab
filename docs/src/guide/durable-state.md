@@ -26,10 +26,13 @@ A goal is the continuation authority. An active goal continues until it complete
 explicitly paused or blocked, reaches its budget, or hits a typed permanent failure. That
 is what makes long work resumable instead of stopping whenever a turn ends.
 
-Recovery is layered. The provider request layer retries a bounded sequence in place,
-rolling back unpublished partial output first. If that still ends in a recoverable error,
-the goal controller writes a retry row before waiting and starts a fresh turn when the
-persisted deadline arrives.
+Recovery is layered. Before every provider-request backoff, the request layer commits a
+`provider_retry_backoff` checkpoint containing the request, turn, failed and next attempt,
+typed reason, selected delay, and deadline. A restart never revives that old HTTP request.
+It observes the remaining deadline, then starts a fresh Goal turn. If the bounded
+provider sequence still ends in a recoverable error, the Goal controller writes a
+`goal_retry` row before waiting and likewise starts a fresh turn when its persisted deadline
+arrives.
 
 ```json
 {
@@ -58,11 +61,57 @@ Recovery is selected from typed errors:
 | --- | --- |
 | Transport failures, rate limits, incomplete streams, SQLite writer contention, empty assistant messages | Schedule another turn |
 | Context-limit failures | Compact retained history, then retry |
-| Authentication failures, user interruption, a closed event consumer | Pause for human action |
+| Authentication failures, user interruption, human input, permissions, or an uncertain side effect | Pause with a typed reason |
 | Invalid provider protocol, unsupported typed input, unavailable agent or model, corrupt durable state | Block |
 
-Inspect and manage it with `/goal` in the terminal application, which shows, creates,
-edits, pauses, resumes, blocks, completes, and cancels against the durable store.
+Inspect and manage it with `/goal` in the terminal application:
+
+```text
+/goal
+/goal <objective>
+/goal create <objective>
+/goal edit <objective>
+/goal pause
+/goal resume
+/goal block <reason>
+/goal complete
+/goal cancel
+/goal history
+```
+
+`/goal` shows the current state. `/goal <objective>` creates a goal when none exists or
+the previous goal is complete or cancelled. Otherwise it updates the current objective
+without resetting its status, budget, or accumulated usage. The explicit action forms
+remain available for lifecycle management.
+
+Known action names take precedence when they are the first token: `show`, `get`, `status`,
+`history`, `create`, `edit`, `pause`, `resume`, `block`, `complete`, `cancel`, and `help`.
+If an objective itself starts with one of those words, use `/goal create <objective>` or
+`/goal edit <objective>` to disambiguate it. `/goal help` prints the compact command
+summary.
+
+Goal status also shows the typed pause, cross-turn retry, provider backoff checkpoint,
+and pending human requests. Completion is rejected while any Plan step, WorkItem, Job,
+next-step report, or Goal-owned human request remains unfinished.
+
+### Human requests and autonomy
+
+An active Goal is autonomous by default and does not receive the ordinary synchronous
+`question` tool. When a missing fact or decision truly blocks the objective,
+`goal_request_input` atomically creates a `human_request` row and pauses the exact Goal with
+`human_input`. Permission waits use the same store with kind `permission`. The turn ends as
+`WaitingForHuman`; it is not held open by a process-local receiver.
+
+TUI, HTTP, and ACP list and answer the same rows. An answer transaction settles the request
+and admits its model-visible response to the durable FIFO inbox together. Goal resumption is
+a later idempotent step, so a crash after the answer commit cannot lose the response or
+duplicate it. On restart, clients re-present pending requests from SQLite. Their in-process
+channels only wake already-running consumers.
+
+A side-effecting tool whose response is lost has an uncertain outcome. The Goal pauses with
+`uncertain_side_effect`, requires authoritative-state inspection, and never mechanically
+replays that invocation. Only tools explicitly marked read-only or idempotent may use safe
+retry behavior.
 
 ## Plan
 
@@ -87,6 +136,11 @@ allows inspection, read-only search and LSP, questions, Skills, and typed
 Goal/Plan/Todo operations while denying shell and file mutation. Returning to Work mode
 requires a durable plan to exist, and the confirmation names its title, revision, and
 completed-step count.
+
+Entering Plan while a Goal is active atomically records `paused(plan_mode)`. Start Work
+resumes only that exact pause and does so once, even after a process restart. It deliberately
+does not clear pauses owned by authentication repair, a pending human request, permission,
+manual interruption, or uncertain side effects.
 
 ```text
 /plan
@@ -137,6 +191,22 @@ its runner never started; a running job settles as `uncertain` and is never repl
 
 Do not complete a parent while active jobs or unconsumed reports remain. See
 [Orchestration](/orchestration) for report delivery.
+
+Durable background commands keep their authoritative process state and output
+under `.zuno/background`, but their model-facing completion is a deterministic
+session inbox row. The filesystem event is only a wake hint. Terminal state is
+scanned on session activation and periodically while the process is resident,
+so these crash points are recoverable without replaying the command:
+
+- status persisted, completion input not yet admitted;
+- input admitted, wake not yet attempted;
+- input promoted, process lost before model-visible consumption.
+
+The last case returns the original row to its admitted lane. Job-backed child,
+product-agent, workflow, and council reports perform that transition before the
+pending inbox scan, so the recovered report can wake an idle parent without a
+new user prompt. A consumed, cancelled, or failed input is terminal and is
+never synthesized again.
 
 ## See also
 

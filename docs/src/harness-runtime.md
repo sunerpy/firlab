@@ -703,6 +703,32 @@ User prompts and subagent reports share this protocol:
 - An idle parent is claimed and driven immediately.
 - A restarted process recovers pending reports from the durable inbox.
 
+The same boundary now covers every asynchronous continuation source:
+`subagentReport`, `productAgentReport`, `workflowReport`, `councilReport`, and
+`backgroundExecutionReport`. The provider-specific completion signal is never
+the queue of record. A producer first commits a typed `session_input`; only then
+may a process-local watcher nudge the session. A wake is successful only after
+the input is promoted by an active turn or claimed by a newly started turn.
+Persisting the row alone is not an acknowledgement.
+
+This follows the public
+[Codex app-server thread model](https://developers.openai.com/codex/app-server)
+without copying an undocumented implementation: Codex keeps threads resumable,
+exposes runtime status, and allows later turns after the prior turn returned.
+Zuno makes the corresponding local invariant explicit in SQLite. If the process
+remains resident, a completion starts the continuation immediately. If the
+process exits, no model can run in the absence of a resident runtime; the
+notification remains durable and is redriven when that session is activated.
+An explicit session close first unregisters the resident watcher, interrupts and
+joins any detached continuation, and then applies the surface lifecycle policy
+instead of silently reopening the session.
+
+Detached turns use the same engine events as request-owned turns. TUI routes root
+events back to the mounted transcript, ACP sends ordinary root
+`session/update` notifications, and the HTTP server commits and fans out the
+same durable event projection. Child-session events retain their child observer.
+No client owns a private continuation loop.
+
 Interactive TUI input uses the same durable boundary. When idle, `Enter`
 starts a turn. During an active turn, `Enter` admits a FIFO `queue` item for the
 next turn; `Ctrl+Enter` is the explicit `steer` override and requests a soft
@@ -749,6 +775,22 @@ Enter, Space for multi-select, and mouse selection. Per-question cursors and
 custom drafts survive navigation. Cancelling either interaction resolves the
 tool as a typed denial and never fabricates an answer.
 
+Goal-owned interaction is durable rather than a parked tool future. The
+`goal_request_input` tool commits a `human_request` row and the exact
+`goal_pause(human_input)` state in one transaction, then returns
+`TurnOutcome::WaitingForHuman`. Permission requests tied to an active Goal use
+the same table with kind `permission`. Answering atomically settles the request
+and admits a model-visible FIFO inbox item; resuming the Goal is a separate
+idempotent transition, so a crash between those operations remains recoverable.
+TUI, server, and ACP re-present pending rows after restart. Their process-local
+channels only wake consumers after durable state exists.
+
+Interaction registration is host policy. Plan and ordinary non-Goal Work may
+receive synchronous `question`; autonomous Goal turns receive only
+`goal_request_input`; delegated children receive neither and must report their
+blocker to the parent. A headless Goal without a human-request surface does not
+receive a request tool it cannot complete.
+
 The conversation surface separates reply identity from transient work state. The
 identity row contains the resolved agent, catalog model display name, and configured
 reasoning effort. It follows the bottom of a short assistant reply; once transcript
@@ -782,6 +824,13 @@ exist, and the confirmation names its title, revision, and completed-step count.
 `/start-plan` enters Plan mode directly; `/start-work` performs the same durable
 plan check and confirmation without first toggling through `/plan`.
 
+For an active Goal, entering Plan and recording `paused(plan_mode)` are one
+transactional host transition. Re-entering Plan is idempotent. Start Work only
+clears that exact pause after the durable-plan gate succeeds; it cannot clear
+authentication, human-input, permission, user-interruption, or
+uncertain-side-effect pauses. The same checks run after restart, so
+Goal → Plan → restart → Work resumes at most once.
+
 ACP publishes the same three names as native session commands. Because sending
 the slash prompt is already an explicit client action, ACP performs the
 transactional mode replacement directly, never sends the command to the model,
@@ -804,11 +853,16 @@ Native discovery resolves before Markdown commands and Skills, so a same-named
 user workflow cannot shadow a runtime control.
 
 `/compact` and `/goal` invoke shared live-`TurnHost` handlers in both the TUI
-and ACP. Compact runs the hidden compaction agent; Goal exposes
-show/history/create/edit/pause/resume/block/complete/cancel against the durable
-goal store. Neither surface sends the slash text to the model or synthesizes a
-private client-only result. Goal output is a typed session-command output event,
-not reasoning.
+and ACP. Compact runs the hidden compaction agent. Goal accepts either a direct
+objective or show/history/create/edit/pause/resume/block/complete/cancel against
+the durable goal store. A direct objective creates a goal when none exists or
+the previous goal is complete or cancelled; otherwise it updates the objective
+while preserving lifecycle state, budget, and usage. Recognized action words
+take precedence over the shorthand. Neither surface sends the slash text to the
+model or synthesizes a private client-only result. Goal output is a typed
+session-command output event, not reasoning. Invalid explicit action arguments
+remain typed command failures; ACP maps them to JSON-RPC invalid params rather
+than an internal session error.
 
 The command acquires the session's exclusive run ownership and emits typed
 started, output, completed, or failed lifecycle events. TUI and ACP consume
@@ -886,7 +940,7 @@ the context limit, and the latest accounting mode.
 
 ## Durable goal recovery
 
-An active goal uses two recovery layers. The provider request layer retries a bounded sequence in place and rolls back unpublished partial output before another request. Its in-place backoff is interruptible by both hard cancellation and durable live steering; waking it does not replay the stale provider request. If that sequence still ends in a recoverable error, the goal controller writes a `goal_retry` row before waiting and starts a fresh agent turn when its persisted deadline arrives. There is no cross-turn retry-count ceiling for recoverable failures: the delay grows exponentially, reaches the configured cap, and the goal remains active until it completes, is paused, reaches its token budget, or encounters a permanent failure.
+An active goal uses two recovery layers. The provider request layer retries a bounded sequence in place and rolls back unpublished partial output before another request. Before every wait it commits a `provider_retry_backoff` checkpoint with the request id, turn id, failed and next attempt, typed reason, selected delay, and deadline. Its in-place backoff is interruptible by both hard cancellation and durable live steering; waking it does not replay the stale provider request. After a process restart, Zuno waits out any remaining checkpoint deadline and starts a new turn and provider request instead of attempting to revive the old transport. If the bounded sequence still ends in a recoverable error, the goal controller writes a `goal_retry` row before waiting and starts a fresh agent turn when its persisted deadline arrives. There is no cross-turn retry-count ceiling for recoverable failures: the delay grows exponentially, reaches the configured cap, and the goal remains active until it completes, is paused, reaches its token budget, or encounters a permanent failure.
 
 The retry row is tied to the exact `goal_id` and stores the attempt, typed reason, selected delay, schedule time, and next eligible time. Reopening the same session reconstructs the wait from SQLite. Queued user input has priority over an automatic turn, and long waits are split by `poll_interval_ms` so an interactive surface can notice that input promptly.
 
@@ -910,7 +964,11 @@ Recovery is selected from typed errors, never rendered messages:
 - Transport failures, rate limits, incomplete streams, SQLite writer contention, and empty assistant messages schedule another goal turn.
 - An explicit Agent `steps` limit normally produces a text-only finalization. `StepLimit` recovery is reserved for a provider that attempts to continue with tools after that finalization boundary.
 - Context-limit failures compact retained history before retrying. Successful compaction is persisted as its own retry phase so a restart does not compact the same history twice.
-- Authentication failures, user interruption, and a closed event consumer pause the goal for human action.
+- Authentication failures and user interruption pause the Goal with typed reasons. Human
+  input and permission waits carry the durable request id in the pause row.
+- A timeout or lost response around a non-replayable side effect pauses with
+  `uncertain_side_effect`; recovery requires authoritative-state inspection and never
+  automatically invokes the tool again.
 - Invalid provider protocol, unsupported typed input such as an image sent to a text-only model, unavailable agent/model configuration, corrupt durable state, and other permanent failures block the goal.
 
 OpenAI and Compatible Responses decoders treat `response.failed` as a typed
@@ -1163,10 +1221,12 @@ Other resident and interactive hosts retain dedicated guards where a surviving
 per-tree owner or terminal foreground transfer is required. The direct child
 returned by `guarded_argv` is the guard, not the payload; owners request
 shutdown through `request_contained_process_shutdown` and reap it only after
-the contained group settles. On Linux the guard blocks on signals and uses the
-parent-death signal. Direct MCP relies on owner close/Drop and therefore does
-not promise descendant cleanup after an uncatchable owner `SIGKILL`. The pinned
-Codex comparison and the split ownership decision are recorded in
+the contained group settles. On Linux the guard uses the parent-death signal and
+waits on the payload pidfd for immediate, race-free natural-exit observation,
+with bounded lifecycle checks when pidfd is unavailable. Direct MCP relies on
+owner close/Drop and therefore does not promise descendant cleanup after an
+uncatchable owner `SIGKILL`. The pinned Codex comparison and the split ownership
+decision are recorded in
 [Resident process containment](design/process-containment.md).
 
 ## Background command execution
@@ -1208,6 +1268,17 @@ authoritative service after lag, and updates the right-sidebar `Background`
 section even while a model turn is active. Each row carries status, command,
 pid, elapsed time, and failure context; the section advertises `/ps` for the
 scrollable output view.
+
+A terminal durable command also creates one deterministic
+`backgroundExecutionReport` input (`msg_<background-execution-id>`). The report
+contains terminal status and directs the model to inspect durable output through
+`bg`; it does not inline an unbounded spool and never asks the runtime to replay
+the command. Settlement events trigger immediate delivery, while a 30-second
+reconciliation pass and workspace reopen scan cover lag and process loss.
+Duplicate events reuse the same input id. A crash after promotion but before the
+input became model-visible returns that row to its original delivery lane before
+redrive. Completed, failed, cancelled, and uncertain outcomes are all reported;
+an uncertain outcome explicitly requires authoritative-state inspection.
 
 ## Background subagents and product agents
 
@@ -1262,6 +1333,11 @@ Job settlement and `nextStep` inbox admission share one SQLite transaction.
 Wake occurs only after commit. If a process exits after settlement or after an
 input was promoted, restart recovery reuses the original report row and returns
 it to its admitted lane; it does not create another report or rerun the child.
+The recovery scan performs that Job transition before reading the ordinary
+pending inbox, so a report stranded in `promoted` can itself trigger the next
+turn without waiting for a new user prompt. Recovery holds a process-local
+reservation for the session while repairing the row, so a live turn cannot own
+the same promoted input concurrently.
 Queued jobs that never started reconcile to `cancelled`; running jobs lost with
 the process reconcile to `uncertain` and are not replayed. Concurrent
 process-local wake attempts for one `(session_id, input_id)` are coalesced by an
@@ -1278,7 +1354,9 @@ still queued, steering, or promoted. Consuming that report releases the Job
 block. Any uncertain Job blocks regardless of delivery or report consumption
 until typed authoritative reconciliation changes its state. A terminal `quiet`
 completed, failed, or cancelled Job has no parent input and does not block
-completion.
+completion. A pending Goal-owned human request is also part of the barrier; the
+Goal cannot complete while it is still asking the user for a decision or
+permission.
 
 The `job` tool reads durable status for jobs owned by the current parent session. `JobSubject` distinguishes child sessions, product agents, and workflow runs; status is `queued`, `running`, `completed`, `failed`, `cancelled`, or `uncertain`, together with delivery policy, result, error, and subject identity. Council execution remains stored through the workflow service, while the frontend-neutral projection types `council:<preset>` as a Council and attaches its durable child WorkItems. The same child projection represents ordinary workflow nodes and Council seats, including owner, status, elapsed time, and usage.
 
