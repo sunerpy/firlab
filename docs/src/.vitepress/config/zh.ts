@@ -47,6 +47,7 @@ const config: DefaultTheme.SidebarItem[] = [
     items: [
       { text: '概览', link: '/zh/config/' },
       { text: '配置文件与优先级', link: '/zh/config/files' },
+      { text: 'History 与 Notes 连续性配置', link: '/zh/config/continuity' },
       { text: '配置项参考', link: '/zh/config/reference' },
       { text: '变量与替换', link: '/zh/config/variables' },
       { text: '指令与 AGENTS.md', link: '/zh/config/instructions' },

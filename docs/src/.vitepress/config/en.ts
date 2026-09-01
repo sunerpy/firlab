@@ -48,6 +48,7 @@ const config: DefaultTheme.SidebarItem[] = [
     items: [
       { text: 'Overview', link: '/config/' },
       { text: 'Files and precedence', link: '/config/files' },
+      { text: 'History and Notes continuity', link: '/config/continuity' },
       { text: 'Configuration reference', link: '/reference/configuration' },
       { text: 'Variables and substitution', link: '/config/variables' },
       { text: 'Instructions and AGENTS.md', link: '/config/instructions' },
