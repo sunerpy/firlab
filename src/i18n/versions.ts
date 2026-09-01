@@ -21,8 +21,8 @@
 export const pttoolsVersion = 'v0.46.0';
 export const pttoolsReleased = '2026-08-10';
 
-export const codegraphVersion = 'v0.42.10';
-export const codegraphReleased = '2026-08-07';
+export const codegraphVersion = 'v0.50.1';
+export const codegraphReleased = '2026-08-31';
 
 export const AGENTLENS_VERSION = 'v0.0.7';
 export const AGENTLENS_RELEASED = '2026-08-13';
