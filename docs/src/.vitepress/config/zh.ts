@@ -6,6 +6,7 @@ const guide: DefaultTheme.SidebarItem[] = [
     text: '入门',
     items: [
       { text: 'Zuno 是什么', link: '/zh/guide/what-is-zuno' },
+      { text: '项目结构', link: '/zh/guide/project-structure' },
       { text: '安装', link: '/zh/guide/installation' },
       { text: '快速开始', link: '/zh/guide/quick-start' },
       { text: '第一个会话', link: '/zh/guide/first-session' },
@@ -20,6 +21,7 @@ const guide: DefaultTheme.SidebarItem[] = [
       { text: '权限与沙箱', link: '/zh/guide/permissions' },
       { text: 'Skill', link: '/zh/guide/skills' },
       { text: 'Goal、Plan 与 Todo', link: '/zh/guide/durable-state' },
+      { text: 'Memory 与学习', link: '/zh/guide/memory-learning' },
     ],
   },
   {
@@ -35,6 +37,7 @@ const guide: DefaultTheme.SidebarItem[] = [
     text: '集成',
     items: [
       { text: '编辑器与 ACP', link: '/zh/guide/editors' },
+      { text: 'HTTP API 与 OpenAPI', link: '/zh/reference/http-api' },
       { text: 'MCP 服务器', link: '/zh/guide/mcp' },
       { text: '插件与扩展', link: '/zh/guide/plugins' },
     ],
@@ -182,6 +185,7 @@ export const zh = defineConfig({
     sidebar: {
       '/zh/guide/': guide,
       '/zh/config/': config,
+      '/zh/reference/http-api': guide,
       '/zh/operate/': operate,
       '/zh/cli/': cli,
     },
