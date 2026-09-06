@@ -6,6 +6,7 @@ const guide: DefaultTheme.SidebarItem[] = [
     text: 'Introduction',
     items: [
       { text: 'What is Zuno?', link: '/guide/what-is-zuno' },
+      { text: 'Project structure', link: '/guide/project-structure' },
       { text: 'Installation', link: '/guide/installation' },
       { text: 'Quick start', link: '/guide/quick-start' },
       { text: 'Your first session', link: '/guide/first-session' },
@@ -20,6 +21,7 @@ const guide: DefaultTheme.SidebarItem[] = [
       { text: 'Permissions and sandboxing', link: '/guide/permissions' },
       { text: 'Skills', link: '/guide/skills' },
       { text: 'Goals, plans and todos', link: '/guide/durable-state' },
+      { text: 'Memory and learning', link: '/guide/memory-learning' },
     ],
   },
   {
@@ -35,6 +37,7 @@ const guide: DefaultTheme.SidebarItem[] = [
     text: 'Integrations',
     items: [
       { text: 'Editors and ACP', link: '/reference/zed-acp' },
+      { text: 'HTTP API and OpenAPI', link: '/reference/http-api' },
       { text: 'MCP servers', link: '/guide/mcp' },
       { text: 'Plugins and extensions', link: '/plugins' },
       { text: 'Writing a process plugin', link: '/process-plugin-development' },
@@ -195,6 +198,7 @@ export const en = defineConfig({
       '/plugins': guide,
       '/process-plugin-development': guide,
       '/config/': config,
+      '/reference/http-api': guide,
       '/reference/': config,
       '/cli/': cli,
       '/operate/': operate,
