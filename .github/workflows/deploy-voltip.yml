@@ -1,0 +1,156 @@
+name: Deploy Voltip site
+
+# Publishes the Voltip website to voltip.firlab.app.
+#
+# Cloudflare Pages, like the Zuno site (deploy-docs.yml): GitHub Pages allows one custom
+# domain per repository and `public/CNAME` binds it to firlab.app. The two docs sites and
+# firlab.app deploy independently, so one failing build cannot take another site down.
+#
+# `voltip/src/` is filled by `voltip/scripts/sync-voltip-docs.sh`, which voltip's
+# publish-site.yml runs after a merge there. The pages are committed here, so this workflow
+# builds from the checkout and needs no credential for voltip.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'voltip/**'
+      - '.github/workflows/deploy-voltip.yml'
+  workflow_dispatch:
+
+# A Pages deploy is not safely interruptible: queue instead of cancelling. Its own group, so
+# it never waits on the firlab.app or Zuno deploys.
+concurrency:
+  group: pages-voltip
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    environment:
+      name: voltip-docs
+      url: https://voltip.firlab.app
+    env:
+      PROJECT: voltip-docs
+      DOMAIN: voltip.firlab.app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # pnpm before setup-node, otherwise `cache: pnpm` cannot resolve the store directory.
+      # The version comes from `packageManager` in voltip/package.json.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          package_json_file: voltip/package.json
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+          cache-dependency-path: voltip/pnpm-lock.yaml
+
+      # voltip/ installs on its own; the root is deliberately not a pnpm workspace.
+      - name: Install dependencies
+        working-directory: voltip
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: voltip
+        run: pnpm build
+
+      # A misconfigured locale emits only the root one, which still looks like a green build.
+      - name: Verify both languages were emitted
+        working-directory: voltip
+        run: |
+          set -euo pipefail
+          test -f dist/index.html || { echo "::error::the English home page is missing"; exit 1; }
+          test -f dist/zh/index.html || { echo "::error::the Chinese home page is missing"; exit 1; }
+          en=$(find dist -name '*.html' -not -path 'dist/zh/*' | wc -l)
+          zh=$(find dist/zh -name '*.html' | wc -l)
+          echo "emitted ${en} English and ${zh} Chinese pages"
+          test "${zh}" -ge 20 || { echo "::error::only ${zh} Chinese pages were emitted"; exit 1; }
+
+      # `wrangler pages deploy` needs an existing project. Created here with the same
+      # Pages-scoped token the deploy uses; the log prints the *.pages.dev subdomain, which is
+      # what the DNS record points at (voltip/README.md).
+      - name: Ensure the Pages project exists
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          api="https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/pages/projects"
+          code=$(curl -sS -o /tmp/project.json -w '%{http_code}' "${api}/${PROJECT}" \
+            -H "Authorization: Bearer ${CF_TOKEN}")
+          if [ "${code}" != "200" ]; then
+            echo "creating project ${PROJECT} (GET answered ${code})"
+            curl -sS -X POST "${api}" \
+              -H "Authorization: Bearer ${CF_TOKEN}" \
+              -H "Content-Type: application/json" \
+              --data "{\"name\":\"${PROJECT}\",\"production_branch\":\"main\"}" > /tmp/project.json
+          fi
+          python3 - <<'PY'
+          import json
+          d = json.load(open('/tmp/project.json'))
+          if not d.get('success'):
+              print('::error::Pages project unavailable:', json.dumps(d.get('errors'))[:300])
+              raise SystemExit(1)
+          print('project', d['result']['name'], 'subdomain', d['result'].get('subdomain'))
+          PY
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy voltip/dist --project-name=voltip-docs --branch=main
+
+      # After the deploy, so the domain's state never holds back a deploy. Attaching does not
+      # create the DNS record; until the record points at the project the domain stays
+      # pending, which is expected and does not fail the job. A domain that is attached but not
+      # active is sent back for validation (PATCH = "retry validation"); Cloudflare may decline
+      # that while the domain is still initializing, which is a warning. A failed lookup or
+      # attach is an error.
+      - name: Ensure the custom domain is attached
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          base="https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT}/pages/projects/${PROJECT}/domains"
+          report() { # file, what to do when the call failed (error | warning)
+            python3 - "$1" "$2" <<'PY'
+          import json, sys
+          d = json.load(open(sys.argv[1]))
+          if not d.get('success'):
+              print(f'::{sys.argv[2]}::custom domain request failed:', json.dumps(d.get('errors'))[:300])
+              raise SystemExit(1 if sys.argv[2] == 'error' else 0)
+          r = d['result']
+          print('domain', r.get('name'), 'status', r.get('status'),
+                'validation', (r.get('validation_data') or {}).get('status'),
+                'verification', (r.get('verification_data') or {}).get('status'))
+          PY
+          }
+          code=$(curl -sS -o /tmp/domain.json -w '%{http_code}' "${base}/${DOMAIN}" \
+            -H "Authorization: Bearer ${CF_TOKEN}")
+          if [ "${code}" != "200" ]; then
+            echo "attaching ${DOMAIN} (GET answered ${code})"
+            curl -sS -X POST "${base}" \
+              -H "Authorization: Bearer ${CF_TOKEN}" \
+              -H "Content-Type: application/json" \
+              --data "{\"name\":\"${DOMAIN}\"}" > /tmp/domain.json
+            report /tmp/domain.json error
+            exit 0
+          fi
+          report /tmp/domain.json error
+          status=$(python3 -c "import json; print(json.load(open('/tmp/domain.json'))['result'].get('status'))")
+          if [ "${status}" != "active" ]; then
+            echo "not active yet: asking Cloudflare to validate ${DOMAIN} again"
+            curl -sS -X PATCH "${base}/${DOMAIN}" -H "Authorization: Bearer ${CF_TOKEN}" > /tmp/retry.json
+            report /tmp/retry.json warning
+          fi

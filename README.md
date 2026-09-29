@@ -33,6 +33,13 @@ also be triggered manually from the Actions tab.
 Pull requests run [`.github/workflows/ci.yml`](.github/workflows/ci.yml), which
 installs, type-checks, and builds without deploying.
 
+Two product documentation sites live here too, each a VitePress project that
+installs on its own and deploys to Cloudflare Pages: `docs/` is
+[zuno.firlab.app](https://zuno.firlab.app) (`deploy-docs.yml`) and `voltip/` is
+[voltip.firlab.app](https://voltip.firlab.app) (`deploy-voltip.yml`). Their pages
+are pushed in from the product repositories; `docs/README.md` and
+`voltip/README.md` describe the sync and the one-time setup.
+
 ## Custom domain
 
 DNS for `firlab.app` is managed at Cloudflare; hosting is GitHub Pages.

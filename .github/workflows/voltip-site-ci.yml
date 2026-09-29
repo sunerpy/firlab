@@ -1,0 +1,57 @@
+name: Voltip site CI
+
+# Builds the Voltip sub-site on pull requests that touch it, without deploying. The content
+# checks (both languages, registered components, word lists) run in voltip before a sync
+# lands here; this catches changes to the site itself: config, theme, components, lockfile.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'voltip/**'
+      - '.github/workflows/voltip-site-ci.yml'
+      - '.github/workflows/deploy-voltip.yml'
+
+concurrency:
+  group: voltip-site-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build the Voltip site
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          package_json_file: voltip/package.json
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+          cache-dependency-path: voltip/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: voltip
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: voltip
+        run: pnpm build
+
+      - name: Verify both languages were emitted
+        working-directory: voltip
+        run: |
+          set -euo pipefail
+          test -f dist/index.html || { echo "::error::the English home page is missing"; exit 1; }
+          test -f dist/zh/index.html || { echo "::error::the Chinese home page is missing"; exit 1; }
+          zh=$(find dist/zh -name '*.html' | wc -l)
+          echo "emitted ${zh} Chinese pages"
+          test "${zh}" -ge 20 || { echo "::error::only ${zh} Chinese pages were emitted"; exit 1; }

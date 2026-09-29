@@ -31,3 +31,7 @@ pnpm-debug.log*
 # separately from the root — see docs/pnpm-workspace.yaml.
 docs/dist/
 docs/.vitepress-cache/
+
+# The Voltip sub-site, which installs on its own the same way (voltip/README.md).
+voltip/dist/
+voltip/.vitepress-cache/
