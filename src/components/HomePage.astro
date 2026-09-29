@@ -26,8 +26,8 @@ const content = getContent(lang);
 //
 // `offers` is free-of-charge and rides on the same `product.version` gate as
 // `softwareVersion`, because that flag is the site's one signal for "has a public
-// release". Voxera has none, so it carries no version, no `url` and no price: it
-// is not offered yet, and `price: 0` would assert that it is. There is no
+// release". A product without one would carry no version, no `url` and no price:
+// it is not offered yet, and `price: 0` would assert that it is. There is no
 // `aggregateRating` and no `review` on any of them — see `i18n/schema.ts` for why
 // that is permanent and not an oversight.
 //

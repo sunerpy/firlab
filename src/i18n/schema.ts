@@ -19,7 +19,7 @@ import { defaultLang, type Lang } from './ui';
  * a typo should be a compile error, not a silently orphaned IRI that no other
  * node ever resolves to.
  */
-export type EntityFragment = 'website' | 'sunerpy' | 'codegraph' | 'pt-tools' | 'agentlens';
+export type EntityFragment = 'website' | 'sunerpy' | 'codegraph' | 'pt-tools' | 'agentlens' | 'voltip';
 
 /**
  * Per-locale entity IRI: `https://firlab.app/#codegraph` for Chinese,
@@ -76,9 +76,10 @@ export const PERSON_ID = entityId(defaultLang, 'sunerpy');
  *
  * DO NOT "complete" this node by adding one.
  *
- * Applied only where a release exists. Voxera has none, so it is offered at no
+ * Applied only where a release exists. An unreleased product is offered at no
  * price — it is not offered at all — and asserting `price: 0` for it would be
- * the same category of invention.
+ * the same category of invention. (All four products have releases today; the
+ * unreleased Voxera, which this rule was written for, became Voltip.)
  */
 export const FREE_OFFER = {
   '@type': 'Offer',

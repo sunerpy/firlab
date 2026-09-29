@@ -1,12 +1,12 @@
 ---
-import type { Row } from '../i18n/voxera';
+import type { Spec as Row } from '../i18n/content';
 
 /**
  * DefRows — a hairline-divided definition list with a wide term column.
  *
  * Deliberately not `SpecGrid`: that one fixes the term column at 9rem, which is
  * right for one-word spec labels and wrong for the sentence-shaped terms a
- * write-up uses ("Wayland: toggle only", "The application · AGPL-3.0-only").
+ * write-up uses (a platform name with its caveat, a licence line).
  * Here the term takes a third of the grid and the value keeps a readable
  * measure — roughly 42 hanzi per line at the widest breakpoint, which is the
  * band CJK copy needs.
