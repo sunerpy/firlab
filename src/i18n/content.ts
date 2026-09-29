@@ -17,8 +17,11 @@
  *     never flatten that to "38 languages".
  *   - CodeGraph contains no model of any kind. It is not semantic search.
  *   - CodeGraph is not on crates.io.
- *   - Voxera has no public repository, no release and no version. It therefore
- *     carries no external link and no version number anywhere on the site.
+ *   - Voltip's Android app is built and tested but not released. It is never
+ *     listed as available; the entry says "in development".
+ *   - Voltip's on-device path keeps audio on the computer; the cloud and AI
+ *     polish paths send audio or text to the service the user chose. Never
+ *     flatten that to "nothing leaves your machine".
  *
  * ORDER IS MEANING. The array order is the index order, and it is sorted by
  * maturity, not by age — pt-tools leads because it is the most released thing
@@ -35,11 +38,13 @@ import {
   codegraphVersion,
   pttoolsReleased,
   pttoolsVersion,
+  VOLTIP_RELEASED,
+  VOLTIP_VERSION,
 } from './versions';
 
 export type Status = 'live' | 'early' | 'wip';
 export type Weight = 'lead' | 'major' | 'standard' | 'pending';
-export type ProductId = 'pttools' | 'codegraph' | 'agentlens' | 'voxera';
+export type ProductId = 'pttools' | 'codegraph' | 'agentlens' | 'voltip';
 
 export interface Spec {
   term: string;
@@ -95,18 +100,20 @@ export interface PageContent {
 const PTTOOLS_REPO = 'https://github.com/sunerpy/pt-tools';
 const CODEGRAPH_REPO = 'https://github.com/sunerpy/codegraph-rust';
 const AGENTLENS_REPO = 'https://github.com/sunerpy/AgentLens';
+const VOLTIP_REPO = 'https://github.com/sunerpy/voltip';
+const VOLTIP_SITE = 'https://voltip.firlab.app';
 
 const zh: PageContent = {
   title: 'FirLab — 本地优先的开发者工具',
   description:
-    'PT 站点订阅与统计的自动化工具、确定性的代码知识图谱、编码 Agent 的用量归档，以及面向编辑器与终端的语音输入。四个自部署的工具，作者 sunerpy。',
+    'PT 站点订阅与统计的自动化工具、确定性的代码知识图谱、编码 Agent 的用量归档，以及按住说话、文字直接出现在光标处的语音输入。四个自部署的工具，作者 sunerpy。',
   ogAlt: 'FirLab — sunerpy 构建的开发者工具',
 
   // No trailing 。 — a full-width period at display size opens a visible hole
   // at the end of the line, and Chinese display headings conventionally omit it.
   heroHeadline: '四个工具，数据都留在你自己的机器上',
   heroLede:
-    '目前四个：PT 站点的订阅与统计自动化、确定性的代码知识图谱、编码 Agent 的用量归档，以及面向编辑器与终端的语音输入。全部自部署，索引、归档和凭据都落在你运行它的那台机器上。',
+    '目前四个：PT 站点的订阅与统计自动化、确定性的代码知识图谱、编码 Agent 的用量归档，以及按住说话、文字出现在光标处的语音输入。全部自部署，索引、归档和凭据都落在你运行它的那台机器上。',
   heroLedeAccent: 'FirLab 是 sunerpy 的工具集合。',
 
   products: [
@@ -275,32 +282,45 @@ const zh: PageContent = {
       ],
     },
     {
-      id: 'voxera',
+      id: 'voltip',
       index: '04',
-      name: 'Voxera',
-      role: '面向桌面与编码 Agent 的语音输入',
-      status: 'wip',
-      weight: 'pending',
-      detail: 'voxera/',
-      body: '冲着开发者真正在打字的地方做的听写 —— 编辑器、终端、写给编码 Agent 的提示。按下全局热键采集语音，交给本地引擎或你自己配置的云端引擎转写，然后送进当前获得焦点的输入框，或者送给只监听 127.0.0.1 的 Agent 桥。它不是语音助手，不是会议记录工具，也不是输入法：它只做一件事，落到已经有你光标的那个地方。',
+      name: 'Voltip',
+      role: '按住说话的语音输入 · 桌面应用',
+      status: 'early',
+      weight: 'standard',
+      version: VOLTIP_VERSION,
+      released: VOLTIP_RELEASED,
+      detail: 'voltip/',
+      body: '按住快捷键说话，松开后文字出现在当前应用的光标处。识别可以用本机的模型完成，音频不离开电脑；也可以交给内置服务或你选择的云端服务。插入之前，文字还可以经过 AI 润色、个人词典和替换规则。Windows、macOS 与 Linux 各有安装包；把 Android 手机当作麦克风和键盘的应用正在开发，尚未发布。',
       specs: [
-        { term: '采集', value: '一个全局热键，在桌面会话的任何位置都能用。' },
+        {
+          term: '触发',
+          value: '按住 Ctrl+Alt+Space 说话，或按一次开始、再按一次结束；也可以只用一个按键或鼠标侧键。',
+        },
         {
           term: '识别',
-          value: '离线本地引擎，或者你自己配置的云端引擎。离线是一等路径，不是降级方案。',
-        },
-        {
-          term: '投递',
           value:
-            '文本落到当前获得焦点的输入框，或者交给一个只监听 127.0.0.1 的 Agent 桥。',
+            '本地模型 Qwen3-ASR（0.6B 与 1.7B）、SenseVoice 与 Paraformer；Qwen3-ASR 在 Windows 和 Linux 上通过 Vulkan、在 macOS 上通过 Metal 使用显卡。云端可用 OpenAI、Groq、硅基流动或任意 OpenAI 兼容接口。',
         },
         {
-          term: '可控性',
-          value: '自定义替换规则与热词。本地历史默认关闭，除非你主动打开。',
+          term: '整理',
+          value: 'AI 润色修正标点、错字和口头禅；词典纠正人名与术语，替换规则改写固定短语，场景按当前应用切换这些设置。',
+        },
+        {
+          term: '插入',
+          value: '粘贴到光标处，或只复制到剪贴板；可以整段插入、逐句插入，也可以边说边输入。',
+        },
+        {
+          term: '平台',
+          value: 'Windows 10/11、macOS 11 及以上（Apple 芯片与 Intel）、Linux x64（X11 与 Wayland）。Apache-2.0 许可。',
         },
         { term: '技术栈', value: 'Rust · Tauri 2 · React 19。' },
       ],
-      note: '还没有公开仓库，也还没有发布版本。目前没有可下载的东西；这一条放在这里，只是为了把工作的形状记录在案。',
+      links: [
+        { label: '网站', href: `${VOLTIP_SITE}/zh/` },
+        { label: '仓库', href: VOLTIP_REPO },
+        { label: '发布页', href: `${VOLTIP_REPO}/releases` },
+      ],
     },
   ],
 
@@ -326,12 +346,12 @@ const zh: PageContent = {
 const en: PageContent = {
   title: 'FirLab — local-first developer tools',
   description:
-    'Private-tracker automation, deterministic code knowledge graph, usage archives for coding agents, and voice input for editors and terminals. Self-hosted.',
+    'Private-tracker automation, deterministic code knowledge graph, usage archives for coding agents, and push-to-talk dictation that types at your cursor. Self-hosted.',
   ogAlt: 'FirLab — developer tools by sunerpy',
 
   heroHeadline: 'Four tools that keep your data on your own machine.',
   heroLede:
-    'Four so far: feed, search and statistics automation for private trackers, a deterministic code knowledge graph, a usage archive for coding agents, and voice input aimed at editors and terminals. All self-hosted — the index, the archive and the credentials stay on the host you run them on.',
+    'Four so far: feed, search and statistics automation for private trackers, a deterministic code knowledge graph, a usage archive for coding agents, and push-to-talk dictation that types at your cursor. All self-hosted — the index, the archive and the credentials stay on the host you run them on.',
   heroLedeAccent: 'FirLab is where sunerpy builds developer tools.',
 
   products: [
@@ -499,34 +519,49 @@ const en: PageContent = {
       ],
     },
     {
-      id: 'voxera',
+      id: 'voltip',
       index: '04',
-      name: 'Voxera',
-      role: 'Voice input for desktop and coding agents',
-      status: 'wip',
-      weight: 'pending',
-      detail: 'voxera/',
-      body: 'Dictation aimed at the places developers actually type — an editor, a terminal, a prompt to a coding agent. Speech is captured on a global hotkey, transcribed locally or by an engine you configured yourself, and handed to the focused input or to a bridge bound to 127.0.0.1. It is not a voice assistant, not a meeting recorder, and not an input method: it does one thing, into whatever already has your cursor.',
+      name: 'Voltip',
+      role: 'Push-to-talk dictation · desktop',
+      status: 'early',
+      weight: 'standard',
+      version: VOLTIP_VERSION,
+      released: VOLTIP_RELEASED,
+      detail: 'voltip/',
+      body: 'Hold a shortcut, speak, and let go: the text appears at the cursor in whatever app you are in. Recognition runs on a model on your computer, so no audio leaves it, or on the built-in service or a cloud provider you choose. Before it is inserted, the text can pass through AI polish, a personal dictionary and replacement rules. There are packages for Windows, macOS and Linux; an Android app that makes a phone the microphone and keyboard is in development and not released.',
       specs: [
-        { term: 'Capture', value: 'A global hotkey, anywhere in the desktop session.' },
+        {
+          term: 'Trigger',
+          value:
+            'Hold Ctrl+Alt+Space to talk, or press once to start and again to stop; a single key or a mouse side button works too.',
+        },
         {
           term: 'Recognition',
           value:
-            'An offline local engine, or a cloud engine you configure yourself. Offline is a first-class path, not a fallback.',
+            'On-device Qwen3-ASR (0.6B and 1.7B), SenseVoice and Paraformer; Qwen3-ASR uses the graphics card through Vulkan on Windows and Linux and Metal on macOS. In the cloud: OpenAI, Groq, SiliconFlow or any OpenAI-compatible endpoint.',
         },
         {
-          term: 'Delivery',
+          term: 'Clean-up',
           value:
-            'Text lands in whatever input has focus, or goes to an agent bridge that listens only on 127.0.0.1.',
+            'AI polish fixes punctuation, typos and filler words; the dictionary corrects names and terms, replacement rules rewrite fixed phrases, and scenes switch all of it by app.',
         },
         {
-          term: 'Control',
+          term: 'Insertion',
           value:
-            'Custom replacement rules and hotwords. Local history is off unless you turn it on.',
+            'Pasted at the cursor or only copied to the clipboard; all at once, sentence by sentence, or as you speak.',
+        },
+        {
+          term: 'Platforms',
+          value:
+            'Windows 10/11, macOS 11 or later (Apple silicon and Intel), Linux x64 (X11 and Wayland). Apache-2.0.',
         },
         { term: 'Stack', value: 'Rust · Tauri 2 · React 19.' },
       ],
-      note: 'No public repository and no release yet. There is nothing to download; this entry is here so the shape of the work is on the record.',
+      links: [
+        { label: 'Website', href: VOLTIP_SITE },
+        { label: 'Repository', href: VOLTIP_REPO },
+        { label: 'Releases', href: `${VOLTIP_REPO}/releases` },
+      ],
     },
   ],
 

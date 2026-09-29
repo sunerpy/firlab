@@ -22,9 +22,8 @@ import type { Product, ProductId } from '../i18n/content';
  * dead-ending. When it wraps, the label says so — an unannounced jump backwards
  * would read as a bug.
  *
- * Voxera has nothing to download, and this component asks for nothing: it is a
- * destination link, not a call to action, so it works identically on a page with
- * no links of its own.
+ * It is a destination link, not a call to action: it asks for nothing, so it
+ * works the same on every page whatever that page offers.
  */
 interface Props {
   lang: Lang;

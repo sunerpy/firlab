@@ -13,9 +13,8 @@
  * would make deploys network-dependent or force the same silent stale fallback
  * this module exists to prevent. The network belongs in the check, not the build.
  *
- * Voxera is intentionally absent: it has no version anywhere on the site, its
- * repository is private with no releases, and this repository's `GITHUB_TOKEN`
- * cannot read it. Adding it would turn an honest omission into a broken CI check.
+ * Voltip replaced the unreleased Voxera as product 04 on 2026-09-29; its
+ * repository is public, so `GITHUB_TOKEN` reads its releases like the others.
  */
 
 export const pttoolsVersion = 'v0.47.3';
@@ -26,3 +25,6 @@ export const codegraphReleased = '2026-09-02';
 
 export const AGENTLENS_VERSION = 'v0.0.7';
 export const AGENTLENS_RELEASED = '2026-08-13';
+
+export const VOLTIP_VERSION = 'v0.0.7';
+export const VOLTIP_RELEASED = '2026-09-29';

@@ -14,7 +14,8 @@ added to Chinese cannot silently go missing from English.
 ## 0. Research Log
 
 - **Source of truth for palette** — the shipped product marks, read directly:
-  `Voxera/apps/desktop/icons/source/voxera-app.svg` and
+  `Voxera/apps/desktop/icons/source/voxera-app.svg` (Voxera became Voltip,
+  whose `packages/ui/src/components/Logo.tsx` keeps three of these values) and
   `AgentLens/src-tauri/icons/source/icon.svg`. Both use the same five values:
   `#0B1220` ink, `#E7EDF5` pale slate, `#F97316` orange, `#14B8A6` teal,
   `#64748B` slate. The site palette is derived from these rather than invented, so
@@ -604,7 +605,7 @@ to fall out of step.
 | pt-tools | `sunerpy/pt-tools` | `v0.46.0` | `2026-08-10` |
 | CodeGraph | `sunerpy/codegraph-rust` | `v0.42.10` | `2026-08-07` |
 | AgentLens | `sunerpy/AgentLens` | `v0.0.7` | `2026-08-13` |
-| Voxera | — | **none, by design** | — |
+| Voltip | `sunerpy/voltip` | `v0.0.7` | `2026-09-29` |
 
 **The source of truth is the GitHub release tag, never a product manifest.** The
 products' own manifests trail their tags: measured, AgentLens's `Cargo.toml` read
@@ -646,10 +647,9 @@ persists and closing it on exit `0`. It never auto-commits the fix, because a
 commit to `main` triggers the public deploy — a bot must not publish a version
 claim no human reviewed.
 
-**Voxera is deliberately excluded from the check.** Its repository is private with
-zero releases, the site publishes no version for it at all (§8), and this
-repository's `GITHUB_TOKEN` cannot read it. Adding it would convert an honest
-omission into a permanently red CI job.
+**Every product is in the check.** Voxera, which was private with zero releases and
+therefore excluded, became Voltip on 2026-09-29; Voltip's repository is public, so
+`GITHUB_TOKEN` reads its releases like the others'.
 
 One rendering rule follows from the same constant: **the `standard` variant does
 not render a release date; only `lead` and `major` do.** The data exists for all
@@ -672,7 +672,8 @@ was usable today.
 | pt-tools | `lead` | **Full width, no rail.** A `.u-plate-lead` masthead carries mark, title, role and the release facts on one ground; specs run two-up (`grid`) across the full measure; install block and outward links close it. The most-released tool is the only entry with a masthead. |
 | CodeGraph | `major` | **A 4/7 split.** Identity rail (mark, title, status, version, links) against a reading column (prose, ruled specs, install). Recognisably a documented product, deliberately not a masthead. |
 | AgentLens | `standard` | **One header line** — mark, title, role, status inline — then prose and unruled specs (`plain`) two-up beneath. No meta column at all: an early-release tool has three facts, and a column drawn for eight makes the three look like omissions. |
-| Voxera | `pending` | **A `.u-plate-draft` enclosure** — dashed on all four sides, no ground, no shadow, muted body, no install block, no version, no external link. It reads as a record of intent, which is what it is. |
+| Voltip | `standard` | The AgentLens shape: an early release. Its links lead with its own documentation site, voltip.firlab.app, which carries the full guide; the detail page summarises and hands over to it. |
+| (none) | `pending` | **A `.u-plate-draft` enclosure** — dashed on all four sides, no ground, no shadow, muted body, no install block, no version, no external link. It reads as a record of intent. Voxera had this shape until it became Voltip on 2026-09-29; the shape stays for the next unreleased product, and `/voxera/` redirects to `/voltip/`. |
 
 The mark sits **outside** the link, as a sibling, and is lit by
 `.u-entry:has(.u-entry-name:hover)` — so the mark reads as belonging to the

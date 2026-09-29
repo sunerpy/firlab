@@ -27,10 +27,13 @@ const products = [
     versionConstant: 'AGENTLENS_VERSION',
     releasedConstant: 'AGENTLENS_RELEASED',
   },
+  {
+    name: 'Voltip',
+    repository: 'sunerpy/voltip',
+    versionConstant: 'VOLTIP_VERSION',
+    releasedConstant: 'VOLTIP_RELEASED',
+  },
 ];
-
-// Voxera is deliberately excluded: the site publishes no version for it, and
-// this repository's GITHUB_TOKEN cannot read its private, release-less repo.
 
 class CheckFailedError extends Error {}
 

@@ -4,15 +4,15 @@
  * inherit theme colour via currentColor while keeping the brand orange on the
  * facets, and so the page still makes zero extra network requests.
  *
- * The AgentLens hexagon and the Voxera chevron are lifted from the shipped
- * application icons (icons/source/*.svg in each repo) so the marks here match
- * the marks on the user's dock. pt-tools is lifted from brand/pt-tools/logo.svg
+ * The AgentLens hexagon and the Voltip split V are lifted from the shipped
+ * application icons (AgentLens icons/source/*.svg, Voltip's Logo component) so
+ * the marks here match the marks on the user's dock. pt-tools is lifted from brand/pt-tools/logo.svg
  * for the same reason — regenerate that first, then port the geometry here.
  * CodeGraph has no icon yet, so its three-node graph is drawn to the same
  * geometric language.
  */
 interface Props {
-  product: 'pttools' | 'codegraph' | 'agentlens' | 'voxera';
+  product: 'pttools' | 'codegraph' | 'agentlens' | 'voltip';
   /** Rendered size in px. */
   size?: number;
   class?: string;
@@ -24,7 +24,7 @@ const label = {
   pttools: 'pt-tools mark',
   codegraph: 'CodeGraph mark',
   agentlens: 'AgentLens mark',
-  voxera: 'Voxera mark',
+  voltip: 'Voltip mark',
 }[product];
 ---
 
@@ -92,11 +92,14 @@ const label = {
     )
   }
   {
-    product === 'voxera' && (
+    product === 'voltip' && (
       <>
-        {/* Split V — from apps/desktop/icons/source/voxera-app.svg, plate removed. */}
-        <path d="M6 8 L22.1 43 L24 43 L24 22 L17 8 Z" fill="currentColor" opacity="0.5" />
-        <path d="M42 8 L25.9 43 L24 43 L24 22 L31 8 Z" fill="var(--color-mark)" />
+        {/* Split V — from voltip packages/ui/src/components/Logo.tsx (100-unit
+            viewBox), plate removed, scaled by 0.614 about the centre line. The
+            pale left arm becomes currentColor at half strength so it follows the
+            theme; the orange right arm keeps the brand mark. */}
+        <path d="M7.1 8 L17.55 8 L24 22.7 L24 43 Z" fill="currentColor" opacity="0.5" />
+        <path d="M30.45 8 L40.9 8 L24 43 L24 22.7 Z" fill="var(--color-mark)" />
       </>
     )
   }
