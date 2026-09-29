@@ -18,8 +18,8 @@
  * cannot read it. Adding it would turn an honest omission into a broken CI check.
  */
 
-export const pttoolsVersion = 'v0.46.0';
-export const pttoolsReleased = '2026-08-10';
+export const pttoolsVersion = 'v0.47.3';
+export const pttoolsReleased = '2026-09-15';
 
 export const codegraphVersion = 'v0.50.3';
 export const codegraphReleased = '2026-09-02';
