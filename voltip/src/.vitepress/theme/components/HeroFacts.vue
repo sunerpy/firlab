@@ -20,7 +20,7 @@ const facts = computed(() => (frontmatter.value.home as Home | undefined)?.facts
 <style scoped>
 .vt-facts {
   display: grid;
-  gap: 10px;
+  gap: 12px;
   margin: 24px 0 0;
   padding: 16px 0 0;
   border-top: 1px solid var(--vt-rule);
@@ -60,7 +60,7 @@ const facts = computed(() => (frontmatter.value.home as Home | undefined)?.facts
 @media (max-width: 479px) {
   .vt-fact {
     grid-template-columns: minmax(0, 1fr);
-    gap: 2px;
+    gap: 4px;
   }
 }
 </style>

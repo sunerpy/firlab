@@ -1289,3 +1289,19 @@ accessibility 100 and SEO 100 on the English home page (mobile) and a Chinese re
 (desktop, dark); best practices scored 78 only for HTTPS, which the local preview does not
 serve. Chinese search finds 快捷键, 本地识别 and 词典 on their pages, and all 503 in-site
 anchors resolve.
+
+**Hallmark slop test, 2026-09-29 (home page, both languages).** Pre-emit critique P4 H4 E4 S4
+R4 V4, stamped at the top of `theme/styles/home.css`. Eight gates failed on the first build and
+were fixed: 18 (the overlay cross-fade now pauses while the pointer rests on it), 20 (the stamp
+itself), 24 (31 spacing values off the 4 px scale moved onto it), 35 (link underlines sit 2 px
+below the text, not 0.22 em), 44 (the hero had less padding below than above; now 64 px above
+the content and 88 px below from 640 px up), 48 (the pill's drop shadow was a literal colour;
+now `--vt-pill-drop`), 51 (headings wrap long words) and 25, which already held — VitePress's
+688 px column is under 72 ch of Instrument Sans — and now has an explicit 72 ch cap for Latin
+prose. Two gates pass only by justification: 42, the nav is VitePress's own docs bar because the
+brief asked for a site modelled on zuno.firlab.app, and 7, pure white is used only for raised
+surfaces (menus, the search box), never as the page ground. Every other gate passes: no
+gradient, no card grid with icons, no nested cards, no side stripes, no centred hero, no
+redrawn chrome, no invented number, at most two families (Instrument Sans for display and body,
+JetBrains Mono for labels and code), no italic heading, contrast at least 4.5:1, and no
+horizontal scroll or wrapped button from 320 to 1440 px.
