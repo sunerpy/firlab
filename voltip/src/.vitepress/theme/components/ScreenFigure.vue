@@ -65,7 +65,7 @@ defineProps<{
 }
 
 .vt-figure figcaption {
-  margin-top: 10px;
+  margin-top: 12px;
   color: var(--vt-ink-500);
   font-size: 14px;
   line-height: 1.6;

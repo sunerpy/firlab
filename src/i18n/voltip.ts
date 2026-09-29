@@ -191,7 +191,7 @@ const zh: VoltipContent = {
     heading: '各平台的差异',
     rows: [
       { term: 'Windows', value: '全局快捷键和单键都可用。显卡通过 Vulkan 调用。以管理员身份运行的窗口不接受普通应用的输入，Voltip 会改为把文字留在剪贴板中。' },
-      { term: 'macOS', value: '需要辅助功能权限，不需要「输入监控」。显卡通过 Metal 调用。从 0.0.7 起，更新后权限保持有效。' },
+      { term: 'macOS', value: '需要辅助功能权限，不需要「输入监控」。显卡通过 Metal 调用。从 0.0.7 起各版本使用同一张签名证书，以便更新后保留权限；第一次这样的更新尚未在真机上验证。' },
       { term: 'Linux', value: '支持 X11 和 Wayland。纯 Wayland 会话不允许全局快捷键，请为 voltip-desktop --toggle 绑定系统快捷键。' },
       { term: '手机', value: 'Android 应用已完成并通过测试，尚未发布。iOS 尚未开始。' },
     ],
@@ -348,7 +348,7 @@ const en: VoltipContent = {
     heading: 'How the platforms differ',
     rows: [
       { term: 'Windows', value: 'The global shortcut and single keys both work. The graphics card is used through Vulkan. Windows running as administrator do not accept input from ordinary apps, so Voltip leaves the text on the clipboard instead.' },
-      { term: 'macOS', value: 'Needs the Accessibility permission, not Input Monitoring. The graphics card is used through Metal. From 0.0.7, permissions stay granted across updates.' },
+      { term: 'macOS', value: 'Needs the Accessibility permission, not Input Monitoring. The graphics card is used through Metal. From 0.0.7 releases share one signing certificate so that updates keep the permissions; the first such update has not been checked on a real Mac yet.' },
       { term: 'Linux', value: 'X11 and Wayland. A pure Wayland session allows no global shortcuts; bind a system shortcut to voltip-desktop --toggle instead.' },
       { term: 'Phone', value: 'The Android app is built and tested but not released yet. iOS has not been started.' },
     ],

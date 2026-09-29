@@ -102,7 +102,7 @@ const visual = computed(() => (frontmatter.value.home as Home | undefined)?.visu
   opacity: 0;
   animation: vt-pill-cycle calc(var(--vt-pill-count) * 2.6s) infinite;
   animation-delay: calc(var(--vt-pill-index) * 2.6s);
-  filter: drop-shadow(0 10px 22px rgb(11 18 32 / 0.22));
+  filter: var(--vt-pill-drop);
 }
 
 .vt-pill-frame img {
@@ -127,6 +127,13 @@ const visual = computed(() => (frontmatter.value.home as Home | undefined)?.visu
   100% {
     opacity: 0;
   }
+}
+
+/* Moving content that runs past five seconds pauses while the pointer rests on it
+   (WCAG 2.2.2); with reduced motion it does not move at all. */
+.vt-hero-visual:hover .vt-pill-frame,
+.vt-hero-visual:focus-within .vt-pill-frame {
+  animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {

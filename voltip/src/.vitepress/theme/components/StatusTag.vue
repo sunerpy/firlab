@@ -27,7 +27,7 @@ const label = computed(() => (LABELS[lang.value] ?? LABELS['en-US'])[props.statu
   display: inline-flex;
   flex: none;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-family: var(--vt-font-mono);
   font-size: 12px;
   font-weight: 500;

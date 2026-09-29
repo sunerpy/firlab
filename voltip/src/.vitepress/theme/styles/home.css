@@ -1,3 +1,10 @@
+/* Hallmark · macrostructure: Split Studio (15) with a spec table (F3) and a step strip (F4)
+ * genre: technical editorial · theme: FirLab tokens (theme/styles/tokens.css) · nav: VitePress
+ * default (the brief: modelled on zuno.firlab.app) · footer: Ft2 single line
+ * pre-emit critique: P4 H4 E4 S4 R4 V4 · contrast: pass (40–41) · slop: pass (42–45; 42 by brief)
+ * honest: pass (46) · chrome: pass (47) · tokens: pass (48) · responsive: pass (49)
+ * mobile: pass (34, 49, 50–57) · test run 2026-09-29, results in DESIGN.md §10
+ */
 /*
  * The home page. Hero first (what it is, where it runs, where the data goes, how to
  * get it — all above the fold), then the index of everything it does, one take in
@@ -37,6 +44,19 @@
   font-weight: 450;
   color: var(--vt-ink-500);
   text-wrap: pretty;
+}
+
+/* Heavier padding below the hero than above it pulls the hero into the page. */
+html .VPHome .VPHero {
+  padding-top: calc(var(--vp-nav-height) + var(--vp-layout-top-height, 0px) + 40px);
+  padding-bottom: 64px;
+}
+
+@media (min-width: 640px) {
+  html .VPHome .VPHero {
+    padding-top: calc(var(--vp-nav-height) + var(--vp-layout-top-height, 0px) + 64px);
+    padding-bottom: 88px;
+  }
 }
 
 .VPHome .VPHero .image {
@@ -116,14 +136,14 @@
 }
 
 .VPHome .vp-doc .vt-band .vt-band-intro {
-  max-width: 720px;
+  max-width: min(720px, 72ch);
   margin: 0 0 28px;
   color: var(--vt-ink-500);
   font-size: 17px;
 }
 
 .VPHome .vp-doc .vt-band .vt-band-note {
-  margin: 14px 0 0;
+  margin: 16px 0 0;
   color: var(--vt-ink-400);
   font-size: 14px;
 }
@@ -165,7 +185,7 @@
 }
 
 .VPHome .vp-doc .vt-index-name {
-  padding-bottom: 10px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--vt-ink-900);
   font-size: 15px;
   font-weight: 650;
@@ -174,7 +194,7 @@
 }
 
 .vt-index-item {
-  padding: 13px 0 14px;
+  padding: 12px 0 16px;
   border-bottom: 1px solid var(--vt-rule);
 }
 
@@ -201,7 +221,7 @@
 }
 
 .VPHome .vp-doc .vt-index-body {
-  margin-top: 3px;
+  margin-top: 4px;
   color: var(--vt-ink-500);
   font-size: 14.5px;
   line-height: 1.6;
@@ -246,7 +266,7 @@
 
 .vt-step-number {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   color: var(--vt-ink-400);
   font-family: var(--vt-font-mono);
   font-size: 13px;
@@ -264,8 +284,8 @@
 .VPHome .vp-doc .vt-step-keys {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 10px;
+  gap: 4px;
+  margin-top: 8px;
 }
 
 .VPHome .vp-doc .vt-step-body {
@@ -299,7 +319,7 @@
 }
 
 .VPHome .vp-doc .vt-split-text p {
-  margin: 0 0 14px;
+  margin: 0 0 16px;
   color: var(--vt-ink-500);
   font-size: 16px;
 }
@@ -314,7 +334,7 @@
 
 .vt-plate {
   min-width: 0;
-  padding: 6px 20px;
+  padding: 8px 20px;
   border: 1px solid var(--vt-rule);
   border-radius: var(--vt-radius-plate);
   background: var(--vt-paper-1);
@@ -327,7 +347,7 @@
 
 .VPHome .vp-doc .vt-plate-caption {
   margin: 0;
-  padding: 10px 0 14px;
+  padding: 12px 0 16px;
   border-top: 1px solid var(--vt-rule);
   color: var(--vt-ink-400);
   font-size: 13px;
@@ -370,8 +390,8 @@
 }
 
 .VPHome .vp-doc .vt-table thead th {
-  padding-top: 14px;
-  padding-bottom: 10px;
+  padding-top: 16px;
+  padding-bottom: 12px;
   color: var(--vt-ink-400);
   font-family: var(--vt-font-mono);
   font-size: 12px;
@@ -403,7 +423,7 @@
 .vt-models-note {
   display: inline-block;
   margin-top: 4px;
-  padding: 0 6px;
+  padding: 0 8px;
   border-radius: var(--vt-radius-chip);
   background: var(--vt-fill);
   color: var(--vt-ink-700);
@@ -413,7 +433,7 @@
 }
 
 .vt-platform-name + .vt-status {
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 @media (max-width: 767px) {
@@ -441,7 +461,7 @@
 
   .VPHome .vp-doc .vt-table-stack th,
   .VPHome .vp-doc .vt-table-stack td {
-    padding: 3px 0;
+    padding: 4px 0;
   }
 
   .VPHome .vp-doc .vt-table-stack td::before {
@@ -468,12 +488,12 @@
   }
 
   .VPHome .vp-doc .vt-models tr {
-    padding: 10px 0;
+    padding: 12px 0;
   }
 
   .VPHome .vp-doc .vt-models th,
   .VPHome .vp-doc .vt-models td {
-    padding: 2px 0;
+    padding: 4px 0;
   }
 
   .VPHome .vp-doc .vt-models td::before {
@@ -487,12 +507,12 @@
 /* ---- Polish example ------------------------------------------------------------------ */
 
 .vt-polish {
-  padding-top: 18px;
+  padding-top: 20px;
   padding-bottom: 0;
 }
 
 .VPHome .vp-doc .vt-polish-label {
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   color: var(--vt-ink-400);
   font-family: var(--vt-font-mono);
   font-size: 12px;
@@ -521,7 +541,7 @@
 }
 
 .vt-polish .vt-plate-caption {
-  margin-top: 18px !important;
+  margin-top: 20px !important;
 }
 
 /* ---- Phone ---------------------------------------------------------------------- */
@@ -533,7 +553,7 @@
 .vt-phone-item {
   display: grid;
   gap: 4px;
-  padding: 14px 0;
+  padding: 16px 0;
 }
 
 .vt-phone-item + .vt-phone-item {
@@ -569,7 +589,7 @@
 .vt-privacy-mode {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   padding: 20px;
   border: 1px solid var(--vt-rule);
   border-radius: var(--vt-radius-plate);
@@ -626,7 +646,7 @@
 }
 
 .vt-roadmap-item {
-  padding: 14px 0;
+  padding: 16px 0;
   border-top: 1px solid var(--vt-rule);
 }
 
@@ -646,7 +666,7 @@
 
 .vt-roadmap-not {
   margin-top: 32px;
-  padding: 18px 20px;
+  padding: 20px;
   border: 1px dashed var(--vt-rule);
   border-radius: var(--vt-radius-plate);
 }
