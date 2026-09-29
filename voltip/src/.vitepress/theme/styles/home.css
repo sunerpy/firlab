@@ -1,0 +1,676 @@
+/*
+ * The home page. Hero first (what it is, where it runs, where the data goes, how to
+ * get it — all above the fold), then the index of everything it does, one take in
+ * four steps, three text-and-proof splits, platforms, privacy, install, roadmap.
+ * The page body renders inside VitePress's `.vp-doc`, so each band resets the doc
+ * styles it does not want.
+ */
+
+/* ---- Hero ---------------------------------------------------------------- */
+
+.VPHome .VPHero.has-image .container {
+  text-align: left;
+}
+
+.VPHome .VPHero.has-image .name,
+.VPHome .VPHero.has-image .text,
+.VPHome .VPHero.has-image .tagline {
+  margin: 0;
+}
+
+.VPHome .VPHero.has-image .actions {
+  justify-content: flex-start;
+}
+
+.VPHome .VPHero .name {
+  letter-spacing: -0.02em;
+}
+
+.VPHome .VPHero .text {
+  font-weight: 650;
+  letter-spacing: var(--vt-ls-display);
+  color: var(--vt-ink-700);
+  text-wrap: balance;
+}
+
+.VPHome .VPHero .tagline {
+  font-weight: 450;
+  color: var(--vt-ink-500);
+  text-wrap: pretty;
+}
+
+.VPHome .VPHero .image {
+  order: 3;
+  margin: 40px 0 0;
+}
+
+.VPHome .VPHero .image-container {
+  width: 100%;
+  height: auto;
+  transform: none;
+  display: block;
+}
+
+.VPHome .VPHero .image-bg {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .VPHome .VPHero .tagline {
+    font-size: 19px;
+    line-height: 31px;
+  }
+}
+
+@media (min-width: 960px) {
+  .VPHome .VPHero .text {
+    font-size: 44px;
+    line-height: 52px;
+  }
+
+  :root:lang(zh-CN) .VPHome .VPHero .text {
+    font-size: 42px;
+    line-height: 54px;
+  }
+
+  .VPHome .VPHero .tagline {
+    font-size: 19px;
+    line-height: 32px;
+  }
+
+  .VPHome .VPHero.has-image .main {
+    width: 46%;
+    max-width: 520px;
+    flex-shrink: 0;
+  }
+
+  .VPHome .VPHero .image {
+    order: 2;
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 8px 0 0 56px;
+  }
+}
+
+/* ---- Bands --------------------------------------------------------------- */
+
+.VPHome .vt-band {
+  margin-top: 88px;
+}
+
+.VPHome .vp-doc .vt-band-title,
+.VPHome .vp-doc > h2,
+.VPHome .vp-doc .vt-split-text h2 {
+  margin: 0 0 12px;
+  padding-top: 0;
+  border-top: 0;
+  font-size: 28px;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: var(--vt-ls-display);
+  color: var(--vt-ink-900);
+}
+
+.VPHome .vp-doc > h2 {
+  margin-top: 88px;
+}
+
+.VPHome .vp-doc .vt-band .vt-band-intro {
+  max-width: 720px;
+  margin: 0 0 28px;
+  color: var(--vt-ink-500);
+  font-size: 17px;
+}
+
+.VPHome .vp-doc .vt-band .vt-band-note {
+  margin: 14px 0 0;
+  color: var(--vt-ink-400);
+  font-size: 14px;
+}
+
+.VPHome .vp-doc ul.vt-index-list,
+.VPHome .vp-doc ol.vt-steps-list,
+.VPHome .vp-doc ol.vt-roadmap-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.VPHome .vp-doc ul.vt-index-list > li + li,
+.VPHome .vp-doc ol.vt-steps-list > li + li,
+.VPHome .vp-doc ol.vt-roadmap-list > li + li {
+  margin-top: 0;
+}
+
+.VPHome .vp-doc .vt-band p {
+  margin: 0;
+}
+
+.VPHome .vp-doc .vt-band h3 {
+  margin: 0;
+  letter-spacing: normal;
+}
+
+/* ---- Index ------------------------------------------------------------------ */
+
+.vt-index-grid {
+  display: grid;
+  gap: 40px 56px;
+}
+
+@media (min-width: 768px) {
+  .vt-index-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.VPHome .vp-doc .vt-index-name {
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--vt-ink-900);
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.4;
+  color: var(--vt-ink-900);
+}
+
+.vt-index-item {
+  padding: 13px 0 14px;
+  border-bottom: 1px solid var(--vt-rule);
+}
+
+.vt-index-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.VPHome .vp-doc .vt-index-title {
+  min-width: 0;
+  font-size: 15.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--vt-ink-900);
+  text-decoration: none;
+}
+
+.VPHome .vp-doc a.vt-index-title:hover {
+  color: var(--vt-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.VPHome .vp-doc .vt-index-body {
+  margin-top: 3px;
+  color: var(--vt-ink-500);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+:root:lang(zh-CN) .VPHome .vp-doc .vt-index-body {
+  line-height: 1.75;
+}
+
+/* ---- Steps ------------------------------------------------------------------- */
+
+.vt-steps-list {
+  display: grid;
+  gap: 28px;
+  counter-reset: none;
+}
+
+@media (min-width: 640px) {
+  .vt-steps-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .vt-steps-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .vt-step + .vt-step {
+    border-left: 1px solid var(--vt-rule);
+  }
+
+  .vt-step {
+    padding: 0 24px;
+  }
+
+  .vt-step:first-child {
+    padding-left: 0;
+  }
+}
+
+.vt-step-number {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--vt-ink-400);
+  font-family: var(--vt-font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.VPHome .vp-doc .vt-step-title {
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.4;
+  color: var(--vt-ink-900);
+}
+
+.VPHome .vp-doc .vt-step-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.VPHome .vp-doc .vt-step-body {
+  margin-top: 8px;
+  color: var(--vt-ink-500);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+
+/* ---- Text and proof ------------------------------------------------------------- */
+
+.vt-split {
+  display: grid;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .vt-split {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: 56px;
+  }
+
+  .vt-split-flip {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  }
+
+  .vt-split-flip .vt-split-text {
+    order: 2;
+  }
+}
+
+.VPHome .vp-doc .vt-split-text p {
+  margin: 0 0 14px;
+  color: var(--vt-ink-500);
+  font-size: 16px;
+}
+
+.VPHome .vp-doc .vt-split-text p:last-child {
+  margin-bottom: 0;
+}
+
+.VPHome .vp-doc .vt-split-text a {
+  font-weight: 550;
+}
+
+.vt-plate {
+  min-width: 0;
+  padding: 6px 20px;
+  border: 1px solid var(--vt-rule);
+  border-radius: var(--vt-radius-plate);
+  background: var(--vt-paper-1);
+  box-shadow: var(--vt-shadow-plate);
+}
+
+.dark .vt-plate {
+  background: var(--vt-paper-soft);
+}
+
+.VPHome .vp-doc .vt-plate-caption {
+  margin: 0;
+  padding: 10px 0 14px;
+  border-top: 1px solid var(--vt-rule);
+  color: var(--vt-ink-400);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ---- Tables --------------------------------------------------------------------- */
+
+.VPHome .vp-doc table.vt-table {
+  display: table;
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  font-size: 14.5px;
+}
+
+.VPHome .vp-doc .vt-table tr {
+  border: 0;
+  border-top: 1px solid var(--vt-rule);
+  background: transparent;
+}
+
+.VPHome .vp-doc .vt-table thead tr {
+  border-top: 0;
+}
+
+.VPHome .vp-doc .vt-table th,
+.VPHome .vp-doc .vt-table td {
+  padding: 12px 12px 12px 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.VPHome .vp-doc .vt-table th:last-child,
+.VPHome .vp-doc .vt-table td:last-child {
+  padding-right: 0;
+}
+
+.VPHome .vp-doc .vt-table thead th {
+  padding-top: 14px;
+  padding-bottom: 10px;
+  color: var(--vt-ink-400);
+  font-family: var(--vt-font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.VPHome .vp-doc .vt-table tbody th {
+  font-weight: 600;
+  color: var(--vt-ink-900);
+}
+
+.VPHome .vp-doc .vt-table td {
+  color: var(--vt-ink-500);
+}
+
+.vt-mono {
+  font-family: var(--vt-font-mono);
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+
+.vt-models-name,
+.vt-platform-name {
+  display: block;
+}
+
+.vt-models-note {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 0 6px;
+  border-radius: var(--vt-radius-chip);
+  background: var(--vt-fill);
+  color: var(--vt-ink-700);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.vt-platform-name + .vt-status {
+  margin-top: 2px;
+}
+
+@media (max-width: 767px) {
+  /* Rows become cards: each cell carries its column name. */
+  .VPHome .vp-doc .vt-table-stack thead {
+    display: none;
+  }
+
+  .VPHome .vp-doc .vt-table-stack,
+  .VPHome .vp-doc .vt-table-stack tbody,
+  .VPHome .vp-doc .vt-table-stack tr,
+  .VPHome .vp-doc .vt-table-stack th,
+  .VPHome .vp-doc .vt-table-stack td {
+    display: block;
+    width: 100%;
+  }
+
+  .VPHome .vp-doc .vt-table-stack tr {
+    padding: 12px 0;
+  }
+
+  .VPHome .vp-doc .vt-table-stack tbody tr:first-child {
+    border-top: 0;
+  }
+
+  .VPHome .vp-doc .vt-table-stack th,
+  .VPHome .vp-doc .vt-table-stack td {
+    padding: 3px 0;
+  }
+
+  .VPHome .vp-doc .vt-table-stack td::before {
+    content: attr(data-label);
+    display: block;
+    color: var(--vt-ink-400);
+    font-family: var(--vt-font-mono);
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 479px) {
+  .VPHome .vp-doc .vt-models table,
+  .VPHome .vp-doc .vt-models tbody,
+  .VPHome .vp-doc .vt-models tr,
+  .VPHome .vp-doc .vt-models th,
+  .VPHome .vp-doc .vt-models td {
+    display: block;
+    width: 100%;
+  }
+
+  .VPHome .vp-doc .vt-models thead {
+    display: none;
+  }
+
+  .VPHome .vp-doc .vt-models tr {
+    padding: 10px 0;
+  }
+
+  .VPHome .vp-doc .vt-models th,
+  .VPHome .vp-doc .vt-models td {
+    padding: 2px 0;
+  }
+
+  .VPHome .vp-doc .vt-models td::before {
+    content: attr(data-label) ' · ';
+    color: var(--vt-ink-400);
+    font-family: var(--vt-font-mono);
+    font-size: 12px;
+  }
+}
+
+/* ---- Polish example ------------------------------------------------------------------ */
+
+.vt-polish {
+  padding-top: 18px;
+  padding-bottom: 0;
+}
+
+.VPHome .vp-doc .vt-polish-label {
+  margin: 0 0 6px;
+  color: var(--vt-ink-400);
+  font-family: var(--vt-font-mono);
+  font-size: 12px;
+}
+
+.VPHome .vp-doc .vt-polish-text {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.7;
+}
+
+.VPHome .vp-doc .vt-polish-heard {
+  color: var(--vt-ink-500);
+}
+
+.VPHome .vp-doc .vt-polish-typed {
+  color: var(--vt-ink-900);
+  font-weight: 500;
+}
+
+.vt-polish-arrow {
+  margin: 8px 0;
+  color: var(--vt-mark);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.vt-polish .vt-plate-caption {
+  margin-top: 18px !important;
+}
+
+/* ---- Phone ---------------------------------------------------------------------- */
+
+.vt-phone-list {
+  margin: 0;
+}
+
+.vt-phone-item {
+  display: grid;
+  gap: 4px;
+  padding: 14px 0;
+}
+
+.vt-phone-item + .vt-phone-item {
+  border-top: 1px solid var(--vt-rule);
+}
+
+.vt-phone-item dt {
+  color: var(--vt-ink-900);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.vt-phone-item dd {
+  margin: 0;
+  color: var(--vt-ink-500);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+
+/* ---- Privacy -------------------------------------------------------------------- */
+
+.vt-privacy-grid {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 960px) {
+  .vt-privacy-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.vt-privacy-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border: 1px solid var(--vt-rule);
+  border-radius: var(--vt-radius-plate);
+  background: var(--vt-paper-1);
+}
+
+.dark .vt-privacy-mode {
+  background: var(--vt-paper-soft);
+}
+
+.VPHome .vp-doc .vt-privacy-name {
+  font-size: 16.5px;
+  font-weight: 650;
+  color: var(--vt-ink-900);
+}
+
+.VPHome .vp-doc .vt-privacy-sends {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: baseline;
+}
+
+.vt-privacy-label {
+  color: var(--vt-ink-400);
+  font-family: var(--vt-font-mono);
+  font-size: 12px;
+}
+
+.vt-privacy-value {
+  color: var(--vt-ink-900);
+  font-family: var(--vt-font-mono);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.VPHome .vp-doc .vt-privacy-detail {
+  color: var(--vt-ink-500);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+
+/* ---- Roadmap -------------------------------------------------------------------- */
+
+.vt-roadmap-list {
+  display: grid;
+  gap: 0 56px;
+}
+
+@media (min-width: 768px) {
+  .vt-roadmap-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.vt-roadmap-item {
+  padding: 14px 0;
+  border-top: 1px solid var(--vt-rule);
+}
+
+.VPHome .vp-doc .vt-roadmap-title {
+  font-size: 15.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--vt-ink-900);
+}
+
+.VPHome .vp-doc .vt-roadmap-body {
+  margin-top: 4px;
+  color: var(--vt-ink-500);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+
+.vt-roadmap-not {
+  margin-top: 32px;
+  padding: 18px 20px;
+  border: 1px dashed var(--vt-rule);
+  border-radius: var(--vt-radius-plate);
+}
+
+.VPHome .vp-doc .vt-roadmap-not-title {
+  margin-bottom: 8px;
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--vt-ink-700);
+}
+
+.VPHome .vp-doc .vt-roadmap-not ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--vt-ink-500);
+  font-size: 14.5px;
+}
+
+.VPHome .vp-doc .vt-roadmap-not li + li {
+  margin-top: 4px;
+}
+
+/* ---- Install (plain Markdown on the home page) --------------------------------------- */
+
+.VPHome .vp-doc > p {
+  color: var(--vt-ink-500);
+}

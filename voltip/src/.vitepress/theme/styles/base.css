@@ -1,0 +1,297 @@
+/*
+ * Site-wide rules on top of VitePress's default theme: per-script metrics, the
+ * FirLab radius steps (4 / 8 / 12) for everything but buttons, which are pills after
+ * OpenAI's developer docs (user request 2026-09-29), links, focus, tables, code and a
+ * few guards against horizontal scroll.
+ */
+
+html,
+body {
+  /* clip, not hidden: hidden would create a scroll container and break sticky nav. */
+  overflow-x: clip;
+}
+
+:focus-visible {
+  outline: 2px solid var(--vt-accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--vt-mark-soft);
+}
+
+/* ---- Type --------------------------------------------------------------- */
+
+.vp-doc p,
+.vp-doc li,
+.vp-doc dd {
+  line-height: var(--vt-lh-prose);
+  text-wrap: pretty;
+}
+
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3 {
+  letter-spacing: var(--vt-ls-display);
+  font-weight: 650;
+}
+
+.vp-doc h1 {
+  line-height: var(--vt-lh-display);
+}
+
+.vp-doc h2,
+.vp-doc h3 {
+  line-height: 1.3;
+}
+
+:root:lang(zh-CN) .vp-doc h2,
+:root:lang(zh-CN) .vp-doc h3 {
+  line-height: 1.4;
+}
+
+/* Inherited CJK tracking would misalign command columns. */
+code,
+kbd,
+samp,
+pre {
+  letter-spacing: normal;
+}
+
+.vp-doc kbd,
+.vt-kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0.05em 0.45em;
+  border: 1px solid var(--vt-rule);
+  border-bottom-width: 2px;
+  border-radius: var(--vt-radius-chip);
+  background: var(--vt-paper-elv);
+  color: var(--vt-ink-700);
+  font-family: var(--vt-font-mono);
+  font-size: 0.82em;
+  line-height: 1.5;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ---- Buttons and links ------------------------------------------------------
+   After OpenAI's developer docs: the primary button is solid ink (inverted in the
+   dark theme), the others a translucent ink fill, both pills; a link is body text in
+   a medium weight with a soft underline that darkens on hover.
+   VitePress styles these components with scoped selectors (a class plus a data-v
+   attribute), so each override leads with `html` to outrank them. */
+
+html .VPButton.VPButton {
+  border-radius: var(--vt-radius-pill);
+  font-weight: 500;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+html .VPButton.VPButton.medium {
+  padding: 0 20px;
+  font-size: 15px;
+  line-height: 40px;
+}
+
+html .VPButton.VPButton.big {
+  padding: 0 24px;
+  font-size: 15px;
+  line-height: 44px;
+}
+
+.vp-doc a {
+  color: var(--vt-ink-900);
+  font-weight: 500;
+  text-decoration-line: underline;
+  text-decoration-color: var(--vt-link-line);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition:
+    color 0.2s,
+    text-decoration-color 0.2s;
+}
+
+.vp-doc a:hover {
+  color: var(--vt-ink-900);
+  text-decoration-color: currentColor;
+}
+
+/* The nav's text links: the page you are in sits in a soft pill. */
+html .VPNavBarMenuLink.VPNavBarMenuLink {
+  align-self: center;
+  height: 32px;
+  margin: 0 1px;
+  line-height: 32px;
+  border-radius: var(--vt-radius-pill);
+  transition:
+    color 0.2s,
+    background-color 0.2s;
+}
+
+html .VPNavBarMenuLink.VPNavBarMenuLink:hover,
+html .VPNavBarMenuLink.VPNavBarMenuLink.active {
+  color: var(--vt-ink-900);
+  background: var(--vt-fill);
+}
+
+/* The sidebar: the current page sits in a soft fill. */
+.VPSidebarItem.level-1 > .item {
+  width: calc(100% + 20px);
+  margin-inline: -10px;
+  padding-inline: 10px;
+  border-radius: var(--vt-radius-control);
+  transition: background-color 0.2s;
+}
+
+.VPSidebarItem.level-1.is-link > .item:hover,
+.VPSidebarItem.level-1.is-active > .item {
+  background: var(--vt-fill);
+}
+
+.VPSidebarItem.level-1.is-link > .item > .link:hover .text,
+.VPSidebarItem.level-1.is-active > .item .link > .text {
+  color: var(--vt-ink-900);
+}
+
+/* ---- Radius: every other corner is 4, 8 or 12 px ----------------------------- */
+
+.DocSearch-Button,
+.VPNavBarSearch .DocSearch-Button {
+  border-radius: var(--vt-radius-control);
+}
+
+.VPBadge {
+  border-radius: var(--vt-radius-chip);
+}
+
+.vp-doc .custom-block {
+  border-radius: var(--vt-radius-control);
+}
+
+.vp-doc div[class*='language-'],
+.vp-code-group .tabs {
+  border-radius: var(--vt-radius-control);
+}
+
+.vp-code-group .tabs {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.vp-code-group div[class*='language-'] {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.VPMenu,
+.VPFlyout .menu {
+  border-radius: var(--vt-radius-control);
+}
+
+/* ---- Tables --------------------------------------------------------------- */
+
+.vp-doc table {
+  display: table;
+  width: 100%;
+  font-size: 0.92rem;
+}
+
+.vp-doc th {
+  background: var(--vp-c-bg-alt);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.vp-doc td code {
+  white-space: nowrap;
+}
+
+@media (max-width: 639px) {
+  /* A wide table scrolls inside itself rather than the page. */
+  .vp-doc table {
+    display: block;
+    overflow-x: auto;
+  }
+  .vp-doc td code {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* ---- Layout details ------------------------------------------------------- */
+
+.VPDoc:not(.has-aside) .content-container {
+  max-width: 920px;
+}
+
+.vp-doc img {
+  border-radius: var(--vt-radius-control);
+}
+
+/* Long commands and URLs wrap instead of widening the page on a phone. */
+.vp-doc p code,
+.vp-doc li code {
+  overflow-wrap: anywhere;
+}
+
+/* The nav's text links: one line each, never two. */
+.VPNavBarMenuLink,
+.VPNavBarMenuGroup .button {
+  white-space: nowrap;
+}
+
+/* From 768 px the menu joins the bar, but the English one only fits beside the full search
+   field from 960 px, and on pages with a sidebar (which takes the bar's left 272 px) from
+   1100 px (measured: 820 px of bar in 753 px at 768; 1008 in 945 at 960 with a sidebar).
+   In between, the search button shows its icon alone. */
+@media (min-width: 768px) and (max-width: 959px) {
+  .VPNavBar .DocSearch-Button .DocSearch-Button-Placeholder,
+  .VPNavBar .DocSearch-Button .DocSearch-Button-Keys {
+    display: none !important;
+  }
+
+  html .VPNavBar .VPNavBarSearch.VPNavBarSearch {
+    flex-grow: 0;
+    padding-left: 16px;
+  }
+
+  .VPNavBar .DocSearch-Button .DocSearch-Search-Icon {
+    margin-right: 0;
+  }
+}
+
+@media (min-width: 960px) and (max-width: 1099px) {
+  .VPNavBar.has-sidebar .DocSearch-Button .DocSearch-Button-Placeholder,
+  .VPNavBar.has-sidebar .DocSearch-Button .DocSearch-Button-Keys {
+    display: none !important;
+  }
+
+  html .VPNavBar.has-sidebar .VPNavBarSearch.VPNavBarSearch {
+    flex-grow: 0;
+    padding-left: 16px;
+  }
+
+  .VPNavBar.has-sidebar .DocSearch-Button .DocSearch-Search-Icon {
+    margin-right: 0;
+  }
+}
+
+/* ---- Screenshots in the site's theme ----------------------------------------
+   Each capture exists in both themes; only the one matching the site is shown.
+   Both images are loading="lazy", and a lazy image that is display:none is never
+   fetched, so switching costs one download, not two on every page view. */
+
+.vt-only-dark {
+  display: none !important;
+}
+
+.dark .vt-only-light {
+  display: none !important;
+}
+
+.dark .vt-only-dark {
+  display: block !important;
+}

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Voltip — hold a key, speak, and let go. Dictation for Windows, macOS and Linux.">
+  <title>Voltip — hold a key, speak, and let go.</title>
+  <!-- The source of og.png (1200 × 630, rendered in Chrome; voltip/README.md). The colours
+       are the site's light theme (theme/styles/tokens.css); the pill is a real capture. -->
+
+  <!-- Ground -->
+  <rect width="1200" height="630" fill="#F3F6FA"/>
+
+  <!-- Accent hairline, top edge: the brand orange marks, it never carries text -->
+  <rect x="0" y="0" width="1200" height="6" fill="#F97316"/>
+
+  <!-- The app mark and the name -->
+  <g transform="translate(88, 84)">
+    <rect width="60" height="60" rx="13.2" fill="#0B1220"/>
+    <polygon points="13.5,13.2 23.7,13.2 30,27.6 30,47.4" fill="#E7EDF5"/>
+    <polygon points="36.3,13.2 46.5,13.2 30,47.4 30,27.6" fill="#F97316"/>
+    <text x="80" y="43"
+      font-family="'Instrument Sans Variable', 'Instrument Sans', 'Segoe UI', system-ui, sans-serif"
+      font-size="40" font-weight="650" letter-spacing="-0.6" fill="#0B1220">Voltip</text>
+  </g>
+
+  <!-- Headline -->
+  <text
+    font-family="'Instrument Sans Variable', 'Instrument Sans', 'Segoe UI', system-ui, sans-serif"
+    font-size="82" font-weight="650" letter-spacing="-1.8" fill="#0B1220">
+    <tspan x="84" y="292">Hold a key, speak,</tspan>
+    <tspan x="84" y="382">and let go.</tspan>
+  </text>
+
+  <text x="88" y="446"
+    font-family="'Instrument Sans Variable', 'Instrument Sans', 'Segoe UI', system-ui, sans-serif"
+    font-size="28" font-weight="450" fill="#475569">Dictation for Windows, macOS and Linux, on your computer or in the cloud.</text>
+
+  <!-- The overlay after a dictation: a real capture (screens/overlay-inserted-en-light.webp) -->
+  <image href="/screens/overlay-inserted-en-light.webp" x="4" y="492" width="588" height="52.5"/>
+
+  <text x="1112" y="562" text-anchor="end"
+    font-family="'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Consolas, monospace"
+    font-size="24" fill="#5B6779">voltip.firlab.app</text>
+</svg>

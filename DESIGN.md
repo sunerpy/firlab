@@ -1206,3 +1206,85 @@ binding constraints are this file plus the anti-pattern list: no purple/violet
 gradient, no equal three-card grid, no centred `text-4xl font-bold` + grey subtitle,
 no glassmorphism or blur orbs, no emoji icons, no unsubstantiated metrics or
 "trusted by" logos.
+
+## 10. Product documentation sub-site: voltip.firlab.app
+
+`voltip/` is a VitePress 1.6.4 site: the default theme without its fonts
+(`vitepress/theme-without-fonts`) plus `voltip/src/.vitepress/theme/`. It inherits the §1
+ramp, the §1 per-script metrics and the §6 contrast floor. This section records what it adds
+and where it departs from the umbrella site, each with its reason; `voltip/README.md` covers
+ownership and deployment.
+
+**Palette.** `theme/styles/tokens.css` maps the §1 ramp onto VitePress's `--vp-c-*`
+variables. Light: paper `#FBFCFE` / desk `#F3F6FA` / blocks `#E7EDF5`, ink `#0B1220` /
+`#1E293B` / `#475569` / `#5B6779`, rule `#DCE4EE`. Dark: `#101317` / `#0C0F13` / `#2A2F35`,
+plus two surfaces VitePress needs, soft `#181C21` and elevated `#1F2329`, on the §1 OKLCH
+curve (H ≈ 255, C ≈ 0.011); ink `#ECEFF3` / `#D4D8DD` / `#ABB0B7` / `#9499A0`, rule
+`#353B43`. VitePress's indigo brand, purple "important" blocks, sponsor pink and hero
+gradient are all remapped: nothing on the site is purple. Every text colour is at least
+4.5:1 on the surfaces it sits on (the lowest, light `#5B6779` on `#E7EDF5`, is 4.87:1).
+`#F97316` measures 2.73:1 on paper, so it only marks (the logo, the status dots) and never
+carries text. Code is highlighted with vitesse-light and vitesse-dark, except that every token
+colour under 4.5:1 on the code background is moved to the nearest colour of the same hue
+that reaches 4.6:1 (`CODE_CONTRAST` in `config/shared.ts`).
+
+**Buttons and links, after OpenAI's developer documentation (user decision 2026-09-29).**
+The first build used the §1 text accent `#B03A09` for links and the primary button; the owner
+found the brown button and brown links unattractive and asked for OpenAI's docs style, which
+was measured on developers.openai.com (solid and soft pill buttons, 36 px, 14 px / 500;
+prose links in the body colour at 500 with an underline). So:
+
+| Element | Light | Dark |
+| --- | --- | --- |
+| Primary button | `#0B1220` fill, white text | `#ECEFF3` fill, `#0C0F13` text |
+| Other buttons | ink at 6 % (hover 10 %) | ink at 9 % (hover 14 %) |
+| Link | body ink, 500, 1 px underline at ink 30 %, full ink on hover | the same on the dark ink |
+| Current nav item, current sidebar row | the soft fill | the soft fill |
+
+Buttons are pills (`999px`): the one exception to §1's "no pill buttons", made on the owner's
+request and limited to buttons. Everything else keeps the 4 / 8 / 12 steps. Status tags are
+text, never colour alone: available is teal text (`#0D6B64` / `#2DD4BF`), in development is
+ink text behind an orange dot, planned is grey text behind a ring.
+
+**Type: the one departure from "no web fonts".** Latin text is Instrument Sans Variable, the
+app's own face, and code is JetBrains Mono Variable, both self-hosted from
+`@fontsource-variable` 5.3.0 and loaded by `unicode-range`: an English page fetches the 29 KB
+Latin Instrument Sans file and, where code appears, the 39 KB Latin JetBrains Mono file; a
+Chinese page fetches the same Latin files for its Latin runs and no CJK font at all. Hanzi
+use the system stack (PingFang SC, Hiragino Sans GB, Microsoft YaHei UI, Noto Sans SC) with
+VitePress's Punctuation SC compression. The umbrella site's reason for no web fonts (a CJK
+face would cost megabytes) does not apply to Latin-only files of this size, and matching the
+app's face is what makes the screenshots and the page read as one product. Prose leading is
+1.7 for Latin and 1.85 for Chinese; display leading 1.08 / 1.22, as in §1.
+
+**Layout.** The home page answers four questions above the fold, at 1280 × 800 and at
+375 × 812: what it does (name, headline, tagline), where it runs and where the audio goes
+(two fact rows), how to get it (the Download button). The hero puts the words left and a real
+capture of the app's home page right, with the overlay pill below it cycling through its
+three states. Then: the feature index (two columns of groups, each row with its status), one
+dictation in four steps, three text-and-evidence splits that alternate sides (local and
+cloud recognition with the model table, AI polish with a before-and-after, the phone with its
+pairing methods), the platform table (rows become cards under 768 px), what leaves the
+computer in each mode, the install commands and the roadmap with what is deliberately not
+built. No gradients, glows or blur; no drawn window or phone frames; every screenshot is a
+real capture of the app on its mock backend, framed by a hairline.
+
+**Motion.** One animation: the pill cross-fade, opacity only, 2.6 s per state. With
+`prefers-reduced-motion: reduce` the last state shows, still.
+
+**Structure.** The home page's root is a `<main>`: `theme/components/HomeMain.vue` replaces
+VitePress's `VPHome`, which has no main landmark, through the alias VitePress documents for
+overriding its components. Compare the two when VitePress is upgraded.
+
+**Verified 2026-09-29 (local preview, Chrome).** At 1280 × 800, 1440 × 900 and 375 × 812, in
+both languages and both themes, the headline, both fact rows and the Download button end above
+the fold (the lowest, English at 1280 × 800, ends at 638 of 800 px). Nothing overflows
+horizontally at 320 (mobile emulation), 375, 768, 1280 or 1440 px on the two home pages, a
+guide page, a reference page and a design document; the nav bar fits at every width from 768
+to 1280 px since the search button shows its icon alone from 768 to 959 px (to 1099 px beside
+a sidebar; before that the English bar measured 820 px in 753). No computed colour on seven
+pages in either theme falls in OKLCH hue 270–330 with chroma above 0.04. Lighthouse:
+accessibility 100 and SEO 100 on the English home page (mobile) and a Chinese reference page
+(desktop, dark); best practices scored 78 only for HTTPS, which the local preview does not
+serve. Chinese search finds 快捷键, 本地识别 and 词典 on their pages, and all 503 in-site
+anchors resolve.

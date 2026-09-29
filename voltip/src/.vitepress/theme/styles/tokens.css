@@ -1,0 +1,212 @@
+/*
+ * Voltip documentation palette.
+ *
+ * FirLab's ramp (firlab/DESIGN.md §1 and §10), which is itself read off the product
+ * marks: ink #0B1220, pale #E7EDF5, orange #F97316 — the Voltip icon's own three
+ * values — plus teal #14B8A6 and slate #64748B. Nothing on this site is purple:
+ * VitePress's indigo (its default brand), purple ("important" blocks), sponsor pink
+ * and hero gradient are all remapped below.
+ *
+ * Buttons and links follow OpenAI's developer docs (user request 2026-09-29): the
+ * primary button is ink on paper, inverted in the dark theme; secondary buttons are a
+ * translucent ink fill; links are body-coloured text with a soft underline. There is no
+ * coloured link or button text anywhere.
+ *
+ * Contrast, measured (WCAG 2.x): every text colour here is at least 4.5:1 on the
+ * surfaces it is used on — the lowest is light --vt-ink-400 on --vt-paper-2, 4.87:1.
+ * The brand orange #F97316 measures 2.73:1 on paper, so it only ever marks (dots,
+ * the logo), never text.
+ *
+ * Dark ramp: FirLab's measured OKLCH steps (sheet L 18.5, desk 16.7, block 30.3,
+ * rule 35.0), plus two surfaces VitePress needs that FirLab has no name for —
+ * soft #181C21 (L 22.5) and elevated #1F2329 (L 25.5) — on the same hue and chroma
+ * curve (H ≈ 255, C ≈ 0.011).
+ */
+
+:root {
+  --vt-ink-900: #0b1220;
+  --vt-ink-700: #1e293b;
+  --vt-ink-500: #475569;
+  --vt-ink-400: #5b6779;
+
+  --vt-paper-0: #fbfcfe; /* the sheet: where the words sit */
+  --vt-paper-1: #f3f6fa; /* the desk: sidebar, code blocks */
+  --vt-paper-soft: #eef2f7;
+  --vt-paper-elv: #ffffff;
+  --vt-paper-2: #e7edf5; /* blocks, inline code, row hover */
+  --vt-rule: #dce4ee;
+
+  /* The primary button, active navigation and the focus ring: ink, never a hue. */
+  --vt-accent: var(--vt-ink-900);
+  --vt-accent-hover: var(--vt-ink-700);
+  --vt-accent-ink: #ffffff; /* text on the accent */
+  --vt-link-line: rgb(11 18 32 / 0.3); /* a link's underline at rest */
+  --vt-fill: rgb(11 18 32 / 0.06); /* secondary buttons, the active sidebar row */
+  --vt-fill-hover: rgb(11 18 32 / 0.1);
+  --vt-mark: #f97316; /* marks only, never text */
+  --vt-mark-soft: rgb(249 115 22 / 0.12);
+  --vt-live: #0d6b64; /* "available" */
+  --vt-live-mark: #14b8a6;
+  --vt-live-soft: rgb(20 184 166 / 0.12);
+  --vt-slate: #64748b;
+  --vt-slate-soft: rgb(100 116 139 / 0.14);
+
+  --vt-radius-chip: 4px;
+  --vt-radius-control: 8px;
+  --vt-radius-plate: 12px;
+  --vt-radius-pill: 999px; /* buttons */
+  --vt-shadow-plate: 0 1px 2px 0 rgb(11 18 32 / 0.05), 0 18px 40px -24px rgb(11 18 32 / 0.28);
+  --vt-shadow-pill: 0 1px 2px 0 rgb(0 0 0 / 0.12), 0 10px 28px -8px rgb(11 18 32 / 0.3);
+
+  --vt-font-sans:
+    'Instrument Sans Variable', 'Instrument Sans', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei UI', 'Microsoft YaHei', 'Noto Sans SC', 'Noto Sans CJK SC', system-ui,
+    -apple-system, 'Segoe UI', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --vt-font-mono:
+    'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo,
+    Consolas, 'PingFang SC', 'Microsoft YaHei UI', 'Noto Sans SC', monospace;
+
+  /* Per-script metrics (FirLab §1 "Script-dependent metrics"): hanzi are full-height
+     square boxes, so Latin leading and tracking read cramped. */
+  --vt-lh-prose: 1.7;
+  --vt-lh-display: 1.08;
+  --vt-ls-display: -0.022em;
+}
+
+:root:lang(zh-CN) {
+  --vt-lh-prose: 1.85;
+  --vt-lh-display: 1.22;
+  --vt-ls-display: 0.006em;
+}
+
+.dark {
+  --vt-ink-900: #eceff3;
+  --vt-ink-700: #d4d8dd;
+  --vt-ink-500: #abb0b7;
+  --vt-ink-400: #9499a0;
+
+  --vt-paper-0: #101317;
+  --vt-paper-1: #0c0f13;
+  --vt-paper-soft: #181c21;
+  --vt-paper-elv: #1f2329;
+  --vt-paper-2: #2a2f35;
+  --vt-rule: #353b43;
+
+  --vt-accent-ink: #0c0f13;
+  --vt-link-line: rgb(236 239 243 / 0.34);
+  --vt-fill: rgb(236 239 243 / 0.09);
+  --vt-fill-hover: rgb(236 239 243 / 0.14);
+  --vt-mark-soft: rgb(249 115 22 / 0.16);
+  --vt-live: #2dd4bf;
+  --vt-live-mark: #2dd4bf;
+  --vt-live-soft: rgb(45 212 191 / 0.12);
+  --vt-slate: #9499a0;
+  --vt-slate-soft: rgb(148 153 160 / 0.16);
+
+  --vt-shadow-plate: inset 0 1px 0 0 rgb(255 255 255 / 0.06), 0 18px 40px -24px rgb(0 0 0 / 0.7);
+  --vt-shadow-pill: inset 0 1px 0 0 rgb(255 255 255 / 0.06), 0 10px 28px -8px rgb(0 0 0 / 0.6);
+}
+
+/* ---- VitePress variables ------------------------------------------------ */
+
+:root {
+  --vp-c-white: #ffffff;
+  --vp-c-black: #0b1220;
+  --vp-c-neutral: var(--vt-ink-900);
+  --vp-c-neutral-inverse: var(--vt-paper-0);
+
+  --vp-c-gray-1: #d5dde8;
+  --vp-c-gray-2: #e2e8f0;
+  --vp-c-gray-3: #ebf0f6;
+  --vp-c-gray-soft: var(--vt-slate-soft);
+
+  /* indigo is VitePress's default brand; purple drives "important" blocks. */
+  --vp-c-indigo-1: var(--vt-accent);
+  --vp-c-indigo-2: var(--vt-accent-hover);
+  --vp-c-indigo-3: var(--vt-accent);
+  --vp-c-indigo-soft: var(--vt-mark-soft);
+  --vp-c-purple-1: var(--vt-ink-700);
+  --vp-c-purple-2: var(--vt-ink-500);
+  --vp-c-purple-3: var(--vt-ink-500);
+  --vp-c-purple-soft: var(--vt-slate-soft);
+  --vp-c-green-1: var(--vt-live);
+  --vp-c-green-2: var(--vt-live);
+  --vp-c-green-3: var(--vt-live);
+  --vp-c-green-soft: var(--vt-live-soft);
+
+  --vp-c-bg: var(--vt-paper-0);
+  --vp-c-bg-alt: var(--vt-paper-1);
+  --vp-c-bg-elv: var(--vt-paper-elv);
+  --vp-c-bg-soft: var(--vt-paper-soft);
+
+  --vp-c-border: var(--vt-rule);
+  --vp-c-divider: var(--vt-rule);
+  --vp-c-gutter: var(--vt-rule);
+
+  --vp-c-text-1: var(--vt-ink-900);
+  --vp-c-text-2: var(--vt-ink-500);
+  --vp-c-text-3: var(--vt-ink-400);
+
+  --vp-c-brand-1: var(--vt-accent);
+  --vp-c-brand-2: var(--vt-accent-hover);
+  --vp-c-brand-3: var(--vt-accent);
+  --vp-c-brand-soft: var(--vt-mark-soft);
+
+  --vp-c-tip-1: var(--vt-live);
+  --vp-c-tip-2: var(--vt-live);
+  --vp-c-tip-3: var(--vt-live);
+  --vp-c-tip-soft: var(--vt-live-soft);
+  --vp-c-important-1: var(--vt-ink-700);
+  --vp-c-important-2: var(--vt-ink-500);
+  --vp-c-important-3: var(--vt-ink-500);
+  --vp-c-important-soft: var(--vt-slate-soft);
+  --vp-c-warning-1: var(--vt-accent);
+  --vp-c-warning-2: var(--vt-accent-hover);
+  --vp-c-warning-3: var(--vt-accent);
+  --vp-c-warning-soft: var(--vt-mark-soft);
+  --vp-c-sponsor: var(--vt-accent);
+
+  --vp-font-family-base: 'Punctuation SC', var(--vt-font-sans);
+  --vp-font-family-mono: var(--vt-font-mono);
+
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-text: var(--vt-accent-ink);
+  --vp-button-brand-bg: var(--vt-accent);
+  --vp-button-brand-hover-border: transparent;
+  --vp-button-brand-hover-text: var(--vt-accent-ink);
+  --vp-button-brand-hover-bg: var(--vt-accent-hover);
+  --vp-button-brand-active-border: transparent;
+  --vp-button-brand-active-text: var(--vt-accent-ink);
+  --vp-button-brand-active-bg: var(--vt-accent-hover);
+  --vp-button-alt-border: transparent;
+  --vp-button-alt-text: var(--vt-ink-900);
+  --vp-button-alt-bg: var(--vt-fill);
+  --vp-button-alt-hover-border: transparent;
+  --vp-button-alt-hover-text: var(--vt-ink-900);
+  --vp-button-alt-hover-bg: var(--vt-fill-hover);
+  --vp-button-alt-active-border: transparent;
+  --vp-button-alt-active-text: var(--vt-ink-900);
+  --vp-button-alt-active-bg: var(--vt-fill-hover);
+
+  --vp-home-hero-name-color: var(--vt-ink-900);
+  --vp-home-hero-name-background: none;
+  --vp-home-hero-image-background-image: none;
+  --vp-home-hero-image-filter: none;
+
+  --vp-code-color: var(--vt-ink-700);
+  --vp-code-bg: var(--vt-paper-2);
+  --vp-code-block-bg: var(--vt-paper-1);
+  --vp-code-copy-code-active-text: var(--vt-ink-500);
+
+  --vp-local-search-highlight-bg: var(--vt-mark-soft);
+  --vp-local-search-highlight-text: var(--vt-ink-900);
+
+  --vp-nav-logo-height: 26px;
+}
+
+.dark {
+  --vp-c-gray-1: #4a515b;
+  --vp-c-gray-2: #3a4048;
+  --vp-c-gray-3: #2a2f35;
+  --vp-code-block-bg: var(--vt-paper-1);
+}
