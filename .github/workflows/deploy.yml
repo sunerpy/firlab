@@ -40,6 +40,9 @@ jobs:
         with:
           node-version-file: .node-version
           cache: pnpm
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            lockra/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -56,6 +59,33 @@ jobs:
       # instead of discovering it in production.
       - name: Verify CNAME survived the build
         run: test -f dist/CNAME && grep -qx 'firlab.app' dist/CNAME
+
+      # The Lockra documentation site is published inside this one, under /lockra/
+      # (lockra/README.md). It installs and builds on its own, like voltip/ and docs/.
+      - name: Install the Lockra site's dependencies
+        working-directory: lockra
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the Lockra site
+        working-directory: lockra
+        run: pnpm build
+
+      # Both languages, and every link, asset and sitemap entry under /lockra/.
+      - name: Check the Lockra site
+        working-directory: lockra
+        run: ./scripts/check-dist.sh dist
+
+      # dist/lockra/ belongs to the sub-site alone: if the main site ever emits a page there,
+      # stop instead of letting one silently replace the other.
+      - name: Add the Lockra site under /lockra/
+        run: |
+          set -euo pipefail
+          if [ -e dist/lockra ]; then
+            echo "::error::the main site already emits dist/lockra; the Lockra site would overwrite it"
+            exit 1
+          fi
+          cp -R lockra/dist dist/lockra
+          test -f dist/lockra/index.html && test -f dist/lockra/zh/index.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

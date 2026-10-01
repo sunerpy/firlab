@@ -1,0 +1,52 @@
+name: Lockra site CI
+
+# Builds the Lockra sub-site on pull requests that touch it, without deploying. The content
+# checks (both languages, registered components, screenshots, word lists) run in lockra before a
+# sync lands here; this catches changes to the site itself: config, theme, components, lockfile,
+# and the deploy steps that publish it under /lockra/.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'lockra/**'
+      - '.github/workflows/lockra-site-ci.yml'
+      - '.github/workflows/deploy.yml'
+
+concurrency:
+  group: lockra-site-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build the Lockra site
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          package_json_file: lockra/package.json
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+          cache-dependency-path: lockra/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: lockra
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: lockra
+        run: pnpm build
+
+      - name: Check both languages and the /lockra/ base
+        working-directory: lockra
+        run: ./scripts/check-dist.sh dist
