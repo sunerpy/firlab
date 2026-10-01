@@ -1,0 +1,52 @@
+name: pt-tools site CI
+
+# Builds the pt-tools sub-site on pull requests that touch it, without deploying. The content
+# checks (both languages, registered components, word lists) run in pt-tools before a sync
+# lands here; this catches changes to the site itself: config, theme, components, lockfile,
+# and the deploy steps that publish it under /pt-tools/.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'pt-tools/**'
+      - '.github/workflows/pt-tools-site-ci.yml'
+      - '.github/workflows/deploy.yml'
+
+concurrency:
+  group: pt-tools-site-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build the pt-tools site
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          package_json_file: pt-tools/package.json
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+          cache-dependency-path: pt-tools/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: pt-tools
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: pt-tools
+        run: pnpm build
+
+      - name: Check both languages and the /pt-tools/ base
+        working-directory: pt-tools
+        run: ./scripts/check-dist.sh dist

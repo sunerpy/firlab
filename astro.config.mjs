@@ -40,6 +40,9 @@ export default defineConfig({
   redirects: {
     '/voxera': '/voltip/',
     '/en/voxera': '/en/voltip/',
+    // pt-tools' page became its documentation site on 2026-10-01: Chinese at /pt-tools/
+    // (the same URL, served by pt-tools/), English at /pt-tools/en/.
+    '/en/pt-tools': '/pt-tools/en/',
   },
 
   vite: {

@@ -40,3 +40,8 @@ voltip/.vitepress-cache/
 # firlab.app under /lockra/ (lockra/README.md).
 lockra/dist/
 lockra/.vitepress-cache/
+
+# The pt-tools sub-site, which installs on its own the same way and is published inside
+# firlab.app under /pt-tools/ (pt-tools/README.md).
+pt-tools/dist/
+pt-tools/.vitepress-cache/

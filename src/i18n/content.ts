@@ -82,8 +82,8 @@ export interface Product {
   links?: { label: string; href: string }[];
   /**
    * Path to the in-site detail page, relative to the locale root. A product whose
-   * own site is published under a path of firlab.app (Lockra, at `/lockra/`) gives
-   * that site's absolute path in this locale instead; see `productHref`.
+   * own site is published under a path of firlab.app (pt-tools at `/pt-tools/`, Lockra at
+   * `/lockra/`) gives that site's absolute path in this locale instead; see `productHref`.
    */
   detail: string;
   /** Right-column note, used where there is nothing to link to yet. */
@@ -138,7 +138,7 @@ const zh: PageContent = {
       weight: 'lead',
       version: pttoolsVersion,
       released: pttoolsReleased,
-      detail: 'pt-tools/',
+      detail: '/pt-tools/',
       body: '把 PT 站点上手工重复的那几件事接过去：解析 RSS 订阅并把符合条件的种子推给下载器、跨站点批量搜索、把各站的上传下载分享率与魔力值汇总成一张表、按做种时长或分享率清理已完成的种子。免费期结束时自动暂停，H&R 保护和磁盘水位都是硬约束。全部自部署，站点 Cookie 和统计数据只存在你自己那台机器上。',
       specs: [
         {
@@ -416,7 +416,7 @@ const en: PageContent = {
       weight: 'lead',
       version: pttoolsVersion,
       released: pttoolsReleased,
-      detail: 'pt-tools/',
+      detail: '/pt-tools/en/',
       body: 'Takes over the repetitive parts of running an account on a private tracker: parsing RSS feeds and handing matching torrents to a downloader, searching across sites, collecting upload, download, ratio and bonus figures into one table, and cleaning up finished torrents by seed time or ratio. Torrents are paused when their free window closes, and H&R protection and a disk floor are hard constraints rather than suggestions. Everything is self-hosted — site cookies and statistics exist only on your own machine.',
       specs: [
         {

@@ -43,6 +43,7 @@ jobs:
           cache-dependency-path: |
             pnpm-lock.yaml
             lockra/pnpm-lock.yaml
+            pt-tools/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -86,6 +87,32 @@ jobs:
           fi
           cp -R lockra/dist dist/lockra
           test -f dist/lockra/index.html && test -f dist/lockra/zh/index.html
+
+      # The pt-tools documentation site is published the same way, under /pt-tools/
+      # (pt-tools/README.md). It replaced the main site's pt-tools page, so the main site must
+      # not emit dist/pt-tools/ any more.
+      - name: Install the pt-tools site's dependencies
+        working-directory: pt-tools
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the pt-tools site
+        working-directory: pt-tools
+        run: pnpm build
+
+      # Both languages, and every link, asset and sitemap entry under /pt-tools/.
+      - name: Check the pt-tools site
+        working-directory: pt-tools
+        run: ./scripts/check-dist.sh dist
+
+      - name: Add the pt-tools site under /pt-tools/
+        run: |
+          set -euo pipefail
+          if [ -e dist/pt-tools ]; then
+            echo "::error::the main site already emits dist/pt-tools; the pt-tools site would overwrite it"
+            exit 1
+          fi
+          cp -R pt-tools/dist dist/pt-tools
+          test -f dist/pt-tools/index.html && test -f dist/pt-tools/en/index.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

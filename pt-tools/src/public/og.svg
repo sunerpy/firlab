@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="pt-tools：PT 站点的自动化管理工具。RSS 自动下载、多站点统计与搜索、下载器管理和 ChatOps，在一个 Web 界面中统一配置。">
+  <title>pt-tools：PT 站点的自动化管理工具</title>
+  <!-- The source of og.png (1200 × 630, rendered in Chrome; pt-tools/README.md). The colours
+       are the site's light theme (theme/styles/tokens.css); both captures are real, the same
+       pair the home page's hero shows, in the same 86 % / 27 % arrangement. -->
+  <defs>
+    <clipPath id="desk">
+      <rect x="552" y="132" width="481.6" height="301" rx="12"/>
+    </clipPath>
+    <clipPath id="phone">
+      <rect x="960.8" y="153.6" width="151.2" height="327.4" rx="12"/>
+    </clipPath>
+    <filter id="drop" x="-30%" y="-15%" width="160%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="11" flood-color="#0B1220" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+
+  <!-- Ground -->
+  <rect width="1200" height="630" fill="#F3F6FA"/>
+
+  <!-- Accent hairline, top edge: the brand orange marks, it never carries text -->
+  <rect x="0" y="0" width="1200" height="6" fill="#F97316"/>
+
+  <!-- The mark (web/frontend/public/logo.svg at 60 px) and the name -->
+  <g transform="translate(88, 84)">
+    <g transform="scale(0.05859375)">
+      <rect x="0" y="0" width="1024" height="1024" rx="204.8" ry="204.8" fill="#0B1220"/>
+      <path d="M192 320 L384 512 L192 704" fill="none" stroke="#14B8A6" stroke-width="128" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="576" y="384" width="320" height="256" fill="#F97316"/>
+    </g>
+    <text x="80" y="43"
+      font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei UI', 'Noto Sans CJK SC', 'Noto Sans SC', system-ui, sans-serif"
+      font-size="40" font-weight="650" letter-spacing="-0.6" fill="#0B1220">pt-tools</text>
+  </g>
+
+  <!-- Headline: the hero's text; below it the site's description -->
+  <text
+    font-family="'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', 'Noto Sans CJK SC', 'Noto Sans SC', system-ui, sans-serif"
+    font-size="60" font-weight="700" letter-spacing="0.5" fill="#0B1220">
+    <tspan x="86" y="270">PT 站点的</tspan>
+    <tspan x="86" y="348">自动化管理工具</tspan>
+  </text>
+
+  <text
+    font-family="'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', 'Noto Sans CJK SC', 'Noto Sans SC', system-ui, sans-serif"
+    font-size="24" font-weight="400" fill="#475569">
+    <tspan x="88" y="414">RSS 自动下载、多站点统计与搜索、</tspan>
+    <tspan x="88" y="450">下载器管理和 ChatOps，</tspan>
+    <tspan x="88" y="486">在一个 Web 界面中统一配置。</tspan>
+  </text>
+
+  <!-- The web UI's user statistics page: real captures (screens/home-light.webp,
+       screens/home-mobile-light.webp), framed by a hairline -->
+  <g>
+    <rect x="552" y="132" width="481.6" height="301" rx="12" fill="#FBFCFE"/>
+    <image href="/screens/home-light.webp" x="552" y="132" width="481.6" height="301" clip-path="url(#desk)" preserveAspectRatio="xMidYMid slice"/>
+    <rect x="552.5" y="132.5" width="480.6" height="300" rx="11.5" fill="none" stroke="#DCE4EE"/>
+  </g>
+  <g filter="url(#drop)">
+    <rect x="960.8" y="153.6" width="151.2" height="327.4" rx="12" fill="#FBFCFE"/>
+    <image href="/screens/home-mobile-light.webp" x="960.8" y="153.6" width="151.2" height="327.4" clip-path="url(#phone)" preserveAspectRatio="xMidYMid slice"/>
+    <rect x="961.3" y="154.1" width="150.2" height="326.4" rx="11.5" fill="none" stroke="#DCE4EE"/>
+  </g>
+
+  <text x="88" y="562"
+    font-family="'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Consolas, monospace"
+    font-size="24" fill="#5B6779">firlab.app/pt-tools</text>
+</svg>

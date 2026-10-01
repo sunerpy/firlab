@@ -610,7 +610,7 @@ to fall out of step.
 | pt-tools | `sunerpy/pt-tools` | `v0.47.3` | `2026-09-15` |
 | CodeGraph | `sunerpy/codegraph-rust` | `v0.51.0` | `2026-10-01` |
 | AgentLens | `sunerpy/AgentLens` | `v0.0.7` | `2026-08-13` |
-| Voltip | `sunerpy/voltip` | `v0.0.17` | `2026-10-01` |
+| Voltip | `sunerpy/voltip` | `v0.0.18` | `2026-10-01` |
 | Lockra | `sunerpy/lockra` | `v0.1.1` | `2026-10-01` |
 
 **The source of truth is the GitHub release tag, never a product manifest.** The
@@ -676,7 +676,7 @@ was usable today.
 
 | Product | Weight | Shape |
 | --- | --- | --- |
-| pt-tools | `lead` | **Full width, no rail.** A `.u-plate-lead` masthead carries mark, title, role and the release facts on one ground; specs run two-up (`grid`) across the full measure; install block and outward links close it. The most-released tool is the only entry with a masthead. |
+| pt-tools | `lead` | **Full width, no rail.** A `.u-plate-lead` masthead carries mark, title, role and the release facts on one ground; specs run two-up (`grid`) across the full measure; install block and outward links close it. The most-released tool is the only entry with a masthead. Since 2026-10-01 it has no detail page here: its documentation site took the page's path, `/pt-tools/` (§12), so its `detail` is that site's absolute path per locale (`/pt-tools/`, `/pt-tools/en/`), resolved through `productHref` as Lockra's is, and the name's view transition does not apply. |
 | CodeGraph | `major` | **A 4/7 split.** Identity rail (mark, title, status, version, links) against a reading column (prose, ruled specs, install). Recognisably a documented product, deliberately not a masthead. |
 | AgentLens | `standard` | **One header line** — mark, title, role, status inline — then prose and unruled specs (`plain`) two-up beneath. No meta column at all: an early-release tool has three facts, and a column drawn for eight makes the three look like omissions. |
 | Voltip | `standard` | The AgentLens shape: an early release. Its links lead with its own documentation site, voltip.firlab.app, which carries the full guide; the detail page summarises and hands over to it. |
@@ -982,7 +982,8 @@ full.
 
 8. ~~**Product detail pages do not exist yet.**~~ **Superseded.** All four ship in
    both locales: `/pt-tools/`, `/codegraph/`, `/agentlens/`, `/voxera/` and their
-   `/en/…` counterparts. 10 pages total.
+   `/en/…` counterparts. 10 pages total. Voxera's pair became Voltip's on 2026-09-29,
+   and pt-tools' gave way to its documentation site on 2026-10-01 (§12).
 
 9. **pt-tools has no shipped application icon, so its mark is authored.** The other
    three marks are lifted from real icon sources; pt-tools has none, so it is drawn
@@ -992,16 +993,10 @@ full.
    measured, and the mark renders at 38–46px in the index. If pt-tools ever ships an
    icon, this should be replaced by it rather than kept.
 
-10. **The pt-tools page states what is *not* verified, and gives it structure.** Its
-    ChatOps section carries four transports, of which only QQ (OneBot/NapCat) and
-    Telegram are verified end to end upstream; WeCom group bot and the custom
-    HMAC-SHA256 webhook are shipped but unverified. Rather than a footnote, the two
-    unverified rows get the dashed rule and `--color-ink-mute` body that the index
-    uses for unreleased work, plus a per-row status in words — colour never carries
-    it alone. Same reasoning as AgentLens declaring its own verification gap: a page
-    that quietly promotes an experimental transport to "feature" costs the reader an
-    outage. The RSS free-only default gets a full callout for the same reason —
-    misreading it costs real download volume.
+10. ~~**The pt-tools page states what is *not* verified, and gives it structure.**~~
+    **Superseded.** The page became pt-tools' documentation site on 2026-10-01 (§12),
+    which keeps the rule: the two shipped-but-unverified channels, WeCom group bot and
+    the generic webhook, carry `StatusTag`'s `experimental` value, always in words.
 
 11. **The Chinese headline sets in three lines below 414px.** Reaching two would
     mean dropping the display step to ~34px on the one screen size where the
@@ -1349,3 +1344,82 @@ links name the repository and the releases, because the name already leads to th
 `ProductMark` is the app icon without the plate: the lock in `currentColor` with the keyhole cut
 out where the icon shows the navy plate, inside the three-quarter ring in the mark orange.
 
+## 12. Product documentation inside firlab.app: firlab.app/pt-tools
+
+`pt-tools/` is the §10 site for a third product, published like Lockra's (§11) under a path of
+this site: VitePress builds it with `base: '/pt-tools/'` and `deploy.yml` copies it to
+`dist/pt-tools/`, after `pt-tools/scripts/check-dist.sh` has confirmed that every root-relative
+link, asset and sitemap entry stays under `/pt-tools/`. It keeps the same VitePress 1.6.4 setup,
+palette mapping, button and link treatment, contrast table for code, `<main>` landmark,
+home-page frontmatter contract and page structure, through the same files with a `pt-` prefix.
+This section records only where it departs from §10 and §11, each with its reason;
+`pt-tools/README.md` covers ownership and deployment.
+
+**It took the product page's path (user decision 2026-10-01).** `/pt-tools/` was this site's
+detail page for pt-tools. The owner chose to let the documentation site replace it rather than
+sit beside it under another path, so the detail pages in both languages are gone, the index
+entry keeps its `lead` shape (§4) and its name leads to the documentation site in each language,
+and `/en/pt-tools/`, which was indexed, redirects to `/pt-tools/en/` the way `/voxera/` does. The
+Chinese URL did not change. Because the main site emitted `dist/pt-tools/` until then,
+`deploy.yml` refuses to copy the sub-site over one: a restored page fails the deploy instead of
+being replaced without notice. The site was first built for a `pt-tools.firlab.app` subdomain on
+Cloudflare Pages and moved here before it was published, for §11's reasons. Two things the
+subdomain had do not carry over: its `_headers` security headers, which GitHub Pages does not
+serve, as for every other page of firlab.app, and its own `robots.txt`, whose sitemap line moved
+into this site's `public/robots.txt`.
+
+**Chinese is the root locale.** pt-tools' users and its web UI are Chinese, so `/pt-tools/` is
+Chinese and English sits under `/pt-tools/en/`, the reverse of Voltip and Lockra. `x-default`
+points at the Chinese page. Pages that exist only in Chinese (the contributor guide and the
+design documents) get a generated English placeholder at the same path, marked `noindex` and
+left out of the sitemap, because VitePress's language switch maps the current path onto the
+other locale unchanged and would otherwise lead to a 404.
+
+**Type: system faces, as in the app.** The web UI uses the system stack
+(`web/frontend/src/styles/theme.scss`: Noto Sans SC, -apple-system, Segoe UI, PingFang SC,
+Microsoft YaHei UI and so on), and the screenshots on the home page are that UI. Using the same
+stack for the text, rather than Voltip's Instrument Sans, keeps the page and the captures one
+product and downloads no text face at all. Code is JetBrains Mono Variable, self-hosted
+(40 KB Latin file, loaded only where code appears). VitePress's Punctuation SC compression is
+applied on Chinese pages only (`:root:lang(zh-CN)`); on an English page the same rule would set
+quotes and dashes at full width.
+
+**Status: four values.** pt-tools ships two outbound channels that exist in the release but
+have not been verified end to end (WeCom, generic webhook), so `StatusTag` adds `experimental`
+to Voltip's three: available, experimental (orange ring and text label), in development,
+planned. Status is always text, never colour alone.
+
+**Hero: desktop and phone, no animation.** pt-tools has no overlay to show, so the hero's
+evidence is the user statistics page captured at 1440 × 900 with the same page on a 375 × 812
+phone laid over its lower right corner (86 % / 27 % of the column), both real captures of the
+web UI on its acceptance fixtures, framed by a hairline. Nothing moves, so there is no motion
+to reduce.
+
+**Splits: rules, commands, a capture.** The three text-and-evidence splits show what pt-tools
+decides with: filter-rule examples as a table (pattern, type, what it matches), chat commands
+as a command list, and the site list as a capture.
+
+**Alerts in the page's language.** The pages use GitHub's alert syntax so they read on GitHub;
+VitePress titles alerts with one site-wide label set, so a `markdown.config` hook gives Chinese
+pages Chinese titles (提示, 说明, 注意, 警告, 重要) and leaves English pages VitePress's. A `---`
+directly before an `h2` is hidden, because VitePress already rules every `h2`.
+
+**Verified 2026-10-01.** On the build for the subdomain (local preview, headless Chrome): at
+1280 × 800, 1440 × 900 and 375 × 812, in both languages and both themes, the headline, both fact
+rows and the Install button end above the fold (the lowest, English at 375 × 812, ends at 703 of
+812 px); nothing overflows horizontally at 320, 375, 768, 1024, 1280 or 1440 px on twelve pages;
+no computed colour on seven pages in either theme falls in OKLCH hue 270–330 with chroma above
+0.04; the theme choice survives a reload. Again on the `/pt-tools/` build, assembled the way
+`deploy.yml` assembles it (main site, `dist/lockra/`, `dist/pt-tools/`) and served with GitHub
+Pages' lookup rules: all 4,243 root-relative links and assets in the 109 pages resolve; seven
+pages (both home pages, guide, reference and design pages, an English placeholder) at 1440 × 900
+and 375 × 812 log no console error or failed request, show no broken image and do not overflow; the
+language menu maps every page, the placeholder included, onto the same path under the other
+locale; Chinese search for 过滤规则 and English search for "secret key" return results under
+`/pt-tools/`; `/en/pt-tools/` lands on `/pt-tools/en/`; the index entry leads to `/pt-tools/` and
+`/pt-tools/en/`; canonical and hreflang links are absolute under `https://firlab.app/pt-tools/`,
+and the placeholders carry `noindex` and no hreflang. Lighthouse on that build: accessibility
+100 and SEO 100 on the Chinese home page (mobile) and an English guide page (desktop); best
+practices 78 only for HTTPS, which the local server does not serve. The one failing experimental
+rule, `label-content-name-mismatch`, is VitePress's own search button, shared with the Voltip
+site.
