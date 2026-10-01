@@ -1,0 +1,388 @@
+# 配置说明
+
+本文档详细介绍 pt-tools 的所有配置选项，包括环境变量、全局设置、下载器配置和 RSS 订阅配置。
+
+## 环境变量
+
+通过环境变量可以配置 pt-tools 的运行参数，适用于 Docker 部署场景。
+
+| 变量             | 说明           | 默认值          | 示例               |
+| ---------------- | -------------- | --------------- | ------------------ |
+| `PT_HOST`        | Web 监听地址   | `0.0.0.0`       | `127.0.0.1`        |
+| `PT_PORT`        | Web 监听端口   | `8080`          | `8888`             |
+| `PT_ADMIN_USER`  | 管理员用户名   | `admin`         | `myadmin`          |
+| `PT_ADMIN_PASS`  | 管理员密码     | `adminadmin`    | `MySecurePass123`  |
+| `PT_ADMIN_RESET` | 重置管理员密码 | -               | `1` (启用)         |
+| `PUID`           | 容器用户 ID    | `1000`          | `1001`             |
+| `PGID`           | 容器组 ID      | `1000`          | `1001`             |
+| `TZ`             | 时区           | `Asia/Shanghai` | `America/New_York` |
+
+### 环境变量使用示例
+
+**Docker 命令行**：
+
+```bash
+docker run -d \
+  -e PT_HOST=0.0.0.0 \
+  -e PT_PORT=8080 \
+  -e PT_ADMIN_USER=admin \
+  -e PT_ADMIN_PASS=your_password \
+  -e TZ=Asia/Shanghai \
+  sunerpy/pt-tools:latest
+```
+
+**Docker Compose**：
+
+```yaml
+environment:
+  PT_HOST: "0.0.0.0"
+  PT_PORT: "8080"
+  PT_ADMIN_USER: "admin"
+  PT_ADMIN_PASS: "your_password"
+  TZ: "Asia/Shanghai"
+```
+
+### 重置管理员密码
+
+如果忘记密码，可以通过环境变量重置：
+
+```bash
+docker run -d \
+  -e PT_ADMIN_RESET=1 \
+  -e PT_ADMIN_USER=admin \
+  -e PT_ADMIN_PASS='新密码' \
+  -v ~/pt-data:/app/.pt-tools \
+  -p 8080:8080 \
+  sunerpy/pt-tools:latest
+```
+
+> 重置完成后，移除 `PT_ADMIN_RESET` 环境变量重新启动容器。
+
+## 代理配置
+
+pt-tools 支持通过标准环境变量配置网络代理，适用于 Docker、systemd 和本地二进制运行。
+
+| 变量                          | 说明                           | 示例                       |
+| ----------------------------- | ------------------------------ | -------------------------- |
+| `HTTP_PROXY` / `http_proxy`   | HTTP 请求代理                  | `http://127.0.0.1:7890`    |
+| `HTTPS_PROXY` / `https_proxy` | HTTPS 请求代理                 | `http://127.0.0.1:7890`    |
+| `ALL_PROXY` / `all_proxy`     | 通用代理（作为回退）           | `socks5://127.0.0.1:1080`  |
+| `NO_PROXY` / `no_proxy`       | 不走代理的地址列表（逗号分隔） | `localhost,127.0.0.1,.lan` |
+
+说明：
+
+- 建议同时设置 `HTTP_PROXY` 和 `HTTPS_PROXY`。
+- 如果未设置 `HTTP_PROXY`/`HTTPS_PROXY`，站点访问和下载器连接会改用 `ALL_PROXY`；RSS 拉取和 Telegram 通道目前只读取 `HTTP_PROXY`/`HTTPS_PROXY`，需要代理时请设置这两个变量（Telegram 也可以在通道里单独填写代理 URL）。
+- `NO_PROXY` 对内网地址非常有用，可避免本地服务或局域网请求走代理。
+
+### 代理配置示例
+
+**Docker 命令行**：
+
+```bash
+docker run -d \
+  --name pt-tools \
+  -p 8080:8080 \
+  -v ~/pt-data:/app/.pt-tools \
+  -e HTTP_PROXY=http://127.0.0.1:7890 \
+  -e HTTPS_PROXY=http://127.0.0.1:7890 \
+  -e ALL_PROXY=socks5://127.0.0.1:1080 \
+  -e NO_PROXY=localhost,127.0.0.1,.lan \
+  sunerpy/pt-tools:latest
+```
+
+**Docker Compose**：
+
+```yaml
+environment:
+  HTTP_PROXY: "http://127.0.0.1:7890"
+  HTTPS_PROXY: "http://127.0.0.1:7890"
+  ALL_PROXY: "socks5://127.0.0.1:1080"
+  NO_PROXY: "localhost,127.0.0.1,.lan"
+```
+
+## 全局设置
+
+在 Web 管理界面的「全局设置」页面可配置以下选项：
+
+| 配置项                 | 说明                               | 默认值      | 建议值           |
+| ---------------------- | ---------------------------------- | ----------- | ---------------- |
+| **默认间隔(分钟)**     | RSS 任务的默认执行间隔             | 10          | 15-30 分钟       |
+| **种子下载目录**       | 保存 `.torrent` 文件的目录         | `downloads` | 根据需求设置     |
+| **启用下载限速判断**   | 用于判断种子是否能在免费期内完成   | 关闭        | 按需开启         |
+| **预估下载速度(MB/s)** | 实际平均下载速度                   | -           | 根据实际带宽设置 |
+| **最大种子大小(GB)**   | 超过此大小的种子将被跳过           | 无限制      | 50-100 GB        |
+| **最短免费时间(分钟)** | 免费剩余时间少于此值的种子将被跳过 | 30          | 20-60 分钟       |
+| **自动启动任务**       | 程序启动时是否自动运行 RSS 任务    | 否          | 是               |
+
+### 限速与免费期计算
+
+启用下载限速判断后，pt-tools 会根据以下公式判断种子是否能在免费期内完成：
+
+```
+预计完成时间 = 种子大小 / 预估下载速度
+如果 预计完成时间 > 免费剩余时间，则跳过该种子
+```
+
+### 最短免费时间
+
+即使不启用限速判断，pt-tools 也会检查免费剩余时间。当种子的免费剩余时间小于「最短免费时间」阈值（默认 30 分钟）时，会自动跳过该种子，避免出现"刚下载就被暂停"的情况，浪费下载配额和带宽。
+
+设置为 0 表示不限制（关闭此检查）。
+
+### 免费结束管理
+
+| 配置项                         | 说明                                                   | 默认值 | 建议值   |
+| ------------------------------ | ------------------------------------------------------ | ------ | -------- |
+| **免费结束自动删除**           | 免费期结束时自动删除未完成的种子及数据，关闭则仅暂停   | 关闭   | 按需开启 |
+| **免费期结束前提前处理(分钟)** | 提前 N 分钟暂停/删除未完成种子，规避删除延迟与汇报滞后 | 0      | ≥5 分钟  |
+
+「免费期结束前提前处理」用于设置一个安全余量：系统会在 `免费结束时间 - N 分钟` 触发暂停或删除，规避删除动作本身的延迟以及下载器到 tracker 的汇报滞后，避免免费期已过仍在产生非免费下载量。
+
+- 取值范围 `[0, 60]` 分钟，超出范围会被自动截断。
+- `0` 表示到点处理（旧行为，向后兼容，老用户无感知）。
+- 由于周期巡检兜底粒度为 5 分钟，建议设置为 `≥5` 分钟；独立定时器精确到秒，主路径不受此粒度限制。
+- 该提前量仅影响免费结束的触发时刻，不影响重试调度（重试触发时刻保持不变）。
+
+## 下载器配置
+
+### 基本配置
+
+pt-tools 支持以下下载器：
+
+| 下载器           | 支持版本 | 推荐程度 |
+| ---------------- | -------- | -------- |
+| **qBittorrent**  | 4.x+     | 推荐     |
+| **Transmission** | 3.x+     | 支持     |
+
+**配置字段说明**：
+
+| 字段         | 说明                   | 示例                           |
+| ------------ | ---------------------- | ------------------------------ |
+| **名称**     | 下载器标识名称         | `家里qBit`、`NAS主力`          |
+| **类型**     | 下载器类型             | `qBittorrent` / `Transmission` |
+| **地址**     | WebUI 地址             | `http://192.168.1.10:8080`     |
+| **用户名**   | 登录用户名             | `admin`                        |
+| **密码**     | 登录密码               | `password`                     |
+| **设为默认** | 是否作为默认下载器     | 是/否                          |
+| **自动开始** | 推送任务后是否自动开始 | 是/否                          |
+
+### 下载目录配置
+
+每个下载器可配置多个下载目录：
+
+| 字段             | 说明               | 示例                     |
+| ---------------- | ------------------ | ------------------------ |
+| **路径**         | 下载目录的实际路径 | `/data/downloads/movies` |
+| **别名**         | 目录的显示名称     | `电影`                   |
+| **设为默认目录** | 是否为默认下载目录 | 是/否                    |
+
+**注意事项**：
+
+- 路径必须是下载器所在机器上的有效路径
+- Docker 环境下需要确保路径已正确映射
+- 别名方便在推送时快速选择
+
+**目录配置示例**：
+
+```
+路径: /data/downloads/movies    别名: 电影     默认: 否
+路径: /data/downloads/tv        别名: 剧集     默认: 是
+路径: /data/downloads/anime     别名: 动漫     默认: 否
+路径: /data/downloads/music     别名: 音乐     默认: 否
+```
+
+## RSS 订阅配置
+
+RSS 订阅是 pt-tools 的核心功能，配置字段如下：
+
+| 字段               | 说明                 | 是否必填 | 示例                       |
+| ------------------ | -------------------- | -------- | -------------------------- |
+| **名称**           | 订阅标识名称         | 是       | `HDSky电影`、`MT电视剧`    |
+| **链接**           | RSS 订阅 URL         | 是       | `https://site.com/rss?...` |
+| **分类**           | 下载器中的分类标签   | 否       | `PT-Auto`                  |
+| **标签**           | 任务标签，便于管理   | 否       | `hdsky,movie`              |
+| **检查间隔(分钟)** | 执行间隔             | 是       | 5-1440 分钟                |
+| **下载器**         | 指定下载器           | 否       | 不指定则用默认             |
+| **下载路径**       | 指定下载目录         | 否       | 不指定则用默认             |
+| **过滤规则**       | 关联的过滤规则       | 否       | 可多选                     |
+| **免费结束暂停**   | 免费期结束时自动暂停 | 否       | 是/否                      |
+
+### RSS 配置建议
+
+| 场景           | 建议间隔   | 是否启用免费暂停 |
+| -------------- | ---------- | ---------------- |
+| **日常刷流**   | 15-30 分钟 | 是               |
+| **追更剧集**   | 10-15 分钟 | 视情况           |
+| **新资源抢种** | 5-10 分钟  | 否               |
+
+详细的 RSS 配置指南请参考 [RSS 订阅配置指南](./guide/rss-subscription.md)。
+
+## 数据持久化
+
+pt-tools 的所有数据存储在数据目录中：
+
+| 内容         | Docker 路径      | 本地路径      | 说明                 |
+| ------------ | ---------------- | ------------- | -------------------- |
+| **数据目录** | `/app/.pt-tools` | `~/.pt-tools` | 所有数据的根目录     |
+| **数据库**   | `torrents.db`    | `torrents.db` | SQLite 数据库文件    |
+| **种子文件** | `downloads/`     | `downloads/`  | 下载的 .torrent 文件 |
+| **日志文件** | `logs/`          | `logs/`       | 运行日志             |
+
+## 日志管理
+
+pt-tools 的日志由两部分组成，需分别管理：
+
+### 1. 应用日志文件（`~/.pt-tools/logs/`）
+
+应用通过 [lumberjack](https://github.com/natefinch/lumberjack) 自动滚动切割，无需手动清理：
+
+| 项目       | 默认值 | 说明                           |
+| ---------- | ------ | ------------------------------ |
+| 单文件上限 | 10 MB  | 超过后自动切割为带时间戳的备份 |
+| 保留天数   | 30 天  | 超过天数的备份在下次切割时删除 |
+| 保留备份数 | 10 个  | 每个日志流最多保留 10 个旧备份 |
+| 压缩       | 开启   | 旧备份以 gzip 压缩存储         |
+
+日志按级别分文件：`all.log`、`info.log`、`error.log`、`debug.log`。四个文件合计上限约 440 MB，不会无限增长。
+
+> 启动时会额外做一次清理，删除超出保留策略的历史备份（针对频繁重启、单文件未达切割阈值导致旧备份滞留的场景）。
+
+可通过环境变量调整启动期行为：
+
+| 环境变量               | 默认值 | 说明                                                                                                                   |
+| ---------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `PT_TOOLS_LOG_LEVEL`   | `info` | 日志级别：`debug`/`info`/`warn`/`error`                                                                                |
+| `PT_TOOLS_LOG_CONSOLE` | `true` | 是否同时输出到控制台（stdout）。默认开启，便于通过 `docker logs` / NAS 控制台查看；设为 `false` 可彻底关闭 stdout 输出 |
+
+### 2. 容器 stdout 日志（Docker 用户必读）
+
+> [!WARNING]
+> **Docker 日志膨胀**：应用日志会同时写到 stdout（便于 `docker logs` / NAS 控制台查看），而 Docker 的 `json-file` 日志驱动**默认无大小上限**，长期运行可能累积到数 GB（曾出现 8GB）。这部分日志位于 `/var/lib/docker/containers/<id>/<id>-json.log`，**不受应用 lumberjack 控制**，必须由 Docker 侧限制。
+
+控制台输出默认开启（`PT_TOOLS_LOG_CONSOLE=true`），以便在飞牛/群晖等 NAS 的容器控制台直接查看日志；**因此务必**为容器配置日志上限，否则 stdout 会被 Docker 无限累积。如确实不需要控制台日志，可设 `PT_TOOLS_LOG_CONSOLE=false` 关闭。
+
+按部署方式选择对应配置：
+
+**Docker Compose（推荐，所有平台通用）**：在服务下添加 `logging` 块。
+
+```yaml
+services:
+  pt-tools:
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+```
+
+**`docker run`**：追加参数。
+
+```bash
+docker run -d \
+  --name pt-tools \
+  --log-opt max-size=10m \
+  --log-opt max-file=3 \
+  ... \
+  sunerpy/pt-tools:latest
+```
+
+**飞牛 NAS（fnOS）/ 群晖 DSM Container Manager / Unraid / Portainer**：
+图形界面创建的容器，多数版本**未开放日志驱动（log driver）配置**。两种处理方式：(1) **长期方案（推荐）**改用 **Docker Compose** 部署并按上述方式配置 `logging`（GUI 已创建的可 SSH 到 NAS 改用 Compose 重建容器，数据目录已持久化不会丢失）；(2) **即时补救**手动清理已堆积的容器日志（见下方「清理已堆积的旧容器日志」）。不建议为单容器去改 `daemon.json`。
+
+**Linux 全局默认**（影响此后新建的所有容器）：编辑 `/etc/docker/daemon.json`。
+
+```json
+{
+  "log-driver": "json-file",
+  "log-opts": { "max-size": "10m", "max-file": "3" }
+}
+```
+
+然后执行 `sudo systemctl restart docker`。⚠️ 该配置**仅对重新创建的容器生效**，已存在的容器需重建后才会应用。
+
+**清理已堆积的旧容器日志**：`docker logs` 无法直接清空，有两种方式：
+
+- 截断日志文件（不影响容器运行）：
+
+  ```bash
+  truncate -s 0 $(docker inspect --format='{{.LogPath}}' pt-tools)
+  ```
+
+- 或重建容器（`docker rm` 后重新创建，数据目录已持久化不会丢失）。
+
+### 数据备份
+
+**备份内容**：`torrents.db`（全部配置和历史记录）和 `secret.key`（加密站点 Cookie 与通知凭证的密钥）。两者必须作为一个整体备份和恢复：只恢复数据库、没有原来的密钥时，已保存的 Cookie 和通知凭证都无法解密。
+
+数据库运行时启用了 WAL 模式，最近的写入可能还在 `torrents.db-wal` 中，因此请先停止 pt-tools 再复制：
+
+```bash
+# Docker 环境（数据目录挂载在 ./data）
+docker compose stop
+tar -czf pt-tools-backup.tar.gz -C ./data torrents.db secret.key
+docker compose start
+
+# 本地环境（systemd）
+sudo systemctl stop pt-tools
+tar -czf pt-tools-backup.tar.gz -C ~/.pt-tools torrents.db secret.key
+sudo systemctl start pt-tools
+```
+
+**恢复方法**：停止 pt-tools，把备份中的 `torrents.db` 和 `secret.key` 放回数据目录覆盖现有文件，再启动。只备份了 base64 形式的密钥时，用 `pt-tools secret import --force` 写回。完整步骤见[升级与备份](guide/upgrade.md)。
+
+## 配置示例
+
+### 完整 Docker Compose 配置
+
+```yaml
+services:
+  pt-tools:
+    image: sunerpy/pt-tools:latest
+    container_name: pt-tools
+    environment:
+      PT_HOST: "0.0.0.0"
+      PT_PORT: "8080"
+      PT_ADMIN_USER: "admin"
+      PT_ADMIN_PASS: "your_secure_password"
+      TZ: "Asia/Shanghai"
+      PUID: "1000"
+      PGID: "1000"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/.pt-tools
+      - /path/to/downloads:/downloads # 可选：映射下载目录
+    restart: unless-stopped
+```
+
+### 典型使用场景配置
+
+**场景 1：纯刷流**
+
+- RSS 间隔：15-30 分钟
+- 只下载免费种子
+- 启用免费结束暂停
+- 设置最大种子大小限制
+
+**场景 2：追剧 + 刷流**
+
+- RSS 间隔：10 分钟
+- 创建追剧过滤规则，允许非免费
+- 创建通用规则，只下载免费
+- 启用免费结束暂停
+
+**场景 3：多站点管理**
+
+- 每个站点单独配置 RSS
+- 配置多个下载器（如家里、公司）
+- 设置不同的下载目录
+- 使用标签区分来源
+
+---
+
+相关文档：
+
+- [RSS 订阅配置指南](./guide/rss-subscription.md)
+- [获取认证信息指南](./guide/get-cookie-apikey.md)
+- [过滤规则与追剧指南](./guide/filter-rules-tv-series.md)
