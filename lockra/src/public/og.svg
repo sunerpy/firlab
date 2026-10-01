@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Lockra — two-factor codes that stay on your computer. An encrypted authenticator for Windows, macOS and Linux.">
+  <title>Lockra — two-factor codes that stay on your computer.</title>
+  <!-- The source of og.png (1200 × 630, rendered in a browser with the site's fonts;
+       lockra/README.md). The colours are the site's light theme (theme/styles/tokens.css); the
+       two rows are a real capture of the app (screens/codes-en-light.webp). -->
+
+  <!-- Ground -->
+  <rect width="1200" height="630" fill="#F3F6FA"/>
+
+  <!-- Accent hairline, top edge: the brand orange marks, it never carries text -->
+  <rect x="0" y="0" width="1200" height="6" fill="#F97316"/>
+
+  <!-- The app mark (lockra-logo.svg) and the name -->
+  <g transform="translate(88, 84)">
+    <svg width="60" height="60" viewBox="0 0 100 100">
+      <rect width="100" height="100" rx="22" fill="#0B1220"/>
+      <path d="M50 18 A32 32 0 1 1 18 50" fill="none" stroke="#F97316" stroke-width="8" stroke-linecap="round"/>
+      <path d="M42 47 V42 A8 8 0 0 1 58 42 V47" fill="none" stroke="#E7EDF5" stroke-width="6" stroke-linecap="round"/>
+      <rect x="36" y="46" width="28" height="23" rx="5" fill="#E7EDF5"/>
+      <circle cx="50" cy="55.5" r="3.5" fill="#0B1220"/>
+      <rect x="48.25" y="56" width="3.5" height="7" rx="1.75" fill="#0B1220"/>
+    </svg>
+    <text x="80" y="43"
+      font-family="'Instrument Sans Variable', 'Instrument Sans', 'Segoe UI', system-ui, sans-serif"
+      font-size="40" font-weight="650" letter-spacing="-0.6" fill="#0B1220">Lockra</text>
+  </g>
+
+  <!-- Headline -->
+  <text
+    font-family="'Instrument Sans Variable', 'Instrument Sans', 'Segoe UI', system-ui, sans-serif"
+    font-size="76" font-weight="650" letter-spacing="-1.6" fill="#0B1220">
+    <tspan x="84" y="270">Two-factor codes that</tspan>
+    <tspan x="84" y="356">stay on your computer.</tspan>
+  </text>
+
+  <text x="88" y="418"
+    font-family="'Instrument Sans Variable', 'Instrument Sans', 'Segoe UI', system-ui, sans-serif"
+    font-size="28" font-weight="450" fill="#475569">An encrypted authenticator for Windows, macOS and Linux.</text>
+
+  <!-- Two rows of the codes page, a real capture, framed by a hairline -->
+  <clipPath id="rows">
+    <rect x="88" y="470" width="640" height="80" rx="12"/>
+  </clipPath>
+  <g clip-path="url(#rows)">
+    <rect x="88" y="470" width="640" height="80" fill="#FFFFFF"/>
+    <svg x="88" y="470" width="640" height="80" viewBox="335 162 994 124" preserveAspectRatio="xMidYMid slice">
+      <image href="/screens/codes-en-light.webp" width="1440" height="900"/>
+    </svg>
+  </g>
+  <rect x="88.5" y="470.5" width="639" height="79" rx="12" fill="none" stroke="#DCE4EE"/>
+
+  <text x="1112" y="562" text-anchor="end"
+    font-family="'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Consolas, monospace"
+    font-size="24" fill="#5B6779">firlab.app/lockra</text>
+</svg>

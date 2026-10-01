@@ -35,3 +35,8 @@ docs/.vitepress-cache/
 # The Voltip sub-site, which installs on its own the same way (voltip/README.md).
 voltip/dist/
 voltip/.vitepress-cache/
+
+# The Lockra sub-site, which installs on its own the same way and is published inside
+# firlab.app under /lockra/ (lockra/README.md).
+lockra/dist/
+lockra/.vitepress-cache/

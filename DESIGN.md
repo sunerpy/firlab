@@ -1305,3 +1305,34 @@ gradient, no card grid with icons, no nested cards, no side stripes, no centred 
 redrawn chrome, no invented number, at most two families (Instrument Sans for display and body,
 JetBrains Mono for labels and code), no italic heading, contrast at least 4.5:1, and no
 horizontal scroll or wrapped button from 320 to 1440 px.
+
+## 11. Product documentation inside firlab.app: firlab.app/lockra
+
+`lockra/` is the §10 site for a second product, published under a path of this site instead of
+on a subdomain: VitePress builds it with `base: '/lockra/'` and `deploy.yml` copies it to
+`dist/lockra/`. It keeps everything §10 records — palette, code contrast, buttons and links,
+type, the `<main>` home root — through the same files with an `lk-` prefix
+(`lockra/src/.vitepress/theme/styles/`). This section records only what differs, with the
+reason; `lockra/README.md` covers ownership and deployment.
+
+**A path, not a subdomain (user decision 2026-10-01).** The owner asked for the site to live at
+a route of firlab.app rather than on a domain of its own. A path needs no DNS record, no
+certificate and no second Pages project, and GitHub Pages serves the whole of firlab.app from
+one artifact. The cost is that the sub-site's links must carry the base: pages link without it
+and VitePress adds it, the theme's components wrap every path in `withBase`, the `head` paths
+carry it by hand, and `lockra/scripts/check-dist.sh` fails the build if any root-relative link,
+asset or sitemap entry leaves `/lockra/` (a missing base would land on firlab.app's own pages,
+which exist, so nothing else would notice).
+
+**Lockra's mark has the same three values.** Lockra's icon is the §1 ink `#0B1220` square with
+a pale `#E7EDF5` lock and an orange `#F97316` countdown arc, so the §10 palette applies as it is
+and the orange keeps its role: the arc in the logo, the status dots, never text.
+
+**Layout.** The hero has one capture, the app's codes page in the site's theme, and no motion:
+Lockra has no overlay to cycle through. The home bands after the hero are the feature index,
+moving accounts in four steps, three text-and-evidence splits (moving accounts with a table of
+each app's way in and way back, backups and protection with short points), the platform table,
+what is kept where, the install paragraph, and what is deliberately left out (a dashed plate,
+as §10's "not built" list). The screenshots are real captures of the app with made-up accounts,
+taken by lockra's `scripts/capture-site-screens.sh`.
+
