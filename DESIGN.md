@@ -610,7 +610,7 @@ to fall out of step.
 | pt-tools | `sunerpy/pt-tools` | `v0.47.3` | `2026-09-15` |
 | CodeGraph | `sunerpy/codegraph-rust` | `v0.51.0` | `2026-10-01` |
 | AgentLens | `sunerpy/AgentLens` | `v0.0.7` | `2026-08-13` |
-| Voltip | `sunerpy/voltip` | `v0.0.17` | `2026-10-01` |
+| Voltip | `sunerpy/voltip` | `v0.0.18` | `2026-10-01` |
 | Lockra | `sunerpy/lockra` | `v0.1.1` | `2026-10-01` |
 
 **The source of truth is the GitHub release tag, never a product manifest.** The

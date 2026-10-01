@@ -27,7 +27,7 @@ export const codegraphReleased = '2026-10-01';
 export const AGENTLENS_VERSION = 'v0.0.7';
 export const AGENTLENS_RELEASED = '2026-08-13';
 
-export const VOLTIP_VERSION = 'v0.0.17';
+export const VOLTIP_VERSION = 'v0.0.18';
 export const VOLTIP_RELEASED = '2026-10-01';
 
 export const LOCKRA_VERSION = 'v0.1.1';
