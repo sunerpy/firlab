@@ -25,9 +25,9 @@
  *   - Lockra reads Microsoft Authenticator accounts only from that app's
  *     database on a rooted Android phone (the app has no export), and work or
  *     school accounts cannot be moved. Never state the import without that
- *     condition. Lockra goes online only for its own updates: a check when
- *     the user asks or once automatic checks are on, and the download of a
- *     newer release. Never flatten that to "no network connections".
+ *     condition. Lockra goes online only for its own updates: a check and a
+ *     download when the user asks, or at start once automatic updates are on.
+ *     Never flatten that to "no network connections".
  *
  * ORDER IS MEANING. The array order is the index order, and it is sorted by
  * maturity, not by age — pt-tools leads because it is the most released thing
@@ -367,7 +367,7 @@ const zh: PageContent = {
         },
         {
           term: '更新',
-          value: '在「设置 › 关于」中检查并安装，也可以开启自动检查（默认关闭）。只安装带有 Lockra 签名的新版本，被改动过的或较旧的安装包都会被拒绝。',
+          value: '有新版本时标题栏会提示，在更新对话框中查看更新内容并安装；也可以开启自动更新（默认关闭），在后台下载、重启时安装。只安装带有 Lockra 签名的新版本，被改动过的或较旧的安装包都会被拒绝。',
         },
         {
           term: '平台',
@@ -656,7 +656,7 @@ const en: PageContent = {
         {
           term: 'Updates',
           value:
-            'Checked for and installed from Settings › About, or found by an automatic check you can turn on (off by default). Only a newer release signed by Lockra installs; a tampered or older package is refused.',
+            'The title bar tells you when a new version is out and opens the update dialog with its notes; automatic updates (off by default) download it in the background and install it when Lockra restarts. Only a newer release signed by Lockra installs; a tampered or older package is refused.',
         },
         {
           term: 'Platforms',
