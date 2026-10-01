@@ -1,11 +1,10 @@
 ---
-import { getRelativeLocaleUrl } from 'astro:i18n';
 import ProductMark from './ProductMark.astro';
 import StatusTag from './StatusTag.astro';
 import SpecGrid from './SpecGrid.astro';
 import InstallBlock from './InstallBlock.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
-import type { Product } from '../i18n/content';
+import { productHref, type Product } from '../i18n/content';
 
 /**
  * ProductEntry — one entry in the index, in one of FOUR STRUCTURALLY DISTINCT
@@ -60,7 +59,7 @@ const { lang, product } = Astro.props;
 const t = useTranslations(lang);
 
 const { weight } = product;
-const detailHref = getRelativeLocaleUrl(lang, product.detail);
+const detailHref = productHref(lang, product);
 const links = product.links ?? [];
 
 const markName = `view-transition-name: mark-${product.id}`;

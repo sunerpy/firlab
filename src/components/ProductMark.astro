@@ -9,10 +9,11 @@
  * the marks here match the marks on the user's dock. pt-tools is lifted from brand/pt-tools/logo.svg
  * for the same reason — regenerate that first, then port the geometry here.
  * CodeGraph has no icon yet, so its three-node graph is drawn to the same
- * geometric language.
+ * geometric language. Lockra's lock in its countdown ring is lifted from its
+ * Logo component the same way.
  */
 interface Props {
-  product: 'pttools' | 'codegraph' | 'agentlens' | 'voltip';
+  product: 'pttools' | 'codegraph' | 'agentlens' | 'voltip' | 'lockra';
   /** Rendered size in px. */
   size?: number;
   class?: string;
@@ -25,6 +26,7 @@ const label = {
   codegraph: 'CodeGraph mark',
   agentlens: 'AgentLens mark',
   voltip: 'Voltip mark',
+  lockra: 'Lockra mark',
 }[product];
 ---
 
@@ -101,6 +103,35 @@ const label = {
         <path d="M7.1 8 L17.55 8 L24 22.7 L24 43 Z" fill="currentColor" opacity="0.5" />
         <path d="M30.45 8 L40.9 8 L24 43 L24 22.7 Z" fill="var(--color-mark)" />
       </>
+    )
+  }
+  {
+    product === 'lockra' && (
+      <g transform="translate(24 24) scale(0.5556) translate(-50 -50)">
+        {/* From lockra packages/ui/src/components/Logo.tsx (100-unit viewBox),
+            plate removed, scaled by 5/9 about its centre so the ring's outer
+            edge spans 4–44 like the other marks. The pale lock becomes
+            currentColor so it follows the theme, its keyhole cut out (even-odd)
+            where the logo painted the plate's navy; the orange three-quarter
+            ring, a code's countdown, keeps the brand mark. */}
+        <path
+          d="M50 18 A32 32 0 1 1 18 50"
+          stroke="var(--color-mark)"
+          stroke-width="8"
+          stroke-linecap="round"
+        />
+        <path
+          d="M42 47 V42 A8 8 0 0 1 58 42 V47"
+          stroke="currentColor"
+          stroke-width="6"
+          stroke-linecap="round"
+        />
+        <path
+          fill="currentColor"
+          fill-rule="evenodd"
+          d="M41 46 H59 A5 5 0 0 1 64 51 V64 A5 5 0 0 1 59 69 H41 A5 5 0 0 1 36 64 V51 A5 5 0 0 1 41 46 Z M48.25 58.53 A3.5 3.5 0 1 1 51.75 58.53 V61.25 A1.75 1.75 0 0 1 48.25 61.25 Z"
+        />
+      </g>
     )
   }
 </svg>

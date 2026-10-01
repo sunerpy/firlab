@@ -22,6 +22,10 @@
  *   - Voltip's on-device path keeps audio on the computer; the cloud and AI
  *     polish paths send audio or text to the service the user chose. Never
  *     flatten that to "nothing leaves your machine".
+ *   - Lockra reads Microsoft Authenticator accounts only from that app's
+ *     database on a rooted Android phone (the app has no export), and work or
+ *     school accounts cannot be moved. Never state the import without that
+ *     condition. Lockra itself makes no network connections at all.
  *
  * ORDER IS MEANING. The array order is the index order, and it is sorted by
  * maturity, not by age — pt-tools leads because it is the most released thing
@@ -30,12 +34,15 @@
  * site contradicting itself.
  */
 
+import { getRelativeLocaleUrl } from 'astro:i18n';
 import type { Lang } from './ui';
 import {
   AGENTLENS_RELEASED,
   AGENTLENS_VERSION,
   codegraphReleased,
   codegraphVersion,
+  LOCKRA_RELEASED,
+  LOCKRA_VERSION,
   pttoolsReleased,
   pttoolsVersion,
   VOLTIP_RELEASED,
@@ -44,7 +51,7 @@ import {
 
 export type Status = 'live' | 'early' | 'wip';
 export type Weight = 'lead' | 'major' | 'standard' | 'pending';
-export type ProductId = 'pttools' | 'codegraph' | 'agentlens' | 'voltip';
+export type ProductId = 'pttools' | 'codegraph' | 'agentlens' | 'voltip' | 'lockra';
 
 export interface Spec {
   term: string;
@@ -73,7 +80,11 @@ export interface Product {
   install?: { label: string; lines: InstallLine[] };
   /** External links. Empty for anything with no public repository. */
   links?: { label: string; href: string }[];
-  /** Path to the in-site detail page, relative to the locale root. */
+  /**
+   * Path to the in-site detail page, relative to the locale root. A product whose
+   * own site is published under a path of firlab.app (Lockra, at `/lockra/`) gives
+   * that site's absolute path in this locale instead; see `productHref`.
+   */
   detail: string;
   /** Right-column note, used where there is nothing to link to yet. */
   note?: string;
@@ -102,18 +113,19 @@ const CODEGRAPH_REPO = 'https://github.com/sunerpy/codegraph-rust';
 const AGENTLENS_REPO = 'https://github.com/sunerpy/AgentLens';
 const VOLTIP_REPO = 'https://github.com/sunerpy/voltip';
 const VOLTIP_SITE = 'https://voltip.firlab.app';
+const LOCKRA_REPO = 'https://github.com/sunerpy/lockra';
 
 const zh: PageContent = {
   title: 'FirLab — 本地优先的开发者工具',
   description:
-    'PT 站点订阅与统计的自动化工具、确定性的代码知识图谱、编码 Agent 的用量归档，以及按住说话、文字直接出现在光标处的语音输入。四个自部署的工具，作者 sunerpy。',
+    'PT 站点订阅与统计的自动化工具、确定性的代码知识图谱、编码 Agent 的用量归档、按住说话、文字直接出现在光标处的语音输入，以及不联网的两步验证器。五个自部署的工具，作者 sunerpy。',
   ogAlt: 'FirLab — sunerpy 构建的开发者工具',
 
   // No trailing 。 — a full-width period at display size opens a visible hole
   // at the end of the line, and Chinese display headings conventionally omit it.
-  heroHeadline: '四个工具，数据都留在你自己的机器上',
+  heroHeadline: '五个工具，数据都留在你自己的机器上',
   heroLede:
-    '目前四个：PT 站点的订阅与统计自动化、确定性的代码知识图谱、编码 Agent 的用量归档，以及按住说话、文字出现在光标处的语音输入。全部自部署，索引、归档和凭据都落在你运行它的那台机器上。',
+    '目前五个：PT 站点的订阅与统计自动化、确定性的代码知识图谱、编码 Agent 的用量归档、按住说话、文字出现在光标处的语音输入，以及不联网的两步验证器。全部自部署，索引、归档和凭据都落在你运行它的那台机器上。',
   heroLedeAccent: 'FirLab 是 sunerpy 的工具集合。',
 
   products: [
@@ -322,6 +334,46 @@ const zh: PageContent = {
         { label: '发布页', href: `${VOLTIP_REPO}/releases` },
       ],
     },
+    {
+      id: 'lockra',
+      index: '05',
+      name: 'Lockra',
+      role: '离线的两步验证器 · 桌面应用',
+      status: 'early',
+      weight: 'standard',
+      version: LOCKRA_VERSION,
+      released: LOCKRA_RELEASED,
+      detail: '/lockra/zh/',
+      body: '把两步验证码保存在本机的一个加密文件里，点一下账号就复制当前的验证码。可以拍下 Google 身份验证器的导出二维码迁入账号，也可以读取已 root 的 Android 手机上 Microsoft Authenticator 的数据库；反过来也能生成二维码迁回手机。Lockra 不建立任何网络连接，主密码忘记后无法找回。',
+      specs: [
+        {
+          term: '验证码',
+          value: 'TOTP 与 HOTP，SHA1、SHA256 或 SHA512，6 到 8 位，任意周期。复制 30 秒后，剪贴板里若还是这个验证码就清空。',
+        },
+        {
+          term: '迁移',
+          value:
+            '迁入：Google 身份验证器的导出二维码、已 root 的 Android 手机上 Microsoft Authenticator 的数据库、otpauth 链接与列表。迁出：给这两个应用的二维码。工作或学校账号无法迁移。',
+        },
+        {
+          term: '备份',
+          value: '加密的 .lockrabackup 文件。每次改动后几秒自动写入你选择的文件夹，默认保留最近 10 份；恢复时可以逐个合并，也可以整体替换。',
+        },
+        {
+          term: '保护',
+          value: '保险库用主密码派生的密钥加密（Argon2id、XChaCha20-Poly1305），可选用系统钥匙串记住本机；默认空闲 5 分钟自动锁定。',
+        },
+        {
+          term: '平台',
+          value: 'Windows 10/11、macOS 11 及以上（Apple 芯片与 Intel）、Linux，均有 x64 与 ARM64 安装包。Apache-2.0 许可。',
+        },
+        { term: '技术栈', value: 'Rust · Tauri 2 · React 19。' },
+      ],
+      links: [
+        { label: '仓库', href: LOCKRA_REPO },
+        { label: '发布页', href: `${LOCKRA_REPO}/releases` },
+      ],
+    },
   ],
 
   principles: [
@@ -346,12 +398,12 @@ const zh: PageContent = {
 const en: PageContent = {
   title: 'FirLab — local-first developer tools',
   description:
-    'Private-tracker automation, deterministic code knowledge graph, usage archives for coding agents, and push-to-talk dictation that types at your cursor. Self-hosted.',
+    'Private-tracker automation, deterministic code knowledge graph, usage archives for coding agents, push-to-talk dictation that types at your cursor, and an offline two-factor authenticator. Self-hosted.',
   ogAlt: 'FirLab — developer tools by sunerpy',
 
-  heroHeadline: 'Four tools that keep your data on your own machine.',
+  heroHeadline: 'Five tools that keep your data on your own machine.',
   heroLede:
-    'Four so far: feed, search and statistics automation for private trackers, a deterministic code knowledge graph, a usage archive for coding agents, and push-to-talk dictation that types at your cursor. All self-hosted — the index, the archive and the credentials stay on the host you run them on.',
+    'Five so far: feed, search and statistics automation for private trackers, a deterministic code knowledge graph, a usage archive for coding agents, push-to-talk dictation that types at your cursor, and a two-factor authenticator that never goes online. All self-hosted — the index, the archive and the credentials stay on the host you run them on.',
   heroLedeAccent: 'FirLab is where sunerpy builds developer tools.',
 
   products: [
@@ -563,6 +615,50 @@ const en: PageContent = {
         { label: 'Releases', href: `${VOLTIP_REPO}/releases` },
       ],
     },
+    {
+      id: 'lockra',
+      index: '05',
+      name: 'Lockra',
+      role: 'Offline two-factor authenticator · desktop app',
+      status: 'early',
+      weight: 'standard',
+      version: LOCKRA_VERSION,
+      released: LOCKRA_RELEASED,
+      detail: '/lockra/',
+      body: 'Keeps your two-factor codes in one encrypted file on your computer; click an account to copy its current code. Move accounts in by photographing Google Authenticator’s export codes, or by reading Microsoft Authenticator’s database from a rooted Android phone, and back out to either app as QR codes. Lockra makes no network connections, and a forgotten master password cannot be recovered.',
+      specs: [
+        {
+          term: 'Codes',
+          value:
+            'TOTP and HOTP, SHA1, SHA256 or SHA512, 6 to 8 digits, any period. A copied code is cleared from the clipboard after 30 seconds if it is still there.',
+        },
+        {
+          term: 'Moving accounts',
+          value:
+            'In: Google Authenticator’s export codes, Microsoft Authenticator’s database from a rooted Android phone, otpauth links and lists. Out: QR codes for either app. Work and school accounts cannot be moved.',
+        },
+        {
+          term: 'Backups',
+          value:
+            'Encrypted .lockrabackup files. A few seconds after every change one goes to a folder you choose, and the newest 10 are kept by default; restore account by account or in full.',
+        },
+        {
+          term: 'Protection',
+          value:
+            'The vault is encrypted with a key derived from the master password (Argon2id, XChaCha20-Poly1305), optionally remembered in the system keychain; it locks after five idle minutes by default.',
+        },
+        {
+          term: 'Platforms',
+          value:
+            'Windows 10/11, macOS 11 or later (Apple silicon and Intel) and Linux, with x64 and ARM64 installers. Apache-2.0.',
+        },
+        { term: 'Stack', value: 'Rust · Tauri 2 · React 19.' },
+      ],
+      links: [
+        { label: 'Repository', href: LOCKRA_REPO },
+        { label: 'Releases', href: `${LOCKRA_REPO}/releases` },
+      ],
+    },
   ],
 
   principles: [
@@ -585,6 +681,17 @@ const en: PageContent = {
 };
 
 const content = { 'zh-cn': zh, en } as const satisfies Record<Lang, PageContent>;
+
+/**
+ * The URL of a product's page. Every link to it goes through here, so a product
+ * with an absolute `detail` cannot be sent through the locale prefix by one
+ * surface and not another: Lockra's English site is `/lockra/`, and
+ * `getRelativeLocaleUrl('en', 'lockra/')` would make that `/en/lockra/`, which
+ * does not exist.
+ */
+export function productHref(lang: Lang, product: Pick<Product, 'detail'>): string {
+  return product.detail.startsWith('/') ? product.detail : getRelativeLocaleUrl(lang, product.detail);
+}
 
 export function getContent(lang: Lang): PageContent {
   return content[lang];

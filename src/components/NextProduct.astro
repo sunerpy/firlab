@@ -1,9 +1,8 @@
 ---
-import { getRelativeLocaleUrl } from 'astro:i18n';
 import ProductMark from './ProductMark.astro';
 import { useWayfinding } from '../i18n/wayfinding';
 import type { Lang } from '../i18n/ui';
-import type { Product, ProductId } from '../i18n/content';
+import { productHref, type Product, type ProductId } from '../i18n/content';
 
 /**
  * NextProduct — the pager that gives a detail page an ending.
@@ -43,7 +42,7 @@ const wrapped = at !== -1 && nextIndex < at;
 {
   next.id !== currentId && (
     <nav aria-label={w('pager.nav')} class="border-rule u-reveal border-t">
-      <a href={getRelativeLocaleUrl(lang, next.detail)} class="u-pager u-arrow-host block">
+      <a href={productHref(lang, next)} class="u-pager u-arrow-host block">
         <div class="u-shell flex flex-wrap items-end justify-between gap-x-10 gap-y-6 py-12 md:py-16">
           <div class="min-w-0">
             <p class="u-meta text-ink-mute">

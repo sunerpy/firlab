@@ -4,7 +4,7 @@ import Wordmark from './Wordmark.astro';
 import SocialRow from './SocialRow.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 import { useWayfinding } from '../i18n/wayfinding';
-import type { Product, ProductId } from '../i18n/content';
+import { productHref, type Product, type ProductId } from '../i18n/content';
 
 /**
  * SiteFooter — two shapes, because a footer has two different jobs on this site.
@@ -95,7 +95,7 @@ const home = getRelativeLocaleUrl(lang, '');
                 ) : (
                   <li>
                     <a
-                      href={getRelativeLocaleUrl(lang, product.detail)}
+                      href={productHref(lang, product)}
                       class="u-display-latin u-link-draw text-ink-mute hover:text-accent font-mono text-sm no-underline"
                     >
                       {product.name}
@@ -117,7 +117,7 @@ const home = getRelativeLocaleUrl(lang, '');
             {products.map((product) => (
               <li>
                 <a
-                  href={getRelativeLocaleUrl(lang, product.detail)}
+                  href={productHref(lang, product)}
                   class="u-display-latin font-mono"
                 >
                   {product.name}
