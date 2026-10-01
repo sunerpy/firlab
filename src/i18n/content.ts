@@ -25,7 +25,9 @@
  *   - Lockra reads Microsoft Authenticator accounts only from that app's
  *     database on a rooted Android phone (the app has no export), and work or
  *     school accounts cannot be moved. Never state the import without that
- *     condition. Lockra itself makes no network connections at all.
+ *     condition. Lockra goes online only for its own updates: a check when
+ *     the user asks or once automatic checks are on, and the download of a
+ *     newer release. Never flatten that to "no network connections".
  *
  * ORDER IS MEANING. The array order is the index order, and it is sorted by
  * maturity, not by age — pt-tools leads because it is the most released thing
@@ -118,14 +120,14 @@ const LOCKRA_REPO = 'https://github.com/sunerpy/lockra';
 const zh: PageContent = {
   title: 'FirLab — 本地优先的开发者工具',
   description:
-    'PT 站点订阅与统计的自动化工具、确定性的代码知识图谱、编码 Agent 的用量归档、按住说话、文字直接出现在光标处的语音输入，以及不联网的两步验证器。五个自部署的工具，作者 sunerpy。',
+    'PT 站点订阅与统计的自动化工具、确定性的代码知识图谱、编码 Agent 的用量归档、按住说话、文字直接出现在光标处的语音输入，以及离线使用的两步验证器。五个自部署的工具，作者 sunerpy。',
   ogAlt: 'FirLab — sunerpy 构建的开发者工具',
 
   // No trailing 。 — a full-width period at display size opens a visible hole
   // at the end of the line, and Chinese display headings conventionally omit it.
   heroHeadline: '五个工具，数据都留在你自己的机器上',
   heroLede:
-    '目前五个：PT 站点的订阅与统计自动化、确定性的代码知识图谱、编码 Agent 的用量归档、按住说话、文字出现在光标处的语音输入，以及不联网的两步验证器。全部自部署，索引、归档和凭据都落在你运行它的那台机器上。',
+    '目前五个：PT 站点的订阅与统计自动化、确定性的代码知识图谱、编码 Agent 的用量归档、按住说话、文字出现在光标处的语音输入，以及离线使用的两步验证器。全部自部署，索引、归档和凭据都落在你运行它的那台机器上。',
   heroLedeAccent: 'FirLab 是 sunerpy 的工具集合。',
 
   products: [
@@ -344,7 +346,7 @@ const zh: PageContent = {
       version: LOCKRA_VERSION,
       released: LOCKRA_RELEASED,
       detail: '/lockra/zh/',
-      body: '把两步验证码保存在本机的一个加密文件里，点一下账号就复制当前的验证码。可以拍下 Google 身份验证器的导出二维码迁入账号，也可以读取已 root 的 Android 手机上 Microsoft Authenticator 的数据库；反过来也能生成二维码迁回手机。Lockra 不建立任何网络连接，主密码忘记后无法找回。',
+      body: '把两步验证码保存在本机的一个加密文件里，点一下账号就复制当前的验证码。可以拍下 Google 身份验证器的导出二维码迁入账号，也可以读取已 root 的 Android 手机上 Microsoft Authenticator 的数据库；反过来也能生成二维码迁回手机。除检查和下载更新外，Lockra 不建立任何网络连接；主密码忘记后无法找回。',
       specs: [
         {
           term: '验证码',
@@ -364,8 +366,12 @@ const zh: PageContent = {
           value: '保险库用主密码派生的密钥加密（Argon2id、XChaCha20-Poly1305），可选用系统钥匙串记住本机；默认空闲 5 分钟自动锁定。',
         },
         {
+          term: '更新',
+          value: '在「设置 › 关于」中检查并安装，也可以开启自动检查（默认关闭）。只安装带有 Lockra 签名的新版本，被改动过的或较旧的安装包都会被拒绝。',
+        },
+        {
           term: '平台',
-          value: 'Windows 10/11、macOS 11 及以上（Apple 芯片与 Intel）、Linux，均有 x64 与 ARM64 安装包。Apache-2.0 许可。',
+          value: 'Windows 10/11、macOS 11 及以上（Apple 芯片与 Intel）、Linux，均有 x64 与 ARM64 安装包，也可以用一条命令安装。Apache-2.0 许可。',
         },
         { term: '技术栈', value: 'Rust · Tauri 2 · React 19。' },
       ],
@@ -403,7 +409,7 @@ const en: PageContent = {
 
   heroHeadline: 'Five tools that keep your data on your own machine.',
   heroLede:
-    'Five so far: feed, search and statistics automation for private trackers, a deterministic code knowledge graph, a usage archive for coding agents, push-to-talk dictation that types at your cursor, and a two-factor authenticator that never goes online. All self-hosted — the index, the archive and the credentials stay on the host you run them on.',
+    'Five so far: feed, search and statistics automation for private trackers, a deterministic code knowledge graph, a usage archive for coding agents, push-to-talk dictation that types at your cursor, and an offline two-factor authenticator. All self-hosted — the index, the archive and the credentials stay on the host you run them on.',
   heroLedeAccent: 'FirLab is where sunerpy builds developer tools.',
 
   products: [
@@ -625,7 +631,7 @@ const en: PageContent = {
       version: LOCKRA_VERSION,
       released: LOCKRA_RELEASED,
       detail: '/lockra/',
-      body: 'Keeps your two-factor codes in one encrypted file on your computer; click an account to copy its current code. Move accounts in by photographing Google Authenticator’s export codes, or by reading Microsoft Authenticator’s database from a rooted Android phone, and back out to either app as QR codes. Lockra makes no network connections, and a forgotten master password cannot be recovered.',
+      body: 'Keeps your two-factor codes in one encrypted file on your computer; click an account to copy its current code. Move accounts in by photographing Google Authenticator’s export codes, or by reading Microsoft Authenticator’s database from a rooted Android phone, and back out to either app as QR codes. Apart from checking for and downloading its own updates, Lockra makes no network connections, and a forgotten master password cannot be recovered.',
       specs: [
         {
           term: 'Codes',
@@ -648,9 +654,14 @@ const en: PageContent = {
             'The vault is encrypted with a key derived from the master password (Argon2id, XChaCha20-Poly1305), optionally remembered in the system keychain; it locks after five idle minutes by default.',
         },
         {
+          term: 'Updates',
+          value:
+            'Checked for and installed from Settings › About, or found by an automatic check you can turn on (off by default). Only a newer release signed by Lockra installs; a tampered or older package is refused.',
+        },
+        {
           term: 'Platforms',
           value:
-            'Windows 10/11, macOS 11 or later (Apple silicon and Intel) and Linux, with x64 and ARM64 installers. Apache-2.0.',
+            'Windows 10/11, macOS 11 or later (Apple silicon and Intel) and Linux, with x64 and ARM64 installers and a one-line install. Apache-2.0.',
         },
         { term: 'Stack', value: 'Rust · Tauri 2 · React 19.' },
       ],
