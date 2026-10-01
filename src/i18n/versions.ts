@@ -18,8 +18,8 @@
  * Lockra joined as product 05 on 2026-10-01, the day of its first release.
  */
 
-export const pttoolsVersion = 'v0.47.3';
-export const pttoolsReleased = '2026-09-15';
+export const pttoolsVersion = 'v0.48.0';
+export const pttoolsReleased = '2026-10-01';
 
 export const codegraphVersion = 'v0.51.0';
 export const codegraphReleased = '2026-10-01';
