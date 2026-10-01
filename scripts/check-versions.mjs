@@ -33,6 +33,12 @@ const products = [
     versionConstant: 'VOLTIP_VERSION',
     releasedConstant: 'VOLTIP_RELEASED',
   },
+  {
+    name: 'Lockra',
+    repository: 'sunerpy/lockra',
+    versionConstant: 'LOCKRA_VERSION',
+    releasedConstant: 'LOCKRA_RELEASED',
+  },
 ];
 
 class CheckFailedError extends Error {}

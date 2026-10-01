@@ -464,6 +464,11 @@ socials repeat *with text labels* in the footer, which is where their accessible
 names depend least on `aria-label` (§6). Moving them off the phone bar is a net
 a11y gain.
 
+Five product links since Lockra joined on 2026-10-01, measured in both languages: the
+links end 168.9px short of the right-hand cluster at 1024px and 168px short at 1280px,
+where the socials appear, and the nav stays on one line with no horizontal overflow at
+375, 768, 1024, 1180, 1280 and 1440px.
+
 `flex-nowrap` is the single-line guarantee: a two-line nav at desktop is a broken
 bar, so groups disappear at these thresholds instead of wrapping. Below 375px the
 theme and language segments tighten by 2px a side — measured, they overran the
@@ -602,10 +607,11 @@ to fall out of step.
 
 | Product | Repository | Version | Released (UTC) |
 | --- | --- | --- | --- |
-| pt-tools | `sunerpy/pt-tools` | `v0.46.0` | `2026-08-10` |
-| CodeGraph | `sunerpy/codegraph-rust` | `v0.42.10` | `2026-08-07` |
+| pt-tools | `sunerpy/pt-tools` | `v0.47.3` | `2026-09-15` |
+| CodeGraph | `sunerpy/codegraph-rust` | `v0.51.0` | `2026-10-01` |
 | AgentLens | `sunerpy/AgentLens` | `v0.0.7` | `2026-08-13` |
-| Voltip | `sunerpy/voltip` | `v0.0.7` | `2026-09-29` |
+| Voltip | `sunerpy/voltip` | `v0.0.17` | `2026-10-01` |
+| Lockra | `sunerpy/lockra` | `v0.1.1` | `2026-10-01` |
 
 **The source of truth is the GitHub release tag, never a product manifest.** The
 products' own manifests trail their tags: measured, AgentLens's `Cargo.toml` read
@@ -649,7 +655,8 @@ claim no human reviewed.
 
 **Every product is in the check.** Voxera, which was private with zero releases and
 therefore excluded, became Voltip on 2026-09-29; Voltip's repository is public, so
-`GITHUB_TOKEN` reads its releases like the others'.
+`GITHUB_TOKEN` reads its releases like the others'. Lockra joined on 2026-10-01, the
+day of its first release, and is in the check from that release on.
 
 One rendering rule follows from the same constant: **the `standard` variant does
 not render a release date; only `lead` and `major` do.** The data exists for all
@@ -673,6 +680,7 @@ was usable today.
 | CodeGraph | `major` | **A 4/7 split.** Identity rail (mark, title, status, version, links) against a reading column (prose, ruled specs, install). Recognisably a documented product, deliberately not a masthead. |
 | AgentLens | `standard` | **One header line** — mark, title, role, status inline — then prose and unruled specs (`plain`) two-up beneath. No meta column at all: an early-release tool has three facts, and a column drawn for eight makes the three look like omissions. |
 | Voltip | `standard` | The AgentLens shape: an early release. Its links lead with its own documentation site, voltip.firlab.app, which carries the full guide; the detail page summarises and hands over to it. |
+| Lockra | `standard` | The AgentLens shape: an early release. It has no detail page here: its name leads to its own documentation site, which this site publishes under `/lockra/` (§11), so its `detail` is that site's absolute path per locale (`/lockra/zh/`, `/lockra/`) and every link resolves it through `productHref` rather than the locale prefix. With no detail page to morph into, the name's view transition does not apply. |
 | (none) | `pending` | **A `.u-plate-draft` enclosure** — dashed on all four sides, no ground, no shadow, muted body, no install block, no version, no external link. It reads as a record of intent. Voxera had this shape until it became Voltip on 2026-09-29; the shape stays for the next unreleased product, and `/voxera/` redirects to `/voltip/`. |
 
 The mark sits **outside** the link, as a sibling, and is lit by
@@ -1335,4 +1343,9 @@ each app's way in and way back, backups and protection with short points), the p
 what is kept where, the install paragraph, and what is deliberately left out (a dashed plate,
 as §10's "not built" list). The screenshots are real captures of the app with made-up accounts,
 taken by lockra's `scripts/capture-site-screens.sh`.
+
+**On the home page.** Lockra is product 05 of the index, in the `standard` shape (§4), and its
+links name the repository and the releases, because the name already leads to the sub-site. Its
+`ProductMark` is the app icon without the plate: the lock in `currentColor` with the keyhole cut
+out where the icon shows the navy plate, inside the three-quarter ring in the mark orange.
 

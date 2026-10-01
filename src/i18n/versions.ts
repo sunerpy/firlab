@@ -15,16 +15,20 @@
  *
  * Voltip replaced the unreleased Voxera as product 04 on 2026-09-29; its
  * repository is public, so `GITHUB_TOKEN` reads its releases like the others.
+ * Lockra joined as product 05 on 2026-10-01, the day of its first release.
  */
 
 export const pttoolsVersion = 'v0.47.3';
 export const pttoolsReleased = '2026-09-15';
 
-export const codegraphVersion = 'v0.50.3';
-export const codegraphReleased = '2026-09-02';
+export const codegraphVersion = 'v0.51.0';
+export const codegraphReleased = '2026-10-01';
 
 export const AGENTLENS_VERSION = 'v0.0.7';
 export const AGENTLENS_RELEASED = '2026-08-13';
 
-export const VOLTIP_VERSION = 'v0.0.7';
-export const VOLTIP_RELEASED = '2026-09-29';
+export const VOLTIP_VERSION = 'v0.0.17';
+export const VOLTIP_RELEASED = '2026-10-01';
+
+export const LOCKRA_VERSION = 'v0.1.1';
+export const LOCKRA_RELEASED = '2026-10-01';

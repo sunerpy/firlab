@@ -1,8 +1,7 @@
 ---
-import { getRelativeLocaleUrl } from 'astro:i18n';
 import StatusTag from './StatusTag.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
-import type { PageContent } from '../i18n/content';
+import { productHref, type PageContent } from '../i18n/content';
 
 /**
  * Hero — left-biased headline (never centred) against the product index, so the
@@ -49,8 +48,9 @@ import type { PageContent } from '../i18n/content';
  * Do not take this back to 4.
  *
  * The headline pays for that column and stays within budget: at 1024px it sets
- * in two lines in both scripts on a 456.5px measure, and the whole index plate
- * still lands 603px down — inside the first viewport, which is the thing this
+ * in two lines in both scripts on a 456.5px measure, and the whole index plate,
+ * five rows since Lockra joined, still ends 632px down (measured 2026-10-01) —
+ * inside the first viewport, which is the thing this
  * layout exists to do. A `lg`→`xl` retreat would have fixed the overflow too,
  * but it moves the index below the lede from 1024–1279px and pushes the plate
  * to 915px, i.e. out of the fold. One column is the cheaper trade.
@@ -125,7 +125,7 @@ const t = useTranslations(lang);
                   has the full row width and no label wraps at any width from 320px
                   up. */}
               <a
-                href={getRelativeLocaleUrl(lang, product.detail)}
+                href={productHref(lang, product)}
                 class="text-ink hover:text-accent u-row u-arrow-host block rounded-[var(--radius-chip)] px-2 py-3.5 no-underline"
               >
                 <span class="flex items-baseline gap-3">
