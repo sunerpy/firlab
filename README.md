@@ -33,16 +33,17 @@ also be triggered manually from the Actions tab.
 Pull requests run [`.github/workflows/ci.yml`](.github/workflows/ci.yml), which
 installs, type-checks, and builds without deploying.
 
-Three product documentation sites live here too, each a VitePress project that
+Four product documentation sites live here too, each a VitePress project that
 installs on its own. Two deploy to Cloudflare Pages on their own subdomains:
 `docs/` is [zuno.firlab.app](https://zuno.firlab.app) (`deploy-docs.yml`) and
 `voltip/` is [voltip.firlab.app](https://voltip.firlab.app) (`deploy-voltip.yml`).
-The third, `lockra/`, has no domain of its own: `deploy.yml` builds it with the
-base `/lockra/` and publishes it inside this site at
-[firlab.app/lockra](https://firlab.app/lockra/) (`lockra-site-ci.yml` checks it on
-pull requests). Their pages are pushed in from the product repositories;
-`docs/README.md`, `voltip/README.md` and `lockra/README.md` describe the sync and
-the one-time setup.
+The other two have no domain of their own: `deploy.yml` builds `lockra/` with the
+base `/lockra/` and `pt-tools/` with the base `/pt-tools/`, and publishes them inside
+this site at [firlab.app/lockra](https://firlab.app/lockra/) and
+[firlab.app/pt-tools](https://firlab.app/pt-tools/) (`lockra-site-ci.yml` and
+`pt-tools-site-ci.yml` check them on pull requests). Their pages are pushed in from
+the product repositories; `docs/README.md`, `voltip/README.md`, `lockra/README.md`
+and `pt-tools/README.md` describe the sync and the one-time setup.
 
 ## Custom domain
 
