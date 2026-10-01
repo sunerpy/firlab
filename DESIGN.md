@@ -608,7 +608,7 @@ to fall out of step.
 | Product | Repository | Version | Released (UTC) |
 | --- | --- | --- | --- |
 | pt-tools | `sunerpy/pt-tools` | `v0.48.0` | `2026-10-01` |
-| CodeGraph | `sunerpy/codegraph-rust` | `v0.51.0` | `2026-10-01` |
+| CodeGraph | `sunerpy/codegraph-rust` | `v0.52.0` | `2026-10-01` |
 | AgentLens | `sunerpy/AgentLens` | `v0.0.7` | `2026-08-13` |
 | Voltip | `sunerpy/voltip` | `v0.0.18` | `2026-10-01` |
 | Lockra | `sunerpy/lockra` | `v0.1.1` | `2026-10-01` |
