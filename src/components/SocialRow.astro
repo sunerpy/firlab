@@ -3,14 +3,14 @@ import SocialIcon, { type SocialId } from './SocialIcon.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 
 /**
- * The five real destinations. There is deliberately no Facebook, no Mastodon
- * and no LinkedIn placeholder: a link that goes nowhere is worse than an
- * absent one.
+ * The five real destinations, plus the WeChat Official Account in the footer
+ * row. There is deliberately no Facebook, no Mastodon and no LinkedIn
+ * placeholder: a link that goes nowhere is worse than an absent one.
  *
- * WeChat has no URL — it is a QR image — so it renders as a disclosure instead
- * of an anchor. Its open/close behaviour is native `<details>`; the layout adds
- * Escape and outside-click on top, so the control still works with scripting
- * off.
+ * WeChat has no URL — both WeChat entries are QR images — so they render as
+ * disclosures instead of anchors. Their open/close behaviour is native
+ * `<details>`; the layout adds Escape, outside-click and one-open-at-a-time on
+ * top, so the controls still work with scripting off.
  */
 interface Props {
   lang: Lang;
@@ -32,6 +32,31 @@ const links: { id: Exclude<SocialId, 'wechat'>; href: string; label: string }[] 
 ];
 
 const showLabels = variant === 'footer';
+
+// The QR entries. The WeChat Official Account is a sixth destination that only
+// the labelled footer row carries: the nav row keeps its five icons, so the nav
+// widths measured in DESIGN.md §2 still hold, and the footer is the contact
+// column anyway. It reuses the WeChat mark; the text label tells the two apart.
+const qrs = [
+  {
+    src: '/wechat-qr.jpg',
+    label: t('social.wechat'),
+    open: t('social.wechat.open'),
+    caption: t('social.wechat.caption'),
+    alt: t('social.wechat.alt'),
+  },
+  ...(showLabels
+    ? [
+        {
+          src: '/wechat-official-account.jpg',
+          label: t('social.wechatOa'),
+          open: t('social.wechatOa'),
+          caption: t('social.wechatOa.caption'),
+          alt: t('social.wechatOa.alt'),
+        },
+      ]
+    : []),
+];
 
 const itemClass = showLabels
   ? 'text-ink-mute hover:text-accent inline-flex items-center gap-2.5 py-1 text-sm no-underline'
@@ -66,34 +91,38 @@ const panelPosition =
     ))
   }
 
-  <li class="relative">
-    <details data-popover class="group">
-      <summary
-        class={itemClass}
-        aria-label={showLabels ? undefined : t('social.wechat.open')}
-        title={showLabels ? undefined : t('social.wechat.open')}
-      >
-        <SocialIcon id="wechat" />
-        {showLabels && <span>{t('social.wechat')}</span>}
-      </summary>
+  {
+    qrs.map((qr) => (
+      <li class="relative">
+        <details data-popover class="group">
+          <summary
+            class={itemClass}
+            aria-label={showLabels ? undefined : qr.open}
+            title={showLabels ? undefined : qr.open}
+          >
+            <SocialIcon id="wechat" />
+            {showLabels && <span>{qr.label}</span>}
+          </summary>
 
-      <div
-        class={`bg-paper border-rule ${panelPosition} z-30 rounded-[var(--radius-control)] border p-3 shadow-[0_18px_44px_-28px_color-mix(in_oklab,var(--ink-900)_70%,transparent)]`}
-      >
-        {/* A QR needs a light ground to scan in either theme, so the plate is
-            white regardless of colour scheme — this is a scanner requirement,
-            not a styling slip. */}
-        <img
-          src="/wechat-qr.jpg"
-          alt={t('social.wechat.alt')}
-          width="430"
-          height="430"
-          loading="lazy"
-          decoding="async"
-          class="block w-full rounded-[var(--radius-chip)] bg-white"
-        />
-        <p class="u-meta text-ink-mute mt-2.5 text-center">{t('social.wechat.caption')}</p>
-      </div>
-    </details>
-  </li>
+          <div
+            class={`bg-paper border-rule ${panelPosition} z-30 rounded-[var(--radius-control)] border p-3 shadow-[0_18px_44px_-28px_color-mix(in_oklab,var(--ink-900)_70%,transparent)]`}
+          >
+            {/* A QR needs a light ground to scan in either theme, so the plate is
+                white regardless of colour scheme — this is a scanner requirement,
+                not a styling slip. */}
+            <img
+              src={qr.src}
+              alt={qr.alt}
+              width="430"
+              height="430"
+              loading="lazy"
+              decoding="async"
+              class="block w-full rounded-[var(--radius-chip)] bg-white"
+            />
+            <p class="u-meta text-ink-mute mt-2.5 text-center">{qr.caption}</p>
+          </div>
+        </details>
+      </li>
+    ))
+  }
 </ul>
