@@ -1,52 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="FirLab — local-first developer tools">
-  <title>FirLab — local-first developer tools</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="FirLab — 开源的桌面应用、命令行工具与自部署服务">
+  <title>FirLab — 开源的桌面应用、命令行工具与自部署服务</title>
+  <!-- Source of public/og.png, which is a 1200×630 render of this file. It names no
+       product on purpose: a card that lists the apps goes stale the day one is added. -->
 
-  <!-- Ground -->
-  <rect width="1200" height="630" fill="#080D16"/>
+  <!-- Ground: the app icons' navy -->
+  <rect width="1200" height="630" fill="#0B1220"/>
 
   <!-- Accent hairline, top edge -->
   <rect x="0" y="0" width="1200" height="6" fill="#F97316"/>
 
-  <!-- Wordmark: bracket glyph + FIRLAB -->
-  <g transform="translate(88, 92)">
-    <g stroke-linecap="square">
-      <path d="M2 0 L2 46" stroke="#F2F6FB" stroke-width="6.5"/>
-      <path d="M2 6 L44 6" stroke="#F97316" stroke-width="6.5"/>
-      <path d="M2 23 L30 23" stroke="#F2F6FB" stroke-width="6.5"/>
-      <path d="M2 40 L18 40" stroke="#F2F6FB" stroke-width="6.5" opacity="0.45"/>
-    </g>
-    <text x="66" y="36"
-      font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace"
-      font-size="30" letter-spacing="5.4" fill="#F2F6FB">FIRLAB</text>
+  <!-- The bracket glyph at display size, top right. Solid tints of #F2F6FB on the
+       navy (16% and 9%) rather than opacity, so the strokes do not brighten where
+       they cross; the spine is drawn after the faint arm and before the orange one. -->
+  <g transform="translate(934, 112)" stroke-linecap="square">
+    <path d="M10 170 L76 170" stroke="#202634" stroke-width="28"/>
+    <path d="M10 98 L128 98" stroke="#303643" stroke-width="28"/>
+    <path d="M10 0 L10 196" stroke="#303643" stroke-width="28"/>
+    <path d="M10 26 L178 26" stroke="#F97316" stroke-width="28"/>
   </g>
 
-  <!-- Headline -->
-  <text
-    font-family="Charter, Cambria, Georgia, 'Times New Roman', serif"
-    font-size="76" fill="#F2F6FB" letter-spacing="-1.6">
-    <tspan x="88" y="292">Local-first tools for reading</tspan>
-    <tspan x="88" y="378">code and watching agents.</tspan>
-  </text>
+  <!-- Brand line -->
+  <text x="82" y="282"
+    font-family="system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+    font-size="136" font-weight="700" letter-spacing="-3" fill="#F2F6FB">FirLab</text>
 
-  <!-- Rule -->
-  <rect x="88" y="440" width="1024" height="1" fill="#1F2A38"/>
+  <!-- What it offers, in both languages -->
+  <text x="88" y="386"
+    font-family="'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', system-ui, sans-serif"
+    font-size="44" font-weight="600" fill="#DDE5F0">开源的桌面应用、命令行工具与自部署服务</text>
+  <text x="88" y="440"
+    font-family="system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+    font-size="26" fill="#8D9BB0">Open-source desktop apps, command-line tools and self-hosted services</text>
 
-  <!-- Product ledger -->
-  <g font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace" font-size="25">
-    <text x="88" y="496" fill="#7C8CA3">01</text>
-    <text x="146" y="496" fill="#DDE5F0">CodeGraph</text>
-    <text x="146" y="530" fill="#2DD4BF" font-size="16" letter-spacing="1.4">ACTIVELY RELEASED</text>
-
-    <text x="456" y="496" fill="#7C8CA3">02</text>
-    <text x="514" y="496" fill="#DDE5F0">AgentLens</text>
-    <text x="514" y="530" fill="#FB923C" font-size="16" letter-spacing="1.4">RELEASED · EARLY</text>
-
-    <text x="824" y="496" fill="#7C8CA3">03</text>
-    <text x="882" y="496" fill="#DDE5F0">Voltip</text>
-    <text x="882" y="530" fill="#FB923C" font-size="16" letter-spacing="1.4">RELEASED · EARLY</text>
-  </g>
-
-  <text x="88" y="588"
+  <!-- Rule and address line -->
+  <rect x="88" y="512" width="1024" height="1" fill="#1F2A38"/>
+  <text x="88" y="566"
     font-family="ui-monospace, 'SF Mono', Menlo, Consolas, monospace"
-    font-size="17" fill="#7C8CA3" letter-spacing="1.8">FIRLAB.APP</text>
+    font-size="22" font-weight="600" fill="#F97316" letter-spacing="2.2">FIRLAB.APP</text>
 </svg>

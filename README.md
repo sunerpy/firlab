@@ -1,7 +1,8 @@
 # firlab
 
-Source for [firlab.app](https://firlab.app) — a landing page that indexes the
-developer tools I build and maintain.
+Source for [firlab.app](https://firlab.app) — the catalog of FirLab's open-source
+apps: desktop apps, command-line tools and self-hosted services, each with its
+overview, documentation and downloads.
 
 ## Stack
 
@@ -10,11 +11,12 @@ developer tools I build and maintain.
 - [Tailwind CSS](https://tailwindcss.com) 4 via `@tailwindcss/vite`
 - TypeScript, checked with `astro check`
 - `@astrojs/sitemap` for `sitemap-index.xml`
-- Zero client-side JavaScript — no framework runtime ships to the browser
+- No client-side framework — the only JavaScript is two small inline scripts
+  (the theme control, and the popovers and copy buttons)
 
 ## Local development
 
-Requires Node 22 (see `.node-version`) and pnpm 9.
+Requires Node 22 (see `.node-version`) and pnpm 10 (pinned in `package.json`).
 
 ```sh
 pnpm install     # install dependencies
@@ -23,6 +25,14 @@ pnpm check       # astro check (TypeScript + Astro diagnostics)
 pnpm build       # production build into ./dist
 pnpm preview     # serve ./dist locally to verify the build
 ```
+
+## Adding an app
+
+The home page, the header's app menu, the footer and the release list all render
+from one list, `src/i18n/products.ts`. A new app is an entry there, two version
+constants in `src/i18n/versions.ts` plus a row in `scripts/check-versions.mjs`,
+and its icon in `src/components/AppIcon.astro`. [DESIGN.md §4](DESIGN.md#4-the-catalog)
+has the checklist and the rules for its one-line description.
 
 ## Deployment
 

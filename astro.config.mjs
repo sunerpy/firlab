@@ -35,8 +35,8 @@ export default defineConfig({
     format: 'directory',
   },
 
-  // Product 04 was Voxera, an unreleased project; it became Voltip on 2026-09-29.
-  // The old detail URLs were indexed, so they redirect instead of 404ing.
+  // Voxera, an unreleased project, became Voltip on 2026-09-29. Its old URLs were
+  // indexed, so they redirect instead of 404ing.
   redirects: {
     '/voxera': '/voltip/',
     '/en/voxera': '/en/voltip/',

@@ -1,0 +1,143 @@
+---
+import type { ProductId } from '../i18n/products';
+
+/**
+ * AppIcon — each product's app icon, drawn inline: one SVG on the shipped icons'
+ * 100-unit grid, navy tile included, so the site makes no image request for it and
+ * the icon is crisp at every size.
+ *
+ * The geometry and colours are lifted from the shipped icons, so the card on this
+ * site and the icon in the reader's dock are the same picture:
+ *   pt-tools   brand/pt-tools/logo.svg (1024 grid, scaled to 100)
+ *   AgentLens  AgentLens src-tauri/icons/source/icon.svg — a plateless hexagon,
+ *              set on the tile at 72% so it sits like the others
+ *   Voltip     voltip packages/ui/src/components/Logo.tsx
+ *   Lockra     lockra apps/desktop/src-tauri/icons/icon.svg
+ *   CodeGraph  has no shipped icon yet; three resolved nodes in the same palette.
+ *
+ * The tile does not follow the theme — an app icon is the same object on a light
+ * page and a dark one. Only its rim (`--tile-edge`) does, so a navy tile keeps its
+ * silhouette on the near-black dark page.
+ *
+ * Decorative by default: every use sits next to the product's name, and a second
+ * announcement of that name helps nobody. Pass `label` where the icon stands alone.
+ */
+interface Props {
+  product: ProductId;
+  /** Rendered size in px. */
+  size?: number;
+  label?: string;
+  class?: string;
+  /** `view-transition-name`, so a card's icon can morph into a product page header. */
+  transitionName?: string;
+}
+
+const { product, size = 48, label, class: className = '', transitionName } = Astro.props;
+
+const NAVY = '#0B1220';
+const PALE = '#E7EDF5';
+const ORANGE = '#F97316';
+const TEAL = '#14B8A6';
+const SLATE = '#64748B';
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 100 100"
+  fill="none"
+  class={`shrink-0 ${className}`}
+  style={transitionName ? `view-transition-name: ${transitionName}` : undefined}
+  {...(label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' })}
+>
+  <rect width="100" height="100" rx="22" fill={NAVY}></rect>
+  <rect
+    x="0.5"
+    y="0.5"
+    width="99"
+    height="99"
+    rx="21.5"
+    stroke="var(--tile-edge)"
+    stroke-width="1"
+  ></rect>
+
+  {
+    product === 'pttools' && (
+      <>
+        <path
+          d="M18.75 31.25 L37.5 50 L18.75 68.75"
+          stroke={TEAL}
+          stroke-width="12.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <rect x="56.25" y="37.5" width="31.25" height="25" fill={ORANGE} />
+      </>
+    )
+  }
+
+  {
+    product === 'codegraph' && (
+      <>
+        <path
+          d="M32 32 L71 44 M32 32 L43 72 M71 44 L43 72"
+          stroke={PALE}
+          stroke-width="4"
+          stroke-linecap="round"
+          opacity="0.5"
+        />
+        <circle cx="32" cy="32" r="10" fill={ORANGE} />
+        <circle cx="71" cy="44" r="7" fill={TEAL} />
+        <circle cx="43" cy="72" r="7" fill={PALE} />
+      </>
+    )
+  }
+
+  {
+    product === 'agentlens' && (
+      <g transform="translate(50 50) scale(0.072) translate(-512 -512)">
+        <path d="M 512 34.816 L 98.747 273.408 L 98.747 750.592 L 512 989.184 Z" fill={PALE} />
+        <path d="M 512 34.816 L 925.253 273.408 L 925.253 512 L 512 512 Z" fill={ORANGE} />
+        <path d="M 512 512 L 925.253 512 L 925.253 750.592 L 512 989.184 Z" fill={TEAL} />
+        <path
+          d="M 512 34.816 L 512 989.184 M 512 512 L 925.253 512 M 512 34.816 L 925.253 273.408 L 925.253 750.592 L 512 989.184 L 98.747 750.592 L 98.747 273.408 Z"
+          stroke={SLATE}
+          stroke-width="28.672"
+          stroke-linejoin="round"
+          stroke-linecap="round"
+        />
+      </g>
+    )
+  }
+
+  {
+    product === 'voltip' && (
+      <>
+        <polygon points="22.5,22 39.5,22 50,46 50,79" fill={PALE} />
+        <polygon points="60.5,22 77.5,22 50,79 50,46" fill={ORANGE} />
+      </>
+    )
+  }
+
+  {
+    product === 'lockra' && (
+      <>
+        <path
+          d="M50 18 A32 32 0 1 1 18 50"
+          stroke={ORANGE}
+          stroke-width="8"
+          stroke-linecap="round"
+        />
+        <path
+          d="M42 47 V42 A8 8 0 0 1 58 42 V47"
+          stroke={PALE}
+          stroke-width="6"
+          stroke-linecap="round"
+        />
+        <rect x="36" y="46" width="28" height="23" rx="5" fill={PALE} />
+        <circle cx="50" cy="55.5" r="3.5" fill={NAVY} />
+        <rect x="48.25" y="56" width="3.5" height="7" rx="1.75" fill={NAVY} />
+      </>
+    )
+  }
+</svg>

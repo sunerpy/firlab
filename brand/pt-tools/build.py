@@ -104,7 +104,7 @@ horizontally. What reads as imbalance is mass rather than geometry - the solid
 block outweighs the thin stroke - and that is what the layout above corrects.
 
 Construction language is inherited from the shipped sibling icons (AgentLens,
-Voxera, CodeGraph): 1024 canvas, hard angles, no gradients, and the same
+Voltip, CodeGraph): 1024 canvas, hard angles, no gradients, and the same
 palette, so the four product marks sit together.
 
 Paper is no longer used in the icon - the mark is two colours on the plate. That
@@ -182,7 +182,7 @@ def mark_body(caret: str, cursor: str, indent: str = "  ") -> str:
     )
 
 
-PLATE_R = 204.8  # 20% of 1024 - the same corner radius as the Voxera app icon
+PLATE_R = 204.8  # 20% of 1024
 
 
 def write_logo() -> None:

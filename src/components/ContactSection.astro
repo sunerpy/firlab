@@ -1,0 +1,61 @@
+---
+import SocialIcon from './SocialIcon.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+import type { HomeContent } from '../i18n/content';
+
+/**
+ * ContactSection — where to report a problem, and the WeChat Official Account.
+ *
+ * Issues go to each product's own repository, so the feedback card points at the
+ * GitHub profile, where every repository is one click away, rather than at one
+ * product's tracker.
+ *
+ * The Official Account's QR code is shown inline here rather than behind a
+ * disclosure: this is the one place on the page whose whole job is to be
+ * scanned. Its plate is white in both themes because a scanner needs a light
+ * ground — a requirement, not a styling slip, and the same rule as the footer's
+ * QR panels.
+ */
+interface Props {
+  lang: Lang;
+  content: HomeContent;
+}
+
+const { lang, content } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<div class="u-reveal grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+  <section aria-labelledby="feedback-title" class="u-card flex flex-col p-6 sm:p-8">
+    <h2 id="feedback-title" class="u-display text-title-sm">{content.feedbackTitle}</h2>
+    <p class="text-ink-body u-measure mt-3">{content.feedbackBody}</p>
+    <div class="mt-auto pt-6">
+      <a
+        href="https://github.com/sunerpy"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="u-btn u-btn-secondary"
+      >
+        <SocialIcon id="github" size={18} />
+        {content.feedbackLink}
+      </a>
+    </div>
+  </section>
+
+  <section aria-labelledby="follow-title" class="u-card flex items-center gap-5 p-6 sm:gap-7 sm:p-8">
+    <img
+      src="/wechat-official-account.jpg"
+      alt={t('social.wechatOa.alt')}
+      width="430"
+      height="430"
+      loading="lazy"
+      decoding="async"
+      class="border-rule size-28 shrink-0 rounded-[var(--radius-chip)] border bg-white p-1.5 sm:size-32"
+    />
+    <div class="min-w-0">
+      <h2 id="follow-title" class="u-display text-title-sm">{content.followTitle}</h2>
+      <p class="text-ink mt-2 text-lg font-semibold">{content.followBody}</p>
+      <p class="text-ink-mute mt-1 text-sm">{t('social.wechatOa.caption')}</p>
+    </div>
+  </section>
+</div>

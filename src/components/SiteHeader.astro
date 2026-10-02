@@ -1,0 +1,144 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import Wordmark from './Wordmark.astro';
+import AppIcon from './AppIcon.astro';
+import SocialIcon from './SocialIcon.astro';
+import ThemeSwitch from './ThemeSwitch.astro';
+import LangSwitch from './LangSwitch.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+import { products, productHref, type ProductId } from '../i18n/products';
+
+/**
+ * SiteHeader — the sticky bar on every page: wordmark, the app menu, GitHub, theme
+ * and language.
+ *
+ * Products are reached through ONE menu rather than one link each, so the bar's
+ * width does not depend on how many products exist. A link per product needed
+ * its widths re-measured at every breakpoint whenever one was added; the menu
+ * holds any number, in catalog order, with each product's icon and category.
+ *
+ * The menu is a `<details>` disclosure, so it opens and closes with scripting off
+ * and announces its expanded state natively; the layout's script adds Escape,
+ * outside-click and one-open-at-a-time. The `<details>` itself is NOT positioned:
+ * the panel is placed against the bar's content column instead, so on a 320px
+ * phone it can use the full column rather than starting under the summary and
+ * running off the right edge.
+ *
+ * On a product page that product's entry is marked `aria-current="page"` and is
+ * not a link to itself.
+ */
+interface Props {
+  lang: Lang;
+  /** Set on a product page. */
+  currentId?: ProductId;
+}
+
+const { lang, currentId } = Astro.props;
+const t = useTranslations(lang);
+
+const home = getRelativeLocaleUrl(lang, '');
+---
+
+<header class="u-header">
+  <div class="u-shell relative flex h-16 items-center gap-2 sm:gap-3">
+    {/* Below 420px only the 18px glyph shows. A pseudo-element grows the hit area
+        8px on every side (34 × 45px) without widening the bar, which at 320px has
+        no width to give. */}
+    <a
+      href={home}
+      class="text-ink hover:text-ink relative inline-flex shrink-0 items-center no-underline before:absolute before:-inset-2"
+      aria-label={t('nav.home')}
+    >
+      <Wordmark compact />
+    </a>
+
+    <nav aria-label={t('nav.label')} class="ml-1 sm:ml-4">
+      <details data-popover class="group">
+        <summary
+          class="text-ink-soft hover:text-ink hover:bg-block group-open:bg-block group-open:text-ink inline-flex h-9 items-center gap-1.5 rounded-[var(--radius-control)] px-3 text-sm font-medium"
+        >
+          {t('nav.apps')}
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 12 12"
+            fill="none"
+            aria-hidden="true"
+            class="transition-transform duration-200 group-open:rotate-180"
+          >
+            <path
+              d="M2.5 4.5 L6 8 L9.5 4.5"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+        </summary>
+
+        <div
+          class="u-popover absolute top-[calc(100%_+_0.25rem)] left-[var(--gutter)] z-50 w-[min(22rem,calc(100%_-_2*var(--gutter)))] p-2"
+        >
+          <p class="u-meta text-ink-mute px-2.5 pt-1.5 pb-2">{t('nav.appsList')}</p>
+          <ul>
+            {
+              products.map((product) => (
+                <li>
+                  {product.id === currentId ? (
+                    <span
+                      aria-current="page"
+                      class="bg-block flex items-center gap-3 rounded-[var(--radius-control)] px-2.5 py-2"
+                    >
+                      <AppIcon product={product.id} size={36} />
+                      <span class="min-w-0">
+                        <span class="text-ink block text-sm font-semibold">{product.name}</span>
+                        <span class="text-ink-mute block text-xs">
+                          {t(`category.${product.category}`)}
+                          <span class="sr-only"> — {t('nav.current')}</span>
+                        </span>
+                      </span>
+                    </span>
+                  ) : (
+                    <a
+                      href={productHref(lang, product)}
+                      class="u-row flex items-center gap-3 rounded-[var(--radius-control)] px-2.5 py-2 no-underline"
+                    >
+                      <AppIcon product={product.id} size={36} />
+                      <span class="min-w-0">
+                        <span class="text-ink block text-sm font-semibold">{product.name}</span>
+                        <span class="text-ink-mute block text-xs">{t(`category.${product.category}`)}</span>
+                      </span>
+                    </a>
+                  )}
+                </li>
+              ))
+            }
+          </ul>
+          <div class="border-rule mt-1.5 border-t pt-1.5">
+            <a
+              href={`${home}#apps`}
+              class="u-row u-arrow-host text-ink-soft flex items-center justify-between rounded-[var(--radius-control)] px-2.5 py-2 text-sm no-underline"
+            >
+              {t('nav.allApps')}
+              <span aria-hidden="true" class="u-arrow text-ink-mute">→</span>
+            </a>
+          </div>
+        </div>
+      </details>
+    </nav>
+
+    <div class="ml-auto flex shrink-0 items-center gap-2">
+      <a
+        href="https://github.com/sunerpy"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="u-icon-btn hidden sm:inline-flex"
+        aria-label={t('social.github')}
+        title={t('social.github')}
+      >
+        <SocialIcon id="github" />
+      </a>
+      <ThemeSwitch lang={lang} />
+      <LangSwitch lang={lang} />
+    </div>
+  </div>
+</header>

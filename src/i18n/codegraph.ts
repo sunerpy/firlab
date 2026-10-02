@@ -72,34 +72,18 @@ export interface CodeGraphContent {
   /* ---- head ---- */
   title: string;
   description: string;
-  ogAlt: string;
 
-  /* ---- breadcrumb ---- */
-  crumbLabel: string;
-  crumbHome: string;
-  crumbCurrent: string;
-
-  /* ---- masthead ---- */
-  eyebrow: string;
-  name: string;
+  /* ---- header (name, version, licence and links come from the catalog) ---- */
   role: string;
   ledeAccent: string;
   lede: string;
-
-  /* ---- meta ledger ---- */
-  metaLabel: string;
-  licenseTerm: string;
-  licenseValue: string;
   packageTerm: string;
   packageValue: string;
+  tocLabel: string;
+
+  /* ---- closing links ---- */
   repoLabel: string;
   releasesLabel: string;
-
-  /* ---- determinism callout ---- */
-  claimLabel: string;
-  claimTitle: string;
-  claimBody: string;
-  claimPoints: string[];
 
   /* ---- sections ---- */
   problem: SectionHead;
@@ -166,42 +150,24 @@ const zh: CodeGraphContent = {
   title: 'CodeGraph — 确定性代码知识图谱 · FirLab',
   description:
     'tree-sitter 把仓库解析成项目级 SQLite 索引，回答谁调用了这个函数、改动它会牵连到哪里。二进制里没有任何模型，同一个问题在任何机器上返回同样的字节。CLI、MCP stdio、MCP HTTP 三个入口共用一份索引。',
-  ogAlt: 'CodeGraph — sunerpy 构建的确定性代码知识图谱',
 
-  crumbLabel: '面包屑',
-  crumbHome: 'FirLab',
-  crumbCurrent: 'CodeGraph',
-
-  eyebrow: '产品 02 · 确定性代码知识图谱',
-  name: 'CodeGraph',
   role: 'tree-sitter → SQLite + FTS5 · CLI + MCP · 无模型',
   ledeAccent: '一份索引，三个入口。',
   lede:
-    'tree-sitter 把仓库解析成项目级的符号、调用与依赖索引，再针对它回答结构性问题：谁调用了这个函数、它能到达什么、改动它会牵连到哪里。这些答案来自一次完整的语法树解析，不是文本匹配的猜测，也不来自任何模型。',
+    'tree-sitter 把仓库解析成项目级的符号、调用与依赖索引，再针对它回答结构性问题：谁调用了这个函数、它能到达什么、改动它会牵连到哪里。这些答案来自一次完整的语法树解析，不是文本匹配的猜测。二进制里没有 embedding、向量索引或 LLM 调用，同一个仓库、同一个问题在任何机器上都返回相同的结果，所以可以交给编码 Agent 使用，也可以放进 CI 做对比。',
 
-  metaLabel: '版本信息',
-  licenseTerm: '许可',
-  licenseValue: 'MIT',
   packageTerm: '包名',
   packageValue: 'codegraph-rs（二进制 codegraph）',
-  repoLabel: '仓库',
-  releasesLabel: '发布页',
+  tocLabel: '本页内容',
 
-  claimLabel: '前提',
-  claimTitle: '里面没有模型，所以输出是可复现的字节',
-  claimBody:
-    '这不是省下来的一个功能，而是整件事成立的前提。二进制里不含 embedding、不含向量索引、不含 LLM 调用，因此同一个仓库、同一个问题，在你的笔记本、同事的机器和 CI runner 上返回完全相同的字节。可复现，才谈得上下面这三件事：',
-  claimPoints: [
-    '交给编码 Agent 时，它拿到的是事实而不是一次采样；同一轮对话里问两次不会得到两个答案。',
-    '放进 CI 里可以 diff —— 影响半径变了就是代码结构变了，而不是模型今天心情不同。',
-    '出错时可以复现。一个确定性的管道，bug 有唯一的重现路径。',
-  ],
+  repoLabel: 'GitHub 仓库',
+  releasesLabel: '发布页',
 
   problem: {
     index: '01',
     title: '它解决什么问题',
     lede:
-      '"改这个函数会碰到哪些地方" 这类问题，grep 答不了。grep 认字符串，不认调用关系：同名的方法、被重新导出的符号、经由 trait 或接口分发的调用，它一律看不见；反过来，注释和字符串里的同名文本它又一定会报出来。于是你回到人工翻文件，一层层往上追调用者，直到自己觉得追干净了 —— 这个"觉得"就是回归 bug 的来源。CodeGraph 把这层结构预先算好、落盘，然后用一次查询回答它。',
+      '「改这个函数会碰到哪些地方」这类问题，grep 答不了。grep 认字符串，不认调用关系：同名的方法、被重新导出的符号、经由 trait 或接口分发的调用，它一律看不见；反过来，注释和字符串里的同名文本它又一定会报出来。于是你回到人工翻文件，一层层往上追调用者，直到自己觉得追干净了 —— 这个「觉得」就是回归 bug 的来源。CodeGraph 把这层结构预先算好、落盘，然后用一次查询回答它。',
   },
   audiences: [
     {
@@ -222,7 +188,7 @@ const zh: CodeGraphContent = {
     {
       index: '04',
       term: 'CI 与代码评审',
-      body: '一次改动的影响半径可以被算出来、被 diff、被写进评审意见。确定性输出让"这次变更比上次多牵连了三个模块"成为一句可以验证的话。',
+      body: '一次改动的影响半径可以被算出来、被 diff、被写进评审意见。确定性输出让「这次变更比上次多牵连了三个模块」成为一句可以验证的话。',
     },
   ],
 
@@ -259,7 +225,7 @@ const zh: CodeGraphContent = {
     index: '03',
     title: '三个入口，同一份索引',
     lede:
-      '索引只建一次。人、Agent 和编辑器分别从最顺手的那个口子进来，看到的是同一份数据，不存在"CLI 的答案和 Agent 的答案不一致"这种情况。',
+      '索引只建一次。命令行、编码 Agent 和编辑器读的是同一份数据，所以三处得到的答案一致。',
   },
   doors: [
     {
@@ -330,7 +296,7 @@ const zh: CodeGraphContent = {
     index: '06',
     title: '语言支持',
     lede:
-      '一共解析 38 种语言，但深度不一样，而深度才是有用的那个数字。下面三档是按提取深度分的，不要把它们合成一个"支持 38 种语言"。',
+      '一共解析 38 种语言，但深度不一样，而深度才是有用的那个数字。下面三档是按提取深度分的，不要把它们合成一个「支持 38 种语言」。',
   },
   langColumns: { tier: '档位', depth: '提取深度', count: '数量', languages: '语言' },
   langTiers: [
@@ -376,7 +342,7 @@ const zh: CodeGraphContent = {
   stackHead: {
     index: '08',
     title: '技术栈与存储',
-    lede: '选型都是为了同一件事：单文件二进制、无外部依赖、输出可复现。',
+    lede: '单个可执行文件，没有外部依赖，同样的输入得到同样的输出。',
   },
   stack: [
     { term: '语言', value: 'Rust，Edition 2024。发布产物是单个可执行文件，不带运行时。' },
@@ -401,13 +367,13 @@ const zh: CodeGraphContent = {
   limitsHead: {
     index: '09',
     title: '它不做什么',
-    lede: '写清边界比多列几条功能有用 —— 尤其是这类容易被误当成别的东西的工具。',
+    lede: '以下几点是有意不做或做不到的，选用前可以先看一遍。',
   },
   limits: [
     {
       index: '01',
       term: '不做相似度检索',
-      body: '没有 embedding，没有向量库，问题不会被转成向量再找最近邻。它回答的是结构性问题，靠的是语法树里真实存在的边。想按"意思相近"找代码，这个工具帮不上。',
+      body: '没有 embedding，没有向量库，问题不会被转成向量再找最近邻。它回答的是结构性问题，靠的是语法树里真实存在的边。想按「意思相近」找代码，这个工具帮不上。',
     },
     {
       index: '02',
@@ -427,14 +393,14 @@ const zh: CodeGraphContent = {
     {
       index: '05',
       term: '语言集合是固定的',
-      body: '不在那 38 种里的语言不会被启发式地"尽量解析一下"，而是直接不进图。这是明确的取舍：宁可少收，也不产出没有依据的边。',
+      body: '不在那 38 种里的语言不会被启发式地「尽量解析一下」，而是直接不进图。这是明确的取舍：宁可少收，也不产出没有依据的边。',
     },
   ],
 
   closeLabel: '获取',
   closeTitle: '在任意仓库里跑一次 init',
   closeBody:
-    '预编译二进制、一键脚本、源码安装三条路都在下面。它是 MIT 许可的个人项目，issue 和 PR 都在同一个仓库里。',
+    '预编译二进制、一键脚本和源码安装三种方式见上面的「安装与上手」。CodeGraph 以 MIT 许可开源，问题和 PR 请提交到它的 GitHub 仓库。',
   backHome: '返回 FirLab',
 };
 
@@ -442,36 +408,18 @@ const en: CodeGraphContent = {
   title: 'CodeGraph — deterministic code knowledge graph · FirLab',
   description:
     'tree-sitter parses a repo into a per-project SQLite index that answers who calls this and what changing it touches. No model inside: same bytes anywhere.',
-  ogAlt: 'CodeGraph — a deterministic code knowledge graph by sunerpy',
 
-  crumbLabel: 'Breadcrumb',
-  crumbHome: 'FirLab',
-  crumbCurrent: 'CodeGraph',
-
-  eyebrow: 'Product 02 · deterministic code knowledge graph',
-  name: 'CodeGraph',
   role: 'tree-sitter → SQLite + FTS5 · CLI + MCP · no model',
   ledeAccent: 'One index, three front doors.',
   lede:
-    'tree-sitter parses a repository into a project-level index of symbols, calls and dependencies, then answers structural questions against it: who calls this, what does this reach, what does changing it touch. Those answers come out of a full syntax-tree parse — not a text match that happened to line up, and not a model.',
+    'tree-sitter parses a repository into a project-level index of symbols, calls and dependencies, then answers structural questions against it: who calls this, what does this reach, what does changing it touch. Those answers come out of a full syntax-tree parse, not a text match that happened to line up. The binary carries no embeddings, no vector index and no LLM call, so the same repository and the same question return the same result on any machine — which is what makes it safe to hand to a coding agent and to compare in CI.',
 
-  metaLabel: 'Release',
-  licenseTerm: 'Licence',
-  licenseValue: 'MIT',
   packageTerm: 'Package',
   packageValue: 'codegraph-rs (binary: codegraph)',
-  repoLabel: 'Repository',
-  releasesLabel: 'Releases',
+  tocLabel: 'On this page',
 
-  claimLabel: 'Premise',
-  claimTitle: 'There is no model inside it, which is why the bytes are reproducible',
-  claimBody:
-    'This is not a feature that was left out — it is the premise the whole thing rests on. The binary carries no embeddings, no vector index and no LLM call, so the same repository and the same question return byte-identical output on your laptop, on a colleague\u2019s machine and on a CI runner. Reproducibility is what makes the next three things possible:',
-  claimPoints: [
-    'Handed to a coding agent, it is a fact rather than a sample. Asking twice in one session cannot produce two different answers.',
-    'It can be diffed in CI. A changed impact radius means the code structure changed, not that the weights felt different today.',
-    'It can be reproduced when it is wrong. A deterministic pipeline gives a bug exactly one path to walk back down.',
-  ],
+  repoLabel: 'GitHub repository',
+  releasesLabel: 'Releases',
 
   problem: {
     index: '01',
@@ -535,7 +483,7 @@ const en: CodeGraphContent = {
     index: '03',
     title: 'Three front doors, one index',
     lede:
-      'The index is built once. People, agents and editors each come in through whichever door suits them and see the same data — there is no case where the CLI answer and the agent answer disagree.',
+      'The index is built once. The command line, coding agents and editors read the same data, so all three get the same answers.',
   },
   doors: [
     {
@@ -657,7 +605,7 @@ const en: CodeGraphContent = {
   stackHead: {
     index: '08',
     title: 'Stack and storage',
-    lede: 'Every choice here serves the same goal: one binary, no external dependency, reproducible output.',
+    lede: 'One executable, no external dependency, and the same output for the same input.',
   },
   stack: [
     { term: 'Language', value: 'Rust, Edition 2024. Shipped as a single executable with no runtime.' },
@@ -691,7 +639,7 @@ const en: CodeGraphContent = {
   limitsHead: {
     index: '09',
     title: 'What it does not do',
-    lede: 'Stating the boundary is worth more than listing another feature — especially for a tool this easy to mistake for something else.',
+    lede: 'These are things it deliberately does not do, or cannot do. Worth reading before you adopt it.',
   },
   limits: [
     {
@@ -724,7 +672,7 @@ const en: CodeGraphContent = {
   closeLabel: 'Get it',
   closeTitle: 'Run init once in any repository',
   closeBody:
-    'Prebuilt binaries, the one-line installer and a source build are all below. It is an MIT-licensed personal project; issues and pull requests live in the same repository.',
+    'Prebuilt binaries, the one-line installer and a source build are covered under Install and first run above. CodeGraph is open source under the MIT licence; issues and pull requests go to its GitHub repository.',
   backHome: 'Back to FirLab',
 };
 
