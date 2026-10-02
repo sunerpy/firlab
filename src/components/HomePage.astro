@@ -1,18 +1,24 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import FloatingNav from './FloatingNav.astro';
-import Hero from './Hero.astro';
-import ProductEntry from './ProductEntry.astro';
-import Principles from './Principles.astro';
+import SiteHeader from './SiteHeader.astro';
+import AppCatalog from './AppCatalog.astro';
+import ReleaseList from './ReleaseList.astro';
+import ContactSection from './ContactSection.astro';
 import SiteFooter from './SiteFooter.astro';
+import SocialIcon from './SocialIcon.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
-import { getContent } from '../i18n/content';
+import { getHomeContent } from '../i18n/content';
+import { products, productHref } from '../i18n/products';
 import { PERSON_ID, FREE_OFFER } from '../i18n/schema';
 
 /**
- * The home page, assembled once and rendered per locale. Keeping both languages
- * on one component is what guarantees they stay structurally identical — a
- * section added to Chinese cannot silently go missing from English.
+ * The home page: a short introduction, the app catalog, the latest releases, and
+ * where to report problems or follow along. Assembled once and rendered per
+ * locale, so the two languages stay structurally identical.
+ *
+ * The introduction names no product and counts none. The catalog below it is the
+ * list, and it is generated, so the page is the same page with five products or
+ * fifteen.
  */
 interface Props {
   lang: Lang;
@@ -20,48 +26,43 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
-const content = getContent(lang);
+const c = getHomeContent(lang);
+const site = Astro.site!;
 
-// SoftwareApplication nodes, one per product.
+// One SoftwareApplication node per product, inside an ItemList.
 //
-// `offers` is free-of-charge and rides on the same `product.version` gate as
-// `softwareVersion`, because that flag is the site's one signal for "has a public
-// release". A product without one would carry no version, no `url` and no price:
-// it is not offered yet, and `price: 0` would assert that it is. There is no
-// `aggregateRating` and no `review` on any of them — see `i18n/schema.ts` for why
-// that is permanent and not an oversight.
+// `offers` is free-of-charge and rides on the same `version` gate as
+// `softwareVersion`: that field is the site's one signal for "has a public
+// release". There is no `aggregateRating` and no `review` on any of them — see
+// `i18n/schema.ts` for why that is permanent and not an oversight.
 //
-// These nodes are deliberately left WITHOUT an `@id`, unlike their detail-page
-// counterparts. Giving them the product IRI would put two different
-// `description` values on one IRI — the summary line here, the full lede there —
-// which is precisely the contradiction the per-locale `@id` work removed. An
-// anonymous node inside the list says "this list contains a thing like this"
-// without claiming to be the authoritative record of it.
-//
-// No `programmingLanguage`: it is not a valid `SoftwareApplication` property.
-// Worth noting that this loop used to hardcode `'Rust'` for all four products,
-// so it was also reporting pt-tools — which is Go — incorrectly. Removing it
-// fixes a validator warning and a factual error in the same edit.
+// The nodes carry no `@id`, unlike their product-page counterparts: giving them
+// the product IRI would put two `description`s on one IRI (the tagline here, the
+// full lede there). An anonymous node inside the list says "this list contains a
+// thing like this" without claiming to be the authoritative record of it.
 const structuredData = [
   {
     '@type': 'ItemList',
-    name: 'FirLab developer tools',
-    itemListOrder: 'https://schema.org/ItemListOrderAscending',
-    numberOfItems: content.products.length,
-    itemListElement: content.products.map((product, i) => ({
+    name: c.appsTitle,
+    itemListOrder: 'https://schema.org/ItemListUnordered',
+    numberOfItems: products.length,
+    itemListElement: products.map((product, i) => ({
       '@type': 'ListItem',
       position: i + 1,
       item: {
         '@type': 'SoftwareApplication',
         name: product.name,
         applicationCategory: 'DeveloperApplication',
-        operatingSystem: 'Linux, macOS, Windows',
-        description: product.body,
+        operatingSystem: product.platforms
+          .filter((platform) => platform !== 'docker')
+          .map((platform) => t(`platform.${platform}`))
+          .join(', '),
+        description: product.tagline[lang],
         author: { '@id': PERSON_ID },
+        url: new URL(productHref(lang, product), site).href,
         ...(product.version
           ? { softwareVersion: product.version.replace(/^v/, ''), offers: FREE_OFFER }
           : {}),
-        ...(product.links?.[0] ? { url: product.links[0].href } : {}),
       },
     })),
   },
@@ -70,27 +71,91 @@ const structuredData = [
 
 <Layout
   lang={lang}
-  title={content.title}
-  description={content.description}
-  ogImageAlt={content.ogAlt}
+  title={c.title}
+  description={c.description}
+  ogImageAlt={c.ogAlt}
   structuredData={structuredData}
 >
-  <FloatingNav lang={lang} products={content.products} />
+  <SiteHeader lang={lang} />
 
   <main id="main" class="u-shell">
-    <Hero lang={lang} content={content} />
+    <section class="u-enter pt-14 pb-14 md:pt-24 md:pb-20">
+      {/* Two lines, one heading: the brand at hero size, then what it offers. The
+          accessible name reads as one sentence, "FirLab 开源的…". */}
+      <h1 class="u-display">
+        <span class="u-display-latin text-hero block">{c.heroTitle}</span>
+        <span class="text-ink-soft mt-3 block max-w-[24em] text-[1.375rem] font-semibold sm:text-title md:mt-4">
+          {
+            c.heroSubtitle.map((phrase, i) => (
+              <>
+                {i > 0 && lang === 'en' && ' '}
+                <span class="inline-block">{phrase}</span>
+              </>
+            ))
+          }
+        </span>
+      </h1>
 
-    {/* Each entry owns its own top rule and top margin — see `.u-band*` and
-        ProductEntry's four shapes. The section adds no spacing of its own,
-        because the boundary between two entries is information (a rule opens a
-        movement, space continues one) and a uniform gap here would flatten it
-        back into the four-identical-bands run this pass exists to remove. */}
-    <section aria-label={t('product.label')}>
-      {content.products.map((product) => <ProductEntry lang={lang} product={product} />)}
+      {/* Sentences are inline-blocks: one that fits the line stays whole, so the
+          lede breaks between sentences rather than mid-word. A sentence longer than
+          the line still wraps inside its own box. English needs the space between
+          them; Chinese sets none after 。. */}
+      <p class="u-lede text-ink-body mt-6 md:mt-7">
+        {
+          c.heroLede.map((sentence, i) => (
+            <>
+              {i > 0 && lang === 'en' && ' '}
+              <span class="inline-block">{sentence}</span>
+            </>
+          ))
+        }
+      </p>
+
+      {/* The QR panel is placed against this row on phones and against its own
+          button from `sm` up: under the second button of a 375px row, a panel
+          anchored to the button would run past the screen's right edge. */}
+      <div class="relative mt-8 flex flex-wrap items-center gap-3">
+        <a
+          href="https://github.com/sunerpy"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="u-btn u-btn-primary"
+        >
+          <SocialIcon id="github" size={18} />
+          {c.heroGithub}
+        </a>
+
+        <details data-popover class="sm:relative">
+          <summary class="u-btn u-btn-secondary">
+            <SocialIcon id="wechat" size={18} />
+            {c.heroFollow}
+          </summary>
+          <div class="u-popover absolute top-[calc(100%_+_0.5rem)] left-0 z-30 w-[13.5rem] p-3">
+            {/* White plate in both themes: a scanner needs a light ground. */}
+            <img
+              src="/wechat-official-account.jpg"
+              alt={t('social.wechatOa.alt')}
+              width="430"
+              height="430"
+              decoding="async"
+              class="block w-full rounded-[var(--radius-chip)] bg-white"
+            />
+            <p class="text-ink-mute mt-2.5 text-center text-xs">{t('social.wechatOa.caption')}</p>
+          </div>
+        </details>
+      </div>
     </section>
 
-    <Principles lang={lang} principles={content.principles} />
+    <AppCatalog lang={lang} title={c.appsTitle} />
+
+    <div class="mt-20 md:mt-28">
+      <ReleaseList lang={lang} title={c.releasesTitle} note={c.releasesNote} />
+    </div>
+
+    <div class="mt-20 mb-24 md:mt-28 md:mb-32">
+      <ContactSection lang={lang} content={c} />
+    </div>
   </main>
 
-  <SiteFooter lang={lang} products={content.products} />
+  <SiteFooter lang={lang} />
 </Layout>

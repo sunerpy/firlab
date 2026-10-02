@@ -13,9 +13,9 @@
  * would make deploys network-dependent or force the same silent stale fallback
  * this module exists to prevent. The network belongs in the check, not the build.
  *
- * Voltip replaced the unreleased Voxera as product 04 on 2026-09-29; its
- * repository is public, so `GITHUB_TOKEN` reads its releases like the others.
- * Lockra joined as product 05 on 2026-10-01, the day of its first release.
+ * Every repository is public, so `GITHUB_TOKEN` reads all of their releases. A new
+ * product adds its two constants here and a row in `scripts/check-versions.mjs`
+ * (see `products.ts`).
  */
 
 export const pttoolsVersion = 'v0.48.0';
@@ -27,7 +27,7 @@ export const codegraphReleased = '2026-10-01';
 export const AGENTLENS_VERSION = 'v0.0.7';
 export const AGENTLENS_RELEASED = '2026-08-13';
 
-export const VOLTIP_VERSION = 'v0.0.25';
+export const VOLTIP_VERSION = 'v0.0.26';
 export const VOLTIP_RELEASED = '2026-10-02';
 
 export const LOCKRA_VERSION = 'v0.4.0';

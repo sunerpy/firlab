@@ -17,8 +17,8 @@
  *   - The Windows installer is not code-signed and the Mac packages are not
  *     notarized; the first start asks for a confirmation.
  *
- * Voltip replaced the unreleased Voxera as product 04 on 2026-09-29; `/voxera/`
- * redirects here (astro.config.mjs).
+ * Voltip is the shipped successor of the unreleased Voxera (2026-09-29); the old
+ * `/voxera/` URLs redirect here (astro.config.mjs).
  */
 
 import type { Lang } from './ui';
@@ -39,9 +39,7 @@ export interface PrivacyMode {
 export interface VoltipContent {
   title: string;
   description: string;
-  ogAlt: string;
 
-  eyebrow: string;
   role: string;
   lede: string;
   /** Leading sentence of the lede, set a step stronger. */
@@ -74,15 +72,13 @@ const zh: VoltipContent = {
   title: 'Voltip — 按住说话的语音输入 · FirLab',
   description:
     '按住快捷键说话，松开后文字出现在任意应用的光标处。本机模型识别时音频不离开电脑，也可以使用内置服务或你选择的云端服务。支持 Windows、macOS 与 Linux。',
-  ogAlt: 'Voltip — 按住说话的语音输入，由 sunerpy 构建',
 
-  eyebrow: '04 · 产品',
   role: '按住说话的语音输入 · 跨平台桌面应用',
   ledeAccent: '按住快捷键说话，松开后文字出现在光标处。',
   lede: '编辑器、终端、聊天窗口和写给编码 Agent 的提示都可以用。识别可以在本机完成，也可以交给你选择的服务；插入之前，文字还可以经过 AI 润色、个人词典和替换规则。',
 
   tocLabel: '本页内容',
-  backToIndex: '返回 FirLab 目录',
+  backToIndex: '返回 FirLab 首页',
 
   purpose: {
     id: 'purpose',
@@ -164,7 +160,7 @@ const zh: VoltipContent = {
     id: 'install',
     num: '04',
     label: '安装',
-    heading: '装到自己机器上',
+    heading: '安装',
     intro:
       '一行命令即可为这台电脑选择合适的安装包，按发布附带的 SHA256SUMS 校验后再安装。也可以从发布页下载安装包。',
     packagesLabel: '安装包',
@@ -201,7 +197,7 @@ const zh: VoltipContent = {
     id: 'maturity',
     num: '06',
     label: '现状',
-    heading: '现在处于什么阶段',
+    heading: '当前状态',
     paras: [
       '早期版本（0.0.x），每个版本都在 Windows、macOS 和 Linux 上构建并发布。应用内可以检查并安装更新。',
       '接下来的工作写在 Voltip 网站的路线图上，下面几项正在开发，尚未包含在发布版本中：',
@@ -218,7 +214,7 @@ const zh: VoltipContent = {
     id: 'links',
     num: '07',
     label: '链接',
-    heading: '在哪里找到它',
+    heading: '链接',
     items: [
       { label: '网站', href: `${VOLTIP_SITE}/zh/` },
       { label: '仓库', href: VOLTIP_REPO },
@@ -231,15 +227,13 @@ const en: VoltipContent = {
   title: 'Voltip — push-to-talk dictation · FirLab',
   description:
     'Hold a shortcut, speak, and let go: the text appears at the cursor in any app. With an on-device model the audio never leaves the computer; the built-in service or a cloud provider you choose also work. Windows, macOS and Linux.',
-  ogAlt: 'Voltip — push-to-talk dictation, built by sunerpy',
 
-  eyebrow: '04 · Product',
   role: 'Push-to-talk dictation · cross-platform desktop app',
   ledeAccent: 'Hold a shortcut, speak, and the text appears at your cursor.',
   lede: 'In an editor, a terminal, a chat window or a prompt to a coding agent. Recognition runs on your computer or on a service you choose, and before the text is inserted it can pass through AI polish, a personal dictionary and replacement rules.',
 
   tocLabel: 'On this page',
-  backToIndex: 'Back to the FirLab index',
+  backToIndex: 'Back to FirLab',
 
   purpose: {
     id: 'purpose',
@@ -321,7 +315,7 @@ const en: VoltipContent = {
     id: 'install',
     num: '04',
     label: 'Install',
-    heading: 'Getting it onto your machine',
+    heading: 'Install',
     intro:
       'One command picks the right package for the computer and checks it against the release’s SHA256SUMS before installing. The packages are also on the releases page.',
     packagesLabel: 'Packages',
@@ -358,7 +352,7 @@ const en: VoltipContent = {
     id: 'maturity',
     num: '06',
     label: 'Status',
-    heading: 'Where it stands',
+    heading: 'Current status',
     paras: [
       'Early (0.0.x), with every release built and published for Windows, macOS and Linux. The app checks for updates and installs them.',
       'What comes next is on the roadmap on the Voltip site. These are being built and are not in a release yet:',
@@ -375,7 +369,7 @@ const en: VoltipContent = {
     id: 'links',
     num: '07',
     label: 'Links',
-    heading: 'Where to find it',
+    heading: 'Links',
     items: [
       { label: 'Website', href: VOLTIP_SITE },
       { label: 'Repository', href: VOLTIP_REPO },

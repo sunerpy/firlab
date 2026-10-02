@@ -1,0 +1,82 @@
+---
+import AppCard from './AppCard.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+import { categories, products, type Category } from '../i18n/products';
+
+/**
+ * AppCatalog — every product, one card each, in a grid that adds columns as the
+ * viewport allows (`auto-fill` over a 19rem minimum). A new product needs no
+ * layout work: it is one more card.
+ *
+ * The category filter is radio inputs plus `:has()`, with no script. The hiding
+ * rules are generated from the categories actually present, so a new category
+ * gets its rule by existing in the data. Where `:has()` is unsupported the rules
+ * are dropped whole and every card stays visible; the chips are hidden in that
+ * case too (`@supports selector(:has(*))`), because a control that does nothing
+ * must not be drawn. With a single category there is nothing to filter, so no
+ * chips are rendered at all.
+ *
+ * Cards sit inside `<li>`s and the stagger animates the `<li>`: a finished
+ * scroll-driven animation holds `transform: none` with `fill-mode: both`, which
+ * would cancel the card's own hover lift if both lived on one element.
+ */
+interface Props {
+  lang: Lang;
+  title: string;
+}
+
+const { lang, title } = Astro.props;
+const t = useTranslations(lang);
+
+const present = categories(products);
+const showFilter = present.length > 1;
+const count = (category?: Category) =>
+  category ? products.filter((product) => product.category === category).length : products.length;
+
+const rules = present
+  .map(
+    (category) =>
+      `#apps:has(#apps-filter-${category}:checked) [data-category]:not([data-category="${category}"]){display:none}`,
+  )
+  .join('');
+---
+
+<section id="apps" aria-labelledby="apps-title" class="u-reveal">
+  <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
+    <h2 id="apps-title" class="u-display text-title">{title}</h2>
+
+    {
+      showFilter && (
+        <fieldset class="u-filter-bar min-w-0">
+          <legend class="sr-only">{t('filter.label')}</legend>
+          <div class="flex flex-wrap gap-2">
+            <label class="u-filter-chip">
+              <input type="radio" name="apps-filter" id="apps-filter-all" value="all" checked />
+              {t('filter.all')}
+              <span class="u-filter-count">{count()}</span>
+            </label>
+            {present.map((category) => (
+              <label class="u-filter-chip">
+                <input type="radio" name="apps-filter" id={`apps-filter-${category}`} value={category} />
+                {t(`filter.${category}`)}
+                <span class="u-filter-count">{count(category)}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      )
+    }
+  </div>
+
+  <ul class="u-stagger mt-7 grid grid-cols-[repeat(auto-fill,minmax(min(100%,19rem),1fr))] gap-4 sm:gap-5">
+    {
+      products.map((product) => (
+        <li data-category={product.category} class="min-w-0">
+          <AppCard lang={lang} product={product} />
+        </li>
+      ))
+    }
+  </ul>
+
+  {showFilter && <style is:inline set:html={`.u-filter-bar{display:none}@supports selector(:has(*)){.u-filter-bar{display:block}${rules}}`} />}
+</section>

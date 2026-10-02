@@ -1,37 +1,26 @@
 ---
-import ProductMark from './ProductMark.astro';
+import AppIcon from './AppIcon.astro';
 import { useWayfinding } from '../i18n/wayfinding';
-import type { Lang } from '../i18n/ui';
-import { productHref, type Product, type ProductId } from '../i18n/content';
+import { useTranslations, type Lang } from '../i18n/ui';
+import { products, productHref, type ProductId } from '../i18n/products';
 
 /**
- * NextProduct — the pager that gives a detail page an ending.
- *
- * Before this existed, a product page simply stopped: the last band closed and
- * the footer began. The reader had finished something without being told they
- * had. A sequential pager is the editorial answer — it closes the page *and*
- * offers the one obvious next move, in the order the index already establishes.
- *
- * It is deliberately a `<nav>` OUTSIDE `<main>`, not another section inside it.
- * That is the whole point of the change: the bottom of a detail page must read
- * as chrome-level "advance", not as one more product pitch. The random-access
- * jump strip lives in the footer below; this is the sequence.
+ * NextProduct — the pager that ends a product page with one obvious next move,
+ * in catalog order. A `<nav>` outside `<main>`, so it reads as navigation rather
+ * than one more section of the page.
  *
  * The sequence wraps, so the last product points back at the first rather than
- * dead-ending. When it wraps, the label says so — an unannounced jump backwards
- * would read as a bug.
- *
- * It is a destination link, not a call to action: it asks for nothing, so it
- * works the same on every page whatever that page offers.
+ * dead-ending; when it wraps the label says so, because an unannounced jump
+ * backwards would read as a bug.
  */
 interface Props {
   lang: Lang;
-  products: Product[];
   currentId: ProductId;
 }
 
-const { lang, products, currentId } = Astro.props;
+const { lang, currentId } = Astro.props;
 const w = useWayfinding(lang);
+const t = useTranslations(lang);
 
 const at = products.findIndex((product) => product.id === currentId);
 const nextIndex = at === -1 ? 0 : (at + 1) % products.length;
@@ -41,42 +30,37 @@ const wrapped = at !== -1 && nextIndex < at;
 
 {
   next.id !== currentId && (
-    <nav aria-label={w('pager.nav')} class="border-rule u-reveal border-t">
-      <a href={productHref(lang, next)} class="u-pager u-arrow-host block">
-        <div class="u-shell flex flex-wrap items-end justify-between gap-x-10 gap-y-6 py-12 md:py-16">
-          <div class="min-w-0">
-            <p class="u-meta text-ink-mute">
-              {w('pager.label')}
-              <span aria-hidden="true" class="mx-2">·</span>
-              <span class="tabular-nums">{next.index}</span>
-              {wrapped && (
-                <>
-                  <span aria-hidden="true" class="mx-2">·</span>
-                  {w('pager.wrap')}
-                </>
-              )}
-            </p>
+    <nav aria-label={w('pager.nav')} class="u-shell u-reveal mt-20 mb-16 md:mt-28 md:mb-24">
+      <article class="u-card u-card-link u-arrow-host group flex items-center gap-5 p-5 sm:gap-6 sm:p-7">
+        <AppIcon product={next.id} size={56} />
 
-            <div class="mt-4 flex items-center gap-4">
-              <ProductMark
-                product={next.id}
-                size={34}
-                class="text-ink-mute u-pager-mark shrink-0"
-              />
-              <span class="u-display u-display-latin text-title text-ink min-w-0">{next.name}</span>
-            </div>
-
-            <p class="text-ink-soft mt-3 max-w-[34rem] font-mono text-sm">{next.role}</p>
-          </div>
-
-          <span
-            aria-hidden="true"
-            class="u-arrow u-display text-accent shrink-0 text-[2.25rem] leading-none"
-          >
-            →
-          </span>
+        <div class="min-w-0 flex-1">
+          <p class="text-ink-mute text-[0.8125rem]">
+            {w('pager.label')}
+            {wrapped && (
+              <>
+                <span aria-hidden="true" class="mx-1.5">
+                  ·
+                </span>
+                {w('pager.wrap')}
+              </>
+            )}
+          </p>
+          <p class="u-display u-display-latin text-title-sm mt-1">
+            <a href={productHref(lang, next)} class="u-stretch group-hover:text-accent">
+              {next.name}
+            </a>
+          </p>
+          <p class="text-ink-body mt-1.5 text-sm">
+            <span class="sr-only">{t(`category.${next.category}`)} — </span>
+            {next.tagline[lang]}
+          </p>
         </div>
-      </a>
+
+        <span aria-hidden="true" class="u-arrow text-ink-mute group-hover:text-accent shrink-0 text-2xl leading-none">
+          →
+        </span>
+      </article>
     </nav>
   )
 }

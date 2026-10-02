@@ -53,9 +53,7 @@ export interface Figure {
 export interface AgentLensContent {
   title: string;
   description: string;
-  ogAlt: string;
 
-  eyebrow: string;
   role: string;
   lede: string;
   /** Leading sentence of the lede, set a step stronger. */
@@ -93,15 +91,13 @@ const zh: AgentLensContent = {
   title: 'AgentLens — 编码 Agent 用量归档 · FirLab',
   description:
     '一个跨平台桌面看板，把本机与 SSH 远端上 OpenCode、Claude Code、Codex 与 Hermes 的用量记录汇总进同一份持久 SQLite 归档，按时区、Agent、模型与项目切分。未知成本标记为缺失，绝不渲染成 0。',
-  ogAlt: 'AgentLens — 编码 Agent 用量归档，由 sunerpy 构建',
 
-  eyebrow: '03 · 产品',
   role: '编码 Agent 用量归档 · 跨平台桌面应用',
-  ledeAccent: '一个桌面看板，回答「这些 Agent 到底做了什么、在哪台机器上做的」。',
-  lede: '几台机器、四种编码 Agent、几万条会话之后，「这个月跑了多少、花在哪、哪台机器上跑的」就没人能凭记忆回答了。AgentLens 把这些记录采到一处，然后老实告诉你哪些数字算得准、哪些算不准。',
+  ledeAccent: '一个桌面看板：编码 Agent 在哪些机器上用了多少、花了多少。',
+  lede: '在几台机器上换着用几种编码 Agent 之后，「这个月用了多少、花在哪里、在哪台机器上」很难再凭记忆回答。AgentLens 把各处的用量记录汇总到本机的一份归档里，并把上游计费、本地估算和查不到价格的记录分开标明。',
 
   tocLabel: '本页内容',
-  backToIndex: '返回 FirLab 目录',
+  backToIndex: '返回 FirLab 首页',
 
   problem: {
     id: 'problem',
@@ -134,7 +130,7 @@ const zh: AgentLensContent = {
     id: 'screens',
     num: '02',
     label: '界面',
-    heading: '实际界面',
+    heading: '界面截图',
     intro:
       '四张实际截图，不是渲染图。除标注为深海蓝的那张，其余都是默认的「石墨浅色」主题；界面语言目前是中文。',
     figureLabel: '图',
@@ -219,12 +215,12 @@ const zh: AgentLensContent = {
     id: 'guarantees',
     num: '04',
     label: '保证',
-    heading: '三件不能出错的事',
+    heading: '数据可靠性',
     items: [
       {
         index: '01',
         term: '归档库是权威历史',
-        body: '源库轮转、备份被删、远端数据目录被整个清空，已归档的记录都还在。归档库是本地一份 SQLite，带去重和按源的水位线；它不是源数据的缓存，而是比源活得更久的那一份。这一条是整个工具存在的前提 —— 一个会跟着源一起缩水的看板，等于没有历史。',
+        body: '源库轮转、备份被删、远端数据目录被整个清空，已归档的记录都还在。归档库是本地一份 SQLite，带去重和按源的水位线；它不是源数据的缓存，来源被清理之后，已归档的记录仍然保留。',
       },
       {
         index: '02',
@@ -234,7 +230,7 @@ const zh: AgentLensContent = {
       {
         index: '03',
         term: '未知成本不写 0',
-        body: '查不到价格的记录标记为缺失，在界面上是一个「成本缺失」徽标，不是 0.0000。这条看着最小，但它决定了成本数字能不能用：一旦缺失被渲染成 0，任何求和、任何占比、任何「这个月比上个月省了多少」都是错的，而且错得看不出来。',
+        body: '查不到价格的记录标记为缺失，界面上显示「成本缺失」徽标，而不是 0.0000。如果把缺失当成 0，求和、占比和环比都会出错，而且从数字上看不出来。',
       },
     ],
   },
@@ -245,7 +241,7 @@ const zh: AgentLensContent = {
     label: '成本',
     heading: '成本是怎么算的',
     intro:
-      '三种来源的金额始终分开保存，绝不相加成一个「总花费」。这是 AgentLens 与多数用量工具最实际的差别。',
+      '三种来源的金额始终分开保存，不相加成一个「总花费」。',
     buckets: [
       {
         term: '上游自带金额',
@@ -261,14 +257,14 @@ const zh: AgentLensContent = {
       },
     ],
     ruleLabel: '结论',
-    rule: '真正能跨模型、跨时间比较的只有每百万可计费 Token 的单价，所以成本卡把它放在最显眼的位置，而不是放那个看着最像账单的总金额 —— 因为那个总金额不是账单。',
+    rule: '能跨模型、跨时间比较的只有每百万可计费 Token 的单价，所以成本卡把它放在最显眼的位置，而不是放一个混合了三种来源的总金额。',
   },
 
   install: {
     id: 'install',
     num: '06',
     label: '安装',
-    heading: '装到自己机器上',
+    heading: '安装',
     intro:
       '预编译包三个。一行式脚本自己认平台，用发布清单校验 SHA-256，不自行提权。也可以从发布页下载后手工校验。',
     packagesLabel: '预编译包',
@@ -302,7 +298,7 @@ const zh: AgentLensContent = {
     id: 'stack',
     num: '07',
     label: '技术栈',
-    heading: '怎么搭起来的',
+    heading: '技术栈',
     specs: [
       {
         term: '后端',
@@ -334,10 +330,10 @@ const zh: AgentLensContent = {
     id: 'maturity',
     num: '08',
     label: '成熟度',
-    heading: '成熟度，说清楚',
+    heading: '当前状态',
     paras: [
-      `${AGENTLENS_VERSION}，发布于 ${AGENTLENS_RELEASED}。这是一个早期版本：能装、能用、每天在用，但版本号就是它的实际状态，没有必要包装成别的样子。界面还在改，数据口径会继续收紧。`,
-      '三平台的 CI 矩阵在 main 上全绿，三平台也都在构建流水线上出过真实安装包。但绿灯只说明缺陷没有复现，不说明产品在那台机器上能起来 —— 这两件事之间的距离，值得写在这里。',
+      `${AGENTLENS_VERSION}，发布于 ${AGENTLENS_RELEASED}。这是早期版本，可以安装和日常使用；界面仍在调整，统计口径也会继续收紧。`,
+      '三个平台的 CI 在 main 分支上全部通过，也都能在构建流水线里产出安装包。CI 通过不等于安装包在真机上验证过，各平台的真机验收情况如下。',
     ],
     verifiedLabel: '真机验收的实际状态',
     verified: [
@@ -347,12 +343,12 @@ const zh: AgentLensContent = {
       },
       {
         term: 'Linux 与 macOS：只到出包',
-        body: '两个平台都能出安装包，但没有做过同样的真机启动验收。这不是「应该没问题」，是「没验过」。',
+        body: '两个平台都能出安装包，但还没有做过同样的真机启动验收。',
       },
     ],
     testsLabel: '测试规模',
     tests:
-      'Rust workspace 426 条，Vitest 560 条，Playwright 组件级 151 条（mock IPC），WebdriverIO 8 个 spec 跑在真 Tauri WebView 上、对一份 15.5 万行的归档库；行覆盖率实测 92.72%，下限 90% 在 CI 里强制。这些数字说明代码被测过，不说明每个平台的安装包都被人手动打开过。',
+      'Rust workspace 426 条，Vitest 560 条，Playwright 组件级 151 条（mock IPC），WebdriverIO 8 个 spec 跑在真 Tauri WebView 上、对一份 15.5 万行的归档库；行覆盖率实测 92.72%，下限 90% 在 CI 里强制。这些是自动化测试的规模，不代表每个平台的安装包都经过人工验收。',
   },
 
   links: {
@@ -371,16 +367,13 @@ const en: AgentLensContent = {
   title: 'AgentLens — usage archive for coding agents · FirLab',
   description:
     'Desktop dashboard archiving OpenCode, Claude Code, Codex and Hermes usage from local and SSH hosts in one SQLite store. Unknown cost is missing, not zero.',
-  ogAlt: 'AgentLens — usage archive for coding agents, built by sunerpy',
 
-  eyebrow: '03 · Product',
   role: 'Usage archive for coding agents · cross-platform desktop app',
-  ledeAccent:
-    'A desktop dashboard for the question “what have these agents actually been doing, and on which machines”.',
-  lede: 'After a few machines, four coding agents and tens of thousands of sessions, nobody can answer “how much ran this month, where did it go, and on which host” from memory. AgentLens pulls those records into one place, then tells you honestly which of its numbers are trustworthy and which are not.',
+  ledeAccent: 'A desktop dashboard: how much your coding agents ran, on which machines, and what it cost.',
+  lede: 'Once you switch between several coding agents on several machines, “how much ran this month, what did it cost, and where” is hard to answer from memory. AgentLens collects the usage records from each place into one local archive, and keeps upstream billing, local estimates and records with no known price apart.',
 
   tocLabel: 'On this page',
-  backToIndex: 'Back to the FirLab index',
+  backToIndex: 'Back to FirLab',
 
   problem: {
     id: 'problem',
@@ -413,7 +406,7 @@ const en: AgentLensContent = {
     id: 'screens',
     num: '02',
     label: 'Interface',
-    heading: 'The actual interface',
+    heading: 'Screenshots',
     intro:
       'Four real screenshots, not renders. All in the default Graphite Light theme except the one marked Deep Blue. The interface currently ships in Chinese.',
     figureLabel: 'Fig.',
@@ -498,12 +491,12 @@ const en: AgentLensContent = {
     id: 'guarantees',
     num: '04',
     label: 'Guarantees',
-    heading: 'Three things it must not get wrong',
+    heading: 'Data integrity',
     items: [
       {
         index: '01',
         term: 'The archive is authoritative history',
-        body: 'When a source database rotates, a backup is deleted, or a remote data directory is wiped entirely, the archived records are still there. The archive is one local SQLite database with deduplication and a per-source watermark. It is not a cache of the sources; it is the copy that outlives them. This is the premise the whole tool rests on — a dashboard that shrinks along with its sources has no history at all.',
+        body: 'When a source database rotates, a backup is deleted, or a remote data directory is wiped entirely, the archived records are still there. The archive is one local SQLite database with deduplication and a per-source watermark. It is not a cache of the sources: the archived records stay after the sources are cleaned up.',
       },
       {
         index: '02',
@@ -513,7 +506,7 @@ const en: AgentLensContent = {
       {
         index: '03',
         term: 'An unknown cost is never written as zero',
-        body: 'A record with no price is marked missing and shows a “cost missing” badge, not 0.0000. It looks like the smallest of the three, and it is the one that decides whether the cost figures are usable at all: once missing renders as zero, every sum, every share and every “we spent less than last month” is wrong — and wrong in a way you cannot see.',
+        body: 'A record with no price is marked missing and shows a “cost missing” badge, not 0.0000. Treating missing as zero would make every sum, share and month-over-month comparison wrong, with nothing in the numbers to show it.',
       },
     ],
   },
@@ -547,7 +540,7 @@ const en: AgentLensContent = {
     id: 'install',
     num: '06',
     label: 'Install',
-    heading: 'Getting it onto your machine',
+    heading: 'Install',
     intro:
       'Three prebuilt packages. The one-line script detects the platform, verifies SHA-256 against the release manifest, and does not elevate on its own. You can also download from the releases page and verify by hand.',
     packagesLabel: 'Prebuilt packages',
@@ -581,7 +574,7 @@ const en: AgentLensContent = {
     id: 'stack',
     num: '07',
     label: 'Stack',
-    heading: 'How it is built',
+    heading: 'Stack',
     specs: [
       {
         term: 'Backend',
@@ -614,10 +607,10 @@ const en: AgentLensContent = {
     id: 'maturity',
     num: '08',
     label: 'Maturity',
-    heading: 'Maturity, stated plainly',
+    heading: 'Current status',
     paras: [
-      `${AGENTLENS_VERSION}, released ${AGENTLENS_RELEASED}. This is an early version: it installs, it works, it gets used daily — and the version number is an accurate description of where it stands, so there is no reason to dress it up. The interface is still moving and the measurement rules will keep tightening.`,
-      'The three-platform CI matrix is green on main, and all three platforms have produced real installers in the build pipeline. But a green run only means no defect reproduced; it does not mean the product comes up on that machine. The distance between those two statements is worth writing down.',
+      `${AGENTLENS_VERSION}, released ${AGENTLENS_RELEASED}. This is an early version: it installs and works for daily use, the interface is still changing, and the measurement rules will keep tightening.`,
+      'CI passes on all three platforms on main, and each platform produces installers in the build pipeline. Passing CI is not the same as verifying an installer on a real machine; the status per platform is below.',
     ],
     verifiedLabel: 'Real-machine verification, as it stands',
     verified: [
@@ -627,12 +620,12 @@ const en: AgentLensContent = {
       },
       {
         term: 'Linux and macOS: packaged only',
-        body: 'Both platforms produce installers, but neither has had the equivalent real-machine launch verification. That is not “it should be fine” — it is “it has not been checked”.',
+        body: 'Both platforms produce installers, but neither has had the same real-machine launch check yet.',
       },
     ],
     testsLabel: 'Test surface',
     tests:
-      '426 Rust workspace tests, 560 Vitest unit tests, 151 component-level Playwright tests against mocked IPC, and 8 WebdriverIO specs driving a real Tauri WebView over a 155k-row archive; line coverage measured at 92.72% with a 90% floor enforced in CI. Those numbers say the code is tested. They do not say every platform\u2019s installer has been opened by a human.',
+      '426 Rust workspace tests, 560 Vitest unit tests, 151 component-level Playwright tests against mocked IPC, and 8 WebdriverIO specs driving a real Tauri WebView over a 155k-row archive; line coverage measured at 92.72% with a 90% floor enforced in CI. Those numbers describe the automated tests; they do not mean every platform\u2019s installer has been checked by hand.',
   },
 
   links: {

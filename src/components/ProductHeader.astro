@@ -1,0 +1,184 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import AppIcon from './AppIcon.astro';
+import StatusTag from './StatusTag.astro';
+import SocialIcon from './SocialIcon.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+import { releasesHref, sortedPlatforms, type Product } from '../i18n/products';
+
+/**
+ * ProductHeader — the top of every in-site product page: breadcrumb, icon and
+ * name, what it is, the actions, and a fact card.
+ *
+ * Every product page uses this one header, fed from the catalog entry, so the
+ * version, release date, licence, platforms and links on a product page are the
+ * same facts the home page's card shows. Only the role line, the lede, any extra
+ * facts and the section index are the page's own.
+ *
+ * The icon and the name carry the `view-transition-name`s the home page's card
+ * uses, so arriving from the catalog morphs the card into this header.
+ *
+ * `.u-enter` because this block is on screen at first paint, where a `view()`
+ * timeline would resolve as already entered. Its two children are the two steps.
+ */
+interface Props {
+  lang: Lang;
+  product: Product;
+  /** One mono line under the name: what it is built from or with. */
+  role: string;
+  /** Opening sentence of the lede, set a step stronger. */
+  ledeAccent?: string;
+  lede: string;
+  /** Extra rows for the fact card, after version, release date and licence. */
+  facts?: { term: string; value: string }[];
+  /** The page's sections, listed in the fact card. */
+  toc?: { id: string; num: string; label: string }[];
+  tocLabel?: string;
+  /** Anchor of the install section; becomes the primary action. */
+  installId?: string;
+}
+
+const { lang, product, role, ledeAccent, lede, facts = [], toc, tocLabel, installId } = Astro.props;
+const t = useTranslations(lang);
+
+const home = getRelativeLocaleUrl(lang, '');
+const platforms = sortedPlatforms(product)
+  .map((platform) => t(`platform.${platform}`))
+  .join(' · ');
+
+const rows = [
+  ...(product.version ? [{ term: t('product.version'), value: product.version, mono: true }] : []),
+  ...(product.released ? [{ term: t('product.released'), value: product.released, mono: true }] : []),
+  { term: t('product.license'), value: product.license, mono: true },
+  ...facts.map((fact) => ({ ...fact, mono: false })),
+];
+---
+
+<header class="u-enter grid gap-y-10 pt-10 pb-6 md:pt-14 lg:grid-cols-12 lg:gap-x-10">
+  <div class="min-w-0 lg:col-span-8">
+    <nav aria-label={t('nav.breadcrumb')}>
+      <ol class="text-ink-mute flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+        <li>
+          <a href={home} class="text-ink-mute hover:text-accent inline-block py-1 no-underline">FirLab</a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li>
+          <a href={`${home}#apps`} class="text-ink-mute hover:text-accent inline-block py-1 no-underline">
+            {t('nav.apps')}
+          </a>
+        </li>
+        <li aria-hidden="true">/</li>
+        <li aria-current="page" class="text-ink-soft">{product.name}</li>
+      </ol>
+    </nav>
+
+    <div class="mt-8 flex items-center gap-5">
+      <AppIcon
+        product={product.id}
+        size={72}
+        transitionName={`mark-${product.id}`}
+        class="max-sm:size-14"
+      />
+      <div class="min-w-0">
+        <h1
+          class="u-display u-display-latin text-display"
+          style={`view-transition-name: title-${product.id}`}
+        >
+          {product.name}
+        </h1>
+        <p class="text-ink-mute mt-1.5 text-sm">
+          {t(`category.${product.category}`)}
+          <span aria-hidden="true" class="mx-1.5">·</span>
+          {platforms}
+        </p>
+      </div>
+    </div>
+
+    <p class="text-ink-soft mt-7 font-mono text-sm">{role}</p>
+
+    <p class="u-lede text-ink-body mt-4">
+      {ledeAccent && <span class="text-ink">{ledeAccent}</span>}
+      {ledeAccent && ' '}
+      {lede}
+    </p>
+
+    <div class="mt-8 flex flex-wrap items-center gap-3">
+      {
+        installId && (
+          <a href={`#${installId}`} class="u-btn u-btn-primary">
+            {t('product.install')}
+          </a>
+        )
+      }
+      <a
+        href={product.repo}
+        target="_blank"
+        rel="noopener noreferrer"
+        class={`u-btn ${installId ? 'u-btn-secondary' : 'u-btn-primary'}`}
+      >
+        <SocialIcon id="github" size={18} />
+        {t('product.repo')}
+      </a>
+      {
+        product.site && (
+          <a
+            href={product.site[lang]}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="u-btn u-btn-secondary"
+          >
+            {t('product.site')}
+          </a>
+        )
+      }
+    </div>
+  </div>
+
+  <aside class="u-card min-w-0 self-start p-5 sm:p-6 lg:col-span-4">
+    <StatusTag lang={lang} state={product.status} />
+
+    <dl class="divide-rule border-rule mt-4 divide-y border-t text-sm">
+      {
+        rows.map((row) => (
+          <div class="flex items-baseline justify-between gap-4 py-2.5">
+            <dt class="text-ink-mute shrink-0">{row.term}</dt>
+            <dd class={`text-ink-soft min-w-0 text-right ${row.mono ? 'font-mono tabular-nums' : ''}`}>
+              {row.value}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    <a
+      href={releasesHref(product)}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="u-arrow-host border-rule mt-1 flex items-center justify-between border-t pt-3 text-sm no-underline"
+    >
+      {t('product.releases')}
+      <span aria-hidden="true" class="u-arrow">↗</span>
+    </a>
+
+    {
+      toc && toc.length > 0 && (
+        <nav aria-label={tocLabel} class="border-rule mt-4 border-t pt-4">
+          <h2 class="u-label">{tocLabel}</h2>
+          <ol class="-mx-2 mt-2">
+            {toc.map((section) => (
+              <li>
+                <a
+                  href={`#${section.id}`}
+                  class="u-row text-ink-body hover:text-ink flex gap-3 rounded-[var(--radius-chip)] px-2 py-1.5 text-sm no-underline"
+                >
+                  <span class="text-ink-mute font-mono text-xs tabular-nums leading-5">{section.num}</span>
+                  <span class="min-w-0">{section.label}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )
+    }
+  </aside>
+</header>

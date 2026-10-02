@@ -1,18 +1,17 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import FloatingNav from './FloatingNav.astro';
+import SiteHeader from './SiteHeader.astro';
+import ProductHeader from './ProductHeader.astro';
 import SiteFooter from './SiteFooter.astro';
 import NextProduct from './NextProduct.astro';
-import ProductMark from './ProductMark.astro';
-import StatusTag from './StatusTag.astro';
 import InstallBlock from './InstallBlock.astro';
 import DetailSection from './DetailSection.astro';
 import DefRows from './DefRows.astro';
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import { useTranslations, type Lang } from '../i18n/ui';
-import { getContent } from '../i18n/content';
-import { getVoltipContent, getVoltipSections, VOLTIP_SITE } from '../i18n/voltip';
-import { VOLTIP_RELEASED, VOLTIP_VERSION } from '../i18n/versions';
+import { type Lang } from '../i18n/ui';
+import { getHomeContent } from '../i18n/content';
+import { getVoltipContent, getVoltipSections } from '../i18n/voltip';
+import { getProduct } from '../i18n/products';
 import { entityId, PERSON_ID, FREE_OFFER } from '../i18n/schema';
 
 /**
@@ -24,18 +23,16 @@ import { entityId, PERSON_ID, FREE_OFFER } from '../i18n/schema';
  * guide in both languages; this page states what the tool does, what leaves the
  * computer in each mode, how to install it and where it stands, and hands over to
  * that site for everything else. The work still in development gets the dashed
- * draft enclosure the index uses for unreleased work, so it cannot be read as a
- * shipped feature.
+ * draft enclosure used for unreleased work, so it cannot be read as a shipped
+ * feature.
  */
 interface Props {
   lang: Lang;
 }
 
 const { lang } = Astro.props;
-const t = useTranslations(lang);
 const c = getVoltipContent(lang);
-
-const site = getContent(lang);
+const product = getProduct('voltip');
 const sections = getVoltipSections(c);
 
 const homeHref = getRelativeLocaleUrl(lang, '');
@@ -50,10 +47,10 @@ const structuredData = [
     name: 'Voltip',
     applicationCategory: 'UtilitiesApplication',
     operatingSystem: 'Windows, macOS, Linux',
-    softwareVersion: VOLTIP_VERSION.replace(/^v/, ''),
-    datePublished: VOLTIP_RELEASED,
+    softwareVersion: product.version!.replace(/^v/, ''),
+    datePublished: product.released,
     description: c.description,
-    url: lang === 'en' ? VOLTIP_SITE : `${VOLTIP_SITE}/zh/`,
+    url: product.site![lang],
     offers: FREE_OFFER,
     author: { '@id': PERSON_ID },
     license: 'https://www.apache.org/licenses/LICENSE-2.0',
@@ -72,87 +69,22 @@ const structuredData = [
   lang={lang}
   title={c.title}
   description={c.description}
-  ogImageAlt={c.ogAlt}
+  ogImageAlt={getHomeContent(lang).ogAlt}
   structuredData={structuredData}
 >
-  <FloatingNav lang={lang} products={site.products} currentId="voltip" />
+  <SiteHeader lang={lang} currentId="voltip" />
 
   <main id="main" class="u-shell">
-    {/* ---- Masthead ------------------------------------------------------ */}
-    <header class="u-enter grid gap-y-10 pt-14 pb-12 md:pt-20 md:pb-16 lg:grid-cols-12 lg:gap-x-10">
-      <div class="min-w-0 lg:col-span-8">
-        <p class="u-meta text-ink-mute">
-          <a href={homeHref} class="text-ink-mute hover:text-accent no-underline">FirLab</a>
-          <span aria-hidden="true" class="mx-2">/</span>
-          <span class="u-lat tabular-nums">{c.eyebrow}</span>
-        </p>
-
-        <div class="mt-6 flex items-center gap-5">
-          <span class="inline-flex shrink-0" style="view-transition-name: mark-voltip">
-            <ProductMark product="voltip" size={56} class="text-ink-soft" />
-          </span>
-          <h1
-            class="u-display u-display-latin text-display min-w-0"
-            style="view-transition-name: title-voltip"
-          >
-            Voltip
-          </h1>
-        </div>
-
-        <p class="text-ink-soft mt-5 font-mono text-sm">{c.role}</p>
-
-        <p class="u-lede text-ink-soft mt-8">
-          <span class="text-ink">{c.ledeAccent}</span> {c.lede}
-        </p>
-      </div>
-
-      {/* Meta rail — maturity, version, links, and the page's own index. */}
-      <div class="u-plate min-w-0 self-start lg:col-span-3 lg:col-start-10">
-        <StatusTag lang={lang} state="early" display="block" />
-
-        <dl class="divide-rule border-rule mt-5 divide-y border-t text-sm">
-          <div class="flex items-baseline justify-between gap-4 py-2.5">
-            <dt class="u-meta text-ink-mute shrink-0">{t('product.version')}</dt>
-            <dd class="text-ink-soft font-mono tabular-nums">{VOLTIP_VERSION}</dd>
-          </div>
-          <div class="flex items-baseline justify-between gap-4 py-2.5">
-            <dt class="u-meta text-ink-mute shrink-0">{t('product.released')}</dt>
-            <dd class="text-ink-soft font-mono tabular-nums">{VOLTIP_RELEASED}</dd>
-          </div>
-        </dl>
-
-        <ul class="border-rule flex flex-wrap gap-x-6 gap-y-2 border-t pt-4 text-sm">
-          {
-            c.links.items.map((link) => (
-              <li>
-                <a href={link.href} target="_blank" rel="noopener noreferrer">
-                  {link.label}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-
-        <nav aria-label={c.tocLabel} class="border-rule mt-6 border-t pt-5">
-          <h2 class="u-meta text-ink-mute">{c.tocLabel}</h2>
-          <ol class="mt-3 -mx-1.5">
-            {
-              sections.map((section) => (
-                <li>
-                  <a
-                    href={`#${section.id}`}
-                    class="u-row text-ink-mute hover:text-accent flex gap-3 rounded-[var(--radius-chip)] px-1.5 py-1.5 text-sm no-underline"
-                  >
-                    <span class="u-meta text-ink-mute pt-px tabular-nums">{section.num}</span>
-                    <span class="min-w-0">{section.label}</span>
-                  </a>
-                </li>
-              ))
-            }
-          </ol>
-        </nav>
-      </div>
-    </header>
+    <ProductHeader
+      lang={lang}
+      product={product}
+      role={c.role}
+      ledeAccent={c.ledeAccent}
+      lede={c.lede}
+      toc={sections}
+      tocLabel={c.tocLabel}
+      installId={c.install.id}
+    />
 
     {/* ---- 01 Purpose ---------------------------------------------------- */}
     <DetailSection section={c.purpose} rhythm="open">
@@ -242,11 +174,11 @@ const structuredData = [
       </div>
 
       <h3 class="u-meta text-ink-mute mt-10">{c.maturity.buildingLabel}</h3>
-      {/* Unreleased work in the dashed draft enclosure, as on the index. */}
+      {/* Unreleased work in the dashed draft enclosure. */}
       <dl class="u-stagger mt-4 space-y-4">
         {
           c.maturity.building.map((item) => (
-            <div class="u-plate-draft">
+            <div class="u-card-draft p-5 sm:p-6">
               <dt class="text-ink-soft font-mono text-sm">{item.term}</dt>
               <dd class="mt-1.5 u-measure text-sm">{item.body}</dd>
             </div>
@@ -261,7 +193,12 @@ const structuredData = [
         {
           c.links.items.map((link) => (
             <li>
-              <a href={link.href} target="_blank" rel="noopener noreferrer" class="font-mono text-sm">
+              <a
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="font-mono text-sm [overflow-wrap:anywhere]"
+              >
                 {link.href.replace('https://', '')}
               </a>
             </li>
@@ -275,7 +212,7 @@ const structuredData = [
     </DetailSection>
   </main>
 
-  <NextProduct lang={lang} products={site.products} currentId="voltip" />
+  <NextProduct lang={lang} currentId="voltip" />
 
-  <SiteFooter lang={lang} products={site.products} variant="detail" currentId="voltip" />
+  <SiteFooter lang={lang} currentId="voltip" />
 </Layout>

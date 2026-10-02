@@ -1,0 +1,65 @@
+---
+import AppIcon from './AppIcon.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+import { latestReleases, releaseTagHref } from '../i18n/products';
+
+/**
+ * ReleaseList — the latest stable release of each product, newest first.
+ *
+ * Built from the same `versions.ts` constants the cards show, which the daily
+ * drift check holds to each repository's latest stable release, so this list
+ * moves when a product ships and needs no editing of its own. Each row links to
+ * that release's notes on GitHub; the tag name equals the version string.
+ *
+ * Capped, because past a handful of rows it stops being "latest" and becomes an
+ * archive, which GitHub already is.
+ */
+interface Props {
+  lang: Lang;
+  title: string;
+  note: string;
+  limit?: number;
+}
+
+const { lang, title, note, limit = 6 } = Astro.props;
+const t = useTranslations(lang);
+
+const rows = latestReleases().slice(0, limit);
+---
+
+<section aria-labelledby="releases-title" class="u-reveal">
+  <div class="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
+    <h2 id="releases-title" class="u-display text-title">{title}</h2>
+    <p class="text-ink-mute text-sm">{note}</p>
+  </div>
+
+  <ol class="u-card divide-rule mt-7 divide-y overflow-hidden">
+    {
+      rows.map((product) => (
+        <li class="u-row u-arrow-host relative flex items-center gap-4 px-4 py-3.5 sm:px-6">
+          <AppIcon product={product.id} size={32} />
+
+          <div class="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3 gap-y-0.5">
+            <a
+              href={releaseTagHref(product)}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="u-stretch text-ink font-semibold"
+              aria-label={t('release.notes', { name: product.name, version: product.version! })}
+            >
+              {product.name}
+            </a>
+            <span class="text-ink-soft font-mono text-sm tabular-nums">{product.version}</span>
+          </div>
+
+          <time datetime={product.released} class="text-ink-mute shrink-0 font-mono text-xs tabular-nums">
+            {product.released}
+          </time>
+          <span aria-hidden="true" class="u-arrow text-ink-mute shrink-0 text-sm">
+            ↗
+          </span>
+        </li>
+      ))
+    }
+  </ol>
+</section>

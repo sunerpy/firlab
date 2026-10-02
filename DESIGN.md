@@ -1,134 +1,93 @@
 # FirLab — Design System
 
-Bilingual (Chinese-default) umbrella site for a solo developer's tool portfolio.
-Zero client-side framework, zero web fonts, static output. This file is the
-implementation contract: no component may introduce a colour, size, spacing step,
-or motion rule that is not named here.
+Bilingual (Chinese-default) site for FirLab's open-source apps at firlab.app. Zero
+client-side framework, zero web fonts on the main site, static output. This file is the
+implementation contract: no component may introduce a colour, size, spacing step or
+motion rule that is not named here.
 
 **Locales.** `zh-cn` owns the bare root (`/`); `en` lives at `/en/`. Chinese is the
 primary audience and the apex URL was already indexed, so `prefixDefaultLocale` is
-`false` — `/` is never redirected. Both locales render from ONE component
-(`HomePage.astro`), which is what keeps them structurally identical: a section
-added to Chinese cannot silently go missing from English.
+`false` — `/` is never redirected. Both locales render from ONE component per page
+(`HomePage.astro`, `CodeGraphPage.astro`, …), which keeps them structurally identical:
+a section added to Chinese cannot silently go missing from English.
 
-## 0. Research Log
+## 0. Direction
 
-- **Source of truth for palette** — the shipped product marks, read directly:
-  `Voxera/apps/desktop/icons/source/voxera-app.svg` (Voxera became Voltip,
-  whose `packages/ui/src/components/Logo.tsx` keeps three of these values) and
-  `AgentLens/src-tauri/icons/source/icon.svg`. Both use the same five values:
-  `#0B1220` ink, `#E7EDF5` pale slate, `#F97316` orange, `#14B8A6` teal,
-  `#64748B` slate. The site palette is derived from these rather than invented, so
-  the marks sit on the page without clashing.
-- **Layout reference** — technical-editorial index pages (foundry specimen sheets,
-  package registries, changelog indexes). Chosen because the page's job is *index +
-  proof*, not *pitch*. Rejected: SaaS three-card feature grid (the dominant
-  AI-generated shape and the thing this page must not look like).
-- **Content inventory before layout** — copy was fact-checked against each product's
-  README before any section was placed. Sections are ordered by the visitor's
-  decision path (what is this → what can I use today → what is coming), not by
-  visual symmetry.
-- **Skipped** — no Lazyweb screen harvest, no Imagen concept drafts, no
-  `open-design` lookup. Network image generation was not available in this run and
-  the palette/layout contract was already pinned by the two sources above.
+**The 2026-10-02 redesign is an app catalog.** The previous build was a technical-editorial
+index: a serif display face, a product index in a plate, and one hand-made band shape per
+product ("lead", "major", "standard", "pending", chosen by maturity). The owner rejected it on
+two counts: its copy read as AI-written ("五个工具，数据都留在你自己的机器上", "工程取向"), and
+it did not scale — the headline counted the products, the nav carried one link per product
+with widths re-measured at every breakpoint, and every new product needed a band designed for
+it. The owner then chose, from two directions, the app catalog over a registry-style list, and
+asked that the site speak as FirLab (firlab.app) rather than describe a person.
+
+So the site is now built around one rule: **a new app is one entry in `src/i18n/products.ts`**
+(plus its icon and version constants, §4). The home page's grid, the release list, the header's
+app menu, the footer, the pager on a product page and the ItemList JSON-LD all render from that
+list, and no sentence anywhere names or counts the products.
+
+**Kept from the previous system,** because they were measured and are still right: the colour
+ramp read off the product marks (the pt-tools and Lockra documentation sites cite it), the
+per-script metrics, the dark-ramp corrections, the theme control, the version provenance check,
+the structured-data IRIs, and the CSS-only motion mechanics.
+
+**Sources.** Palette: the shipped product marks — `#0B1220` ink, `#E7EDF5` pale slate,
+`#F97316` orange, `#14B8A6` teal, `#64748B` slate. App icons: the shipped icons' own geometry
+(`AppIcon.astro` names each source file). Layout reference: app directories, where each app is
+one card with its icon, one sentence, its platforms and its current version. Rejected: the
+maturity-shaped bands, the product-index plate, a principles/manifesto section, and any copy
+that counts the products.
 
 ## 1. Design tokens
 
-Defined in `src/styles/global.css`. Semantic aliases go through `@theme inline` so a
-single class set serves both themes; the raw values swap under
-`prefers-color-scheme: dark`.
+Defined in `src/styles/global.css`. Semantic aliases go through `@theme inline` so one class
+set serves both themes; the raw values swap for the dark theme.
 
 ### Colour — raw ramp
 
 | Token | Light | Dark | Role |
 | --- | --- | --- | --- |
-| `--ink-900` | `#0B1220` | `#ECEFF3` | strongest text |
-| `--ink-700` | `#1E293B` | `#D4D8DD` | headings |
+| `--ink-900` | `#0B1220` | `#ECEFF3` | strongest text, primary button ground |
+| `--ink-700` | `#1E293B` | `#D4D8DD` | headings at the second step |
 | `--ink-500` | `#475569` | `#ABB0B7` | body |
 | `--ink-400` | `#5B6779` | `#9499A0` | meta, captions |
-| `--paper-0` | `#FBFCFE` | `#101317` | **the sheet** — `.u-stage`, where content sits |
-| `--paper-1` | `#F3F6FA` | `#0C0F13` | **the desk** — `html`/`body`; also a plate's ground |
-| `--paper-2` | `#E7EDF5` | `#2A2F35` | code / spec block, row hover |
+| `--paper-0` | `#FBFCFE` | `#101317` | (kept for the sub-sites; the main site no longer paints it) |
+| `--paper-1` | `#F3F6FA` | `#0C0F13` | the page ground |
+| `--paper-2` | `#E7EDF5` | `#2A2F35` | code blocks, chips, hover fills |
 | `--rule` | `#DCE4EE` | `#353B43` | hairline |
-| `--accent` | `#B03A09` | `#FB923C` | links, emphasis |
-| `--accent-mark` | `#F97316` | `#F97316` | product marks only — never text |
-| `--live` | `#0D6B64` | `#2DD4BF` | "actively released" status |
+| `--accent` | `#B03A09` | `#FB923C` | links, emphasis text |
+| `--accent-mark` | `#F97316` | `#F97316` | marks, dots, rules — never text on paper |
+| `--live` | `#0D6B64` | `#2DD4BF` | "actively maintained" status |
 
-Three light values in this table were stale before this pass and are corrected here to
-match what `global.css` actually ships: `--ink-400` is `#5B6779` (was documented
-`#64748B`), `--accent` is `#B03A09` (was `#C2410C`), `--live` is `#0D6B64` (was
-`#0F766E`). The CSS was not changed — the doc had drifted.
+`--accent` is deliberately *not* `#F97316` for text: orange-500 on paper is 2.9:1 and fails AA.
+The mark keeps the brand orange; text uses the darker/lighter step so both themes clear 4.5:1.
 
-`--accent` is deliberately *not* `#F97316` for text: orange-500 on paper is 2.9:1 and
-fails AA. The mark keeps the brand orange; text uses the darker/lighter step so both
-themes clear 4.5:1. This is the one place where the site diverges from the icons, and
-it is on purpose.
+### Surfaces
 
-**Note the naming trap.** `--paper-0` is the SHEET (`.u-stage`), not the page ground;
-`--paper-1` is the DESK that `html` and `body` paint. The numbering predates the
-two-box stage and reads backwards. Any change to the outermost surface therefore has
-to touch `--paper-1` *and* the three `theme-color` sites (see §1 theme selection).
+| Token | Light | Dark | Role |
+| --- | --- | --- | --- |
+| `--surface-page` | `--paper-1` | `--paper-1` | `html`, `body`, the header's ground (86% with blur) |
+| `--surface-card` | `#FFFFFF` | `#14181D` | cards, popovers, the footer |
+| `--tile` | `#0B1220` | `#0B1220` | an app icon's tile — the shipped icons' own navy, not themed |
+| `--tile-edge` | `rgb(255 255 255 / 0.04)` | `rgb(255 255 255 / 0.1)` | the tile's rim, so it keeps its silhouette on the dark page |
 
-### Dark ramp, measured in OKLCH
+The page is the soft paper step and a card is a whiter sheet on it, so a card reads as an
+object without a heavy shadow. In the dark theme the card is lifted to `#14181D` (L ≈ 19.6,
++2.9 over the page) and carried mostly by the lit `--rule`, which is the dark-ramp lesson below.
 
-The dark ramp was rebuilt after "the background and content area feel oppressive".
-The intuitive reading — too dark — was wrong: the old ground sat at L 15.9–20.3,
-inside the band every reference system uses (Linear 13.9, Primer 17.6, Radix slate1
-17.9, Material 18.2, Resend 19.5). Four things were actually wrong.
+### The dark ramp, measured in OKLCH
 
-| Token | Hex | L% | C | H | Δ L vs sheet |
-| --- | --- | --- | --- | --- | --- |
-| `--paper-1` desk | `#0C0F13` | 16.7 | 0.0097 | 255.7 | −1.8 |
-| `--paper-0` sheet | `#101317` | 18.5 | 0.0095 | 255.6 | — |
-| `--paper-2` block | `#2A2F35` | 30.3 | 0.0129 | 253.0 | +11.7 |
-| `--rule` | `#353B43` | 35.0 | 0.0162 | 255.6 | +16.5 |
-| `--ink-400` | `#9499A0` | 68.1 | 0.0118 | 256.7 | |
-| `--ink-500` | `#ABB0B7` | 75.5 | 0.0115 | 256.7 | |
-| `--ink-700` | `#D4D8DD` | 88.1 | 0.0081 | 253.9 | |
-| `--ink-900` | `#ECEFF3` | 95.1 | 0.0063 | 255.5 | |
-
-1. **Chroma.** The ground carried C 0.021–0.027 — 7–9× Linear (0.0029), 5–6× Radix
-   slate1 (0.0041), ~2× Primer (0.0140), and Primer is the most navy-tinted
-   mainstream system there is. At that chroma a navy spread over a whole viewport
-   reads as a coloured wash, not a dark room, and since every surface inherited the
-   cast, nothing read as *lighter* — only as *more navy*. Now ≈0.0095, and chroma
-   RISES up the ramp (0.0095 → 0.0129 → 0.0162) the way the references do (Radix
-   slate: 0.0041 → 0.0103 → 0.0155). Tint is a mid-scale accent, never a ground
-   property; this ramp used to have it backwards. Still cool (H≈256) on purpose —
-   the brand ink is `#0B1220` at H 263, so this is a reduction to Radix-slate
-   territory, not a neutralisation.
-2. **Ink chroma compounded it.** `--ink-500` was C 0.0370 — 2.4× Linear, 3.9× Radix
-   slate11 — so text and ground shared one hue at high chroma and read muddy despite
-   correct lightness. Lightness is held (75.5 vs Radix step-11's 76.9); only chroma
-   is cut. `--ink-900` also drops 97.2 → 95.1: Radix caps step 12 at 94.9, Linear
-   runs body at 87.4, and near-white on near-black causes halation.
-3. **`--rule` was under-lit** at +12.3 L, where the norm is +16.8 (Radix slate6) to
-   +20.7 (Primer) — a step-4 value doing a step-6 border's job, so structure
-   vanished. Now +16.5. This matters more than any surface step: Radix keeps card
-   grounds within +3.5 L of the app ground and makes a card read as a card purely
-   through its step-6 border.
-4. **The ramp was truncated** at +9.0 L, leaving no surface for hover or elevated
-   state — the real reason panels did not read as distinct. Now +11.7 (Radix step 5
-   is +13.3, Raycast bg-300 +13.8).
-
-And the structural inversion that caused the "oppressive" reading: **the sheet used
-to be sunken.** Light lifts it (99.1 vs 97.2, +1.9); dark sank it (15.9 vs 20.3,
-−4.4), making `.u-stage` — where every word lives — the darkest surface on the page.
-The reader's whole reading area was a well. Polarity now matches: +1.8 dark against
-+1.9 light. Knock-on: because `.u-plate` grounds in `--paper-1`, plates are now
-recessed against the sheet in **both** themes, which is what §2 Plates always claimed.
-
-`--shadow-plate`'s contact hairline is also theme-dependent now. Light keeps a dark
-1px top edge; dark replaces it with `inset 0 1px 0 0 rgb(255 255 255 / 0.06)`, because
-on a dark ground a dark top edge reads as a seam — a shadow needs something to darken
-and there is nothing left. That is the mechanism Material's dark-theme guidance
-prescribes (a white overlay, 2% for a card, 12% for a raised bar) for exactly this
-reason. The soft drop shadow is unchanged in both themes.
+The dark ramp was rebuilt in an earlier pass after "the background and content area feel
+oppressive", and the fix still holds: low chroma on the ground (C ≈ 0.0095, rising up the ramp
+to 0.0162 at `--rule`, the way Radix slate does), ink chroma cut to ≈ 0.011 with lightness held,
+`--rule` lit to +16.5 L above the page's neighbour step, and near-white capped at L 95.1 to avoid
+halation. Elevation in dark mode is carried by light — a faint white top edge on cards and
+popovers — because a dark shadow has nothing left to darken.
 
 ### Theme selection — system is the default, not the only option
 
-Three states, exposed as a segmented control in the nav next to `LangSwitch`:
-`system` · `light` · `dark`.
+Three states, exposed as a segmented control in the header: `system` · `light` · `dark`.
 
 | State | `<html>` | Ramp source |
 | --- | --- | --- |
@@ -136,1087 +95,339 @@ Three states, exposed as a segmented control in the nav next to `LangSwitch`:
 | `light` | `data-theme="light"` | base `:root` |
 | `dark` | `data-theme="dark"` | dark override |
 
-- **Absence of `data-theme` is load-bearing.** `system` removes the stored key
-  rather than storing a third value, so a visitor who never touches the control
-  keeps tracking the OS exactly as the site always did. Dropping `system` for a
-  two-state toggle would be a regression, not a simplification.
-- The dark ramp is written **twice** in `global.css` — once under
-  `@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) }` and once
-  under `:root[data-theme="dark"]` — because CSS cannot OR a media query with a
-  plain selector. They are one ramp: change both or neither.
-- `color-scheme` follows the pinned theme (`light` / `dark`), not just
-  `light dark`. Left alone, a page pinned light on a dark OS gets dark scrollbars
-  and dark form controls.
-- `theme-color` is handled by inserting a **media-less** `<meta>` first in `<head>`,
-  which outranks the two media-scoped ones already there. Choosing `system` removes
-  it and hands the decision back to them.
-- Persistence is `localStorage['firlab-theme']`, and it is the only thing the site
-  stores. Reads and writes are wrapped in `try/catch` — `localStorage` throws
-  outright in a storage-blocked context, and a theme control must not take the page
-  down with it. This is a preference, not analytics; the footer's "no analytics, no
-  cookies" claim still holds.
-- **No flash.** A parser-blocking inline script in `<head>` applies the stored
-  theme before the first paint. This is the one legitimate reason to run script in
-  `<head>` on this site; it is inline, so `<script src>` stays at zero.
-- The control ships `display: none` and is revealed by `html[data-js]`, set by that
-  same script — the `.u-copy` rule, applied again: an affordance that cannot work
-  must not be drawn.
+- Absence of `data-theme` is load-bearing: `system` removes the stored key rather than storing
+  a third value, so a visitor who never touches the control keeps tracking the OS.
+- The dark ramp is written **twice** in `global.css` — under the media query and under
+  `:root[data-theme="dark"]` — because CSS cannot OR a media query with a selector. One ramp:
+  change both or neither.
+- `color-scheme` follows the pinned theme, so scrollbars and form controls match it.
+- `theme-color` is handled by inserting a media-less `<meta>` first in `<head>`.
+- Persistence is `localStorage['firlab-theme']`, the only thing the site stores, wrapped in
+  `try/catch`. A parser-blocking inline script applies it before first paint; the control ships
+  `display: none` and is revealed by `html[data-js]`.
 
 ### Semantic aliases
 
-`--color-ink`, `--color-ink-soft`, `--color-ink-mute`, `--color-paper`,
-`--color-panel`, `--color-block`, `--color-rule`, `--color-accent`, `--color-live`.
-Components use only these.
+`--color-ink`, `--color-ink-soft`, `--color-ink-body`, `--color-ink-mute`, `--color-paper`
+(page), `--color-panel` (card), `--color-block`, `--color-rule`, `--color-accent`,
+`--color-mark`, `--color-live`, `--color-tile`. Components use only these.
 
 ### Type
 
 | Token | Stack |
 | --- | --- |
-| `--font-display` | `ui-serif, Charter, "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif` |
-| `--font-sans` | `system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif` |
-| `--font-mono` | `ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace` |
+| `--font-sans`, `--font-display` | `system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif` |
+| `--font-mono` | `ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono"`, then the same CJK tail |
 
-No web fonts. This is not only a performance preference now that the site is
-Chinese-first — it is a hard constraint: a single CJK weight is 5–15 MB even
-subsetted, which would spend the entire LCP budget on one typeface. Contrast comes
-from the serif display against sans body against mono detail, not from a
-downloaded face.
-
-Each stack is **Latin-first, CJK-tail**. Font fallback is per-glyph, so Latin
-characters resolve from Charter / system-ui and hanzi fall through to the CJK face.
-The CJK tail is named explicitly rather than left to the `serif` / `sans-serif`
-generic, so the pairing is a decision instead of a UA default:
-
-| Token | CJK tail | Rationale |
-| --- | --- | --- |
-| `--font-display` | `Songti SC`, `Source Han Serif SC`, `Noto Serif CJK SC` | The CJK counterpart of a transitional serif. A CJK *sans* display would break voice mid-line every time a Latin product name appears inside a Chinese heading — and every heading on this site does. |
-| `--font-sans` | `PingFang SC`, `Hiragino Sans GB`, `Microsoft YaHei`, `Noto Sans SC` | Standard modern CJK UI stack, macOS → Windows → Linux order. |
-| `--font-mono` | same CJK tail | Chinese inside a mono label has no monospace CJK face worth requiring; the sans tail keeps the glyphs from falling back to a serif mid-label. |
-
-### Script-dependent metrics
-
-Latin-tuned leading and tracking are wrong for hanzi, so the metrics are tokens
-switched by `html:lang(zh-CN)`, and every prose/display rule reads the token rather
-than a literal. Hanzi are full-height square boxes with no ascender/descender
-rhythm to create optical space, so Latin values read cramped; the tight negative
-Latin tracking actively jams them together.
-
-| Token | Latin | Chinese | Applies to |
-| --- | --- | --- | --- |
-| `--lh-prose` | `1.65` | `1.8` | `body`, all running copy |
-| `--ls-prose` | `0em` | `0.012em` | ditto |
-| `--lh-display` | `1.05` | `1.22` | `.u-display` — at 1.05 two lines of hanzi physically collide |
-| `--ls-display` | `-0.021em` | `0.006em` | ditto |
-| `--lh-lede` | `1.6` | `1.85` | `.u-lede` |
-
-Four supporting rules, each fixing a specific CJK failure:
-
-- `.u-display-latin` re-tightens known-Latin display text (product names, the
-  wordmark) back to Latin metrics, so a Chinese page's opened-up display tokens
-  do not loosen `CodeGraph`.
-- `code, kbd, samp, pre { letter-spacing: normal }` — inherited CJK tracking
-  destroys command-block column alignment and double-spaces already-tracked labels.
-- `text-wrap: pretty` on `p, dd, li` — the loose CJK measure produces
-  single-*character* orphans often; `pretty` removes them at no cost.
-- Chinese display headings omit the trailing `。`: a full-width period at display
-  size opens a visible hole at the end of the line. Enforced in the copy, not CSS.
-- `.u-lat` adds `0.14em` inline margin for Latin runs where a real space would be
-  wrong (beside full-width punctuation). Chinese body copy is otherwise authored
-  with real spaces around Latin runs, per the standard CJK convention.
-
-Scale — display sizes are fluid via `clamp()`, body is fixed. **`--text-display`
-and `--text-title` are per-script**, the same way leading and tracking already
-are, because one size cannot serve both: a hanzi advance is a full em and a Latin
-character averages about half of one.
-
-| Token | Latin | Chinese | Use |
-| --- | --- | --- | --- |
-| `--text-display` | `clamp(2.15rem, 3.5vw, 3.5rem)` | `clamp(2.35rem, 4.4vw, 4.35rem)` | the single `h1` |
-| `--text-title` | `clamp(1.7rem, 2.75vw, 2.4rem)` | `clamp(1.85rem, 3.1vw, 2.7rem)` | the lead product |
-| `--text-title-md` | `clamp(1.7rem, 2.7vw, 2.35rem)` | — | `major` |
-| `--text-title-sm` | `clamp(1.55rem, 2.3vw, 2.05rem)` | — | `standard`, section headings |
-| `--text-lede` | `clamp(1.0625rem, 1.5vw, 1.28rem)` | — | hero paragraph |
-| `--text-meta` | `0.75rem` | — | labels, index numbers, badges |
-
-At the previous single size a 17-hanzi Chinese headline ran to three lines in an
-8-column track where a 51-character English one ran to four. Both now set in
-**two** from 414px up; the Chinese one takes three at 320–390px, which is accepted
-rather than fixed (§7).
-
-The per-script block is **unlayered on purpose**. It overrides `@theme` variables,
-and an unlayered declaration outranks every layered one — moving it into
-`@layer base` would silently kill it, the same trap §8 documents three more times.
-
-Display and title are set at `line-height: 1.02–1.08` with `letter-spacing: -0.022em`.
-Meta text is mono, uppercase, `letter-spacing: 0.08em`.
-
-### Spacing
-
-8px base. The permitted set is `0.5 / 1 / 1.5 / 2 / 3 / 4 / 6 / 8 rem`, implemented with
-Tailwind's default numeric scale (`2 / 4 / 6 / 8 / 12 / 16 / 24 / 32`), which maps to it
-exactly. No off-scale arbitrary values.
-
-The one deliberate exception is the horizontal gutter, which is fluid rather than
-stepped — see §2. It is a frame, not a spacing relationship between two pieces of
-content, and a frame that jumps at a breakpoint is what produced the cramped
-mid-width layout in the first place.
-
-### Radius — three steps, and every corner on the site is one of them
+No web fonts: a single CJK weight is 5 MB+ even subsetted well, which would spend the whole
+LCP budget on a typeface. Headings and body share the sans stack — hierarchy comes from weight
+(650 for display, 600 for labels) and size; mono is for versions, commands and metadata. The
+serif display of the previous build is gone: in Chinese it fell back to a heavy Song face that
+read as dated next to the app icons.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--radius-chip` | `4px` | badges, code blocks, index rows, nav chips |
-| `--radius-control` | `8px` | the nav pill, segmented controls, popovers |
-| `--radius-plate` | `12px` | anything that behaves as a sheet of its own |
+| `--text-hero` | `clamp(3.25rem, 2rem + 5vw, 5.5rem)` | the home page's brand line, "FirLab" — the one word set larger than an h1 |
+| `--text-display` | `clamp(2.125rem, 1.55rem + 2.3vw, 3.25rem)` | a product page's h1 |
+| `--text-title` | `clamp(1.5rem, 1.3rem + 0.9vw, 2rem)` | section titles; the home h1's second line from `sm` |
+| `--text-title-sm` | `clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem)` | product-page sections, contact cards |
+| `--text-lede` | `clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem)` | ledes |
+| `--text-meta` | `0.75rem` | mono labels, counts |
 
-The previous build carried `3 / 4 / 6 / 8 / 10px` as arbitrary values scattered
-across nine components, which is how a page ends up with pill controls sitting on
-square cards. No pill buttons, no `rounded-2xl`. Hairlines are
-`1px solid var(--color-rule)`; unreleased work uses `1px dashed`.
+### Script-dependent metrics
 
-## 2. Layout grammar
+Latin-tuned leading and tracking are wrong for hanzi, so the metrics are tokens switched by
+`html:lang(zh-CN)`, unlayered on purpose (an unlayered declaration outranks every layered one):
 
-### The stage, and the safe area inside it
-
-**TWO NESTED BOXES, not one gutter.** This is the layout's load-bearing idea and
-the reason the previous single-token shell could not be fixed by widening it.
-
-That shell had one horizontal token, `--shell-gutter`, and the editorial margin
-rules (`.u-guides`) were *derived from that same token* — so the visible frame
-landed exactly on the line the text started at. Measured at 1180px: the rules sat
-at x=76/1088 and the headline's first glyph at x=79. **Three pixels.** Every
-increase moved the frame and the copy together, so the text still read as pinned
-to a border, which is precisely what it was. Two boxes are needed because a frame
-and a text-start line are two different edges.
-
-```
-┌─ viewport ───────────────────────────────────────────────────┐
-│      ┌─ stage (the sheet, a real element) ──────────────┐    │
-│ desk │        ┌─ content column ───────────┐            │    │
-│      │  air   │  headline, prose, specs …  │   air      │    │
-│      │        └────────────────────────────┘            │    │
-│      └──────────────────────────────────────────────────┘    │
-└──────────────────────────────────────────────────────────────┘
-  inset          gap                            gap      inset
-```
-
-| Token | Value | Meaning |
-| --- | --- | --- |
-| `--shell-measure` | `71rem` | the content column's cap |
-| `--stage-inset` | `clamp(0px, 6.8vw - 0.64rem, 7rem)` | viewport → the sheet's visible edge |
-| `--stage-gap` | `clamp(1.5rem, 4.7vw - 0.6rem, 3.5rem)` | the sheet's edge → the first glyph |
-| `--plate-x` / `--plate-y` | `clamp(1.25rem, 2.6vw + 0.15rem, 2.75rem)` / `clamp(1.5rem, 2.4vw + 0.5rem, 2.75rem)` | a plate's own inner padding |
-| `--nav-pad` | `0.625rem`, `0.875rem` from 768px | the nav pill's inner padding, read by two rules |
-
-```css
-.u-stage {                          /* the outer box — the sheet */
-  width: min(
-    calc(var(--shell-measure) + 2 * var(--stage-gap)),
-    calc(100% - 2 * var(--stage-inset))
-  );
-  margin-inline: auto;
-  border-inline: 1px solid var(--color-rule);   /* ≥768px only */
-}
-
-.u-shell {                          /* the inner box — the safe area */
-  max-width: calc(var(--shell-measure) + 2 * var(--stage-gap));
-  margin-inline: auto;
-  padding-inline: var(--stage-gap);
-}
-```
-
-The stage takes the **smaller of two limits**, and that is what keeps the
-frame-to-text air constant instead of letting it grow with the display: `measure
-+ 2 × gap` stops the sheet outgrowing its content column, `100% − 2 × inset`
-stops it reaching the viewport edge.
-
-Measured, home page, before → after:
-
-| viewport | text safe area before | after | frame→text air before | after | body copy |
-| --- | --- | --- | --- | --- | --- |
-| 320px | 24px | 24px | — (no frame) | — | 13.4 hanzi/line |
-| 375px | 24px | 24px | — | — | 16.8 |
-| 390px | 25px | 24px | — | — | 17.8 |
-| 414px | 27px | 24px | — | — | 19.3 |
-| 768px | 50px | **69px** | 0 | **27px** | 29.0 |
-| 1024px | 67px | **99px** | 0 | **39px** | 29.0 |
-| 1180px | **77px** | **117px** | **3px** | **47px** | 29.0 |
-| 1280px | 83px | **128px** | 3px | **51px** | 29.0 |
-| 1440px | 104px | **145px** | 3px | **57px** | 29.0 |
-
-The 1024–1440px band, where a laptop actually sits, gains 32–41px of page margin
-**and** 39–57px of air between the frame and the first glyph, where it had 3px.
-
-Both slopes are two-point fits, not round numbers: inset 42px@768 → 70px@1180,
-gap 26px@768 → 46px@1180. **Below 768px the sheet is full-bleed** — a 12px frame
-with 14px of air inside it is worse than no frame, and a phone has no margin to
-spend. Phones keep the 24px they had.
-
-Three things derive from the same tokens rather than restating them, so none can
-drift out of alignment with the copy:
-
-- **`.u-stage`** is a real element, not a fixed overlay. That is what makes the
-  footer and the pager bleed to the **sheet** rather than to the viewport for
-  free. It replaces `.u-guides`, which is deleted.
-- **`.u-progress`** spans the stage, not the viewport: it reports progress
-  through the sheet, and a rail running out over the desk would claim otherwise.
-- **`.u-shell-nav`** — `padding-inline: max(0px, calc(var(--stage-gap) - var(--nav-pad)))`.
-  The pill is pulled outward by exactly its own inner padding, which lands the
-  wordmark on the copy's start line while the bar still frames the column. Both
-  halves read `--nav-pad`, and the pill therefore carries **no `px-*` utility** —
-  a utility there would break the pair.
-
-**The desk is `--paper-1`, one step off the sheet.** Light mode lifts the sheet,
-dark mode sinks it. No content ever sits on the desk, so every measured contrast
-pair in §6 still holds. `theme-color` follows the desk, since browser chrome
-continues the colour at the viewport's own edge.
-
-### Plates
-
-A plate is a panel that carries its own ground, its own hairline **and its own
-inner padding**, so its copy never lands on its own border — the same failure as
-the page frame, one level down. Three variants, each earning its treatment:
-
-| Class | Ground | Boundary | Used for |
+| Token | Latin | Chinese | Applies to |
 | --- | --- | --- | --- |
-| `.u-plate` | `--color-panel` | 1px solid, `--radius-plate` | hero index, detail masthead ledger |
-| `.u-plate-lead` | + 2px brand-orange left rule | | the lead product, and a detail page's premise — **nowhere else** |
-| `.u-plate-draft` | none | 1px **dashed** on all four sides | unreleased work |
+| `--lh-prose` | `1.65` | `1.8` | `body`, running copy |
+| `--ls-prose` | `0em` | `0.012em` | ditto |
+| `--lh-display` | `1.12` | `1.3` | `.u-display` |
+| `--ls-display` | `-0.022em` | `0.01em` | ditto |
+| `--lh-lede` | `1.6` | `1.85` | `.u-lede` |
+| `--measure-prose` | `36em` | `29em` | `.u-measure` (~66 Latin characters, ~29 hanzi) |
+| `--measure-lede` | `34em` | `32em` | `.u-lede` |
 
-The orange left rule means "this is the claim" and appears at most once per page.
-The dashed enclosure states a boundary before a word inside it is read.
+- `.u-display-latin` re-tightens known-Latin display text (product names) on a Chinese page.
+- `code, kbd, samp, pre { letter-spacing: normal }` — inherited CJK tracking breaks command
+  columns.
+- `text-wrap: pretty` on `p, dd, li` removes single-character orphans.
+- Chinese display headings omit the trailing `。`.
+- **Phrases and sentences that must not break inside are inline-block runs.** Browsers break
+  hanzi anywhere, so the home h1's second line is written as phrases
+  (`开源的桌面应用、` + `命令行工具与自部署服务`) and the lede as sentences, each rendered as
+  `inline-block`: a run that fits its line stays whole, one that does not still wraps inside its
+  own box. Measured: the subtitle breaks after `、` at 375 and 414 px and sets on one line from
+  768 px; the lede breaks between its two sentences at every width from 414 px.
 
-### Band rhythm — a rule marks a movement, not a section
+### Spacing
 
-A detail page is nine or ten sections long, and the previous build gave every one
-of them the same hairline top rule. Ten identical boundaries carry no
-information: the rule stopped meaning "the subject changed" and became wallpaper,
-and the reader never got the sense of having finished anything.
+8px base, Tailwind's default numeric scale. The one fluid value is the gutter (§2).
 
-| Class | Gap above (≥768px) | Rule |
+### Radius — three steps and the icon
+
+| Token | Value | Use |
 | --- | --- | --- |
-| `.u-band-open` | 144px | **yes** — starts a movement |
-| `.u-band-next` | 96px | no — continues one |
-| `.u-band-tight` | 56px | no — binds to the section above |
-
-Measured section-level rules per page, before → after: CodeGraph 10 → **5**,
-pt-tools 9 → **4**, AgentLens 9 → **4**, Voxera 9 → **4**. `next` and `tight` are
-separated by space alone, and 96px of it says more than a hairline ever did.
-
-### Measure is a token, and it is per-script
-
-`--measure-prose` / `--measure-lede` replace every `max-w-prose` and
-`max-w-[42rem]` on the site. A hanzi advance is a full em and a Latin character
-averages about half of one, so one value cannot serve both: Latin gets `36em`
-(≈66 characters), Chinese `29em` (≈29 hanzi, inside the 24–30 band CJK copy
-needs). `em` rather than `rem` is deliberate — the cap is relative to the
-element's own size, so a 1.28rem lede and a 1rem paragraph land on the same
-character count. Measured: **29.0 hanzi per line at every width from 768px up.**
-
-Display steps are per-script for the same reason (§1). At one shared size a
-17-hanzi Chinese headline ran to three lines in an 8-column track where a
-51-character English one ran to four; both now set in **two** from 414px up. At
-320–390px the Chinese headline takes three, which is accepted rather than fixed.
-
-### The page
-
-A **12-column asymmetric editorial index**, not a card grid:
-
-- **Header** — a floating sticky nav (`FloatingNav`), inset from the top edge so
-  it reads as an object on the page rather than a browser chrome strip.
-- **Hero** — headline in columns 1–7, left-biased, never centred. Columns 8–12
-  hold the product index as a `.u-plate`, so the page announces itself as an
-  index inside the first viewport. The rail is 5 columns rather than 4 because a
-  4-column rail cannot fit the widest English status/version pair between 1024
-  and 1180px — the version was pushed clean out of the plate. Four text
-  elements, no more: eyebrow,
-  headline, lede, index. The hero carries almost no bottom padding — the gap to
-  the first product is owned entirely by that entry's `.u-band-open`, because
-  with padding on both sides the two stacked to 304px and read as an unfinished
-  page.
-- **Products** — four **structurally distinct shapes**, not one grid with four
-  sets of knob values. See §4.
-- **Principles** — sticky heading against a hanging-numeral list. No eyebrow:
-  `principles.label` and `principles.title` are the same string in both locales,
-  so rendering both printed the heading twice at two sizes.
-- **Footer** — recessed in **both** variants now. The index footer previously
-  shared the page's ground and was separated by a hairline identical to the eight
-  above it, so the page did not end, it stopped.
-
-**The 12-column split activates at `lg` (1024px), not `md`.** Measured: at 768px
-the `md` split gave `SpecGrid` a 145px value column — nine hanzi per line, eight
-lines. At `lg` that is 497px / 2 lines.
-
-### Nav — progressive disclosure, and every threshold is measured
-
-| Width | Contents |
-| --- | --- |
-| under 1024px | wordmark + theme + language switch |
-| 1024px and up | + product links |
-| 1280px and up | + social icons |
-
-The social row moved up from `sm` (640px) because the stage narrowed the pill: at
-1024px the pill has 828px usable and wordmark + four product links + socials +
-theme + language needs 851px, so the right-hand cluster rendered **23px outside
-its own rounded ground**. At `xl` there is 177px of slack at 1024px. Nothing
-becomes unreachable — the product links are also the hero index, and all five
-socials repeat *with text labels* in the footer, which is where their accessible
-names depend least on `aria-label` (§6). Moving them off the phone bar is a net
-a11y gain.
-
-Five product links since Lockra joined on 2026-10-01, measured in both languages: the
-links end 168.9px short of the right-hand cluster at 1024px and 168px short at 1280px,
-where the socials appear, and the nav stays on one line with no horizontal overflow at
-375, 768, 1024, 1180, 1280 and 1440px.
-
-`flex-nowrap` is the single-line guarantee: a two-line nav at desktop is a broken
-bar, so groups disappear at these thresholds instead of wrapping. Below 375px the
-theme and language segments tighten by 2px a side — measured, they overran the
-pill's padding box by 8.7px at 320px, and every button stays above the 24×24
-target-size floor (26×28 / 30×30).
-
-Verified across **90 page × width combinations** (10 routes × 9 widths, 320–1440):
-zero horizontal overflow, zero over-wide elements, zero clickable text wrapping
-to two lines, nav on one line everywhere, exactly one `h1` per page.
-
-### The nav scrim — the third layer of the stage
-
-The pill's floating geometry has a cost, and it went unpaid until it was measured.
-The bar is inset from the viewport's top edge by the header's `pt-3`/`pt-4` and is
-narrower than the sheet by twice `.u-shell-nav`'s outward pull. Measured at 1440px
-while scrolled, the pill's box was `top 16, left 131.5, w 1162` inside a
-`left 88.5, w 1248` sheet — so **a 16px strip above it and 43px on each flank were
-bare sheet with live content sliding under them**, and
-`elementFromPoint(713, y)` returned `article.u-entry` for y = 2, 6, 10 and 14. In a
-screenshot that is a code block guillotined by a floating bar: a hard edge, no
-separation, and it reads as a rendering fault rather than as a design.
-
-The repair is a scrim, **not a wider pill**. The floating geometry *is* the design,
-so the bar gets a ground to float on instead of being flattened into a browser
-chrome strip. `.u-nav-scrim` hangs off the `<header>`, and it has to be that
-element: the header is a sibling of `main` inside `.u-stage`, so its box already
-spans the sheet's interior (1246px against the sheet's 1248px, net of the stage's
-two 1px borders) and its height is already its own top padding plus the pill
-(16 + 58.8 = 74.8 at 1440; 12 + 50 = 62 at 375). **`inset: 0` is therefore the
-exact geometry with no arithmetic to restate and nothing to re-fit** when the
-pill's content or the active script changes. Two pseudo-elements:
-
-| Half | Role |
-| --- | --- |
-| `::before` | the opaque band, and the load-bearing half. A flat rectangle of one colour — no mask, no filter, nothing that can silently fail open. |
-| `::after` | the dissolve. Starts at `top: 100%` so its seam sits under the pill's own edge, and fades the same paper out over `--nav-scrim-fade` (40px from 768, 24px below it). |
-
-**No `mask-image`, deliberately.** A mask buys exactly one thing a gradient
-background does not: it would fade a `backdrop-filter` too. But the scrim carries
-no blur on purpose — CSS cannot gate blur on scroll position without a listener,
-and a blurred tail would haze the top of the hero at scroll 0. So the mask would
-have nothing to do while introducing a real failure mode: if the build dropped it,
-the result is an opaque band sitting on content that was supposed to dissolve.
-`linear-gradient()` cannot fail in that direction.
-
-Two consequences that are not optional:
-
-- **The bar's top inset lives on `.u-shell-nav`, not on the `<header>`.** The
-  rendered layout is identical either way, but the header is `pointer-events: none`
-  and that element is `auto` — putting the padding there is what extends the *hit
-  area* up over the strip. Without it the scrim covers the strip visually while a
-  content link underneath stays clickable, i.e. the fix would trade a visual
-  artifact for a phantom-click one. Verified: zero reachable content links in the
-  scrim region, and all 14 nav controls still hit-testable.
-- **`scroll-margin-top` is now coupled to `--nav-scrim-fade`.** The chrome ends at
-  74.8 + 40 = 114.8px at 1440 and 62 + 24 = 86px at 375. The previous `6.5rem`
-  (104px) was 11px short at desktop, which would have landed every anchored
-  heading inside the fade with its first line washed out. `8rem` clears the widest
-  case by 13px. **Change one and recompute the other.**
-
-Verified at 320 / 375 / 768 / 1024 / 1180 / 1440 in both themes: the sliver band
-and both flanks sample as pure `--paper-0` (dark `rgb(16,19,23)`, light
-`rgb(251,252,254)`) or the desk beyond the sheet's edge — never a content colour.
-Zero horizontal overflow. The 1024px detail page, the tightest documented nav fit,
-keeps 234px of slack inside the pill; the padding migration consumed none of it.
-
-### Navigation and footer
-
-**A product name is a link to that product's page. Everywhere.** Nav, hero index,
-band heading — one destination, one rule. The site shipped with those three all
-pointing at in-page anchors (`/#codegraph`), so clicking a product name scrolled
-the home page to its band and left the reader to keep scrolling through the other
-three; the detail page was reachable only from a secondary "详细介绍" link buried
-in the band's meta column. The name was the primary affordance pointing at the
-wrong destination, and the secondary link taught readers the name was not the way
-in. Both are fixed: the name links to the page, the "详细介绍" item is gone.
-
-The distinction the reader now learns:
-
-| Surface | Reads as | Affordance |
-| --- | --- | --- |
-| a product **name** | a door | link to `/<product>/`, marked with the trailing `→` |
-| a product **band** | the summary | read where it stands; no in-site link |
-| band **meta column** | outward | external links only (repo, releases) |
-
-The homepage bands stay. They give the index substance and they are the summary
-layer between the hero and a full page — but they are now unambiguously content,
-not a competing route.
-
-Locale is respected: links are built with `getRelativeLocaleUrl(lang, product.detail)`,
-so `/en/` leads to `/en/codegraph/` and never drops the reader onto the Chinese
-page. On a detail page the entry for the product being read is **not a link to
-itself** — it is `aria-current="page"` with the marked dot, the same treatment the
-detail-page footer strip uses.
-
-The nav reduces by **progressive disclosure**, never by squashing — at the
-thresholds measured above: product links at `lg` (1024px), social icons at `xl`
-(1280px). Nothing becomes unreachable at any width: the product links are also the
-hero index, and the socials repeat *with text labels* in the footer.
-
-The footer is three columns: identity · product index · contact. It is where the
-social marks get **text labels**, which the icon-only nav depends on (see §3).
-
-The contact column carries one destination the nav does not: the WeChat Official
-Account (公众号「六月水蓝」, added 2026-10-02). It is a second QR disclosure under the
-personal WeChat one, with the same mark and its own label, and the layout's
-one-open-at-a-time rule covers both. The nav keeps its five icons: a sixth 36px icon
-would eat into the slack measured above at 1280px and every width would have to be
-measured again, while the footer is the contact column anyway.
-
-## 3. Primitives
-
-| Primitive | Contract |
-| --- | --- |
-| `FloatingNav` | sticky floating bar. Wordmark · product anchors · socials · language switch. Ground is 92% opaque *on its own* — see §5. |
-| `LangSwitch` | both locales always rendered; current one is a non-link with `aria-current`. Target is built from the current page's slug with its locale prefix stripped (`stripLocale` + `getRelativeLocaleUrl`), so `/en/x/` switches to `/x/`, never to the home page. |
-| `ThemeSwitch` | three `<button>`s — `system` · `light` · `dark` — in a `role="group"`, sharing `LangSwitch`'s hairline segmented shape because both answer "which of these am I in". `aria-pressed` is the state; each segment carries its own icon **and** its own visually hidden label, so the icon is never the only name. Buttons rather than `role="radio"`: `aria-pressed` needs no roving-focus implementation to be correct. Ships hidden, revealed by `html[data-js]`. See §1. |
-| `SocialIcon` | five marks on one 24px grid, `currentColor` only, legible at 20px. **GitHub is the official vendor mark** — Primer `mark-github-24`, one filled path, unmodified. The other four (bilibili · zhihu · x · wechat) stay authored geometric abstractions at 1.8px stroke — see §7. |
-| `SocialRow` | the five real destinations, nothing invented (there is no Facebook). External links carry `target="_blank" rel="noopener noreferrer"`. WeChat is a `<details>` disclosure holding the QR, not an anchor. |
-| `Principles` | sticky section heading + hanging-numeral list. A distinct layout family from the product bands — deliberately not three cards. |
-| `Hero` | one `h1`, one lede, one ledger. Exactly three text elements: eyebrow, headline, lede. No trust strip, no sub-tagline, no CTA pair — the ledger *is* the call to action. No image, no gradient, no blob. |
-| `ProductMark` | inline SVG, `role="img"` + `<title>`, fixed 40/48px box, uses `--accent-mark`. |
-| `StatusTag` | mono uppercase, 3 states only: `live`, `early`, `wip`. Colour + label, never colour alone. |
-| `SpecGrid` | definition list, **three variants** — `rows` (hairline-divided, the default), `grid` (two columns at `lg`, a rule per cell, for the lead product whose seven specs read as a wall in one column), `plain` (gap only, no rules, for the two least-released entries where a fully ruled table would claim more finish than the work has). `divide-y` cannot be used in the two-column variant: it draws a rule above every cell in flow order, landing them at mismatched heights. |
-| `InstallBlock` | mono, `--color-block` ground, `--radius-chip`. Renders only when a real command exists. |
-| `ProductEntry` | **four structurally distinct shapes**, selected by `weight`. Not one grid with four sets of knob values — see §4. |
-| `SiteFooter` | **two variants.** `index`: three columns — identity + positioning blurb, product index, contact. `detail`: the blurb and the stacked product list are **dropped**; the wordmark becomes the labelled way back, and the products become a one-line inline jump strip with the current entry marked `aria-current="page"` and not a link. See §4a. |
-| `NextProduct` | the page-ending pager. A `<nav>` **outside `<main>`**, so it reads as chrome-level "advance" rather than one more product pitch. Wraps from the last product to the first, and says so when it does. Asks for nothing, so it works unchanged on Voxera, which has nothing to download. |
-| `SpecGrid` | hairline-divided rows (`divide-y`), not gap-separated `display: contents` cells. Two reasons: the spec tables are the trust-building content and without a rule per row they read as prose in a smaller size; and `display: contents` children cannot be transformed, so `.u-stagger` had nothing to animate. |
-
-### Version provenance — one constant per fact, checked against the tag
-
-A version is a claim about the world, and this site got one wrong. AgentLens
-shipped **`v0.0.5` on the page while its repository was at `v0.0.7`**, because the
-same string was written in three places per product — the `zh` array in
-`content.ts`, the `en` array in `content.ts`, and the product's own i18n module.
-Four products, three copies: **nine hand-maintained duplicates of four facts.** A
-bump touched one or two of them and the survivors read as deliberate.
-
-`src/i18n/versions.ts` now owns every version and release date, one exported
-constant each, and every rendered surface imports from it. There is no second copy
-to fall out of step.
-
-| Product | Repository | Version | Released (UTC) |
-| --- | --- | --- | --- |
-| pt-tools | `sunerpy/pt-tools` | `v0.48.0` | `2026-10-01` |
-| CodeGraph | `sunerpy/codegraph-rust` | `v0.52.0` | `2026-10-01` |
-| AgentLens | `sunerpy/AgentLens` | `v0.0.7` | `2026-08-13` |
-| Voltip | `sunerpy/voltip` | `v0.0.18` | `2026-10-01` |
-| Lockra | `sunerpy/lockra` | `v0.1.1` | `2026-10-01` |
-
-**The source of truth is the GitHub release tag, never a product manifest.** The
-products' own manifests trail their tags: measured, AgentLens's `Cargo.toml` read
-`0.0.4` while the published tag was `v0.0.5`. So the check reads `tag_name`, and
-specifically **not** the release title, because the titles are not one format —
-`pt-tools` publishes `Release 0.46.0` and `codegraph-rust` publishes `v0.42.10`,
-so title-matching yields garbage on at least one repo. Dates come from
-`published_at` converted in **UTC explicitly**: AgentLens's
-`2026-08-13T08:58:48Z` lands on the 13th in UTC and on the 14th in a
-local-timezone conversion east of it.
-
-**The build does not fetch this, and adding a fetch would not fix anything.** Two
-reasons, both structural. The site only rebuilds on push, so a build-time fetch
-still would not put a new release on the live page without a scheduled rebuild —
-the freshness problem is the deploy trigger, not the data source. And a network
-call makes the build non-reproducible: a failed fetch either breaks the deploy or
-silently serves a stale fallback, which is the exact bug this module exists to
-prevent, wearing a different hat. **The network belongs in the check, not the
-build.**
-
-`scripts/check-versions.mjs` does the fetching, and its **three-way exit code is
-the contract** — conflating the last two is the failure mode:
-
-| Exit | Meaning | Consequence |
-| --- | --- | --- |
-| `0` | committed values match the latest stable release | pass; closes any open drift issue |
-| `1` | proven drift | fails, and may open or update the drift issue with a diff naming the constant |
-| `2` | the API could not produce a verdict | fails the run and prints `VERSION CHECK INCOMPLETE`, **without** reporting drift |
-
-A rate limit, a rejected token or an unreachable host is not evidence that a
-version is wrong. Exit `2` exists so a transient network error can never be
-published as a stale-version claim. Verified by hand: passing state → `0`;
-AgentLens perturbed to `v0.0.6` → `1` with the diff naming the constant;
-unreachable network → `2`.
-
-`ci.yml` runs the check on pull requests. `version-drift.yml` runs it on a daily
-`17 3 * * *` cron and keeps **one** marker-tagged issue, updating it while drift
-persists and closing it on exit `0`. It never auto-commits the fix, because a
-commit to `main` triggers the public deploy — a bot must not publish a version
-claim no human reviewed.
-
-**Every product is in the check.** Voxera, which was private with zero releases and
-therefore excluded, became Voltip on 2026-09-29; Voltip's repository is public, so
-`GITHUB_TOKEN` reads its releases like the others'. Lockra joined on 2026-10-01, the
-day of its first release, and is in the check from that release on.
-
-One rendering rule follows from the same constant: **the `standard` variant does
-not render a release date; only `lead` and `major` do.** The data exists for all
-three — the omission is the point. Information density is itself a maturity
-signal (§4), so handing the least-released entry the same fact count as the lead
-product would flatten the very hierarchy the shapes are built to carry. This is
-not a missing field, and it has already been "fixed" once by mistake and reverted.
-
-## 4. Hierarchy by maturity — four shapes, not four sizes
-
-**Maturity changes the SHAPE, or it is decoration.** The previous build expressed
-it through four scalar knobs — title size, mark size, body colour, one dashed
-rule — applied to one identical rail / main / meta grid. Four bands of the same
-shape in the same three columns read as four rows of a table with the type set
-slightly differently, which is why a visitor could not tell at a glance which tool
-was usable today.
-
-| Product | Weight | Shape |
-| --- | --- | --- |
-| pt-tools | `lead` | **Full width, no rail.** A `.u-plate-lead` masthead carries mark, title, role and the release facts on one ground; specs run two-up (`grid`) across the full measure; install block and outward links close it. The most-released tool is the only entry with a masthead. Since 2026-10-01 it has no detail page here: its documentation site took the page's path, `/pt-tools/` (§12), so its `detail` is that site's absolute path per locale (`/pt-tools/`, `/pt-tools/en/`), resolved through `productHref` as Lockra's is, and the name's view transition does not apply. |
-| CodeGraph | `major` | **A 4/7 split.** Identity rail (mark, title, status, version, links) against a reading column (prose, ruled specs, install). Recognisably a documented product, deliberately not a masthead. |
-| AgentLens | `standard` | **One header line** — mark, title, role, status inline — then prose and unruled specs (`plain`) two-up beneath. No meta column at all: an early-release tool has three facts, and a column drawn for eight makes the three look like omissions. |
-| Voltip | `standard` | The AgentLens shape: an early release. Its links lead with its own documentation site, voltip.firlab.app, which carries the full guide; the detail page summarises and hands over to it. |
-| Lockra | `standard` | The AgentLens shape: an early release. It has no detail page here: its name leads to its own documentation site, which this site publishes under `/lockra/` (§11), so its `detail` is that site's absolute path per locale (`/lockra/zh/`, `/lockra/`) and every link resolves it through `productHref` rather than the locale prefix. With no detail page to morph into, the name's view transition does not apply. |
-| (none) | `pending` | **A `.u-plate-draft` enclosure** — dashed on all four sides, no ground, no shadow, muted body, no install block, no version, no external link. It reads as a record of intent. Voxera had this shape until it became Voltip on 2026-09-29; the shape stays for the next unreleased product, and `/voxera/` redirects to `/voltip/`. |
-
-The mark sits **outside** the link, as a sibling, and is lit by
-`.u-entry:has(.u-entry-name:hover)` — so the mark reads as belonging to the
-destination rather than as decoration beside it, without making a 500px-tall band
-into a hover target. `:has()` is the only selector that reaches a sibling of the
-hovered element; where it is unsupported the effect simply does not apply, which
-costs nothing because the link already changes colour and advances its arrow.
-
-**The order is by maturity, not by age, and it is load-bearing.** pt-tools leads
-because it is the most released thing here — v0.46.0, 136 stars, published Docker
-images. `content.ts`'s array order, each product's `index`, and each detail page's
-`eyebrow` are three copies of the same fact; changing one without the others
-leaves the site contradicting itself, so the rule is stated at the top of
-`content.ts` as well.
-
-## 4a. Page endings and lateral movement
-
-A detail page used to end by re-stating the site's premise and re-listing its
-siblings — the footer carried the FirLab positioning blurb and the full product
-index on *every* page. Scrolling to the bottom of `/codegraph/` therefore landed the
-reader back in home-page-shaped content, and the page lost its own identity at
-exactly the moment it should have concluded.
-
-Three distinct jobs, now three distinct components, ordered by how committed the
-reader is:
-
-| Position | Component | Job | Voice |
-| --- | --- | --- | --- |
-| last band in `<main>` | the page's own closing section | conclude the argument; restate the repository / release links as the final action | content |
-| after `</main>` | `NextProduct` | one obvious next move, in index order | chrome, display-sized |
-| `<footer>` | `SiteFooter variant="detail"` | random access to any sibling, and the way back to the index | chrome, mono, one line |
-
-The blurb appears on the home page only, where the site's premise is the page's own
-subject. The social row and the copyright line stay in both variants: the labelled
-social row is the accessible-name redundancy the icon-only nav row depends on (§6).
-
-## 5. Motion
-
-`--ease-brand` `cubic-bezier(0.2, 0, 0, 1)`, `160ms` for the two link transitions
-(colour, `text-decoration-color`) that were already here.
-
-### Scroll-driven, CSS-only
-
-Four mechanisms, no scroll listener, no `IntersectionObserver`, no `rAF` loop:
-
-| Mechanism | Driver | What it does |
-| --- | --- | --- |
-| `.u-enter` | **time** (560ms, 40/110/190/270ms delays) | The only time-driven animation on the site, and it has to be: the first viewport is already on screen when the document paints, so a `view()` timeline there resolves as "already fully entered" and produces no entrance at all — which is why the hero previously arrived flat. Delays sequence the reading order (eyebrow → headline → lede → index); this is the one place `animation-delay` works, because the timeline is time rather than scroll. |
-| `.u-reveal` | `view()`, range `entry 8% cover 26%` | Section bands fade + rise 1.5rem as they enter. `opacity` and `transform` only. |
-| `.u-stagger > *` | `view()`, range offset per `nth-child` | Sequences the rows *within* a band: 6/12/18/24% entry offsets, 5th and later share 28%. Travel is 0.85rem, shorter than `.u-reveal`, because the two compose — 1.5rem inside 1.5rem reads as a slide. |
-| `.u-nav-settle` | `scroll(root block)`, range `0 6rem` | Deepens the nav ground, brings in its hairline + shadow over the first 6rem. |
-| `.u-progress` | `scroll(root block)`, full document | 2px reading-progress hairline at the top edge, `scaleX(0 → 1)`. |
-
-Scroll-driven animations ignore `animation-delay`, which is why the stagger is built
-from per-child `animation-range` offsets rather than delays.
-
-Plus `@view-transition { navigation: auto }` — cross-document, so index → detail
-needs no router. Each product's mark and title carry
-`view-transition-name: mark-<id>` / `title-<id>` on **both** the index band and the
-detail masthead, so the shared element morphs instead of the two documents
-cross-fading. All four products pair BOTH names on BOTH pages — the index band
-and the detail masthead each carry `mark-<id>` and `title-<id>`, so a mark or a
-title left unpaired is a bug, not a variant: the unpaired half silently falls
-back to a document cross-fade while its sibling morphs.
-
-> **Every timeline is assigned through `var(--u-timeline)`, never as a literal.**
-> This is not style preference — it is the only form that survives the build.
-> Given `animation: X linear both` beside `animation-timeline: view()`, Lightning
-> CSS folds the pair into `animation: linear both X view()`, and **Chrome rejects
-> that shorthand outright**: measured, `el.style.cssText` comes back empty and
-> `getComputedStyle().animationTimeline` reads `auto`. Lightning CSS cannot fold a
-> longhand whose value is a `var()`, so the indirection keeps it intact. See §8.
-
-### Transitions and interaction
-
-`--ease-brand` `cubic-bezier(0.2, 0, 0, 1)` throughout; no bounce or elastic easing
-anywhere — this is a publication, not a consumer app.
-
-| Helper | Property | Duration | Where |
-| --- | --- | --- | --- |
-| `.u-entry-mark` | `color` | 240ms | a product mark, lit when its **name** is hovered or focused via `.u-entry:has()`. The band itself is never the target. |
-| `.u-row` | `background-color` | 200ms | a full-row link (hero index rows, the AgentLens TOC). A colour change on the name alone under-reported a 64px-tall target. |
-| `a` (base) | `color`, `text-decoration-color` | 160ms | every link |
-| `.u-link-draw` | `transform: scaleX()` on `::after` | 220ms | links in an identifier row, where five static underlines would read as a stack of rules |
-| `.u-arrow` | `transform: translateX(0.3em)` | 240ms | trailing `→`, advanced by `.u-arrow-host:hover` / `:focus-visible` |
-| `.u-pager` | `background-color`; mark `color` | 260ms | the whole page-ending band |
-| `.u-copy` | `color`, `border-color`, `background-color`, `transform` | 160 / 120ms | command copy button |
-
-Every transition is on `color`, `background-color`, `border-color`,
-`text-decoration-color` or `transform`. Zero animate a layout property; there is
-no `transition: all` — verified as **0 occurrences** in the built CSS, not the
-source.
+| `--radius-chip` | `6px` | chips, code blocks, small rows |
+| `--radius-control` | `10px` | buttons, segmented controls, filter chips, menu rows |
+| `--radius-card` | `16px` | cards, popovers, figures |
+| (icon) | 22% of its size | an app icon, as the shipped icons draw it |
+
+No pill buttons on the main site.
 
 ### Depth
 
-Drawn with a hairline plus one tightly-spread shadow — never a blurred glass panel.
-`--shadow-plate` (plates, command blocks) and `--shadow-recess` (the footer, so it
-reads as chrome the content sits on). The stage itself carries one wide, very low
-shadow so its frame reads as a sheet edge rather than a stray hairline.
+`--shadow-card` (resting card), `--shadow-lift` (hovered card), `--shadow-pop` (popovers) —
+a hairline plus one tightly spread shadow, mixed from `--shade`, which stays dark in both
+themes. Dark mode adds a white top edge instead (above).
 
-Three surfaces mix from **`--shade`**, which is a separate token from `--ink-900`
-for a specific reason: the ink and paper ramps both invert in dark mode, so
-anything mixed from them flips sense. `--shade` stays dark in both themes.
+## 2. Layout
 
-- both shadows — mixed from `--ink-900` they would become a white glow;
-- **the footer ground**, `color-mix(in oklab, var(--shade) 6%, var(--color-paper))`.
-  A fixed paper step cannot work here: `--paper-2` is darker than the sheet in
-  light mode and *lighter* in dark mode, and measured, the dark footer came out
-  brighter than the page it sits in — reading as a raised panel, the opposite of
-  the intent. Mixed from `--shade` it recesses in both (measured relative
-  luminance: light 0.837 vs sheet 0.973; dark 0.0033 vs sheet 0.0040).
+### The column
 
-All live on `:root`, not in `@theme` — Tailwind prunes theme variables it sees no
-utility for, and these are consumed through `var()`.
+`.u-shell` is the only container: `max-width: calc(72rem + 2 × gutter)`, centred,
+`padding-inline: var(--gutter)` with `--gutter: clamp(1.25rem, 3.2vw + 0.35rem, 2.5rem)` —
+20px on a phone, 40px from ~1140px. The previous build's two nested boxes (a bordered sheet on
+an inset desk) and the nav scrim they required are gone: a catalog reads best on one full-bleed
+ground, and the floating pill they existed for is gone too.
 
-**Legibility must not depend on motion, and does not.** Both mechanisms sit inside
-`@media (prefers-reduced-motion: no-preference)` *and* an `@supports` gate, so an
-unsupporting or motion-averse browser gets the final state statically rather than an
-unrevealed blank page. Concretely, the nav's readable ground is its own 92% base
-colour, not the settle animation — measured worst case (92% paper composited over
-the darkest body text that can scroll beneath it):
+### Header
 
-| Theme | Nav mute text on worst-case ground | Accent on worst-case ground |
+`SiteHeader.astro`, sticky, 64px tall, the page ground at 86% with `backdrop-filter` blur as
+an enhancement (write the standard property only — Lightning CSS collapses a hand-written
+`-webkit-` twin into the prefixed form alone, which Chrome ignores), and a bottom hairline.
+Left to right: the wordmark (its letters drop below 420px, the glyph stays — measured, the
+English bar needs 355px of column with them shown), the **app menu**,
+then GitHub (from 640px), the theme control and the language switch.
+
+The products are reached through one menu, never one link each, so the bar's width does not
+depend on how many products exist. The menu is a `<details data-popover>` disclosure — it works
+with scripting off and announces its state natively; the layout's script adds Escape (focus
+returns to the summary), outside-click and one-open-at-a-time. The `<details>` itself is not
+positioned: the panel is placed against the bar's column (`left: var(--gutter)`, width
+`min(22rem, 100% − 2 × gutter)`), so on a phone it uses the column instead of starting under the
+summary and running off the screen. On a product page that product's row is
+`aria-current="page"` and not a link.
+
+### Home page
+
+1. **Hero** — an h1 in two lines: the brand at `--text-hero`, then what FirLab offers at
+   `--text-title` (`1.375rem` below 640px); the lede; two buttons, GitHub (primary) and the
+   WeChat Official Account (a QR disclosure; anchored to the button row on phones, to its own
+   button from `sm`). No visual, no count, no tagline beyond the h1's second line.
+2. **Apps** — `AppCatalog`: the title, the category filter, and the grid:
+   `grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr))` — three columns at
+   1024px and up, two at 768, one on a phone, and a new app is one more card.
+3. **Latest releases** — `ReleaseList`: every released product, newest first, capped at six, each
+   row linking to that tag's release notes.
+4. **Bugs and requests / WeChat Official Account** — two cards, the second showing the QR inline.
+5. **Footer.**
+
+At 1440 × 900 the first row of cards starts inside the first viewport.
+
+### Product pages
+
+`ProductHeader` (breadcrumb FirLab / 应用 / name; the 72px icon and the h1; category ·
+platforms; the mono role line; the lede; actions — Install when the page has an install section,
+the GitHub repository, the product's website if it has one; and a fact card with status,
+version, release date, licence, extra facts, the releases link and the page's section index).
+Then the page's own sections, unchanged in structure, on the band rhythm: `.u-band-open` draws a
+rule and opens a movement (96px above from 768px), `.u-band-next` continues one (64px),
+`.u-band-tight` binds to the section above (32px). Then `NextProduct` and the footer.
+
+### Footer
+
+One shape on every page: identity and a one-line blurb, the app list from the catalog, and every
+contact with its text label (GitHub, Bilibili, Zhihu, X, the personal WeChat QR, the Official
+Account QR). Three columns from 1024px; between 640 and 1023 the identity spans the top and the
+two lists sit side by side — at 768px a 3-of-12 column was 146px and "WeChat Official Account"
+wrapped inside its link.
+
+## 3. Components
+
+| Component | Contract |
+| --- | --- |
+| `SiteHeader` | §2. Wordmark · app menu · GitHub · theme · language. |
+| `AppIcon` | Each product's shipped icon on the 100-unit grid, tile included, inline SVG (no request). Decorative (`aria-hidden`) beside a visible name; pass `label` where it stands alone. Takes a `view-transition-name`. |
+| `AppCard` | One per product, identical for all: icon, name (the stretched link), category with a status badge for non-mature products only, tagline, platform chips, version · date, GitHub link above the stretch. Hover lifts 2px; focus rings the card. |
+| `AppCatalog` | Title, filter, grid. Radio inputs plus `:has()`, no script; the hiding rules are generated per category present; the filter is hidden without `:has()` support and absent with one category. Cards sit in `<li>`s and the stagger animates the `<li>` (see §6). |
+| `ReleaseList` | §2. Built from `versions.ts` through the catalog. |
+| `ContactSection` | Feedback (GitHub) and the Official Account with its QR inline on a white plate. |
+| `ProductHeader` | §2. All facts from the catalog entry, so a page cannot disagree with its card. |
+| `NextProduct` | A card linking to the next product in catalog order; wraps and says so. A `<nav>` outside `<main>`. |
+| `SiteFooter` | §2. |
+| `SocialRow` | The real destinations with labels; WeChat entries are `<details>` QR panels (white plate in both themes — a scanner needs a light ground). |
+| `StatusTag` | Text plus a dot, never colour alone: `live` 持续更新, `early` 早期版本, `wip` 开发中. |
+| `ThemeSwitch`, `LangSwitch` | Segmented controls, 32px tall. The language switch keeps the current page's slug. |
+| `InstallBlock` | Selectable commands; long commands wrap rather than scroll; the copy button appears only when `navigator.clipboard.writeText` exists. |
+| `SpecGrid`, `DefRows`, `DetailSection`, `ScreenFigure` | Product-page primitives, restyled through the tokens. |
+| `Wordmark` | The bracket glyph plus FIRLAB in mono; `compact` drops the letters below 420px. |
+
+Cards use the stretched-link pattern: the name's link carries `.u-stretch`, whose `::after`
+covers the card; secondary links carry `.u-above`. One anchor per destination, no link inside a
+link, and the accessible name is the product name.
+
+## 4. The catalog
+
+`src/i18n/products.ts` is the single list. Each entry: `id`, `name`, `category` (`service` |
+`cli` | `desktop`), `platforms`, `status`, `version` / `released` (imported from `versions.ts`),
+`license`, `repo`, `page` (`{ slug }` for an in-site page, `{ href }` per locale for a
+documentation site under firlab.app), optional `site` (a website on its own domain), and a
+one-sentence `tagline` per locale. Array order is display order.
+
+**Adding an app:**
+
+1. An entry in `products.ts`.
+2. Two constants in `src/i18n/versions.ts` (the tag and its UTC release date) and a row in
+   `scripts/check-versions.mjs`.
+3. Its icon in `AppIcon.astro`, lifted from the app's shipped icon.
+4. Where its name leads: an in-site page under `src/pages/` (`page.slug`, built on
+   `ProductHeader`), or the paths of its documentation site (`page.href`).
+
+Nothing else: the grid, filter counts, release list, header menu, footer, pager and JSON-LD
+follow. A new category needs its two labels in `ui.ts` (`category.*`, `filter.*`) and, if the
+home page's description names the categories, that sentence.
+
+**Taglines** state what the app does in one plain sentence. They inherit the factual constraints
+listed at the top of `products.ts` (pt-tools downloads free torrents unless a filter rule widens
+it; CodeGraph has no model; Voltip's cloud paths send audio or text out; Lockra goes online for
+updates and opt-in sync).
+
+### Version provenance — one constant per fact, checked against the tag
+
+`versions.ts` owns every version and release date, one exported constant each, and every surface
+reads it through the catalog. **The source of truth is the GitHub release tag**, never a product
+manifest (manifests trail their tags) and never the release title (titles are not one format);
+dates come from `published_at` in UTC.
+
+**The build does not fetch.** `scripts/check-versions.mjs` does, and its three-way exit code is
+the contract: `0` matches the latest stable release, `1` is proven drift (and may open or update
+the drift issue naming the constant), `2` means the API could not give a verdict
+(`VERSION CHECK INCOMPLETE`, never reported as drift). `ci.yml` runs it on pull requests;
+`version-drift.yml` runs it daily and keeps one marker-tagged issue. It never auto-commits a fix:
+a commit to `main` publishes, and a bot must not publish a version claim no human reviewed.
+
+### Structured data
+
+`schema.ts` mints every entity IRI: `WebSite` per locale, `Person` once (the publisher and
+author), `SoftwareApplication` per product page with `FREE_OFFER` only where a release exists,
+and no `aggregateRating` or `review` anywhere — there are no real ratings, and inventing them is
+a policy violation. The home page's ItemList nodes carry no `@id` (they are summaries, not the
+authoritative record). The social card is one image for the whole site, so every page's
+`og:image:alt` is the home page's `ogAlt`.
+
+## 5. Copy
+
+- **Speak as FirLab.** The site is firlab.app, not a personal homepage: no "sunerpy 的…" in
+  headings, titles, descriptions or blurbs. The author still appears where it is a fact — the
+  JSON-LD `Person`, the `author` meta, the copyright line and the GitHub account the links lead to.
+- **Name and count nothing in shared copy.** The hero, the description, the footer and the
+  section titles must survive a new app unchanged.
+- **Plain statements, no slogans or manifestos.** If a line would read as well on any other
+  site, cut it. Section headings say what the section holds (安装, 技术栈, 当前状态), not a
+  rhetorical promise.
+- **Facts come from the product's README and release tags**, with the constraints in
+  `products.ts`. Unknown means "say nothing", never a guess.
+- Chinese copy quotes with 「」 and sets real spaces around Latin runs.
+
+## 6. Motion
+
+CSS only, all of it inside `prefers-reduced-motion: no-preference` plus an `@supports` gate, so
+an unsupporting or motion-averse browser renders the final state.
+
+| Mechanism | Where |
+| --- | --- |
+| `u-enter` — time-based, staggered by child | the home hero and a product header, which are on screen at first paint |
+| `u-reveal` — `animation-timeline: view()` | each home section, the pager |
+| `u-stagger` — `view()` with offset ranges per child | the card grid's `<li>`s, spec lists |
+| `u-progress` — `scroll(root)` | the 2px reading rule at the top edge |
+| Hover | cards lift 2px and gain `--shadow-lift`; arrows advance 0.3em |
+| `@view-transition { navigation: auto }` | a card's icon and name morph into the product page header (`mark-<id>`, `title-<id>`) |
+
+Two rules that are not style preferences:
+
+- **Every timeline is assigned through `var(--u-timeline)`.** Given `animation: X linear both`
+  next to `animation-timeline: view()`, Lightning CSS folds them into a shorthand Chrome
+  rejects, and the animation silently never runs.
+- **A scroll-driven animation and a hover transform cannot share an element.** A finished
+  animation with `fill-mode: both` holds `transform: none` and overrides the hover lift, so the
+  stagger animates the `<li>` and the card inside it lifts.
+
+## 7. Accessibility
+
+Contrast, WCAG 2.x, every text pair on the surface it sits on:
+
+| Text | Light page / card / block | Dark page / card / block |
 | --- | --- | --- |
-| Light | **4.80:1** | 5.09:1 |
-| Dark | **4.88:1** | 7.39:1 |
+| `--ink-900` | 17.27 / 18.72 / 15.90 | 16.65 / 15.45 / 11.70 |
+| `--ink-700` | 13.50 / 14.63 / 12.42 | 13.41 / 12.45 / 9.42 |
+| `--ink-500` | 6.99 / 7.58 / 6.43 | 8.80 / 8.17 / 6.18 |
+| `--ink-400` | 5.29 / 5.74 / **4.87** | 6.70 / 6.22 / **4.71** |
+| `--accent` | 5.61 / 6.08 / 5.16 | 8.49 / 7.88 / 5.96 |
+| `--live` | 5.86 / 6.36 / 5.40 | 10.32 / 9.58 / 7.25 |
 
-Both clear AA with the blur and the animation entirely absent. The `backdrop-filter`
-is a pure enhancement.
+The primary button and a checked filter chip (page colour on ink) are 17.27 light and 16.65
+dark. Nothing is below 4.5:1.
 
-The `reduce` block neutralises transitions and animations rather than shortening
-them; because the scroll-driven rules never apply under `reduce`, nothing is left
-mid-animation. Measured under emulated `reduce` on `/codegraph/`: **12 `.u-reveal`
-bands and 33 `.u-stagger` children, zero of them stuck below `opacity: 1` or holding
-a transform** — i.e. no content is hidden when the motion never runs. The progress
-hairline rests at `scaleX(0)` and is therefore invisible rather than permanently
-full.
+- Landmarks: one `banner` (the header), `main`, `contentinfo`; navs are labelled (主导航,
+  页脚导航, the breadcrumb, the pager, the page index). Exactly one `h1` per page.
+- Every interactive element shows `:focus-visible` (2px accent ring); a card shows it on the
+  card. Buttons are 40px tall, header controls 32–36px, filter chips 36px. Below 420px the header's
+  home link is an 18px glyph, so a pseudo-element grows its hit area to 34 × 45px without widening
+  the bar. Links stacked in lists (breadcrumb, a product page's closing links) are at least 24px
+  apart, which meets WCAG 2.5.8 through its spacing exception.
+- Status is text plus a dot, never colour alone. Icons beside a visible name are hidden from
+  assistive tech; the icon-only GitHub link carries a name and a title, and the footer repeats
+  every destination with a text label.
+- The filter is a `fieldset` with a visually hidden legend and native radios: one tab stop,
+  arrow keys move, the checked state is announced. Each input covers its chip, so a click never
+  scrolls the page to a hidden control.
+- Disclosures are native `<details>`; Escape closes and returns focus to the summary.
+- The QR images carry descriptive `alt` text; the Official Account's name is also written out.
+- `overflow-x: clip` (never `hidden`) on `html` and `body`, which keeps `position: sticky`.
 
-## 6. Accessibility constraints
+## 8. Verified (2026-10-02)
 
-- Landmarks: `header` / `main` / `footer`, `nav` only where there are ≥2 links.
-- Exactly one `h1`; product names are `h2`; spec group labels are `dt`, not headings.
-- Focus: `:focus-visible` → `2px solid var(--color-accent)`, `outline-offset: 3px`.
-  Never removed, never animated.
-- Contrast re-measured across **26 surfaces × both themes** after the stage /
-  plate / footer rework, each against its own *composited* ground (the nav's is
-  92%-opaque, so the ground has to be composited rather than read): **zero
-  failures**. Nothing on the site relies on the desk colour, which is why
-  introducing it changed no measured pair.
-- **Re-measured again after the dark-ramp rebuild**, by walking every element that
-  owns a text node on `/en/` and `/codegraph/` and compositing each one's real
-  ancestor-chain ground: 19–20 distinct (text, ground) pairs per page, **zero below
-  4.5:1**. Every dark pair improved except the tightest, which improved too. The
-  ramp is *lower* contrast than the one it replaces at the top end and that is
-  deliberate — `--ink-900` moved from 97.2 L to 95.1 to stop near-white halation.
+Local build served statically, Chrome via CDP.
 
-  | Dark pair | Before | After |
-  | --- | --- | --- |
-  | `--ink-500` body on the sheet | 8.80:1 | 8.54:1 |
-  | `--ink-400` meta on the sheet | 5.69:1 | 6.49:1 |
-  | `--ink-400` meta on `--paper-2` | 4.69:1 | **4.71:1** ← tightest on the site |
-  | `--accent` on the sheet | 8.60:1 | 8.23:1 |
-  | `--ink-900` on the sheet | — | 16.15:1 |
-  | `--ink-500` on the footer ground | — | 8.68:1 |
-  | `--ink-400` on the nav's composited ground | — | 6.46:1 |
+- `astro check`: 0 errors, 0 warnings. `astro build`: 8 pages; `dist/CNAME` is `firlab.app`.
+- 64 route × width combinations — `/`, `/en/`, `/codegraph/`, `/en/codegraph/`, `/agentlens/`,
+  `/en/agentlens/`, `/voltip/`, `/en/voltip/` at 320, 360, 375, 414, 768, 1024, 1280 and 1440px,
+  with every popover forced open: no horizontal overflow, no element past the viewport outside a
+  horizontal scroller, the header 64px on one line with nothing past the gutter, no clickable
+  text (buttons, header and footer links, breadcrumbs, filter chips, card names) on two lines,
+  no app-menu name wrapped, exactly one `h1`. Product-page h1s are one line at every width.
+- The filter shows 3 / 1 / 1 / 5 cards for desktop / CLI / service / all, without scrolling the
+  page. The app menu opens with every product, closes on Escape (focus back on the summary) and
+  on an outside click, and only one popover is open at a time. The theme control switches the
+  page ground and cards to the dark ramp and back to the system.
+- Light and dark at 1440 × 900 and 375 × 812 were checked by screenshot. Target sizes were
+  measured at 320, 360, 375, 399 and 414px: the only controls under 24px were the header's glyph
+  link, the footer's wordmark link (20px tall) and the breadcrumb links (18px tall); all three were
+  enlarged.
 
-  `--ink-400` was lifted from L 65.0 to 68.1 during construction *because* of that
-  last row: at 65.0 it measured 4.20:1 on `--paper-2` and failed. `--paper-2` moving
-  up to +11.7 L is what created the pressure — the surface the ramp needed for hover
-  state is also the darkest ground muted text ever sits on, so the two constraints
-  are coupled and the ink step had to follow the surface step.
-- Body `--ink-500` on `--paper-0` is 7.4:1 light / 8.5:1 dark. `--accent` on
-  `--paper-0` is 5.3:1 / 8.2:1. `--live` is 5.1:1 / 10.0:1. `--ink-400` meta is
-  5.6:1 / 6.5:1 — used at ≥12px, passes AA for normal text.
-- Target size: below 375px the theme and language segments tighten to recover the
-  measured 8.7px nav overflow, and every button stays above 24×24 (26×28 for a
-  theme segment, 30×30 for a locale). Hiding a control was rejected — it would
-  remove a working affordance from the one device with no alternative.
-- Status is text + colour, never colour alone.
-- The theme control's selected segment is `aria-pressed="true"` plus a filled
-  ground plus a distinct icon per segment — three signals, none of them colour
-  alone. Each button holds a visually hidden label (`跟随系统` / `浅色` / `深色`),
-  so an icon-only control still has a real accessible name.
-- Both themes are now *chosen*, not just inherited, so contrast holds in both by
-  construction: the pinned ramps are byte-identical to the `prefers-color-scheme`
-  ones, which are the measured pairs above.
-- **The nav pill's hairline is part of its base state, not something the settle
-  keyframes bring in.** Once the scrim sits behind the pill (§2), the pill's
-  composited ground measures **1.01:1** against the scrim's — the same colour, to
-  measurement — so with the hairline deferred to `.u-nav-settle` the bar had no
-  edge at all and the nav read as loose text on a blank strip. That state is only
-  ever reachable under `prefers-reduced-motion: reduce`, where the settle never
-  runs: the machines that would have shipped it are exactly the machines nobody
-  looks at it on. The settle still *deepens* the ground and adds the shadow; it no
-  longer owns whether the bar has a boundary. Legibility itself was never at stake
-  — nav text holds its measured contrast with the motion absent (see the
-  composited-ground row above; light reads **5.59:1**, and under
-  `prefers-reduced-transparency: reduce` both themes hold at **6.49:1** dark /
-  **5.59:1** light). What was missing was the edge, not the text.
-- That hairline measures **1.65:1** against its own ground, below the 3:1 WCAG
-  1.4.11 asks of a component boundary. This is accepted debt with a stated
-  justification, not an oversight — see §7.
-- `alt` on every image; decorative marks are `aria-hidden` when the adjacent text
-  already names the product.
-- Install commands are selectable text in a `<code>`, not an image.
-- **i18n a11y**: `<html lang>` carries the real BCP 47 tag (`zh-CN`), not the Astro
-  locale id (`zh-cn`) — the CSS script metrics key off `:lang(zh-CN)`. The language
-  switch is a `role="group"` with `aria-label`; the active locale is
-  `aria-current="true"` and each option carries its own `lang` + `hreflang`.
-- A skip link precedes the sticky nav; `[id] { scroll-margin-top: 6.5rem }` keeps
-  anchor targets from landing underneath it.
-- `html`/`body` use `overflow-x: clip`, never `hidden` — `hidden` on the root turns
-  the document into a scroll container and silently kills `position: sticky`.
-- No clickable text wraps to two lines at any width. The hero index row was
-  restructured into two lines — identifiers, then facts — because the status label
-  and the version shared one squeezed flex track: measured at 1180px the name
-  column was 95.8px and **every** status label wrapped inside a link. On its own
-  line the label has 170px and none wraps from 320px up.
-- Every authored social mark has an accessible name; the icon-only nav row relies on
-  `aria-label` + `title`, and the footer repeats all five with visible text.
-- Measured at 390 / 768 / 1440px, both themes: zero horizontal overflow, zero
-  elements wider than the viewport, and no clickable text wrapping to two lines.
+Defects found by measuring in this pass, and fixed before the numbers above: the hero's QR panel
+ran 23px past the right edge at 375px (now anchored to the button row on phones); the English
+header pushed its controls into the gutter at 360–399px (the wordmark letters now drop below
+400px); a long mono URL on the AgentLens page overflowed at 320px (now `overflow-wrap: anywhere`);
+a card's status badge beside the name broke "AgentLens" mid-word at 320px (moved to the category
+line); the footer's social column wrapped "WeChat Official Account" at 768px (two columns below
+1024px); the Chinese subtitle broke inside 「命令行工具」 on phones (phrase runs, §1); and a
+36px home link widened the English header past its gutter at 320px, so the hit area now grows
+through a pseudo-element instead.
 
-## 7. Accepted debt
+## 9. Accepted debt
 
-1. **Raster fallbacks now ship; `.ico` still owed.** `public/og.png` (1200×630) and
-   `public/favicon.png` (512×512, transparent) are rasterised from the two vector
-   sources, and `og:image` points at the PNG — X/Twitter and several crawlers ignore
-   an SVG `og:image`, so the SVG-only card was effectively a blank share preview.
-   Both SVGs remain the source of truth; the PNGs are generated from them, not drawn
-   again. Still outstanding: a `favicon.ico` for clients that read neither SVG nor
-   PNG icon links.
-
-   The OG raster substitutes two font stacks because the render host has exactly one
-   serif (`DejaVu Serif`) and no Charter — every other coordinate, colour and stroke
-   comes verbatim from `og.svg`, verified at a max channel delta of **1** against a
-   render of the unmodified source. The PNG is written with **grayscale** font
-   antialiasing: the host's default LCD subpixel rendering baked green/magenta
-   fringes into 8,793 headline pixels, which a raster card carries to every consumer
-   at every scale.
-
-   The favicon PNG is deliberately **monochrome `--accent-mark`**, not a copy of the
-   SVG's theme-swapped spine. A PNG cannot respond to `prefers-color-scheme`, so a
-   `#0B1220` spine would vanish on a dark tab strip; brand orange is the only value
-   in the palette that holds on both. Its third arm is drawn at full strength rather
-   than the SVG's `opacity="0.45"` — measured at 16px, the faded arm dropped to a
-   ~20% ghost and the mark read as a two-arm F. At 16px the arms now span 12 / 9 / 6
-   px with clean gaps, so the decreasing-length structure survives.
-
-   No generated texture ships on the card. A ComfyUI grain plate was produced and
-   composited at 10 / 18 / 30% and rejected on measurement: the strengths that are
-   visible mottle the ground and eat the lowest-contrast ledger row, the strength
-   that is safe is invisible after a timeline downscale, and any of them costs
-   6–10× the file size (54 KiB flat → 328–541 KiB) on an asset every crawler
-   fetches. The flat ground is also deterministic, so the card is byte-reproducible.
-2. **No web fonts.** Display serif resolves to Charter/Sitka/Georgia depending on OS,
-   so the headline is not byte-identical cross-platform. Accepted: the cost of a
-   self-hosted display face (network + FOUT + Lighthouse) outweighs exact fidelity on
-   a single-page site.
-3. ~~**No theme toggle.**~~ **Superseded.** Three states ship — `system` ·
-   `light` · `dark` — see §1.
-4. **Naive UI not used.** The session default asks for Naive UI components; Naive UI
-   is Vue-only and the task forbids adding a client framework. Tailwind 4 + Astro
-   components only. Recorded here rather than silently dropped.
-
-5. ~~**`pnpm build` needs `verifyDepsBeforeRun: false`.**~~ **Superseded.** pnpm is
-   now pinned to `10.25.0` via `package.json`'s `packageManager`, which predates the
-   `minimumReleaseAge` default change and accepts the lockfile with every integrity
-   check intact. No policy override remains in the repository. Just run `pnpm build`.
-
-6. **One inline script ships (~40 lines), where the previous build shipped zero.**
-   `<details>` already gives the WeChat QR a working, keyboard-accessible
-   open/close with scripting off; the script only adds the two behaviours the
-   element has no native equivalent for — Escape to dismiss (returning focus to the
-   trigger) and click-outside to dismiss. It is inline, so it costs no request, and
-   `<script src>` count in the output is still **0**.
-
-7. **Four of the five social marks are authored abstractions; GitHub is the real
-   logo.** Five vendor logos arrive in five visual languages and read as a sticker
-   sheet on a page built from hairlines, so bilibili, zhihu, x and wechat are drawn
-   to one grid instead. GitHub is the deliberate exception: it is where every
-   product on this site actually lives, so it is the one destination that must be
-   recognised without reading a label, and it now ships the **official Primer
-   `mark-github-24` path verbatim** — one filled `currentColor` path, geometry
-   untouched. It replaced an authored "commit spine" abstraction that was not
-   readable as GitHub. The rule this sets: use the real mark or an honest
-   abstraction, never a hand-approximated logo.
-
-   The cost of the four abstractions is lower instant recognisability, paid for
-   twice — every icon has an accessible name, and the footer renders all five
-   *with* text labels. Bilibili and WeChat keep their vendors' actual silhouettes
-   (antenna'd screen, paired bubbles) since those are already geometric; Zhihu's
-   wordmark is not reducible to this grid, so it is drawn as what Zhihu *is* — a
-   question inside a discussion bubble.
-
-   `SocialIcon`'s root keeps `fill="none"` for the stroked marks, so the GitHub
-   path sets `fill="currentColor"` on itself rather than on the `<svg>`.
-
-8. ~~**Product detail pages do not exist yet.**~~ **Superseded.** All four ship in
-   both locales: `/pt-tools/`, `/codegraph/`, `/agentlens/`, `/voxera/` and their
-   `/en/…` counterparts. 10 pages total. Voxera's pair became Voltip's on 2026-09-29,
-   and pt-tools' gave way to its documentation site on 2026-10-01 (§12).
-
-9. **pt-tools has no shipped application icon, so its mark is authored.** The other
-   three marks are lifted from real icon sources; pt-tools has none, so it is drawn
-   to the same language as CodeGraph's: three feed arcs rising from an origin node
-   onto a baseline — the subscriptions, and where they land. The arc radii decrease
-   toward the origin because equal-radius arcs merged into a smudge below 40px when
-   measured, and the mark renders at 38–46px in the index. If pt-tools ever ships an
-   icon, this should be replaced by it rather than kept.
-
-10. ~~**The pt-tools page states what is *not* verified, and gives it structure.**~~
-    **Superseded.** The page became pt-tools' documentation site on 2026-10-01 (§12),
-    which keeps the rule: the two shipped-but-unverified channels, WeCom group bot and
-    the generic webhook, carry `StatusTag`'s `experimental` value, always in words.
-
-11. **The Chinese headline sets in three lines below 414px.** Reaching two would
-    mean dropping the display step to ~34px on the one screen size where the
-    headline is already the smallest it will ever be, which costs more than the
-    extra line does. Latin sets in two at every width from 320px up.
-
-12. **Em-dashes remain throughout the copy** (164 occurrences across
-    `src/i18n/*.ts`). They are the author's own prose and this pass does not touch
-    product copy; the house style used for anything authored here avoids them.
-
-13. **The nav pill's hairline is 1.65:1, under WCAG 1.4.11's 3:1 for a component
-    boundary.** Accepted, on two grounds. It is the same `--rule` that bounds every
-    plate, every spec table and every segmented control on the site, so raising it
-    for the pill alone would either break that one consistency or re-light every
-    hairline on the page — and `--rule`'s value is pinned by the dark ramp's step
-    spacing (§1), where it is doing structural work at +16.5 L. And the pill's edge
-    is decoration rather than an affordance: nothing is actuated by the pill, every
-    control inside it carries its own hit area, its own hover state and its own
-    2px focus ring, and each is independently above the 24×24 target floor. The
-    hairline says "this is one object"; it never says "click here". The boundary
-    that 1.4.11 exists to protect is the control's, and each control has one.
-
-## 8. Verified
-
-Measured in Chrome 151 at 390 / 768 / 1440px, both colour schemes, both locales,
-against the built `dist/` served over HTTP:
-
-- `pnpm check` **0 errors / 0 warnings / 0 hints** (21 files); `pnpm build` exit 0
-  from a clean `dist/`, both `/index.html` and `/en/index.html` emitted.
-- **Zero occurrences** of the previous owner's real name in `src/`, `public/` or
-  `dist/` — it had been rendered 11 times, including inside indexed schema.org data.
-- Both locales carry their content in the raw HTML (SSG confirmed, not hydrated).
-- `hreflang` emits `zh-CN` · `en` · `x-default` on both pages; each page is
-  self-canonical; `og:locale` is `zh_CN` / `en_US` with the other as
-  `og:locale:alternate`. The sitemap carries `xhtml:link` alternates for both.
-- Voxera's band contains **zero** external links and **zero** version strings in
-  both locales, and no `github.com/…voxera…` URL exists anywhere in the output.
-- `dist/CNAME` is exactly `firlab.app`; `og.png`, `favicon.png`, `og.svg`,
-  `favicon.svg`, `robots.txt` all still emit; `wechat-qr.jpg` ships at 41,647 bytes
-  and loads at its native 430×430.
-- All four social URLs appear verbatim in both pages. No Facebook, Mastodon,
-  LinkedIn or `twitter.com` reference exists.
-- No `http://` asset or link URL anywhere — `.app` is HSTS-preloaded, so mixed
-  content would be fatal.
-- `<script src>` count is **0**.
-- No horizontal overflow and zero over-wide elements at 390 / 768 / 1440px; no
-  clickable text wraps to two lines.
-- Console clean (no errors, warnings or issues) after load and interaction.
-- Editorial guide rules land exactly on the text column (measured 145 / 1281 at
-  1440px, matching `h1` and the ledger edge).
-
-### Verified after the endings + motion pass
-
-Chrome 151, `dist/` over HTTP, measured at 390 / 1440px in both schemes:
-
-- `pnpm check` **0 / 0 / 0** (43 files); `pnpm build` exit 0, 10 pages.
-- Lighthouse on `/codegraph/` (desktop, navigation): **accessibility 100 · SEO 100 ·
-  agentic-browsing 100**. Best-practices 78 is the local HTTP server alone
-  (`is-on-https`, `redirects-http`); production is HTTPS-enforced and `.app` is
-  HSTS-preloaded. Console clean — no errors, warnings or issues.
-- `<script src>` count is still **0** on all six sampled pages; no `@font-face`,
-  no `fonts.googleapis`, no `fonts.gstatic` anywhere in `src/` or `dist/`.
-- Footer variant per page: `/` and `/en/` carry the blurb and no pager; all eight
-  localized product pages carry `u-footer-slim`, **zero** blurb occurrences, and
-  one pager.
-- All four scroll mechanisms register real timelines — `ViewTimeline` for
-  `u-reveal` / `u-rise`, `ScrollTimeline` for `u-nav-settle` / `u-progress` — each
-  `playState: running`. The stagger offsets resolve to 6 / 12 / 18 / 24 / 28 %
-  across an 8-child list.
-- Under emulated `reduce`: **0 of 12 `.u-reveal` bands and 0 of 33 `.u-stagger`
-  children** left below `opacity: 1` or holding a transform, on every page checked.
-- Zero horizontal scroll, zero over-wide elements, zero clickable text wrapping to
-  two lines, at 390 and 1440 in both schemes.
-- Contrast on the new surfaces, measured against their own grounds: detail footer
-  min **5.29:1**, pager min **5.59:1**, copy button idle **4.87** / done **5.40** /
-  failed **5.16** — all AA at 11px.
-- The copy affordance, driven end-to-end against a stubbed clipboard: hidden until
-  `navigator.clipboard.writeText` is confirmed, copies the command **byte-exact**,
-  announces through the `role="status"` region, reverts after 2.2 s, reports
-  failure, and takes a visible 2px focus ring.
-- CSS **33,338 → 38,945 bytes** (+5,607, +16.8 %) for two extra keyframes, three
-  extra transitions, the stagger cascade, the progress rail, the pager, the copy
-  button and the two footer variants.
-
-### Verified after the stage rework
-
-Chrome, `dist/` over HTTP, both locales, both themes, at 320 / 375 / 390 / 414 /
-768 / 1024 / 1180 / 1280 / 1440px:
-
-- `pnpm check` **0 / 0 / 0** (44 files); `pnpm build` exit 0, **10 pages**. CSS
-  42,024 bytes.
-- **90 page × width combinations** (10 routes × 9 widths) with **zero failures** on
-  every one of: horizontal overflow, over-wide elements, clickable text wrapping
-  to two lines, nav fitting inside its own pill, nav on a single line, exactly one
-  `h1`. The 22 "over-wide" elements on `/codegraph/` at 390px are all inside an
-  `.overflow-x-auto` table wrapper and produce no document overflow —
-  `documentElement.scrollWidth` equals the viewport at every width.
-- Text safe area: **24px** at 320–414, **69px** at 768, **99px** at 1024,
-  **117px** at 1180, **145px** at 1440. Frame→text air 27 / 39 / 47 / 57px, against
-  **3px** before.
-- The sheet, its content, the footer and the pager all agree to the pixel: at
-  1180px the stage spans `[70, 1096]`, the footer bleeds to the same bounds, and
-  `main`'s content and the footer's content both start at 117px.
-- Body measure holds at **29.0 hanzi per line** from 768px to 1920px.
-- Headline sets in **two lines** from 414px up (three at 320–390, accepted).
-- Section-level rules per detail page: CodeGraph **5**, pt-tools **4**, AgentLens
-  **4**, Voxera **4** — down from 9–10, and each survivor now marks a movement.
-- Contrast: **26 surfaces × 2 themes, zero failures**, worst 4.87 light / 4.69
-  dark, measured against composited grounds.
-- The footer recesses in **both** themes (relative luminance 0.837 vs sheet 0.973
-  light; 0.0033 vs 0.0040 dark).
-- Motion, verified in the built CSS rather than the source: `animation-timeline`
-  appears **4 times as `var(--u-timeline)`** and **zero times folded into an
-  `animation` shorthand** (the form Chrome rejects); five keyframes; the whole
-  motion layer nested inside `prefers-reduced-motion: no-preference`; one `reduce`
-  block; `transition: all` count **0**.
-- Under emulated `reduce`: **zero** elements left below `opacity: 1` above the
-  fold, on every page checked — the entrance rule does not exist under `reduce`,
-  so nothing can be stranded invisible.
-- Theme control driven through the real UI: `system → light → dark → system`
-  switches all four grounds, writes and clears `localStorage['firlab-theme']`, and
-  moves `aria-pressed` correctly.
-- `<script src>` count **0**; no `@font-face`, no `fonts.googleapis`, no
-  `fonts.gstatic`. `dist/CNAME` is `firlab.app`.
-
-### Five defects found by measuring in this pass, and fixed
-
-1. **The 1024px headline grew its own box by 42px.** The hero index spans every
-   grid row, so when it was taller than the three text items the grid distributed
-   the surplus into *their* rows — the `h1` box went 110 → 152px and the lede
-   drifted away from the headline it belongs to. Fixed with a fourth `1fr` spacer
-   row that has no left-column content, so the surplus lands there.
-2. **The nav overran its own pill by 8.7px at 320px.** Fixed by tightening the two
-   segmented controls below 375px, not by dropping the pill's outward pull (that
-   would take the wordmark off the copy's start line) and not by hiding a control.
-3. **Every status label in the hero index wrapped to two lines inside a link.**
-   The label and the version shared one squeezed flex track — 95.8px for the name
-   column at 1180px. The row is now two lines: identifiers, then facts.
-4. **The dark footer was brighter than the page it sat in.** A fixed paper step
-   cannot recess in both themes because the ramp inverts; the ground is now mixed
-   from `--shade`.
-5. **The Principles heading printed twice.** `principles.label` and
-   `principles.title` are the same string in both locales, and the section
-   rendered both — once as an eyebrow, once as the heading. The eyebrow is gone.
-
-Two more found and fixed while writing the fixes, both instances of the same
-Tailwind v4 cascade trap this file already documents:
-
-- a `@media (max-width: 374px)` block written **before** `.u-theme-btn` lost on
-  source order, because the base rule sets padding through the `padding`
-  *shorthand*. Measured, the override read back as 7px until it moved below.
-- `--nav-pad`'s `768px` override had to be **unlayered**; inside
-  `@layer components` it lost to the `:root` block and the pill kept its 10px
-  padding at every width.
-
-### Four defects found by measuring, and fixed
-
-1. **`backdrop-filter` was dead in the shipped CSS.** Hand-writing both the
-   standard and `-webkit-` properties made Lightning CSS deduplicate the pair down
-   to the *prefixed form alone*, and Chrome 151 ignores `-webkit-backdrop-filter`
-   entirely — `getComputedStyle().backdropFilter` returned `none`, so nav text was
-   bleeding through over scrolled content. Fix: write only the standard property and
-   let the build prefix; separately, raise the base ground to 92% so legibility
-   never depended on the filter in the first place.
-2. **The 12-column split at `md` crushed Chinese spec copy** — 145px value column,
-   ~9 hanzi per line, 8 lines. Moved to `lg`; now 497px / 2 lines at 768px.
-3. **The guide rules aligned to nothing**, sitting at the container padding box
-   (105px) while text started at 145px. Now derived as `71rem` / `100% - 10rem`.
-4. **The footer QR popover covered the links above it** in the single-column mobile
-   footer. It now expands *in-flow* below `sm` and only overlays where there is room.
-
-### Four more defects found by measuring, and fixed
-
-5. **Every scroll-driven animation on the shipped site was dead — including the two
-   that predate this pass.** Lightning CSS folds `animation: X linear both` plus
-   `animation-timeline: view()` into the single shorthand
-   `animation: linear both X view()`, and Chrome rejects that form outright:
-   `el.style.cssText` came back **empty** and
-   `getComputedStyle().animationTimeline` read `auto` on `.u-reveal`,
-   `.u-nav-shell` and every new rule. Nothing was animating; the site only looked
-   correct because the final state is also the static state. Fixed by routing every
-   timeline through `var(--u-timeline)`, which Lightning CSS cannot fold into a
-   shorthand — measured afterwards as real `ViewTimeline` / `ScrollTimeline`
-   objects in `running` state.
-6. **`.u-social-inline ul` in `@layer components` lost to a plain `flex-col`.**
-   Layer order beats specificity, and `components` sits below `utilities`, so the
-   more specific rule still measured `flexDirection: column`. Moved to
-   `@layer utilities`, where 0,1,1 beats 0,1,0 as expected. Same family of trap as
-   the `@layer base` note in §1.
-7. **A concurrency race left `/pt-tools/` on the index footer variant.** The
-   footer rework and the task adding pt-tools as a fourth product landed together,
-   so the newest page rendered `<SiteFooter>` with no `variant` — measured as **1**
-   occurrence of the positioning blurb and **0** pagers, i.e. exactly the defect
-   this pass exists to remove, on the one page nobody had looked at. `astro check`
-   could not catch it: both props are optional, which is correct for the home page.
-   Note the id is `pttools` (the `ProductId` union) while the route slug is
-   `pt-tools`; passing the slug would have silently left the current entry unmarked.
-   The pager needed no sequence change — `NextProduct` derives order from
-   `content.ts`, so inserting pt-tools at `01` rewired the chain to
-   01 → 02 → 03 → 04 → 01 by itself.
-8. **Nine identically-spaced sections made a 9,000px page read as one run.** Every
-   numbered band measured `margin-top: 96px; padding-top: 64px` — the gap carried
-   no information. Replaced with a three-level scale (open / next / tight → 160 /
-   96 / 56px at 1440) grouped by movement, and `DetailSection` gained a `rhythm`
-   prop so AgentLens and Voxera share the same vocabulary.
-
-## 9. Reference fidelity
-
-No screenshot or mockup reference was supplied, so there is no pixel contract. The
-binding constraints are this file plus the anti-pattern list: no purple/violet
-gradient, no equal three-card grid, no centred `text-4xl font-bold` + grey subtitle,
-no glassmorphism or blur orbs, no emoji icons, no unsubstantiated metrics or
-"trusted by" logos.
+- The Chinese h1 subtitle takes three lines at 320px (it breaks between words); the English
+  one takes four at 320–360px, and "self-hosted" may break at its hyphen.
+- Without `:has()` support the filter is hidden and every card shows.
+- Motion was not observed in this pass: the verifying browser had reduced motion on, so only the
+  static final state (which is what reduced motion gets) was checked. The timelines in §6 are the
+  previous build's mechanics with new ranges, and the stagger moved onto the grid's `<li>`s.
+- `public/og.png` is a 1200 × 630 browser render of `public/og.svg`; re-render it when the SVG
+  changes. It names no product, so a new app does not stale it.
+- The `/voxera/` and `/en/pt-tools/` redirects stay: both URLs were indexed.
 
 ## 10. Product documentation sub-site: voltip.firlab.app
 
@@ -1266,7 +477,8 @@ use the system stack (PingFang SC, Hiragino Sans GB, Microsoft YaHei UI, Noto Sa
 VitePress's Punctuation SC compression. The umbrella site's reason for no web fonts (a CJK
 face would cost megabytes) does not apply to Latin-only files of this size, and matching the
 app's face is what makes the screenshots and the page read as one product. Prose leading is
-1.7 for Latin and 1.85 for Chinese; display leading 1.08 / 1.22, as in §1.
+1.7 for Latin and 1.85 for Chinese; display leading 1.08 / 1.22, the umbrella site's values
+when this site was built (§1 has since moved to 1.12 / 1.3 for its sans headings).
 
 **Layout.** The home page answers four questions above the fold, at 1280 × 800 and at
 375 × 812: what it does (name, headline, tagline), where it runs and where the audio goes
@@ -1346,10 +558,10 @@ what is kept where, the install paragraph, and what is deliberately left out (a 
 as §10's "not built" list). The screenshots are real captures of the app with made-up accounts,
 taken by lockra's `scripts/capture-site-screens.sh`.
 
-**On the home page.** Lockra is product 05 of the index, in the `standard` shape (§4), and its
-links name the repository and the releases, because the name already leads to the sub-site. Its
-`ProductMark` is the app icon without the plate: the lock in `currentColor` with the keyhole cut
-out where the icon shows the navy plate, inside the three-quarter ring in the mark orange.
+**On the home page.** Lockra is a catalog entry (§4) whose `page.href` is this sub-site in each
+language, so its card's name leads here and the card's own link is the repository. Its `AppIcon`
+is the shipped app icon, plate included: the pale lock on the navy tile inside the three-quarter
+ring in the mark orange.
 
 ## 12. Product documentation inside firlab.app: firlab.app/pt-tools
 
@@ -1364,9 +576,9 @@ This section records only where it departs from §10 and §11, each with its rea
 
 **It took the product page's path (user decision 2026-10-01).** `/pt-tools/` was this site's
 detail page for pt-tools. The owner chose to let the documentation site replace it rather than
-sit beside it under another path, so the detail pages in both languages are gone, the index
-entry keeps its `lead` shape (§4) and its name leads to the documentation site in each language,
-and `/en/pt-tools/`, which was indexed, redirects to `/pt-tools/en/` the way `/voxera/` does. The
+sit beside it under another path, so the detail pages in both languages are gone, the catalog
+entry's `page.href` (§4) leads to the documentation site in each language, and `/en/pt-tools/`,
+which was indexed, redirects to `/pt-tools/en/` (`redirects` in `astro.config.mjs`). The
 Chinese URL did not change. Because the main site emitted `dist/pt-tools/` until then,
 `deploy.yml` refuses to copy the sub-site over one: a restored page fails the deploy instead of
 being replaced without notice. The site was first built for a `pt-tools.firlab.app` subdomain on
@@ -1423,7 +635,7 @@ pages (both home pages, guide, reference and design pages, an English placeholde
 and 375 × 812 log no console error or failed request, show no broken image and do not overflow; the
 language menu maps every page, the placeholder included, onto the same path under the other
 locale; Chinese search for 过滤规则 and English search for "secret key" return results under
-`/pt-tools/`; `/en/pt-tools/` lands on `/pt-tools/en/`; the index entry leads to `/pt-tools/` and
+`/pt-tools/`; `/en/pt-tools/` lands on `/pt-tools/en/`; the catalog entry leads to `/pt-tools/` and
 `/pt-tools/en/`; canonical and hreflang links are absolute under `https://firlab.app/pt-tools/`,
 and the placeholders carry `noindex` and no hreflang. Lighthouse on that build: accessibility
 100 and SEO 100 on the Chinese home page (mobile) and an English guide page (desktop); best

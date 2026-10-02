@@ -3,25 +3,24 @@ import SocialIcon, { type SocialId } from './SocialIcon.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 
 /**
- * The five real destinations, plus the WeChat Official Account in the footer
- * row. There is deliberately no Facebook, no Mastodon and no LinkedIn
- * placeholder: a link that goes nowhere is worse than an absent one.
+ * The real destinations, each with its icon AND its text label. There is
+ * deliberately no Facebook, no Mastodon and no LinkedIn placeholder: a link that
+ * goes nowhere is worse than an absent one.
  *
  * WeChat has no URL — both WeChat entries are QR images — so they render as
- * disclosures instead of anchors. Their open/close behaviour is native
- * `<details>`; the layout adds Escape, outside-click and one-open-at-a-time on
- * top, so the controls still work with scripting off.
+ * disclosures instead of anchors: the personal account and the Official Account,
+ * told apart by their labels. Open/close is native `<details>`; the layout adds
+ * Escape, outside-click and one-open-at-a-time on top, so the controls still work
+ * with scripting off.
  */
 interface Props {
   lang: Lang;
-  /** `nav` is icon-only; `footer` pairs each icon with its text label. */
-  variant?: 'nav' | 'footer';
   /** Which side of the trigger the QR panel opens on. */
   placement?: 'below' | 'above';
   class?: string;
 }
 
-const { lang, variant = 'nav', placement = 'below', class: className = '' } = Astro.props;
+const { lang, placement = 'above', class: className = '' } = Astro.props;
 const t = useTranslations(lang);
 
 const links: { id: Exclude<SocialId, 'wechat'>; href: string; label: string }[] = [
@@ -31,61 +30,40 @@ const links: { id: Exclude<SocialId, 'wechat'>; href: string; label: string }[] 
   { id: 'x', href: 'https://x.com/sunerpy', label: t('social.x') },
 ];
 
-const showLabels = variant === 'footer';
-
-// The QR entries. The WeChat Official Account is a sixth destination that only
-// the labelled footer row carries: the nav row keeps its five icons, so the nav
-// widths measured in DESIGN.md §2 still hold, and the footer is the contact
-// column anyway. It reuses the WeChat mark; the text label tells the two apart.
 const qrs = [
   {
     src: '/wechat-qr.jpg',
     label: t('social.wechat'),
-    open: t('social.wechat.open'),
     caption: t('social.wechat.caption'),
     alt: t('social.wechat.alt'),
   },
-  ...(showLabels
-    ? [
-        {
-          src: '/wechat-official-account.jpg',
-          label: t('social.wechatOa'),
-          open: t('social.wechatOa'),
-          caption: t('social.wechatOa.caption'),
-          alt: t('social.wechatOa.alt'),
-        },
-      ]
-    : []),
+  {
+    src: '/wechat-official-account.jpg',
+    label: t('social.wechatOa'),
+    caption: t('social.wechatOa.caption'),
+    alt: t('social.wechatOa.alt'),
+  },
 ];
 
-const itemClass = showLabels
-  ? 'text-ink-mute hover:text-accent inline-flex items-center gap-2.5 py-1 text-sm no-underline'
-  : 'text-ink-mute hover:text-accent inline-flex size-9 items-center justify-center rounded-[var(--radius-chip)] no-underline';
+const itemClass =
+  'text-ink-body hover:text-accent inline-flex items-center gap-2.5 py-1 text-sm no-underline';
 
-// The nav's panel is always an overlay — a bar cannot grow. The footer's opens
-// upward on wide screens, but goes IN-FLOW on mobile: the footer is a single
-// column there, so an upward overlay lands on top of the links stacked above
-// the trigger. Expanding in place pushes them instead of hiding them.
+// The panel opens upward on wide screens, but goes IN-FLOW on mobile: the footer is
+// a single column there, so an upward overlay would land on the links stacked
+// above the trigger. Expanding in place pushes them instead of hiding them.
 const panelPosition =
   placement === 'below'
-    ? 'absolute top-[calc(100%+0.625rem)] right-0 w-[13.5rem]'
-    : 'mt-2.5 w-[13.5rem] max-w-full sm:absolute sm:bottom-[calc(100%+0.625rem)] sm:left-0 sm:mt-0';
+    ? 'absolute top-[calc(100%_+_0.625rem)] left-0 w-[13.5rem]'
+    : 'mt-2.5 w-[13.5rem] max-w-full sm:absolute sm:bottom-[calc(100%_+_0.625rem)] sm:left-0 sm:mt-0';
 ---
 
-<ul class={`flex ${showLabels ? 'flex-col gap-1' : 'items-center gap-0.5'} ${className}`}>
+<ul class={`flex flex-col gap-1 ${className}`}>
   {
     links.map((link) => (
       <li>
-        <a
-          href={link.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          class={itemClass}
-          aria-label={showLabels ? undefined : link.label}
-          title={showLabels ? undefined : link.label}
-        >
+        <a href={link.href} target="_blank" rel="noopener noreferrer" class={itemClass}>
           <SocialIcon id={link.id} />
-          {showLabels && <span>{link.label}</span>}
+          <span>{link.label}</span>
         </a>
       </li>
     ))
@@ -94,22 +72,16 @@ const panelPosition =
   {
     qrs.map((qr) => (
       <li class="relative">
-        <details data-popover class="group">
-          <summary
-            class={itemClass}
-            aria-label={showLabels ? undefined : qr.open}
-            title={showLabels ? undefined : qr.open}
-          >
+        <details data-popover>
+          <summary class={itemClass}>
             <SocialIcon id="wechat" />
-            {showLabels && <span>{qr.label}</span>}
+            <span>{qr.label}</span>
           </summary>
 
-          <div
-            class={`bg-paper border-rule ${panelPosition} z-30 rounded-[var(--radius-control)] border p-3 shadow-[0_18px_44px_-28px_color-mix(in_oklab,var(--ink-900)_70%,transparent)]`}
-          >
+          <div class={`u-popover ${panelPosition} z-30 p-3`}>
             {/* A QR needs a light ground to scan in either theme, so the plate is
-                white regardless of colour scheme — this is a scanner requirement,
-                not a styling slip. */}
+                white regardless of colour scheme — a scanner requirement, not a
+                styling slip. */}
             <img
               src={qr.src}
               alt={qr.alt}
@@ -119,7 +91,7 @@ const panelPosition =
               decoding="async"
               class="block w-full rounded-[var(--radius-chip)] bg-white"
             />
-            <p class="u-meta text-ink-mute mt-2.5 text-center">{qr.caption}</p>
+            <p class="text-ink-mute mt-2.5 text-center text-xs">{qr.caption}</p>
           </div>
         </details>
       </li>

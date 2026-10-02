@@ -11,7 +11,7 @@ import {
   type Lang,
 } from '../i18n/ui';
 import { entityId, PERSON_ID } from '../i18n/schema';
-import { getContent } from '../i18n/content';
+import { getHomeContent } from '../i18n/content';
 
 /**
  * Base layout. Every head tag is props-driven so each locale — and later, each
@@ -85,21 +85,21 @@ const person = {
  * page's copy — deliberately not the `description` prop, which is this page's.
  *
  * That distinction is the whole point. This node is keyed by one IRI per locale,
- * and five zh routes resolve to `https://firlab.app/#website`. Feeding it the
- * page description made those five routes assert five different values for one
- * IRI — the same "one IRI, contradictory property sets" defect that the
- * per-locale `@id` split fixed on the language axis, reappearing on the page
- * axis. It was also just wrong: the site's description is not whatever page you
- * happen to be reading.
+ * and every zh route resolves to `https://firlab.app/#website`. Feeding it the
+ * page description made those routes assert different values for one IRI —
+ * the same "one IRI, contradictory property sets" defect that the per-locale
+ * `@id` split fixed on the language axis, reappearing on the page axis. It was
+ * also just wrong: the site's description is not whatever page you happen to be
+ * reading.
  *
- * Every remaining property is locale-invariant, so all five routes now agree.
+ * Every remaining property is locale-invariant, so all routes agree.
  */
 const website = {
   '@type': 'WebSite',
   '@id': entityId(lang, 'website'),
   name: 'FirLab',
   url: 'https://firlab.app',
-  description: getContent(lang).description,
+  description: getHomeContent(lang).description,
   inLanguage: htmlLang[lang],
   publisher: { '@id': PERSON_ID },
 };
@@ -154,9 +154,8 @@ const jsonLd = {
     <meta name="twitter:image:alt" content={ogImageAlt} />
 
     <meta name="author" content="sunerpy" />
-    {/* The desk tone (`--paper-1`), not the sheet: browser chrome continues the
-        colour at the viewport's own edge, and that edge is the desk now that
-        the page sits on an inset stage. */}
+    {/* The page ground (`--paper-1`): browser chrome continues the colour at the
+        viewport's own edge. */}
     <meta name="theme-color" content="#f3f6fa" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0c0f13" media="(prefers-color-scheme: dark)" />
 
@@ -212,19 +211,7 @@ const jsonLd = {
 
     <div class="u-progress" aria-hidden="true"></div>
 
-    {/*
-      The stage — the sheet every page sits on, and the outer of the two boxes
-      that make up the horizontal layout (see DESIGN.md §2). It replaces the
-      former `.u-guides` overlay, which drew its hairlines from the same token
-      the copy was padded by and therefore landed 3px from the first glyph.
-
-      It has to be a real element rather than a decorative overlay: the footer
-      and the pager are full-bleed bands, and they must bleed to the sheet, not
-      to the viewport. Wrapping them is what makes that true for free.
-    */}
-    <div class="u-stage">
-      <slot />
-    </div>
+    <slot />
 
     {/*
       Announcement target for the copy affordance. Empty in the served HTML and
@@ -237,9 +224,9 @@ const jsonLd = {
       The only script on the site, and it does exactly two things the platform
       has no declarative equivalent for.
 
-      1. `<details>` already gives the WeChat QR a working open/close and full
-         keyboard support with scripting off; this adds Escape-to-dismiss and
-         click-outside-to-dismiss.
+      1. `<details>` already gives the app menu and the QR panels a working
+         open/close and full keyboard support with scripting off; this adds
+         Escape-to-dismiss, click-outside-to-dismiss and one-open-at-a-time.
       2. The copy buttons in command blocks. They ship `display: none` and are
          only revealed once `navigator.clipboard.writeText` is confirmed to
          exist — an affordance that cannot work must never be drawn. The command

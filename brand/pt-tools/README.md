@@ -197,7 +197,7 @@ Not "PT-Tools", not "PT Tools", not "pttools".
 
 pt-tools is one of four product marks sharing a construction language: a 1024
 canvas, hard angles, no gradients, no opacity, and this palette. The siblings are
-AgentLens (faceted hexagon), Voxera (split chevron), and CodeGraph (three-node
+AgentLens (faceted hexagon), Voltip (split V), and CodeGraph (three-node
 graph). Keep new assets inside that language so the set stays coherent.
 
 The shared rule is **a small number of large masses, and no interior fussiness** —

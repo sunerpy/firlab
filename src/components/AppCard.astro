@@ -1,0 +1,109 @@
+---
+import AppIcon from './AppIcon.astro';
+import StatusTag from './StatusTag.astro';
+import SocialIcon from './SocialIcon.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+import { hasInSitePage, productHref, sortedPlatforms, type Product } from '../i18n/products';
+
+/**
+ * AppCard — one product in the catalog grid. Every product gets the same card:
+ * the catalog has to absorb a new app without anyone designing a new shape for it.
+ *
+ * The whole card is one target, through a stretched link on the name, so there is
+ * exactly one anchor per destination and its accessible name is the product name.
+ * The GitHub link sits above the stretch (`.u-above`), which keeps it a separate,
+ * working control instead of a link nested in a link.
+ *
+ * A status badge appears only for a product that is not yet mature. "Actively
+ * maintained" on every established card would be noise; "early release" on a young
+ * one is information. It sits on the category line, never beside the name.
+ *
+ * The icon and the name carry `view-transition-name`s matching the product page's
+ * header, so opening an in-site page morphs the card into it. Products whose name
+ * leads to a separate documentation site get no names — there is nothing to morph
+ * into.
+ */
+interface Props {
+  lang: Lang;
+  product: Product;
+  /** Heading level inside the page outline. */
+  level?: 'h2' | 'h3';
+}
+
+const { lang, product, level = 'h3' } = Astro.props;
+const t = useTranslations(lang);
+
+const Heading = level;
+const href = productHref(lang, product);
+const morph = hasInSitePage(product);
+const platforms = sortedPlatforms(product);
+---
+
+<article class="u-card u-card-link u-arrow-host group flex h-full flex-col p-5 sm:p-6">
+  <div class="flex items-start gap-4">
+    <AppIcon
+      product={product.id}
+      size={52}
+      transitionName={morph ? `mark-${product.id}` : undefined}
+    />
+
+    <div class="min-w-0 flex-1 pt-0.5">
+      <Heading
+        class="u-display u-display-latin text-[1.1875rem]"
+        style={morph ? `view-transition-name: title-${product.id}` : undefined}
+      >
+        <a href={href} class="u-stretch group-hover:text-accent">{product.name}</a>
+      </Heading>
+      {/* The badge shares the category's line rather than the name's: beside the
+          name it took the width a long name needs, and at 320px the name broke
+          mid-word. Here it may wrap under the category, which is not a link. */}
+      <p class="text-ink-mute mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.8125rem] leading-snug">
+        {t(`category.${product.category}`)}
+        {product.status !== 'live' && <StatusTag lang={lang} state={product.status} />}
+      </p>
+    </div>
+  </div>
+
+  <p class="text-ink-body mt-4 text-[0.9375rem] leading-relaxed">{product.tagline[lang]}</p>
+
+  <ul class="mt-4 flex flex-wrap gap-1.5" aria-label={t('platform.label')}>
+    {platforms.map((platform) => <li class="u-chip">{t(`platform.${platform}`)}</li>)}
+  </ul>
+
+  <div class="mt-auto pt-5">
+    <div class="border-rule flex items-center gap-3 border-t pt-4">
+      {
+        product.version && (
+          <p class="text-ink-mute min-w-0 font-mono text-xs tabular-nums">
+            <span class="sr-only">{t('product.version')} </span>
+            {product.version}
+            {product.released && (
+              <>
+                <span aria-hidden="true" class="mx-1.5">
+                  ·
+                </span>
+                <span class="sr-only">{t('product.released')} </span>
+                {product.released}
+              </>
+            )}
+          </p>
+        )
+      }
+
+      <a
+        href={product.repo}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="u-above u-icon-btn ml-auto size-8"
+        aria-label={t('card.repo', { name: product.name })}
+        title={t('card.repo', { name: product.name })}
+      >
+        <SocialIcon id="github" size={18} />
+      </a>
+
+      <span aria-hidden="true" class="u-arrow text-ink-mute group-hover:text-accent text-base leading-none">
+        →
+      </span>
+    </div>
+  </div>
+</article>

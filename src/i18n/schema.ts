@@ -78,8 +78,8 @@ export const PERSON_ID = entityId(defaultLang, 'sunerpy');
  *
  * Applied only where a release exists. An unreleased product is offered at no
  * price — it is not offered at all — and asserting `price: 0` for it would be
- * the same category of invention. (All four products have releases today; the
- * unreleased Voxera, which this rule was written for, became Voltip.)
+ * the same category of invention. (Every product in the catalog has a release
+ * today; the rule is for the next one that does not.)
  */
 export const FREE_OFFER = {
   '@type': 'Offer',
