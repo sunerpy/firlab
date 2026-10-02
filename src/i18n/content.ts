@@ -25,9 +25,11 @@
  *   - Lockra reads Microsoft Authenticator accounts only from that app's
  *     database on a rooted Android phone (the app has no export), and work or
  *     school accounts cannot be moved. Never state the import without that
- *     condition. Lockra goes online only for its own updates: a check and a
- *     download when the user asks, or at start once automatic updates are on.
- *     Never flatten that to "no network connections".
+ *     condition. Lockra goes online for its own updates (a check and a
+ *     download when the user asks, or at start once automatic updates are on)
+ *     and, from 0.4.0, for sync once the user sets it up on storage of their
+ *     own (off by default; Lockra runs no server). Never flatten that to "no
+ *     network connections".
  *
  * ORDER IS MEANING. The array order is the index order, and it is sorted by
  * maturity, not by age — pt-tools leads because it is the most released thing
@@ -346,7 +348,7 @@ const zh: PageContent = {
       version: LOCKRA_VERSION,
       released: LOCKRA_RELEASED,
       detail: '/lockra/zh/',
-      body: '把两步验证码保存在本机的一个加密文件里，点一下账号就复制当前的验证码。可以拍下 Google 身份验证器的导出二维码迁入账号，也可以读取已 root 的 Android 手机上 Microsoft Authenticator 的数据库；反过来也能生成二维码迁回手机。除检查和下载更新外，Lockra 不建立任何网络连接；主密码忘记后无法找回。',
+      body: '把两步验证码保存在本机的一个加密文件里，点一下账号就复制当前的验证码。可以拍下 Google 身份验证器的导出二维码迁入账号，也可以读取已 root 的 Android 手机上 Microsoft Authenticator 的数据库；反过来也能生成二维码迁回手机。Lockra 只为检查和下载更新联网；开启同步后，还会连接你自己的存储，在多台设备之间端到端加密同步。主密码忘记后无法找回。',
       specs: [
         {
           term: '验证码',
@@ -360,6 +362,10 @@ const zh: PageContent = {
         {
           term: '备份',
           value: '加密的 .lockrabackup 文件。每次改动后几秒自动写入你选择的文件夹，默认保留最近 10 份；恢复时可以逐个合并，也可以整体替换。',
+        },
+        {
+          term: '同步',
+          value: '默认关闭。经你自己的 S3 兼容存储桶或 WebDAV 文件夹，在多台设备之间端到端加密同步；Lockra 不运行服务器，存储里只有密文。每台设备只写自己的文件，多台设备同时同步也不会覆盖彼此的修改。',
         },
         {
           term: '保护',
@@ -631,7 +637,7 @@ const en: PageContent = {
       version: LOCKRA_VERSION,
       released: LOCKRA_RELEASED,
       detail: '/lockra/',
-      body: 'Keeps your two-factor codes in one encrypted file on your computer; click an account to copy its current code. Move accounts in by photographing Google Authenticator’s export codes, or by reading Microsoft Authenticator’s database from a rooted Android phone, and back out to either app as QR codes. Apart from checking for and downloading its own updates, Lockra makes no network connections, and a forgotten master password cannot be recovered.',
+      body: 'Keeps your two-factor codes in one encrypted file on your computer; click an account to copy its current code. Move accounts in by photographing Google Authenticator’s export codes, or by reading Microsoft Authenticator’s database from a rooted Android phone, and back out to either app as QR codes. Lockra goes online only for its own updates and, once you set it up, to sync your devices end-to-end encrypted through storage of your own; a forgotten master password cannot be recovered.',
       specs: [
         {
           term: 'Codes',
@@ -647,6 +653,11 @@ const en: PageContent = {
           term: 'Backups',
           value:
             'Encrypted .lockrabackup files. A few seconds after every change one goes to a folder you choose, and the newest 10 are kept by default; restore account by account or in full.',
+        },
+        {
+          term: 'Sync',
+          value:
+            'Off by default. Devices sync end-to-end encrypted through an S3-compatible bucket or a WebDAV folder of your own; Lockra runs no server, and the storage sees only encrypted files. Each device writes only its own file, so devices syncing at the same moment keep each other’s changes.',
         },
         {
           term: 'Protection',
