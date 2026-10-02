@@ -572,6 +572,13 @@ hero index, and the socials repeat *with text labels* in the footer.
 The footer is three columns: identity · product index · contact. It is where the
 social marks get **text labels**, which the icon-only nav depends on (see §3).
 
+The contact column carries one destination the nav does not: the WeChat Official
+Account (公众号「六月水蓝」, added 2026-10-02). It is a second QR disclosure under the
+personal WeChat one, with the same mark and its own label, and the layout's
+one-open-at-a-time rule covers both. The nav keeps its five icons: a sixth 36px icon
+would eat into the slack measured above at 1280px and every width would have to be
+measured again, while the footer is the contact column anyway.
+
 ## 3. Primitives
 
 | Primitive | Contract |

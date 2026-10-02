@@ -67,6 +67,9 @@ const zh = {
   'social.wechat.close': '收起二维码',
   'social.wechat.caption': '微信扫码添加',
   'social.wechat.alt': '微信个人二维码',
+  'social.wechatOa': '公众号',
+  'social.wechatOa.caption': '微信扫码关注',
+  'social.wechatOa.alt': '微信公众号「六月水蓝」的二维码',
 
   'hero.eyebrow': '开发者工具 · 由一个人构建',
   'hero.indexTitle': '目录',
@@ -121,6 +124,9 @@ const en: Record<keyof typeof zh, string> = {
   'social.wechat.close': 'Hide QR code',
   'social.wechat.caption': 'Scan with WeChat to add',
   'social.wechat.alt': 'Personal WeChat QR code',
+  'social.wechatOa': 'WeChat Official Account',
+  'social.wechatOa.caption': 'Scan with WeChat to follow',
+  'social.wechatOa.alt': 'QR code of the WeChat Official Account 六月水蓝',
 
   'hero.eyebrow': 'Developer tools · built by one person',
   'hero.indexTitle': 'Index',

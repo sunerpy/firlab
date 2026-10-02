@@ -21,7 +21,7 @@ This repository owns the site:
 | `src/index.md`, `src/{guide,reference}/`, `src/{configuration,faq,sites}.md`, `src/en/` | pt-tools | Synced from `docs/`. Edits here are overwritten. |
 | `src/development.md`, `src/design/` | pt-tools | The Chinese contributor guide and design documents |
 | `src/en/development.md`, `src/en/design/` | sync script | A generated English pointer for each Chinese-only page |
-| `src/public/screens/`, `src/public/pt-tools-logo.svg` | pt-tools | Synced (`docs/public/screens/`, `web/frontend/public/logo.svg`) |
+| `src/public/screens/`, `src/public/community/`, `src/public/pt-tools-logo.svg` | pt-tools | Synced (`docs/public/screens/`, `docs/public/community/`, `web/frontend/public/logo.svg`) |
 | `src/.vitepress/synced.json` | sync script | The commit the content came from; the footer shows it |
 | `src/.vitepress/` (config, theme, components) | this repo | |
 | `src/public/{og.svg,og.png}` | this repo | |

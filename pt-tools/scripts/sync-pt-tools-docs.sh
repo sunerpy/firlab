@@ -62,15 +62,16 @@ chinese_only_title() {
   esac
 }
 
-# Assets pt-tools owns. Everything else under src/public/ belongs to this repository.
-PUBLIC_DIRS=(screens)
+# Assets pt-tools owns: the screenshots and the community assets (the WeChat Official
+# Account QR on the home page). Everything else under src/public/ belongs to this repository.
+PUBLIC_DIRS=(screens community)
 # The mark itself, from the web UI's public assets (pt-tools docs/brand.md: the source of truth).
 LOGO="$PT_ROOT/web/frontend/public/logo.svg"
 
 # Components a page may use: the ones src/.vitepress/theme/index.ts registers, plus
 # VitePress's own Badge. An unknown tag would render as an empty custom element with
 # only a console warning, so it fails the sync instead.
-ALLOWED_COMPONENTS=(Badge HomeIndex HomeSteps SplitBlock HomeDeploy HomePrivacy HomeRoadmap ScreenFigure StatusTag)
+ALLOWED_COMPONENTS=(Badge HomeIndex HomeSteps SplitBlock HomeDeploy HomePrivacy HomeRoadmap ScreenFigure StatusTag QrCode)
 
 fail=0
 problem() {
