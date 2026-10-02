@@ -62,8 +62,9 @@ chinese_only_title() {
   esac
 }
 
-# Assets pt-tools owns. Everything else under src/public/ belongs to this repository.
-PUBLIC_DIRS=(screens)
+# Assets pt-tools owns: the screenshots and the community assets (the WeChat Official
+# Account QR on the home page). Everything else under src/public/ belongs to this repository.
+PUBLIC_DIRS=(screens community)
 # The mark itself, from the web UI's public assets (pt-tools docs/brand.md: the source of truth).
 LOGO="$PT_ROOT/web/frontend/public/logo.svg"
 
