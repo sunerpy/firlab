@@ -33,6 +33,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
     text: 'Backups and security',
     items: [
       { text: 'Backups and restore', link: '/backup/' },
+      { text: 'Sync between devices', link: '/backup/sync' },
       { text: 'How Lockra protects your accounts', link: '/security/' },
       { text: 'Privacy', link: '/privacy' },
     ],
@@ -62,7 +63,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
 export const en = defineConfig({
   lang: 'en-US',
   description:
-    'Lockra keeps your two-factor codes in one encrypted file on your computer, for Windows, macOS and Linux. Move accounts from and to Google Authenticator and Microsoft Authenticator, and keep encrypted backups in a folder you choose.',
+    'Lockra keeps your two-factor codes in one encrypted file on your computer, for Windows, macOS and Linux. Move accounts from and to Google Authenticator and Microsoft Authenticator, keep encrypted backups in a folder you choose, and sync your devices through storage of your own.',
 
   themeConfig: {
     nav: [
