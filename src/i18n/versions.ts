@@ -21,14 +21,14 @@
 export const pttoolsVersion = 'v0.48.0';
 export const pttoolsReleased = '2026-10-01';
 
-export const codegraphVersion = 'v0.52.2';
-export const codegraphReleased = '2026-10-01';
+export const codegraphVersion = 'v0.53.1';
+export const codegraphReleased = '2026-10-03';
 
 export const AGENTLENS_VERSION = 'v0.0.7';
 export const AGENTLENS_RELEASED = '2026-08-13';
 
-export const VOLTIP_VERSION = 'v0.0.30';
-export const VOLTIP_RELEASED = '2026-10-02';
+export const VOLTIP_VERSION = 'v0.0.33';
+export const VOLTIP_RELEASED = '2026-10-03';
 
 export const LOCKRA_VERSION = 'v0.6.0';
 export const LOCKRA_RELEASED = '2026-10-02';
