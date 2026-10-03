@@ -314,3 +314,9 @@ html .VPNavBarMenuLink.VPNavBarMenuLink.active {
 .dark .pt-only-dark {
   display: block !important;
 }
+
+/* The search shortcut's letter, drawn as generated content like VitePress's own modifier key, so
+   the button's visible text is its label alone (theme/search-button.ts, WCAG 2.5.3). */
+.DocSearch-Button .DocSearch-Button-Key[data-key]::after {
+  content: attr(data-key);
+}
