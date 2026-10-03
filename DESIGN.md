@@ -495,6 +495,12 @@ real capture of the app on its mock backend, framed by a hairline.
 **Motion.** One animation: the pill cross-fade, opacity only, 2.6 s per state. With
 `prefers-reduced-motion: reduce` the last state shows, still.
 
+**Video and QR codes (2026-10-03).** `VideoFigure` frames the tutorial video like a screenshot:
+the same hairline, radius and plate shadow, `preload="metadata"` and a poster, so a page costs no
+video bytes until the reader presses play; the captions are burned into the picture. `QrCode` is
+the pt-tools component on this site's tokens, with its white plate in both themes
+(`--vt-qr-plate`) because a scanner needs a light ground.
+
 **Structure.** The home page's root is a `<main>`: `theme/components/HomeMain.vue` replaces
 VitePress's `VPHome`, which has no main landmark, through the alias VitePress documents for
 overriding its components. Compare the two when VitePress is upgraded.

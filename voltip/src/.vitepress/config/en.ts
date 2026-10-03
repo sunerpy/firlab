@@ -44,6 +44,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: 'Command line', link: '/reference/cli' },
       { text: 'Platform notes', link: '/reference/platforms' },
       { text: 'Questions and troubleshooting', link: '/reference/faq' },
+      { text: 'Community', link: '/reference/community' },
       { text: 'Roadmap', link: '/roadmap' },
       { text: 'Developers', link: '/developers' },
     ],
@@ -120,7 +121,7 @@ export const en = defineConfig({
     },
 
     footer: {
-      message: `Voltip is released under the Apache License 2.0. Part of <a href="https://firlab.app">FirLab</a>. Content from <a href="${REPO}/commit/${synced.commit}">voltip@${synced.shortCommit}</a>.`,
+      message: `Voltip is released under the GNU AGPL v3.0 or later. Part of <a href="https://firlab.app">FirLab</a>. Content from <a href="${REPO}/commit/${synced.commit}">voltip@${synced.shortCommit}</a>.`,
       copyright: 'Copyright © 2026 Voltip contributors',
     },
   },

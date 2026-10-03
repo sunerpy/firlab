@@ -18,9 +18,11 @@ This repository owns the site:
 | `src/index.md`, `src/{guide,dictation,recognition,phone,reference,zh}/`, `src/{privacy,roadmap,developers}.md` | voltip | Synced from `docs/site/`. Edits here are overwritten. |
 | `src/zh/dev/`, `src/dev/` | voltip | The Chinese design documents (`docs/*.md`), and a generated English pointer for each |
 | `src/public/screens/`, `src/public/voltip-logo.svg` | voltip | Synced |
+| `src/public/community/` | voltip | Synced when voltip has it: the Telegram and WeChat QR codes of the community page. The WeChat group code expires every 7 days and is replaced in voltip |
 | `src/.vitepress/synced.json` | sync script | The commit the content came from; the footer shows it |
 | `src/.vitepress/` (config, theme, components) | this repo | |
 | `src/public/{og.svg,og.png,robots.txt,_headers}` | this repo | |
+| `src/public/media/` | this repo | The tutorial videos and their posters (`VideoFigure`). Kept here because a 13 MB render would grow voltip's history on every re-render; H.264 with `+faststart`, each file under Cloudflare Pages' 25 MiB limit |
 | `scripts/sync-voltip-docs.sh` | this repo | What is synced, and the checks that stop a bad sync |
 | `package.json`, `pnpm-lock.yaml`, `tsconfig.json` | this repo | Build |
 

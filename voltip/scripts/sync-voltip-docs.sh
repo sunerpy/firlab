@@ -62,14 +62,18 @@ design_title() {
   esac
 }
 
-# Assets voltip owns. Everything else under src/public/ belongs to this repository.
+# Assets voltip owns. Everything else under src/public/ belongs to this repository,
+# including the tutorial videos in media/ (VideoFigure): a 13 MB render would grow voltip's
+# history on every re-render. OPTIONAL_PUBLIC_DIRS are copied when voltip has them and
+# removed here when it does not, so they can land in voltip after this script knows them.
 PUBLIC_DIRS=(screens)
+OPTIONAL_PUBLIC_DIRS=(community)
 PUBLIC_FILES=(voltip-logo.svg)
 
 # Components a page may use: the ones src/.vitepress/theme/index.ts registers, plus
 # VitePress's own Badge. An unknown tag would render as an empty custom element with
 # only a console warning, so it fails the sync instead.
-ALLOWED_COMPONENTS=(Badge HomeIndex HomeSteps SplitBlock HomePlatforms HomeModels HomePrivacy HomeRoadmap ScreenFigure StatusTag)
+ALLOWED_COMPONENTS=(Badge HomeIndex HomeSteps SplitBlock HomePlatforms HomeModels HomePrivacy HomeRoadmap ScreenFigure StatusTag VideoFigure QrCode)
 
 fail=0
 problem() {
@@ -212,6 +216,16 @@ for dir in "${PUBLIC_DIRS[@]}"; do
   mkdir -p "$DEST/public/$dir"
   cp -R "$SRC/public/$dir/." "$DEST/public/$dir/"
   printf '  %-14s %s files\n' "public/$dir/" "$(find "$DEST/public/$dir" -type f | wc -l | tr -d ' ')"
+done
+for dir in "${OPTIONAL_PUBLIC_DIRS[@]}"; do
+  rm -rf "${DEST:?}/public/$dir"
+  if [ -d "$SRC/public/$dir" ]; then
+    mkdir -p "$DEST/public/$dir"
+    cp -R "$SRC/public/$dir/." "$DEST/public/$dir/"
+    printf '  %-14s %s files\n' "public/$dir/" "$(find "$DEST/public/$dir" -type f | wc -l | tr -d ' ')"
+  else
+    printf '  %-14s not in voltip, none here\n' "public/$dir/"
+  fi
 done
 for file in "${PUBLIC_FILES[@]}"; do
   cp "$SRC/public/$file" "$DEST/public/$file"
