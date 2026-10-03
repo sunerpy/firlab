@@ -25,6 +25,7 @@ import HomeSteps from './components/HomeSteps.vue';
 import ScreenFigure from './components/ScreenFigure.vue';
 import SplitBlock from './components/SplitBlock.vue';
 import StatusTag from './components/StatusTag.vue';
+import { useSearchButtonLabel } from './search-button';
 
 export default {
   extends: DefaultTheme,
@@ -33,6 +34,9 @@ export default {
       'home-hero-info-after': () => h(HeroFacts),
       'home-hero-image': () => h(HeroVisual),
     }),
+  setup() {
+    useSearchButtonLabel();
+  },
   enhanceApp({ app }) {
     app.component('HomeIndex', HomeIndex);
     app.component('HomeSteps', HomeSteps);

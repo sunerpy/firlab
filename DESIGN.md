@@ -657,7 +657,7 @@ and the placeholders carry `noindex` and no hreflang. Lighthouse on that build: 
 100 and SEO 100 on the Chinese home page (mobile) and an English guide page (desktop); best
 practices 78 only for HTTPS, which the local server does not serve. The one failing experimental
 rule, `label-content-name-mismatch`, is VitePress's own search button, shared with the Voltip
-site.
+site; it is fixed on every documentation site since 2026-10-04 (§14).
 
 ## 13. Product documentation inside firlab.app: firlab.app/codegraph
 
@@ -721,6 +721,26 @@ the build emitted, which covers the frontmatter links VitePress's dead-link chec
 The sync additionally rejects a screenshot a page names that does not exist, CodeGraph's crate
 names on user pages, and an unversioned "sub-millisecond" claim.
 
-**A copied defect, fixed here only.** pt-tools' `home.css` lacks the base `display: grid` rule
-for its privacy band, so its three cards stack at every width; this site adds the rule. The
-pt-tools site is left as it is.
+**A copied defect.** pt-tools' `home.css` lacked the base `display: grid` rule for its privacy
+band, so its three cards stacked at every width; this site added the rule, and pt-tools has it
+since 2026-10-04 (§14).
+
+**Community.** The Official Account's QR code is CodeGraph's community asset
+(`public/community/`, owned by codegraph-rust like the screenshots), drawn by `QrCode`, the
+pt-tools component on this site's tokens with its white plate (`--cg-qr-plate`). The sync
+checks that every `/community/` file a page names exists, as it does for `/screens/`.
+
+## 14. Fixes shared by the documentation sites (2026-10-04)
+
+**The search button's label.** VitePress's search button prints its shortcut hint (Ctrl or ⌘,
+then K) inside the button, so its visible text is its label followed by "K" while its accessible
+name is the label alone: WCAG 2.5.3 Label in Name, which Lighthouse reports as
+`label-content-name-mismatch` (§12). Every site's `theme/search-button.ts`, called from the
+theme's `setup`, marks the hint `aria-hidden` and gives the button
+`aria-keyshortcuts="Control+K Meta+K"`, after mount and after every route change. VitePress's
+component is not copied, so an upgrade needs no merge; check the class names
+(`.DocSearch-Button`, `.DocSearch-Button-Keys`) when VitePress is upgraded.
+
+**pt-tools' privacy band.** `.pt-privacy-grid` gains the `display: grid; gap: 16px` the other
+sites have. Before, its three cards stacked full width with no gap even at 1800 px, because only
+the ≥ 960 px column rule existed.
