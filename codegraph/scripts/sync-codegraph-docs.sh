@@ -67,14 +67,15 @@ zh_title() {
   esac
 }
 
-# Assets codegraph-rust owns. Everything else under src/public/ belongs to this repository.
-PUBLIC_DIRS=(screens)
+# Assets codegraph-rust owns: the screenshots and the community assets (the WeChat Official
+# Account's QR code). Everything else under src/public/ belongs to this repository.
+PUBLIC_DIRS=(screens community)
 PUBLIC_FILES=(codegraph-logo.svg)
 
 # Components a page may use: the ones src/.vitepress/theme/index.ts registers, plus
 # VitePress's own Badge. An unknown tag would render as an empty custom element with only a
 # console warning, so it fails the sync instead.
-ALLOWED_COMPONENTS=(Badge HomeIndex HomeSteps SplitBlock HomePlatforms HomePrivacy HomeScope ScreenFigure StatusTag)
+ALLOWED_COMPONENTS=(Badge HomeIndex HomeSteps SplitBlock HomePlatforms HomePrivacy HomeScope ScreenFigure StatusTag QrCode)
 
 fail=0
 problem() {
@@ -177,11 +178,11 @@ while IFS= read -r -d '' rel; do
     [ -n "$hit" ] && problem "docs/site/$rel:${hit%%:*} uses an internal, colloquial or unmeasured wording: $(cut -d: -f2- <<<"$hit" | grep -oP "$pattern" | sort -u | paste -sd ' ')"
   done < <(prose "$page" | grep -P "$pattern" || true)
 
-  # A screenshot a page names (in a component or the home frontmatter) must exist.
+  # A screenshot or QR code a page names (in a component or the home frontmatter) must exist.
   while IFS= read -r shot; do
     [ -n "$shot" ] || continue
     [ -f "$SRC/public$shot" ] || problem "docs/site/$rel shows $shot, which docs/site/public/ does not have"
-  done < <(grep -oP '/screens/[A-Za-z0-9._-]+' "$page" | sort -u)
+  done < <(grep -oP '/(screens|community)/[A-Za-z0-9._-]+' "$page" | sort -u)
 done < <(pages)
 
 for name in "${REFERENCE_DOCS[@]}" "${DEV_DOCS[@]}"; do

@@ -22,7 +22,7 @@ This repository owns the site:
 | `src/index.md`, `src/{guide,reference}/`, `src/{privacy,developers}.md`, `src/en/` | codegraph-rust | Synced from `docs/site/`. Edits here are overwritten. |
 | `src/en/reference/`, `src/en/dev/` (except `en/reference/faq.md`) | codegraph-rust | The canonical references `docs/<name>.md`, copied unchanged |
 | `src/reference/<name>.md`, `src/dev/<name>.md` | sync script | A generated Chinese pointer for each English-only reference |
-| `src/public/screens/`, `src/public/codegraph-logo.svg` | codegraph-rust | Synced |
+| `src/public/screens/`, `src/public/community/`, `src/public/codegraph-logo.svg` | codegraph-rust | Synced |
 | `src/.vitepress/synced.json` | sync script | The commit the content came from; the footer shows it |
 | `src/.vitepress/` (config, theme, components) | this repo | |
 | `src/public/{og.svg,og.png}` | this repo | |
@@ -51,7 +51,7 @@ The sync script stops before writing anything when:
 
 - an expected reference or asset is missing;
 - a page exists in one language only;
-- a page uses a component the theme does not register, or shows a screenshot that is not there;
+- a page uses a component the theme does not register, or shows a screenshot or QR code that is not there;
 - a user page uses a colloquial word or one of CodeGraph's crate names;
 - any page makes an unversioned "sub-millisecond" claim.
 

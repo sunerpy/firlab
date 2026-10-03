@@ -469,6 +469,10 @@ html .VPHome .VPHero {
   }
 }
 
+.pt-privacy-grid {
+  display: grid;
+  gap: 16px;
+}
 
 @media (min-width: 960px) {
   .pt-privacy-grid {
