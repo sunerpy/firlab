@@ -746,6 +746,22 @@ Lighthouse 13.4 runs, still flagged the live button. VitePress's component is no
 upgrade needs no merge; check the class names (`.DocSearch-Button`, `.DocSearch-Button-Keys`,
 `.DocSearch-Button-Key`) when VitePress is upgraded.
 
+**The sidebar's group headers.** VitePress 1.6.4 renders every sidebar group's header as a `div`
+with `role="button"` and `tabindex="0"`, and a collapsible group's caret as a second
+`role="button"` inside it. axe-core 4.12.0 reports `nested-interactive` (WCAG 4.1.2) on every page
+that shows a collapsible group, on all four sites; Lighthouse 13.4 does not run that rule, so its
+accessibility score stayed 100. The header of a group that cannot collapse is also a focus stop
+that does nothing. VitePress's main branch has since made the header a plain element and the caret
+a real button with `aria-expanded` (vuejs/vitepress#3517, still open for 1.x). Every site's
+`theme/sidebar-groups.ts`, called from the theme's `setup`, gives the rendered sidebar the same
+semantics: the header keeps its click handler but loses the role and the focus stop; the caret
+stays the one control, toggles on Enter (VitePress's handler, through the header) and on Space,
+and reports its state through `aria-expanded`. Groups mount, re-render and collapse after the
+first paint, so it runs again on every element or class change in the document, at most once per
+frame. As with the search button, VitePress's component is not copied; check the class names
+(`.VPSidebarItem`, `.item`, `.caret`, `.collapsed`) when VitePress is upgraded, and remove the
+module once a VitePress release ships the fix.
+
 **pt-tools' privacy band.** `.pt-privacy-grid` gains the `display: grid; gap: 16px` the other
 sites have. Before, its three cards stacked full width with no gap even at 1800 px, because only
 the ≥ 960 px column rule existed.
