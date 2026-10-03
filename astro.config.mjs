@@ -35,11 +35,15 @@ export default defineConfig({
     format: 'directory',
   },
 
-  // Voxera, an unreleased project, became Voltip on 2026-09-29. Its old URLs were
-  // indexed, so they redirect instead of 404ing.
+  // Old URLs were indexed, so they redirect instead of 404ing, each in one hop.
   redirects: {
-    '/voxera': '/voltip/',
-    '/en/voxera': '/en/voltip/',
+    // Voltip has its own site, and since 2026-10-03 no page here: a product on its own
+    // domain is linked at that site's home page (`page.site` in src/i18n/products.ts).
+    // Voxera, an unreleased project, became Voltip on 2026-09-29.
+    '/voltip': 'https://voltip.firlab.app/zh/',
+    '/en/voltip': 'https://voltip.firlab.app/',
+    '/voxera': 'https://voltip.firlab.app/zh/',
+    '/en/voxera': 'https://voltip.firlab.app/',
     // pt-tools' page became its documentation site on 2026-10-01: Chinese at /pt-tools/
     // (the same URL, served by pt-tools/), English at /pt-tools/en/.
     '/en/pt-tools': '/pt-tools/en/',

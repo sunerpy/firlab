@@ -9,8 +9,10 @@
  *   2. two constants in `versions.ts` and a row in `scripts/check-versions.mjs`,
  *      which the daily drift check reads;
  *   3. its icon in `AppIcon.astro`;
- *   4. where its name leads: an in-site page under `src/pages/` (`page.slug`), or a
- *      documentation site published under firlab.app (`page.href`, per locale).
+ *   4. where its name leads: an in-site page under `src/pages/` (`page.slug`), a
+ *      documentation site published under firlab.app (`page.href`, per locale), or,
+ *      for a product with a website on its own domain, that site's home page
+ *      (`page.site`, per locale). A product with its own domain has no page here.
  *
  * Facts were checked against each product's README, licence file and release tags.
  * The constraints that must survive any edit of a tagline:
@@ -65,11 +67,12 @@ export interface Product {
   repo: string;
   /**
    * Where the product's name leads. `slug` is an in-site page relative to the locale
-   * root; `href` is a site published under firlab.app, which owns its own locale paths.
+   * root; `href` is a site published under firlab.app, which owns its own locale paths;
+   * `site` is the home page of the product's website on its own domain, in each locale.
+   * A product with its own domain is sent straight there from every surface, and its
+   * old in-site URLs redirect there (`astro.config.mjs`).
    */
-  page: { slug: string } | { href: Record<Lang, string> };
-  /** A product website on its own domain, if there is one. */
-  site?: Record<Lang, string>;
+  page: { slug: string } | { href: Record<Lang, string> } | { site: Record<Lang, string> };
   /** One plain sentence: what it does. Shown on the card and in the app menu. */
   tagline: Record<Lang, string>;
 }
@@ -135,8 +138,7 @@ export const products: Product[] = [
     released: VOLTIP_RELEASED,
     license: 'AGPL-3.0-or-later',
     repo: 'https://github.com/sunerpy/voltip',
-    page: { slug: 'voltip/' },
-    site: { 'zh-cn': `${VOLTIP_SITE}/zh/`, en: `${VOLTIP_SITE}/` },
+    page: { site: { 'zh-cn': `${VOLTIP_SITE}/zh/`, en: `${VOLTIP_SITE}/` } },
     tagline: {
       'zh-cn': '按住快捷键说话，松开后文字输入到光标处。可以用本机模型识别，也可以用云端服务。',
       en: 'Hold a shortcut and speak; the text is typed at your cursor. Recognition runs on a local model or a cloud service.',
@@ -165,12 +167,13 @@ export const products: Product[] = [
  * whose site owns its own locale paths is never sent through the locale prefix by
  * one surface and not another: Lockra's English site is `/lockra/`, and
  * `getRelativeLocaleUrl('en', 'lockra/')` would make that `/en/lockra/`, which does
- * not exist.
+ * not exist. A product on its own domain leads to that site's home page, never to a
+ * path here.
  */
 export function productHref(lang: Lang, product: Pick<Product, 'page'>): string {
-  return 'slug' in product.page
-    ? getRelativeLocaleUrl(lang, product.page.slug)
-    : product.page.href[lang];
+  const { page } = product;
+  if ('slug' in page) return getRelativeLocaleUrl(lang, page.slug);
+  return 'site' in page ? page.site[lang] : page.href[lang];
 }
 
 /** True when the name leads to a page rendered by this Astro site. */
