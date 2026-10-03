@@ -229,8 +229,8 @@ At 1440 × 900 the first row of cards starts inside the first viewport.
 ### Product pages
 
 `ProductHeader` (breadcrumb FirLab / 应用 / name; the 72px icon and the h1; category ·
-platforms; the mono role line; the lede; actions — Install when the page has an install section,
-the GitHub repository, the product's website if it has one; and a fact card with status,
+platforms; the mono role line; the lede; actions — Install when the page has an install section
+and the GitHub repository; and a fact card with status,
 version, release date, licence, extra facts, the releases link and the page's section index).
 Then the page's own sections, unchanged in structure, on the band rhythm: `.u-band-open` draws a
 rule and opens a movement (96px above from 768px), `.u-band-next` continues one (64px),
@@ -261,7 +261,7 @@ wrapped inside its link.
 | `StatusTag` | Text plus a dot, never colour alone: `live` 持续更新, `early` 早期版本, `wip` 开发中. |
 | `ThemeSwitch`, `LangSwitch` | Segmented controls, 32px tall. The language switch keeps the current page's slug. |
 | `InstallBlock` | Selectable commands; long commands wrap rather than scroll; the copy button appears only when `navigator.clipboard.writeText` exists. |
-| `SpecGrid`, `DefRows`, `DetailSection`, `ScreenFigure` | Product-page primitives, restyled through the tokens. |
+| `SpecGrid`, `DetailSection`, `ScreenFigure` | Product-page primitives, restyled through the tokens. |
 | `Wordmark` | The bracket glyph plus FIRLAB in mono; `compact` drops the letters below 420px. |
 
 Cards use the stretched-link pattern: the name's link carries `.u-stretch`, whose `::after`
@@ -273,8 +273,15 @@ link, and the accessible name is the product name.
 `src/i18n/products.ts` is the single list. Each entry: `id`, `name`, `category` (`service` |
 `cli` | `desktop`), `platforms`, `status`, `version` / `released` (imported from `versions.ts`),
 `license`, `repo`, `page` (`{ slug }` for an in-site page, `{ href }` per locale for a
-documentation site under firlab.app), optional `site` (a website on its own domain), and a
-one-sentence `tagline` per locale. Array order is display order.
+documentation site under firlab.app, `{ site }` per locale for a website on the product's own
+domain), and a one-sentence `tagline` per locale. Array order is display order.
+
+**A product on its own domain is linked at that site's home page** — `/zh/` or `/` — from the
+card, the app menu, the footer, the pager and the ItemList JSON-LD alike (`productHref`), never at
+a page here, and it has no page here (2026-10-03: Voltip, `voltip.firlab.app`). Its former URLs
+stay in `redirects` in `astro.config.mjs`, pointing at the site's home page in one hop:
+`/voltip/` and `/en/voltip/`, and Voxera's `/voxera/` and `/en/voxera/`. The card keeps the same
+`→` and opens in the same tab, as for pt-tools and Lockra, whose sites live under firlab.app.
 
 **Adding an app:**
 
@@ -283,7 +290,8 @@ one-sentence `tagline` per locale. Array order is display order.
    `scripts/check-versions.mjs`.
 3. Its icon in `AppIcon.astro`, lifted from the app's shipped icon.
 4. Where its name leads: an in-site page under `src/pages/` (`page.slug`, built on
-   `ProductHeader`), or the paths of its documentation site (`page.href`).
+   `ProductHeader`), the paths of its documentation site (`page.href`), or the home page of its
+   website on its own domain (`page.site`).
 
 Nothing else: the grid, filter counts, release list, header menu, footer, pager and JSON-LD
 follow. A new category needs its two labels in `ui.ts` (`category.*`, `filter.*`) and, if the
@@ -389,7 +397,8 @@ dark. Nothing is below 4.5:1.
 
 ## 8. Verified (2026-10-02)
 
-Local build served statically, Chrome via CDP.
+Local build served statically, Chrome via CDP. The `/voltip/` pages measured here were removed
+on 2026-10-03 (§4).
 
 - `astro check`: 0 errors, 0 warnings. `astro build`: 8 pages; `dist/CNAME` is `firlab.app`.
 - 64 route × width combinations — `/`, `/en/`, `/codegraph/`, `/en/codegraph/`, `/agentlens/`,

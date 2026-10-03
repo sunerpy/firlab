@@ -20,8 +20,8 @@ import { hasInSitePage, productHref, sortedPlatforms, type Product } from '../i1
  *
  * The icon and the name carry `view-transition-name`s matching the product page's
  * header, so opening an in-site page morphs the card into it. Products whose name
- * leads to a separate documentation site get no names — there is nothing to morph
- * into.
+ * leads to a separate site (a documentation site under firlab.app, or a product's
+ * own domain) get no names — there is nothing to morph into.
  */
 interface Props {
   lang: Lang;
