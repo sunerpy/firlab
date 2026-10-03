@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="CodeGraph：本机的代码知识图谱。谁调用了它，改动它会影响哪里，可在命令行、MCP 和浏览器查看器中查询，不依赖任何模型。">
+  <title>CodeGraph：谁调用了它，改动它会影响哪里</title>
+  <!-- The source of og.png (1200 × 630, rendered in Chrome; codegraph/README.md). The colours
+       are the site's light theme (theme/styles/tokens.css); the capture is real, the same one
+       the home page's hero shows (screens/viewer-symbol-light.webp). -->
+  <defs>
+    <clipPath id="screen">
+      <rect x="560" y="150" width="560" height="350" rx="12"/>
+    </clipPath>
+  </defs>
+
+  <!-- Ground -->
+  <rect width="1200" height="630" fill="#F3F6FA"/>
+
+  <!-- Accent hairline, top edge: the brand orange marks, it never carries text -->
+  <rect x="0" y="0" width="1200" height="6" fill="#F97316"/>
+
+  <!-- The mark (codegraph-logo.svg at 60 px) and the name -->
+  <g transform="translate(88, 84)">
+    <g transform="scale(1.6667)">
+      <rect width="36" height="36" rx="10" fill="#0B1220"/>
+      <rect x="10.75" y="10.75" width="5.5" height="5.5" rx="1.4" fill="none" stroke="#E7EDF5" stroke-width="1.5"/>
+      <path d="M16.25 13.5 C 21 13.5 22.5 15 22.5 19" fill="none" stroke="#E7EDF5" stroke-width="1.5" stroke-linecap="round"/>
+      <rect x="19" y="19" width="7" height="7" rx="1.8" fill="#F97316"/>
+    </g>
+    <text x="80" y="43"
+      font-family="'Inter Variable', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif"
+      font-size="40" font-weight="650" letter-spacing="-0.6" fill="#0B1220">CodeGraph</text>
+  </g>
+
+  <!-- Headline: the hero's text; below it the site's description -->
+  <text
+    font-family="'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', 'Noto Sans CJK SC', 'Noto Sans SC', system-ui, sans-serif"
+    font-size="56" font-weight="700" letter-spacing="0.5" fill="#0B1220">
+    <tspan x="86" y="266">谁调用了它，</tspan>
+    <tspan x="86" y="340">改动它会影响哪里</tspan>
+  </text>
+
+  <text
+    font-family="'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', 'Noto Sans CJK SC', 'Noto Sans SC', system-ui, sans-serif"
+    font-size="24" font-weight="400" fill="#475569">
+    <tspan x="88" y="410">本机的代码知识图谱：命令行、</tspan>
+    <tspan x="88" y="446">MCP 和浏览器查看器共用一份索引，</tspan>
+    <tspan x="88" y="482">不依赖任何模型。</tspan>
+  </text>
+
+  <!-- The viewer's Symbol view: a real capture, framed by a hairline -->
+  <g>
+    <rect x="560" y="150" width="560" height="350" rx="12" fill="#FBFCFE"/>
+    <image href="/screens/viewer-symbol-light.webp" x="560" y="150" width="560" height="350" clip-path="url(#screen)" preserveAspectRatio="xMidYMid slice"/>
+    <rect x="560.5" y="150.5" width="559" height="349" rx="11.5" fill="none" stroke="#DCE4EE"/>
+  </g>
+
+  <!-- Address line -->
+  <text x="88" y="570"
+    font-family="'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace"
+    font-size="20" fill="#5B6779">firlab.app/codegraph</text>
+</svg>

@@ -44,6 +44,7 @@ jobs:
             pnpm-lock.yaml
             lockra/pnpm-lock.yaml
             pt-tools/pnpm-lock.yaml
+            codegraph/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -113,6 +114,33 @@ jobs:
           fi
           cp -R pt-tools/dist dist/pt-tools
           test -f dist/pt-tools/index.html && test -f dist/pt-tools/en/index.html
+
+      # The CodeGraph documentation site is published the same way, under /codegraph/
+      # (codegraph/README.md). It replaced the main site's CodeGraph page, so the main site must
+      # not emit dist/codegraph/ any more.
+      - name: Install the CodeGraph site's dependencies
+        working-directory: codegraph
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the CodeGraph site
+        working-directory: codegraph
+        run: pnpm build
+
+      # Both languages, every in-site link resolves, and every link, asset and sitemap entry
+      # stays under /codegraph/.
+      - name: Check the CodeGraph site
+        working-directory: codegraph
+        run: ./scripts/check-dist.sh dist
+
+      - name: Add the CodeGraph site under /codegraph/
+        run: |
+          set -euo pipefail
+          if [ -e dist/codegraph ]; then
+            echo "::error::the main site already emits dist/codegraph; the CodeGraph site would overwrite it"
+            exit 1
+          fi
+          cp -R codegraph/dist dist/codegraph
+          test -f dist/codegraph/index.html && test -f dist/codegraph/en/index.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

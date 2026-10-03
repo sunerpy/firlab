@@ -47,6 +47,9 @@ export default defineConfig({
     // pt-tools' page became its documentation site on 2026-10-01: Chinese at /pt-tools/
     // (the same URL, served by pt-tools/), English at /pt-tools/en/.
     '/en/pt-tools': '/pt-tools/en/',
+    // CodeGraph's page became its documentation site on 2026-10-03, the same way: Chinese at
+    // /codegraph/ (served by codegraph/), English at /codegraph/en/.
+    '/en/codegraph': '/codegraph/en/',
   },
 
   vite: {
