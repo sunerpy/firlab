@@ -26,6 +26,7 @@ import ScreenFigure from './components/ScreenFigure.vue';
 import SplitBlock from './components/SplitBlock.vue';
 import StatusTag from './components/StatusTag.vue';
 import { useSearchButtonLabel } from './search-button';
+import { useSidebarGroups } from './sidebar-groups';
 
 export default {
   extends: DefaultTheme,
@@ -36,6 +37,7 @@ export default {
     }),
   setup() {
     useSearchButtonLabel();
+    useSidebarGroups();
   },
   enhanceApp({ app }) {
     app.component('HomeIndex', HomeIndex);
