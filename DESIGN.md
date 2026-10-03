@@ -735,11 +735,16 @@ checks that every `/community/` file a page names exists, as it does for `/scree
 **The search button's label.** VitePress's search button prints its shortcut hint (Ctrl or ⌘,
 then K) inside the button, so its visible text is its label followed by "K" while its accessible
 name is the label alone: WCAG 2.5.3 Label in Name, which Lighthouse reports as
-`label-content-name-mismatch` (§12). Every site's `theme/search-button.ts`, called from the
-theme's `setup`, marks the hint `aria-hidden` and gives the button
-`aria-keyshortcuts="Control+K Meta+K"`, after mount and after every route change. VitePress's
-component is not copied, so an upgrade needs no merge; check the class names
-(`.DocSearch-Button`, `.DocSearch-Button-Keys`) when VitePress is upgraded.
+`label-content-name-mismatch` (§12). VitePress already draws the modifier as generated content;
+every site's `theme/search-button.ts`, called from the theme's `setup` after mount and after
+every route change, draws the letter the same way: it moves the key's text into `data-key`, which
+`styles/base.css` renders with `content: attr(data-key)`, so the button looks the same and its
+visible text is its label alone. It also marks the hint `aria-hidden` and gives the button
+`aria-keyshortcuts="Control+K Meta+K"`. `aria-hidden` alone does not satisfy the rule, which reads
+the visible text: the first version (#33) did only that, and axe-core 4.12.0, the version
+Lighthouse 13.4 runs, still flagged the live button. VitePress's component is not copied, so an
+upgrade needs no merge; check the class names (`.DocSearch-Button`, `.DocSearch-Button-Keys`,
+`.DocSearch-Button-Key`) when VitePress is upgraded.
 
 **pt-tools' privacy band.** `.pt-privacy-grid` gains the `display: grid; gap: 16px` the other
 sites have. Before, its three cards stacked full width with no gap even at 1800 px, because only
