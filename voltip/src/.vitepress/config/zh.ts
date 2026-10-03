@@ -44,6 +44,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: '命令行', link: '/zh/reference/cli' },
       { text: '各平台说明', link: '/zh/reference/platforms' },
       { text: '常见问题', link: '/zh/reference/faq' },
+      { text: '交流与反馈', link: '/zh/reference/community' },
       { text: '路线图', link: '/zh/roadmap' },
       { text: '开发者', link: '/zh/developers' },
     ],
@@ -119,7 +120,7 @@ export const zh = defineConfig({
     },
 
     footer: {
-      message: `Voltip 基于 Apache License 2.0 发布，是 <a href="https://firlab.app">FirLab</a> 的项目之一。内容来自 <a href="${REPO}/commit/${synced.commit}">voltip@${synced.shortCommit}</a>。`,
+      message: `Voltip 基于 GNU AGPL v3.0 或更高版本发布，是 <a href="https://firlab.app">FirLab</a> 的项目之一。内容来自 <a href="${REPO}/commit/${synced.commit}">voltip@${synced.shortCommit}</a>。`,
       copyright: 'Copyright © 2026 Voltip contributors',
     },
   },

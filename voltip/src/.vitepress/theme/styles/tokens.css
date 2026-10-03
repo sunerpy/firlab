@@ -50,6 +50,7 @@
   --vt-live-soft: rgb(20 184 166 / 0.12);
   --vt-slate: #64748b;
   --vt-slate-soft: rgb(100 116 139 / 0.14);
+  --vt-qr-plate: #ffffff; /* QR codes, white in both themes: a scanner needs a light ground */
 
   --vt-radius-chip: 4px;
   --vt-radius-control: 8px;

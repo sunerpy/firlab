@@ -61,7 +61,7 @@ export interface Product {
   version?: string;
   /** UTC date of that release. */
   released?: string;
-  license: 'MIT' | 'Apache-2.0';
+  license: 'MIT' | 'Apache-2.0' | 'AGPL-3.0-or-later';
   repo: string;
   /**
    * Where the product's name leads. `slug` is an in-site page relative to the locale
@@ -133,7 +133,7 @@ export const products: Product[] = [
     status: 'early',
     version: VOLTIP_VERSION,
     released: VOLTIP_RELEASED,
-    license: 'Apache-2.0',
+    license: 'AGPL-3.0-or-later',
     repo: 'https://github.com/sunerpy/voltip',
     page: { slug: 'voltip/' },
     site: { 'zh-cn': `${VOLTIP_SITE}/zh/`, en: `${VOLTIP_SITE}/` },

@@ -22,9 +22,11 @@ import HomePlatforms from './components/HomePlatforms.vue';
 import HomePrivacy from './components/HomePrivacy.vue';
 import HomeRoadmap from './components/HomeRoadmap.vue';
 import HomeSteps from './components/HomeSteps.vue';
+import QrCode from './components/QrCode.vue';
 import ScreenFigure from './components/ScreenFigure.vue';
 import SplitBlock from './components/SplitBlock.vue';
 import StatusTag from './components/StatusTag.vue';
+import VideoFigure from './components/VideoFigure.vue';
 
 export default {
   extends: DefaultTheme,
@@ -43,5 +45,7 @@ export default {
     app.component('HomeRoadmap', HomeRoadmap);
     app.component('ScreenFigure', ScreenFigure);
     app.component('StatusTag', StatusTag);
+    app.component('VideoFigure', VideoFigure);
+    app.component('QrCode', QrCode);
   },
 } satisfies Theme;
