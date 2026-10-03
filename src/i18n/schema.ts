@@ -19,7 +19,7 @@ import { defaultLang, type Lang } from './ui';
  * a typo should be a compile error, not a silently orphaned IRI that no other
  * node ever resolves to.
  */
-export type EntityFragment = 'website' | 'sunerpy' | 'codegraph' | 'pt-tools' | 'agentlens' | 'voltip';
+export type EntityFragment = 'website' | 'sunerpy' | 'codegraph' | 'pt-tools' | 'agentlens';
 
 /**
  * Per-locale entity IRI: `https://firlab.app/#codegraph` for Chinese,

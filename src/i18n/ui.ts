@@ -98,7 +98,6 @@ const zh = {
   'product.install': '安装',
   'product.repo': 'GitHub 仓库',
   'product.releases': '发布页',
-  'product.site': '网站',
 
   'status.live': '持续更新',
   'status.early': '早期版本',
@@ -168,7 +167,6 @@ const en: Record<keyof typeof zh, string> = {
   'product.install': 'Install',
   'product.repo': 'GitHub repository',
   'product.releases': 'Releases',
-  'product.site': 'Website',
 
   'status.live': 'Actively maintained',
   'status.early': 'Early release',
