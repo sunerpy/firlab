@@ -27,6 +27,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
     text: '参考',
     items: [
       { text: '常见问题', link: '/reference/faq' },
+      { text: '交流与反馈', link: '/reference/community' },
       { text: '数据与网络', link: '/privacy' },
       { text: 'CLI 参考（英文）', link: '/reference/cli' },
       { text: 'MCP 参考（英文）', link: '/reference/mcp' },
