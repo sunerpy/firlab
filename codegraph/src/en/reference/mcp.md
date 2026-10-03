@@ -1,0 +1,756 @@
+# MCP Server Reference
+
+`codegraph serve --mcp` runs a newline-delimited JSON-RPC MCP server over
+stdin/stdout. It does **not** use LSP `Content-Length` framing.
+
+Protocol handshake: `initialize` returns `serverInfo.name: "codegraph"`.
+`serverInfo.version` reports the running binary's crate version (from
+`CARGO_PKG_VERSION`), so it tracks releases automatically rather than being
+hardcoded.
+
+`protocolVersion` is negotiated, not fixed. The server is built on `rmcp` 3.5.0.
+
+- **`initialize`.** It echoes back the revision the client asks for, as long as it
+  is one it knows that has an `initialize` handshake: **2024-11-05**,
+  **2025-03-26**, **2025-06-18** or **2025-11-25**.
+- **2026-07-28.** This revision has no `initialize`. A 2026-07-28 client sends
+  every request statelessly: the protocol version and client capabilities go in
+  the request's `_meta` (`io.modelcontextprotocol/protocolVersion`,
+  `io.modelcontextprotocol/clientCapabilities`), alongside the SEP-2243 headers.
+- **Fallback.** An `initialize` that asks for 2026-07-28 falls back to
+  `2024-11-05`, like any unrecognized request.
+
+What the revision changes:
+
+| client sends                   | served at  | `resultType` in results | streamable-HTTP session          |
+| ------------------------------ | ---------- | ----------------------- | -------------------------------- |
+| `initialize` for 2024-11-05    | 2024-11-05 | absent                  | no `Mcp-Session-Id` (our config) |
+| `initialize` for 2025-03-26    | 2025-03-26 | absent                  | no `Mcp-Session-Id` (our config) |
+| `initialize` for 2025-06-18    | 2025-06-18 | absent                  | no `Mcp-Session-Id` (our config) |
+| `initialize` for 2025-11-25    | 2025-11-25 | absent                  | no `Mcp-Session-Id` (our config) |
+| `initialize` for 2026-07-28    | 2024-11-05 | absent                  | no `Mcp-Session-Id` (our config) |
+| a stateless 2026-07-28 request | 2026-07-28 | `"complete"`            | no `Mcp-Session-Id` (per spec)   |
+
+Results carry the SEP-2322 discriminator `resultType: "complete"` only for a
+2026-07-28 peer; older peers get the key stripped, and per spec a missing
+`resultType` means `"complete"`. At 2026-07-28 the streamable-HTTP transport is
+stateless (SEP-2567): no `Mcp-Session-Id`, no standalone GET/DELETE stream, no
+`Last-Event-ID` resumption. At the four pre-2026 revisions the spec would allow a
+session id, but this server is configured with legacy session mode off, so it
+sends none there either: don't write session-resumption handling against it. Only
+the cause differs — legacy statelessness is our configuration and could be
+reversed, while 2026-07-28 statelessness is mandated and cannot. That transport also
+validates the SEP-2243 standard headers — a request whose `MCP-Protocol-Version`
+is missing, or whose `Mcp-Method`
+or `Mcp-Name` disagrees with the body, is rejected with HTTP 400 and JSON-RPC
+error code `-32020`.
+
+The server advertises only the **tools** capability, and every tool call returns
+a complete result; it never constructs the task or input-required response forms,
+so Tasks (SEP-2663) and MRTR / elicitation-in-tool are not implemented.
+Subscriptions are also unimplemented: the handler accepts no subscription filter,
+and the legacy subscribe methods return method-not-found. Beyond the mandatory
+`initialize` handshake — itself an inherited default, which is why version
+negotiation happens automatically on top of our `get_info()` and why the
+`2024-11-05` there is only a fallback — these inherited defaults also answer
+successfully despite that narrow capability advertisement: discovery returns rmcp's known protocol versions plus this server's `get_info()`;
+completion returns an empty default result; `prompts/list`, `resources/list`, and
+`resources/templates/list` each return an empty list rather than an error, so
+probing for prompts or resources gets a successful response with nothing in it;
+and `ping` succeeds on the legacy revisions (it is method-not-found at
+2026-07-28). None of these are our implementations — they are inherited SDK
+defaults we do not override, and they add no advertised capability. Logging
+`setLevel`, `prompts/get`, and `resources/read` return method-not-found.
+
+---
+
+## Quick-Register
+
+Add to your agent's MCP config file, or run `codegraph install --yes` to write
+it automatically:
+
+```jsonc
+{
+  "mcpServers": {
+    "codegraph": {
+      "command": "codegraph",
+      "args": ["serve", "--mcp"],
+    },
+  },
+}
+```
+
+**Default (no `-p`):** `tools/list` always returns the full tool surface, even
+before a project is resolved. When the server resolves a default project — the
+working directory is at or inside an indexed project (find-up), an unindexed
+workspace root contains exactly one indexed child, or the client sends
+`rootUri`/`workspaceFolders`/`roots` — all tools work with `projectPath`
+optional. When it cannot resolve one, tools are still listed but `projectPath`
+is marked required in each tool's schema; the agent must then pass it per call.
+Multiple indexed children are listed and never guessed. See
+[Project resolution](#project-resolution) for the full three-case breakdown.
+**Optional `-p <path>` / `--path <path>`:** pin the server to one fixed project
+regardless of cwd (e.g.
+`"args": ["serve", "--mcp", "-p", "/abs/path/to/project"]`).
+
+Supported agents: Claude Code, Cursor, Codex CLI, opencode, Hermes Agent,
+Gemini CLI, Antigravity IDE, Kiro, Trae, Qoder, Zed, Zuno, VS Code
+(GitHub Copilot), GitHub Copilot CLI, JetBrains IDEs (GitHub Copilot).
+
+---
+
+## Codex CLI — global and project-local config
+
+Codex accepts the same TOML entry at two locations:
+
+- global: `~/.codex/config.toml`, with managed instructions in
+  `~/.codex/AGENTS.md`;
+- local: `<project>/.codex/config.toml`, with managed instructions in the
+  project-root `AGENTS.md` and the Skill in `.agents/skills/codegraph`.
+
+Run `codegraph install --target=codex --local --yes` from the project root for
+the local form. `--print-config=codex --local` prints the project snippet
+without writing. Local uninstall removes only local CodeGraph markers/files and
+does not touch the global entry. Codex disables project-layer configuration for
+untrusted repositories, so mark the project trusted in Codex before expecting
+the local MCP server to appear.
+
+---
+
+## Zuno — `mcp` config
+
+Zuno uses an `mcp.<name>` wrapper and a string-array command:
+
+```jsonc
+{
+  "mcp": {
+    "codegraph": {
+      "type": "local",
+      "command": ["codegraph", "serve", "--mcp"],
+      "enabled": true,
+    },
+  },
+}
+```
+
+Run `codegraph install --target=zuno --global` for
+`$XDG_CONFIG_HOME/zuno/zuno.json[c]` (normally
+`~/.config/zuno/zuno.json[c]`), or `--local` for
+`.zuno/zuno.json[c]`. Existing JSONC comments and sibling MCP entries are
+preserved. A pre-existing `mcp.codegraph-mcp-server` entry is migrated to the
+canonical `mcp.codegraph` key.
+
+The installer also manages only the fenced CodeGraph block in Zuno's
+`AGENTS.md`: global `$XDG_CONFIG_HOME/zuno/AGENTS.md`, or the project-root
+`AGENTS.md` for a local install. `codegraph skill update --target=zuno` refreshes
+that block together with the shared `.agents/skills/codegraph/SKILL.md`.
+
+---
+
+## Zed — `context_servers` config
+
+Zed uses a different MCP config shape than other agents. Instead of `mcpServers`,
+it uses a `context_servers` key, and the entry has **no `type` field**:
+
+```jsonc
+{
+  "context_servers": {
+    "codegraph": {
+      "command": "codegraph",
+      "args": ["serve", "--mcp"],
+      "env": {},
+    },
+  },
+}
+```
+
+**Global vs. project-level path constraint.** Zed's global user settings
+(`~/.config/zed/settings.json` on Linux and macOS; `%APPDATA%\Zed\settings.json`
+on Windows) cannot inject a per-project `--path` — there is no `${workspaceFolder}`
+expansion in Zed's `context_servers` args. A global entry therefore runs
+read-only off whatever index the working directory resolves to.
+
+To pin a project's server to an absolute path and get live per-project indexing,
+run `codegraph init --target=zed` inside the project. This writes a
+**project-level** `.zed/settings.json` with the absolute `--path` baked in:
+
+```jsonc
+{
+  "context_servers": {
+    "codegraph": {
+      "command": "codegraph",
+      "args": ["serve", "--mcp", "--path", "/absolute/path/to/project"],
+      "env": {},
+    },
+  },
+}
+```
+
+This is the **only** way to give Zed a per-project path. Without it the server
+falls back to home safe mode if Zed's CWD cannot find an indexed project via
+find-up.
+
+Run `codegraph install --target=zed` to write the bare global entry, or
+`codegraph init --target=zed` inside a project to write the project-level entry.
+
+### Zed over SSH (remote development)
+
+**Symptom.** You open a remote SSH project in Zed (Zed UI on your local machine,
+code and `.codegraph/` index on a remote Linux host). All codegraph MCP tools
+return empty — "No relevant code found" — even after the index built successfully.
+
+**Root cause.** Zed currently executes `context_servers` entries on the **local
+machine**, not on the remote host. This is true even when a remote SSH project is
+open: the `command: "codegraph"` runs locally, cannot reach the remote
+`.codegraph/` index, and returns nothing. Native remote MCP execution — running
+the server on the remote host — is not yet implemented in Zed (tracked in Zed's
+GitHub issues; status as of mid-2026).
+
+**Recommended fix — streamable-HTTP over a forwarded port.** Run the MCP server
+on the remote host with the HTTP transport, forward its port through SSH, and give
+Zed a `url` instead of a `command`. Zed then talks to a local port that SSH pipes
+to the remote server, so the process reading the index runs where the index lives.
+
+On the **remote** host:
+
+```bash
+codegraph serve --http --detach --path /abs/path/to/project
+```
+
+`--http` binds `127.0.0.1:8111` by default (override with
+`--http-addr <host>:<port>`); `--detach` runs it in the background and prints its
+pid and log path. `codegraph http list` shows running servers and
+`codegraph http stop 127.0.0.1:8111` terminates one. With `--path`, the project
+must already be indexed — run `codegraph init /abs/path/to/project` first.
+
+Forward the port from your **local** machine:
+
+```bash
+ssh -N -L 8111:127.0.0.1:8111 <your-ssh-host-alias>
+```
+
+Then in `.zed/settings.json` on the **local** machine:
+
+```jsonc
+{
+  "context_servers": {
+    "codegraph": {
+      "url": "http://localhost:8111/mcp",
+    },
+  },
+}
+```
+
+**Why forward rather than expose the port.** The default bind is loopback-only,
+so nothing is reachable from the network — the SSH tunnel is what makes the remote
+server visible, and it makes the endpoint genuinely _local_ from Zed's point of
+view. That matters because MCP hosts commonly permit plain `http` only for
+localhost and require `https` for anything remote (Kiro enforces exactly this).
+Forwarding keeps you on the localhost side of that rule without terminating TLS.
+
+`codegraph install --target=zed` writes this HTTP entry into your `settings.json`
+as a `//`-commented alternative next to the active stdio entry, marked RECOMMENDED
+for remote — uncomment it rather than typing it out.
+
+**Fallback — SSH stdio bridge.** If you cannot forward a port, make Zed's local
+`command` be `ssh` into the remote host and run codegraph there. SSH proxies
+stdin/stdout transparently, so the MCP JSON-RPC stream flows through the tunnel
+without any change to the codegraph binary itself.
+
+In your project's `.zed/settings.json` on the **local** machine:
+
+```jsonc
+{
+  "context_servers": {
+    "codegraph": {
+      "command": "ssh",
+      "args": [
+        "-T",
+        "<your-ssh-host-alias>",
+        "cd /abs/path/to/project && /abs/path/to/codegraph serve --mcp --path /abs/path/to/project",
+      ],
+      "env": {},
+    },
+  },
+}
+```
+
+**Why each part matters:**
+
+- `command: "ssh"` — runs on the local machine (satisfying Zed's
+  "MCP runs locally" constraint) while the actual codegraph process runs on the
+  remote host and reads the remote index.
+- `-T` — disables PTY allocation. Without it, SSH allocates a pseudo-terminal
+  whose control sequences corrupt the MCP JSON-RPC byte stream.
+- `<your-ssh-host-alias>` — use the host alias from your local `~/.ssh/config`
+  (e.g. `code-server`). An alias lets you keep key/port/ProxyJump options out of
+  this config and reuse an existing entry.
+- Absolute path to codegraph — a non-login SSH shell may not source
+  `~/.cargo/env`, so `~/.cargo/bin` is often absent from `PATH`. Use the full
+  path to the binary (e.g. `/config/.cargo/bin/codegraph` or wherever you
+  installed it on the remote host).
+- `--path /abs/path/to/project` — pins the server to the right project
+  explicitly, so resolution never depends on the remote cwd or the MCP roots
+  handshake over the tunnel.
+
+**Bridge caveats.** Each Zed window opens a fresh SSH session (the shared daemon is
+not reused across them), so startup is slightly slower than a local connection. The
+remote codegraph daemon does still run for the duration of that session and serves
+queries normally. The HTTP transport avoids this — one detached server handles every
+window — which is why it is the recommended path. Both are stopgaps until Zed ships
+native remote MCP support.
+
+---
+
+## Default vs. Full Tool Set
+
+`tools/list` surfaces only the **4 default tools** by default
+(`explore`, `node`, `search`, `callers` — the `DEFAULT_MCP_TOOLS` set). All 10
+tools remain callable via `tools/call`. To expose additional tools in `tools/list`,
+set the `CODEGRAPH_MCP_TOOLS` environment variable to a comma-separated list of
+short names, e.g.:
+
+```bash
+CODEGRAPH_MCP_TOOLS=explore,node,search,callers,impact,check codegraph serve --mcp
+```
+
+---
+
+## All 10 Tools
+
+| Tool                | Purpose                                                                                                                                 |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `codegraph_explore` | PRIMARY tool: blast radius + relationship map + dynamic-dispatch boundaries + source blocks (output is size-adaptive to project scale). |
+| `codegraph_search`  | FTS5 + multi-signal scored symbol search.                                                                                               |
+| `codegraph_node`    | Node detail (symbol view) or file view (line-numbered source). A smarter `Read`.                                                        |
+| `codegraph_callers` | Callers of a symbol (along calls/references/imports edges).                                                                             |
+| `codegraph_callees` | Targets a symbol calls.                                                                                                                 |
+| `codegraph_impact`  | Blast radius of changing a symbol (transitive incoming deps).                                                                           |
+| `codegraph_status`  | Index status summary (files/nodes/edges/DB size/stale files).                                                                           |
+| `codegraph_files`   | List/tree indexed files under a path.                                                                                                   |
+| `codegraph_check`   | Circular-dependency detection. Returns each cycle as `a.ts -> b.ts -> a.ts`.                                                            |
+| `codegraph_export`  | Whole-graph NetworkX node-link JSON export with optional PageRank centrality.                                                           |
+
+Every tool is query-only, so each carries MCP tool **annotations** in
+`tools/list` — `readOnlyHint: true`, `destructiveHint: false`,
+`idempotentHint: true`, `openWorldHint: false`. Hosts that respect these hints
+can call codegraph tools freely without write-confirmation prompts. The hint
+describes the caller's environment: a tool never writes a source file or any
+path outside the project's index directory. The first call with an explicit
+`projectPath` may start that project's shared daemon and bring its
+**existing** derived index up to date (see the explicit-project lifecycle
+below); that is cache maintenance inside `.codegraph/`, never the creation of
+an index or a change to user files, so the hint stays `true`.
+
+---
+
+## Tool Usage Notes
+
+**`codegraph_explore`** is the primary entry point for agent queries. One call
+returns the symbols relevant to a query, their verbatim source grouped by file,
+plus the call/impact graph around them. Prefer it over individual `callers`/
+`callees` chains when surveying an unfamiliar area.
+
+Explicit source paths in the query are resolved before fuzzy search and pinned
+to the front of the result. Quoted/backticked paths, `./`, and Windows
+separators are normalized; exact matches precede segment-aligned suffix
+matches. Extensionless kebab basenames are accepted only when they resolve to at
+most three indexed files, so ordinary hyphenated prose remains prose. When a
+path or basename matches several files and the query also names symbols in a
+code shape (camelCase, PascalCase, snake_case, `$` or qualified), only the
+matches defining one of them are pinned, and the summary names the files set
+aside; a basename shared by more than three files resolves the same way when
+the named symbols narrow it to three or fewer. The
+resolver examines at most eight path spans, drops at most eight leading
+segments, pins at most eight files (also bounded by `maxFiles`), and reports at
+most four unresolved explicit paths. Resolved or clearly missing explicit paths
+are removed from the normal query, preventing route parameters and basenames
+from becoming noisy symbol seeds. Pinned files survive low-score filtering and
+receive a protected source budget.
+
+Line references on a path that resolved to exactly one file are kept as
+anchors: `compiler.py:776`, `foo.ts:12-40`, `foo.ts#L88-L120`, and prose ranges
+bound to the nearest such path (`compiler.py lines 900-1003`,
+`L900-L1003 in compiler.py`, `lines 900 to 1003`). A bare number counts only
+after `line`/`lines` or directly after the path, and numbers above 1,000,000
+are ignored. A single-line anchor selects the innermost method, function, or
+component enclosing it; a range, or a line no callable encloses (with 15 lines
+either side), renders as that span. Those, and a qualified name
+(`SQLCompiler.as_sql`, `Engine::ServeHTTP`) with at most three non-test
+definitions, are **exact targets**: they lead the blast radius, their files rank
+ahead of incidental files, and their clusters render first. An exact body is
+returned whole when it fits the file's budget, and otherwise from its own head
+plus windows on the anchored line and on its calls into the other symbols the
+query names. A named neighbour that no longer fits beside it is listed in the
+file header instead.
+
+Each file's source is held to a per-file ceiling of 1.5 × the tier's per-file
+budget. A file the query names (by path, by an exact target, or by a symbol it
+defines) that this ceiling clipped is rendered again into whatever budget the
+rest of the response left unspent, so a question about one file can use the
+whole response while every other file keeps exactly the section it was given.
+
+Explore also resolves prose and camelCase query segments against indexed symbol
+names, then merges the resulting callable, Variable, and Constant names as
+dampened exact seeds. This recovers names such as `feedAtBottom` from "feed
+bottom" while keeping ordinary `codegraph_search` on its fast SQL/FTS path.
+
+The blast-radius block that `explore` prints reports **measured** test coverage.
+When no test file calls a root directly, codegraph walks UP the caller graph
+before saying anything — up to 3 hops (direct callers are hop 1), bounded by 64
+caller lookups per root. The three outcomes, verbatim:
+
+| Outcome                                | Suffix                                  |
+| -------------------------------------- | --------------------------------------- |
+| A test was reached through callers     | ``; tested via callers: `f1`, `f2` +N`` |
+| Nothing found, budget survived         | `; no tests found within 3 caller hops` |
+| Nothing found, lookup budget exhausted | `; no test calls this directly`         |
+
+At most two test file names are shown; the `+N` tail counts the rest. The
+traversal frontier itself is uncapped, so the display cap never hides a hop.
+Neither not-found form carries a warning glyph any more: the note states what was
+searched instead of implying the symbol is untested, which for anything reached
+through a helper it usually was not.
+
+**`codegraph_node`** accepts a symbol name, qualified name, exact node ID (for
+example, `node.id` from CLI `codegraph search --json`), or a file path. `file`
+and `line` can pin an overloaded symbol to one definition. When given a file
+path without a symbol it returns the file's source with line numbers, which is a
+more accurate alternative to a plain `Read` tool call.
+
+File mode also accepts pasted editor/GitHub locations: `src/app.ts:42`,
+`src/app.ts:42-80`, `src/app.ts#L42`, and `src/app.ts#L42-L80` (the final `L` is
+optional). Resolution tries the literal indexed filename first; only a literal
+miss may strip a valid positive selector. A single line supplies the default
+`offset`; a closed range supplies the default inclusive `limit`. Explicit MCP
+`offset` and `limit` fields override the suffix independently, so
+`{"file":"src/app.ts:42-80","offset":5,"limit":2}` reads lines 5–6. Invalid,
+zero, reversed, overflowing, and ambiguous Windows-drive spellings stay literal.
+
+**`codegraph_callers`**, **`codegraph_callees`**, and **`codegraph_impact`** do
+not silently merge unrelated same-named definitions. Results are grouped by
+`(filePath, qualifiedName)`; same-definition overloads stay together, while two
+apps that each define `handle` get separate sections/blast radii. Pass `file`
+with an exact project-relative path or suffix to select one definition. A
+non-matching filter is disclosed and falls back to all definitions instead of
+returning a misleading empty result. Caller/callee limits apply per definition;
+when a cap hides rows, the response reports `Showing N of M` and tells the host
+to widen `limit` (up to 100).
+
+**`codegraph_impact`** returns the transitive incoming dependency set — every
+symbol that would break if the queried symbol changed. Use it before a refactor
+to understand the blast radius instead of walking callers manually.
+
+**`codegraph_check`** returns cycles as ordered lists of file paths. It's
+additive: most projects have zero cycles; run it after a large dependency
+restructuring to confirm no new cycles were introduced.
+
+**`codegraph_status`** appends a `Pending sync` section when the current source
+scope differs from the persisted file inventory. It sees committed-but-unindexed
+work as well as working-tree and non-Git changes, applies the same project scope
+and content-hash gates as whole-tree sync, and lists each added/modified/removed
+path. The check is read-only and holds the engine's existing shared index lease.
+In a git work tree it takes the same git fast path as `codegraph status`, and it
+falls back to the full inventory under the same conditions.
+
+**`codegraph_export`** dumps the complete graph as NetworkX node-link JSON.
+Useful for external visualization tools, custom analysis scripts, or feeding an
+LLM a high-level structural summary of the entire codebase.
+
+---
+
+## Error Channels
+
+Two distinct error channels:
+
+- **Unknown tool name** — JSON-RPC error `-32602` (invalid params).
+- **Missing or invalid required argument** — tool result with
+  `{content: ..., isError: true}` and `Error: <message>` body.
+
+---
+
+## Daemon & live watch
+
+When the project is indexed (`.codegraph/` exists), `serve --mcp` does not run
+inline. Instead it spawns — or proxies to — a single shared detached daemon
+process per project. Multiple agent clients (e.g. Claude Code + Cursor open
+simultaneously) all attach to the same daemon, so the index is loaded and
+maintained once.
+
+The daemon runs a file watcher (`codegraph-watch`) that live-reindexes changed
+files. Events are debounced (default ~2 s; tunable via
+`CODEGRAPH_WATCH_DEBOUNCE_MS`) so a burst of saves triggers one incremental
+rebuild rather than many. The watcher is auto-disabled on WSL2 `/mnt/` drives
+where recursive watch is too slow; set `CODEGRAPH_FORCE_WATCH=1` to override.
+The selected index root's `config.toml` and `codegraph.json`, plus the project
+root `.gitignore`, are live control files: their events bypass ordinary
+include/exclude filtering, reload the running scope, reconcile OS watch targets,
+and trigger one full scan that supersedes queued path deltas. Invalid TOML keeps
+the last valid scope and is reported; malformed JSON keeps the existing tolerant
+empty-override semantics. Every later incremental sync re-checks the current
+scope, preventing stale events from re-admitting excluded files.
+Ranking-only `deprioritize` rules are loaded separately from watcher scope.
+Each request-scoped engine loads the addressed project's JSON rules followed by
+its authoritative TOML rules, so a long-lived stdio or HTTP process observes
+edits on its next search/explore request without changing the graph.
+
+Exactly one process owns background writes for each indexed project. Besides the
+short-lived `index.lock` leases taken by individual mutations, the daemon holds an
+OS kernel exclusive lock on `.codegraph/writer.pid` for its whole watcher/catch-up
+lifetime. The file's JSON is diagnostic; process death releases the kernel lock
+without trusting PID reuse or deleting/recreating the authority path. On a cold
+daemon start, the foreground stdio process answers the first handshake directly
+but starts no second watcher. When `CODEGRAPH_NO_DAEMON=1` is used, the foreground
+process owns this writer lock; a second direct server for the same project exits
+with actionable guidance. Read-only/no-default sessions take no writer lock.
+When the resolved root is exactly `$HOME` or the filesystem root (`/`), the
+server first disables the daemon, the file watcher, AND catch-up sync — not just
+the watcher. This happens when an IDE or agent (e.g. Kiro) launches
+`codegraph serve --mcp` with no `--path` and its CWD is the home directory;
+without the guard, the server would spawn a daemon that indexes the entire home
+tree and peg a CPU at 99%. In this initial safe mode the server still answers the
+handshake, but it will not start background services against `$HOME`. If the
+client advertises MCP roots support, the server sends `roots/list`, adopts the
+first indexed root from the client's response, starts or attaches to that root's
+shared project daemon, then proxies the current stdio session to that daemon.
+That lets a single global config recover the real project even when the launch
+CWD was home, without hardcoding `--path`. `CODEGRAPH_FORCE_WATCH` does **not**
+override this guard (it only overrides the WSL2 `/mnt/` disable). A real project
+nested under `$HOME` (e.g. `~/projects/myapp`) is unaffected and gets the full
+daemon, watcher, and catch-up. To guarantee per-project services for clients that
+do not support roots, pin the root via `--path <project>` in the client's MCP
+config args (e.g. a workspace-level `.kiro/settings/mcp.json`), or open the
+project folder as the working directory.
+
+For a normal unindexed workspace container, stdio startup has one additional
+safe path before entering no-default mode: if the launch directory has a
+workspace manifest or `.git`, CodeGraph scans downward to depth 4, inspects at
+most 64 indexed candidates, skips dot/heavy/build/vendor/venv/cache/temp
+directories, and stops below an indexed child. Exactly one candidate is adopted
+and gets the full daemon/watcher/catch-up lifecycle. Zero or multiple candidates
+are never guessed. This scan is forbidden at `$HOME` and filesystem roots.
+
+Multiple indexed children do not need duplicate MCP registrations. On the first
+tool call that supplies an explicit `projectPath`, CodeGraph starts or attaches
+that **existing** project's shared daemon, retains one connection for the MCP
+session, and waits for a whole-project catch-up before executing the tool. Later
+saves are handled by that daemon's single watcher. A second MCP session reuses
+the same daemon; closing either session drops only its retained connection, so
+the other keeps live sync active. Each session retains at most 32 explicit
+projects. A retained service is re-checked on every call: if its daemon has
+exited, or the project's index was removed or re-created since the service
+attached, the stale connection is released and the next call attaches and
+catches up again instead of answering without live synchronization. This never
+creates an index, selects a default, or eagerly watches all discovered
+children. `CODEGRAPH_NO_DAEMON=1` explicitly opts out of this lazy daemon-backed
+lifecycle; `--no-watch` still permits the first catch-up but disables later
+file watching. Streamable HTTP global/no-path mode does not adopt a cwd child;
+because HTTP requests carry no session, one explicit-project service broker is
+shared by the whole server process, so the 32-project bound and the retained
+connections last until the server exits.
+
+---
+
+## Project resolution
+
+`tools/list` **always** returns the full default tool surface (4 tools by
+default, or the `CODEGRAPH_MCP_TOOLS` allowlist). What changes depending on
+whether a default project was resolved is which tool parameters are required:
+
+- **`projectPath` optional** — the server resolved a default project. Tools just
+  work with no per-call path argument.
+- **`projectPath` required** — no default project was resolved. Tools are still
+  listed, but the schema marks `projectPath` required on every tool so the
+  agent knows to supply it per call. You can also pin a single project with
+  `-p`/`--path` instead.
+
+The stdio server resolves a default project from these sources:
+
+1. **`--path` flag** — explicit pin; always wins.
+2. **find-up from cwd** — ascends from the working directory to the nearest
+   `.codegraph/` index root. A cwd at or inside an indexed project resolves it
+   here, and `projectPath` is optional.
+3. **bounded workspace child scan** — if find-up yields nothing and the launch
+   directory contains `.git` or a workspace manifest, scan at most four levels
+   and 64 candidates. Exactly one indexed child is adopted; multiple candidates
+   are sorted and reported, never selected. HOME and filesystem roots are not
+   scanned.
+4. **MCP `initialize` handshake** — if startup resolution yields nothing, the server reads
+   the `initialize` message sent by the client and adopts the workspace it
+   advertises (`rootUri`, `rootPath`, or `workspaceFolders[0].uri`) — provided
+   that path is already indexed. If the client does not include those fields but
+   advertises `capabilities.roots`, the server sends a `roots/list` request and
+   adopts the first indexed root from the response.
+
+If all sources yield nothing, the server serves the full tool list with
+`projectPath` marked required. This is the case for roots-less clients that use
+a fixed launch directory not inside any project — for example, 通义灵码/Lingma
+configured with a single global MCP entry whose working directory is the home
+directory. In that scenario the tools are listed and the agent can still call
+them by passing an explicit `projectPath`; for single-project setups, pinning
+`-p /path/to/project` in the MCP config args is the simpler alternative.
+
+With no default, a tool call that omits `projectPath` returns normal
+success-shaped text explaining the remedies. If the child scan found several
+indexes, that text and stderr list the sorted candidates. A caller-supplied
+absolute `projectPath` is authoritative and bypasses the ambiguity; an explicit
+path that does not resolve remains an `isError` tool result. The cheap upward
+probe runs again on relevant requests, while the downward scan is throttled to
+once per five seconds so a project initialized after server startup can be
+adopted without walking the workspace on every call.
+
+For an explicit path that **does** resolve to an existing index, the first call
+is also the live-service boundary: it waits for catch-up and retains that
+project's shared daemon/watcher as described above. Query routing therefore does
+not imply default selection, while synchronization no longer depends on having a
+default project.
+
+> **Note:** the home-directory / filesystem-root guard (see [Daemon & live watch]
+> above) also skips the normal watcher and catch-up sync **against those broad
+> roots**. A real indexed project nested under `$HOME` (e.g.
+> `~/projects/myapp`) is unaffected: find-up/default adoption or an explicit
+> `projectPath` gives that project its own daemon and watcher.
+
+The daemon exits automatically after all clients disconnect and an idle timeout
+elapses. Logs are appended to `.codegraph/daemon.log`. A stale lock (e.g. after
+a crash) can be cleared with `codegraph unlock`.
+
+On Unix, the detached daemon calls `setsid` to become a session leader, so when
+the short-lived proxy that spawned it exits the daemon is reparented to `init`
+and reaped automatically — no `<defunct>` zombie appears in the process table.
+The daemon exits when its real host (the IDE or agent running `serve --mcp`)
+dies, detected via `host_pid` liveness; raw parent-pid divergence is not used
+for this check because a deliberately daemonized process legitimately reparents
+to `init`.
+
+To disable the daemon entirely and run the MCP server in the foreground, set
+`CODEGRAPH_NO_DAEMON=1`. Run only one such writer per indexed project; additional
+clients should leave daemon mode enabled and proxy to the shared process. For the
+full set of env-var knobs — timeouts, sweep intervals, watch settings — see
+[`docs/cli.md`](cli.md).
+
+---
+
+## Claude prompt-hook (confidence-tiered gate)
+
+`codegraph install --prompt-hook` writes a Claude Code `UserPromptSubmit` hook
+that pipes each user prompt into `codegraph prompt-hook` on stdin. Claude sends a
+JSON payload — `{prompt, cwd}` (the `"prompt"`/`"cwd"` object) — so the hook reads
+`.prompt` as the query and resolves the project from `.cwd` (falling back to
+`--path`, then the process cwd). A raw-string argument or raw-string stdin still
+works for direct invocation (`codegraph prompt-hook "how does X work"`).
+
+The hook is a **three-tier confidence gate** — it decides not just _whether_ to
+inject context but _how much_:
+
+- **Structural question or named symbol → full context.** A structural /
+  flow / impact / "where-how" question in any of ~29 covered languages (across
+  Latin, Cyrillic, Greek, CJK, Hangul, Arabic, Hebrew, Thai, and Devanagari
+  scripts), OR a code-shaped token (`getUserId`, `get_user`, `Counter()`,
+  `user.login`) that is verified as a real symbol in the index, runs
+  `codegraph_explore` and injects its full output (capped at 9,000 UTF-8 bytes,
+  leaving wrapper headroom under Claude Code's 10,000-byte inline limit).
+- **Plain words matching indexed symbols → short hint.** When the prompt has no
+  structural keyword or verified token but its prose words match indexed
+  symbol-name segments (e.g. `checkout state machine` → `CheckoutStateMachine`),
+  the hook injects a short **pointer** naming the matching symbols and letting the
+  agent write the explore query itself — it never runs explore, so a fuzzy match
+  can't flood the prompt with the wrong feature's source.
+- **Everything else → silent.** Ordinary prose (`please fix this typo`) is a
+  zero-cost **silent no-op** — nothing is printed.
+
+The gate is a pure, deterministic function of the prompt plus the current
+indexed node-name set: the plain-words tier is derived at query time from the
+existing symbol names (no extra table, no schema change), and there is **no
+telemetry or tracking of any kind**. Set `CODEGRAPH_NO_PROMPT_HOOK=1` (or
+`CODEGRAPH_PROMPT_HOOK=0`) to disable the hook without editing the config. Every
+failure path — kill-switch, non-matching prompt, no index, engine error — exits 0
+with no output; the hook is degradable by contract and never breaks the prompt.
+Host-generated task completions are also discarded before classification when
+their first non-whitespace content is `<task-notification>`; the same text later
+inside a real user discussion does not match that anchored gate.
+
+---
+
+## Stale Index Warning
+
+The index typically lags file writes by ~1 second when the daemon is running. In
+that window a file's stored line ranges can point at the wrong bytes, so every
+tool that emits source first checks the file it is about to read.
+
+### What counts as drift
+
+A referenced file is compared against its stored record before its text is used.
+Freshness is fail-closed: **proven fresh** is an earned state, not the default:
+
+1. **The file record loads and size + millisecond mtime match** → proven fresh,
+   no hashing. This is the same fast path `codegraph sync` uses.
+2. **Stat mismatch** → the file's sha256 content hash is computed and compared.
+   A matching indexed hash also proves freshness; a hash mismatch is possibly
+   drifted.
+
+Every outcome that cannot prove either condition is **possibly drifted**: the
+file record is absent or unreadable, the source read fails, or an oversized file
+has a stat mismatch. Oversized files are never read or hashed, so only their
+size + millisecond mtime fast path can prove freshness.
+
+So a `touch`, or a rewrite that produces identical bytes, is not drift — the
+hash check absorbs it. The probe is memoized per tool call, so one `explore` never
+stats the same file twice.
+
+### A drifted file ships whole or not at all
+
+Stored line numbers are unsafe once the bytes moved, so codegraph will not slice a
+drifted file at them. Instead:
+
+- **`codegraph_node`** on a symbol in a drifted file emits the file's full
+  **current** source when it fits under the 2000-line whole-file cap
+  (`FILE_MODE_MAX_LINES`, the same ceiling normal file mode uses). Over the cap,
+  the body is omitted with a notice; the location and signature are still shown,
+  flagged as possibly shifted.
+- **`codegraph_explore`** flags a drifted file and disables adaptive, skeleton,
+  and cluster slicing for it. Whole-file rendering is correct by construction, so
+  a small file still comes back in full; a large one is omitted rather than
+  sliced.
+
+Byte size stays gated separately by `indexing.max_file_size` (1 MiB default) —
+a file over that limit was never extracted, so its text is not served either way.
+
+### The banner
+
+A response is prefixed with:
+
+```
+⚠️ Some files referenced below were edited since the last index sync — their codegraph entries may be stale:
+  - path/to/file.rs
+For accurate content of those specific files, Read them directly. The rest of this response is fresh.
+```
+
+only when that response actually serves or cites current bytes from a
+possibly-drifted file. An unreadable or oversized file whose content is omitted
+is still not treated as fresh, but it does **not** fabricate a banner entry for
+bytes the response never exposed. A response with no cited possibly-drifted bytes
+gets **no** banner, which is what makes "trust everything not listed" a real
+guarantee rather than an assumption — the agent instructions had described this
+banner before anything produced it. Run `codegraph sync`, or wait for the watcher,
+if you see it on a hot codebase; ordinary drift does not require a full rebuild.
+
+### Auto-sync health
+
+When the server runs the project's live watcher in-process, every answer also
+reports its health, since edits the index never heard about cannot reach the
+per-file banner above:
+
+- **RECOVERING** — another process held the index past the sync's contention
+  budget (a long foreground `index`). Watching continues and changes are still
+  collected; a full reconcile is retried every 30 s, and until one commits each
+  response starts with `⚠️ CodeGraph auto-sync is RECOVERING …`.
+- **DISABLED** — watching stopped (watch resources exhausted, or syncs failing
+  persistently). Responses start with `⚠️ CodeGraph auto-sync is DISABLED …` and
+  the reason; run `codegraph sync` and restart the server.
+
+In either state `codegraph_search`, `codegraph_callers`, `codegraph_callees`
+and `codegraph_impact` check every indexed file they would name against disk,
+and when one changed or disappeared since its last sync they name those files
+instead of answering from the frozen graph. `codegraph_status` reports the
+state as `Auto-sync:`.

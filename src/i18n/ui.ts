@@ -222,7 +222,7 @@ export function getLangFromUrl(url: URL): Lang {
 
 /**
  * Strip the locale prefix from a pathname, returning a bare relative slug with
- * no leading slash: `/en/codegraph/` → `codegraph/`, `/` → `''`.
+ * no leading slash: `/en/voltip/` → `voltip/`, `/` → `''`.
  *
  * This is what makes the language switch land on the *same* page in the other
  * locale instead of always bouncing to the home page.

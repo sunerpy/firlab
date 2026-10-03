@@ -45,3 +45,8 @@ lockra/.vitepress-cache/
 # firlab.app under /pt-tools/ (pt-tools/README.md).
 pt-tools/dist/
 pt-tools/.vitepress-cache/
+
+# The CodeGraph sub-site, which installs on its own the same way and is published inside
+# firlab.app under /codegraph/ (codegraph/README.md).
+codegraph/dist/
+codegraph/.vitepress-cache/

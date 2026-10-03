@@ -1,0 +1,594 @@
+/* Hallmark · macrostructure: Split Studio (15) with a spec table (F3) and a step strip (F4)
+ * genre: technical editorial · theme: FirLab tokens (theme/styles/tokens.css) · nav: VitePress
+ * default (as on voltip.firlab.app) · footer: Ft2 single line
+ * The same grammar as the Voltip site (DESIGN.md §10); what differs is recorded in §13.
+ */
+/*
+ * The home page. Hero first (what it is, where it runs, where the code stays, how to get
+ * it — all above the fold), then the index of everything it does, the four steps from
+ * install to the first answer, three text-and-proof splits (agents with the question-to-tool
+ * table, the viewer with a capture, languages with the depth table), the platforms, what
+ * stays on the machine, install, and what it does not do.
+ * The page body renders inside VitePress's `.vp-doc`, so each band resets the doc
+ * styles it does not want.
+ */
+
+/* ---- Hero ---------------------------------------------------------------- */
+
+.VPHome .VPHero.has-image .container {
+  text-align: left;
+}
+
+.VPHome .VPHero.has-image .name,
+.VPHome .VPHero.has-image .text,
+.VPHome .VPHero.has-image .tagline {
+  margin: 0;
+}
+
+.VPHome .VPHero.has-image .actions {
+  justify-content: flex-start;
+}
+
+/* Hanzi break anywhere, so the Chinese headline would split a word ("改|动") at the hero's
+   width. keep-all leaves the break at the comma, and balance evens the two lines
+   (DESIGN.md §1 "Script-dependent metrics"). */
+:root:lang(zh-CN) .VPHome .VPHero .text {
+  word-break: keep-all;
+  text-wrap: balance;
+}
+
+.VPHome .VPHero .name {
+  letter-spacing: -0.02em;
+}
+
+.VPHome .VPHero .text {
+  font-weight: 650;
+  letter-spacing: var(--cg-ls-display);
+  color: var(--cg-ink-700);
+  text-wrap: balance;
+}
+
+.VPHome .VPHero .tagline {
+  font-weight: 450;
+  color: var(--cg-ink-500);
+  text-wrap: pretty;
+}
+
+/* Heavier padding below the hero than above it pulls the hero into the page. */
+html .VPHome .VPHero {
+  padding-top: calc(var(--vp-nav-height) + var(--vp-layout-top-height, 0px) + 40px);
+  padding-bottom: 64px;
+}
+
+@media (min-width: 640px) {
+  html .VPHome .VPHero {
+    padding-top: calc(var(--vp-nav-height) + var(--vp-layout-top-height, 0px) + 64px);
+    padding-bottom: 88px;
+  }
+}
+
+.VPHome .VPHero .image {
+  order: 3;
+  margin: 40px 0 0;
+}
+
+.VPHome .VPHero .image-container {
+  width: 100%;
+  height: auto;
+  transform: none;
+  display: block;
+}
+
+.VPHome .VPHero .image-bg {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .VPHome .VPHero .tagline {
+    font-size: 19px;
+    line-height: 31px;
+  }
+}
+
+@media (min-width: 960px) {
+  .VPHome .VPHero .text {
+    font-size: 44px;
+    line-height: 52px;
+  }
+
+  :root:lang(zh-CN) .VPHome .VPHero .text {
+    font-size: 42px;
+    line-height: 54px;
+  }
+
+  .VPHome .VPHero .tagline {
+    font-size: 19px;
+    line-height: 32px;
+  }
+
+  .VPHome .VPHero.has-image .main {
+    width: 46%;
+    max-width: 520px;
+    flex-shrink: 0;
+  }
+
+  .VPHome .VPHero .image {
+    order: 2;
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 8px 0 0 56px;
+  }
+}
+
+/* ---- Bands --------------------------------------------------------------- */
+
+.VPHome .cg-band {
+  margin-top: 88px;
+}
+
+.VPHome .vp-doc .cg-band-title,
+.VPHome .vp-doc > h2,
+.VPHome .vp-doc .cg-split-text h2 {
+  margin: 0 0 12px;
+  padding-top: 0;
+  border-top: 0;
+  font-size: 28px;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: var(--cg-ls-display);
+  color: var(--cg-ink-900);
+}
+
+.VPHome .vp-doc > h2 {
+  margin-top: 88px;
+}
+
+.VPHome .vp-doc .cg-band .cg-band-intro {
+  max-width: min(720px, 72ch);
+  margin: 0 0 28px;
+  color: var(--cg-ink-500);
+  font-size: 17px;
+}
+
+.VPHome .vp-doc .cg-band .cg-band-note {
+  margin: 16px 0 0;
+  color: var(--cg-ink-400);
+  font-size: 14px;
+}
+
+.VPHome .vp-doc ul.cg-index-list,
+.VPHome .vp-doc ol.cg-steps-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.VPHome .vp-doc ul.cg-index-list > li + li,
+.VPHome .vp-doc ol.cg-steps-list > li + li {
+  margin-top: 0;
+}
+
+.VPHome .vp-doc .cg-band p {
+  margin: 0;
+}
+
+.VPHome .vp-doc .cg-band h3 {
+  margin: 0;
+  letter-spacing: normal;
+}
+
+/* ---- Index ------------------------------------------------------------------ */
+
+.cg-index-grid {
+  display: grid;
+  gap: 40px 56px;
+}
+
+@media (min-width: 768px) {
+  .cg-index-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.VPHome .vp-doc .cg-index-name {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--cg-ink-900);
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.4;
+  color: var(--cg-ink-900);
+}
+
+.cg-index-item {
+  padding: 12px 0 16px;
+  border-bottom: 1px solid var(--cg-rule);
+}
+
+.cg-index-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.VPHome .vp-doc .cg-index-title {
+  min-width: 0;
+  font-size: 15.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--cg-ink-900);
+  text-decoration: none;
+}
+
+.VPHome .vp-doc a.cg-index-title:hover {
+  color: var(--cg-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.VPHome .vp-doc .cg-index-body {
+  margin-top: 4px;
+  color: var(--cg-ink-500);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+:root:lang(zh-CN) .VPHome .vp-doc .cg-index-body {
+  line-height: 1.75;
+}
+
+/* ---- Steps ------------------------------------------------------------------- */
+
+.cg-steps-list {
+  display: grid;
+  gap: 28px;
+  counter-reset: none;
+}
+
+@media (min-width: 640px) {
+  .cg-steps-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .cg-steps-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .cg-step + .cg-step {
+    border-left: 1px solid var(--cg-rule);
+  }
+
+  .cg-step {
+    padding: 0 24px;
+  }
+
+  .cg-step:first-child {
+    padding-left: 0;
+  }
+}
+
+.cg-step-number {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--cg-ink-400);
+  font-family: var(--cg-font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.VPHome .vp-doc .cg-step-title {
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.4;
+  color: var(--cg-ink-900);
+}
+
+.VPHome .vp-doc .cg-step-command {
+  margin-top: 8px;
+}
+
+.VPHome .vp-doc .cg-step-command code {
+  display: inline-block;
+  max-width: 100%;
+  padding: 2px 8px;
+  border-radius: var(--cg-radius-chip);
+  background: var(--cg-paper-2);
+  color: var(--cg-ink-700);
+  font-family: var(--cg-font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.VPHome .vp-doc .cg-step-body {
+  margin-top: 8px;
+  color: var(--cg-ink-500);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+
+/* ---- Text and proof ------------------------------------------------------------- */
+
+.cg-split {
+  display: grid;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .cg-split {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: 56px;
+  }
+
+  .cg-split-flip {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  }
+
+  .cg-split-flip .cg-split-text {
+    order: 2;
+  }
+}
+
+.VPHome .vp-doc .cg-split-text p {
+  margin: 0 0 16px;
+  color: var(--cg-ink-500);
+  font-size: 16px;
+}
+
+.VPHome .vp-doc .cg-split-text p:last-child {
+  margin-bottom: 0;
+}
+
+.VPHome .vp-doc .cg-split-text a {
+  font-weight: 550;
+}
+
+.cg-plate {
+  min-width: 0;
+  padding: 8px 20px;
+  border: 1px solid var(--cg-rule);
+  border-radius: var(--cg-radius-plate);
+  background: var(--cg-paper-1);
+  box-shadow: var(--cg-shadow-plate);
+}
+
+.dark .cg-plate {
+  background: var(--cg-paper-soft);
+}
+
+.VPHome .vp-doc .cg-plate-caption {
+  margin: 0;
+  padding: 12px 0 16px;
+  border-top: 1px solid var(--cg-rule);
+  color: var(--cg-ink-400);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ---- Tables --------------------------------------------------------------------- */
+
+.VPHome .vp-doc table.cg-table {
+  display: table;
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  font-size: 14.5px;
+}
+
+.VPHome .vp-doc .cg-table tr {
+  border: 0;
+  border-top: 1px solid var(--cg-rule);
+  background: transparent;
+}
+
+.VPHome .vp-doc .cg-table thead tr {
+  border-top: 0;
+}
+
+.VPHome .vp-doc .cg-table th,
+.VPHome .vp-doc .cg-table td {
+  padding: 12px 12px 12px 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.VPHome .vp-doc .cg-table th:last-child,
+.VPHome .vp-doc .cg-table td:last-child {
+  padding-right: 0;
+}
+
+.VPHome .vp-doc .cg-table thead th {
+  padding-top: 16px;
+  padding-bottom: 12px;
+  color: var(--cg-ink-400);
+  font-family: var(--cg-font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.VPHome .vp-doc .cg-table tbody th {
+  font-weight: 600;
+  color: var(--cg-ink-900);
+}
+
+.VPHome .vp-doc .cg-table td {
+  color: var(--cg-ink-500);
+}
+
+.cg-mono {
+  font-family: var(--cg-font-mono);
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+
+.cg-platforms-name {
+  display: block;
+}
+
+.cg-platforms-name + .cg-status {
+  margin-top: 4px;
+}
+
+/* The language table's member lists are long: let them wrap, a little smaller, and give
+   them most of the width. */
+.VPHome .vp-doc .cg-languages-members {
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+@media (min-width: 768px) {
+  .VPHome .vp-doc .cg-languages .cg-table th:first-child {
+    width: 22%;
+  }
+
+  .VPHome .vp-doc .cg-languages .cg-table th:nth-child(2),
+  .VPHome .vp-doc .cg-languages .cg-table td:nth-child(2) {
+    width: 30%;
+  }
+}
+
+/* Command and tool names in the agent table stay on one line where there is room. */
+.VPHome .vp-doc .cg-tools .cg-mono {
+  font-size: 13px;
+}
+
+@media (max-width: 767px) {
+  /* Rows become cards: each cell carries its column name. */
+  .VPHome .vp-doc .cg-table-stack thead {
+    display: none;
+  }
+
+  .VPHome .vp-doc .cg-table-stack,
+  .VPHome .vp-doc .cg-table-stack tbody,
+  .VPHome .vp-doc .cg-table-stack tr,
+  .VPHome .vp-doc .cg-table-stack th,
+  .VPHome .vp-doc .cg-table-stack td {
+    display: block;
+    width: 100%;
+  }
+
+  .VPHome .vp-doc .cg-table-stack tr {
+    padding: 12px 0;
+  }
+
+  .VPHome .vp-doc .cg-table-stack tbody tr:first-child {
+    border-top: 0;
+  }
+
+  .VPHome .vp-doc .cg-table-stack th,
+  .VPHome .vp-doc .cg-table-stack td {
+    padding: 4px 0;
+  }
+
+  .VPHome .vp-doc .cg-table-stack td::before {
+    content: attr(data-label);
+    display: block;
+    color: var(--cg-ink-400);
+    font-family: var(--cg-font-mono);
+    font-size: 12px;
+  }
+}
+
+/* ---- What stays on the machine ------------------------------------------------------ */
+
+.cg-privacy-grid {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 960px) {
+  .cg-privacy-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.cg-privacy-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--cg-rule);
+  border-radius: var(--cg-radius-plate);
+  background: var(--cg-paper-1);
+}
+
+.dark .cg-privacy-mode {
+  background: var(--cg-paper-soft);
+}
+
+.VPHome .vp-doc .cg-privacy-name {
+  font-size: 16.5px;
+  font-weight: 650;
+  color: var(--cg-ink-900);
+}
+
+.VPHome .vp-doc .cg-privacy-sends {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: baseline;
+}
+
+.cg-privacy-label {
+  color: var(--cg-ink-400);
+  font-family: var(--cg-font-mono);
+  font-size: 12px;
+}
+
+.cg-privacy-value {
+  color: var(--cg-ink-900);
+  font-family: var(--cg-font-mono);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.VPHome .vp-doc .cg-privacy-detail {
+  color: var(--cg-ink-500);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+
+/* ---- What it does not do: a dashed plate ------------------------------------------- */
+
+.cg-scope-plate {
+  padding: 20px 24px;
+  border: 1px dashed var(--cg-rule);
+  border-radius: var(--cg-radius-plate);
+}
+
+.VPHome .vp-doc .cg-scope-title {
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.4;
+  color: var(--cg-ink-700);
+}
+
+.VPHome .vp-doc .cg-scope-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--cg-ink-500);
+  font-size: 15px;
+}
+
+.VPHome .vp-doc .cg-scope-list li + li {
+  margin-top: 6px;
+}
+
+/* ---- Install (plain Markdown on the home page) --------------------------------------- */
+
+.VPHome .vp-doc > p {
+  color: var(--cg-ink-500);
+}

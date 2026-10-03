@@ -8,7 +8,7 @@ motion rule that is not named here.
 **Locales.** `zh-cn` owns the bare root (`/`); `en` lives at `/en/`. Chinese is the
 primary audience and the apex URL was already indexed, so `prefixDefaultLocale` is
 `false` — `/` is never redirected. Both locales render from ONE component per page
-(`HomePage.astro`, `CodeGraphPage.astro`, …), which keeps them structurally identical:
+(`HomePage.astro`, `VoltipPage.astro`, …), which keeps them structurally identical:
 a section added to Chinese cannot silently go missing from English.
 
 ## 0. Direction
@@ -648,3 +648,69 @@ and the placeholders carry `noindex` and no hreflang. Lighthouse on that build: 
 practices 78 only for HTTPS, which the local server does not serve. The one failing experimental
 rule, `label-content-name-mismatch`, is VitePress's own search button, shared with the Voltip
 site.
+
+## 13. Product documentation inside firlab.app: firlab.app/codegraph
+
+`codegraph/` is the §10 site for a fourth product, published like pt-tools' (§12) under a path of
+this site: VitePress builds it with `base: '/codegraph/'` and `deploy.yml` copies it to
+`dist/codegraph/` after `codegraph/scripts/check-dist.sh` has passed. It keeps the VitePress 1.6.4
+setup, the palette mapping, the button and link treatment, the code contrast table, the `<main>`
+home root and the home-page frontmatter contract, through the same files with a `cg-` prefix.
+This section records only where it departs from §10–§12, each with its reason;
+`codegraph/README.md` covers ownership and deployment.
+
+**It took the product page's path (user decision 2026-10-03).** The owner chose the pt-tools
+arrangement over Voltip's subdomain: the documentation site replaces this site's CodeGraph page
+at `/codegraph/`, the page's introduction moves into the site's home page, and `/en/codegraph/`,
+which was indexed, redirects to `/codegraph/en/`. A path needs no DNS record or second host (§11).
+`CodeGraphPage.astro` and `i18n/codegraph.ts` are gone, the catalog entry's `page.href` leads to
+the site in each language, and `deploy.yml` refuses to copy the sub-site over a
+`dist/codegraph/` the main site emits. Chinese is the root locale, as on the pt-tools site.
+
+**English-only references with Chinese pointers.** CodeGraph's canonical technical references
+(`docs/<name>.md` in codegraph-rust) are English, and that repository's rules keep them so. The
+sync publishes them unchanged under `/en/reference/` and `/en/dev/` and gives each a generated
+Chinese page at the same path without `/en/`, marked `noindex`, left out of the sitemap and with
+no edit link — pt-tools' Chinese-only pages (§12) the other way round. The guide pages link the
+references by their real path in codegraph-rust, so GitHub and its `docs-check.py` follow them;
+the sync rewrites those links to the site's paths, and any other link that leaves the synced
+tree to a GitHub link. Heading ids are GitHub's (`githubSlug` in `config/shared.ts`), not
+VitePress's, so an anchor written and checked in codegraph-rust lands on the same heading here.
+The edit link maps each page back to `docs/site/…` or `docs/<name>.md`.
+
+**Type: the viewer's faces.** Latin text is Inter Variable and code JetBrains Mono Variable, the
+faces of CodeGraph's browser viewer, whose captures fill the home page and the viewer guide —
+§10's reason for Instrument Sans on the Voltip site. Both are self-hosted from
+`@fontsource-variable` 5.3.0 and loaded by `unicode-range`; hanzi stay on the system faces.
+
+**Status: `available` and `preview`.** The browser viewer ships switched off behind
+`CODEGRAPH_UI=1` and may still change, so it is `preview`, drawn like pt-tools' `experimental`:
+orange text behind an orange ring. Everything else is `available`.
+
+**Hero and bands.** The hero has one capture, the viewer's Symbol view, and no motion. The bands
+after it: the feature index, four steps from install to the first answer, three
+text-and-evidence splits (coding agents with a question → command → MCP tool table, the viewer
+with its Flow capture, languages with an extraction-depth table), the platform table, what stays
+on the machine, the install commands and what CodeGraph does not do (a dashed plate). The
+Chinese headline is set with `word-break: keep-all` and `text-wrap: balance`, so it breaks at
+its comma instead of inside a word (§1 "Script-dependent metrics").
+
+**Screenshots: the real viewer on CodeGraph's own index.** Every capture is the browser viewer
+reading codegraph-rust indexed at a fixed commit, taken by that repository's
+`docs/site/tools/capture-screens.sh` at 1440 × 900 in both themes. The viewer's interface is
+English only, so one set serves both languages. The viewer's own brand is violet; it appears
+only inside the captures, never in the site's CSS, so the no-purple rule (§10) still holds.
+
+**Mark.** CodeGraph's mark is the viewer's BrandMark (two linked nodes on a 36 grid), drawn here
+on the navy app tile with a pale outline and an orange node instead of the viewer's violet
+gradient. The same drawing is the site's logo (`codegraph-logo.svg`, owned by codegraph-rust) and
+the catalog's `AppIcon`, which until now drew three placeholder nodes.
+
+**Checks beyond §12.** `check-dist.sh` also resolves every root-relative link and asset to a file
+the build emitted, which covers the frontmatter links VitePress's dead-link check does not see.
+The sync additionally rejects a screenshot a page names that does not exist, CodeGraph's crate
+names on user pages, and an unversioned "sub-millisecond" claim.
+
+**A copied defect, fixed here only.** pt-tools' `home.css` lacks the base `display: grid` rule
+for its privacy band, so its three cards stack at every width; this site adds the rule. The
+pt-tools site is left as it is.

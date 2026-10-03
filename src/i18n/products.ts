@@ -103,7 +103,7 @@ export const products: Product[] = [
     released: codegraphReleased,
     license: 'MIT',
     repo: 'https://github.com/sunerpy/codegraph-rust',
-    page: { slug: 'codegraph/' },
+    page: { href: { 'zh-cn': '/codegraph/', en: '/codegraph/en/' } },
     tagline: {
       'zh-cn': '把代码仓库解析成符号和调用关系的索引，供命令行、编辑器和编码 Agent 查询，不依赖任何模型。',
       en: 'Indexes the symbols and calls in a repository for the command line, editors and coding agents to query. No model involved.',
