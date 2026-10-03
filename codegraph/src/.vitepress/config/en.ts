@@ -27,6 +27,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
     text: 'Reference',
     items: [
       { text: 'Frequently asked questions', link: '/en/reference/faq' },
+      { text: 'Community', link: '/en/reference/community' },
       { text: 'Data and network', link: '/en/privacy' },
       { text: 'CLI reference', link: '/en/reference/cli' },
       { text: 'MCP reference', link: '/en/reference/mcp' },
