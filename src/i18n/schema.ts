@@ -19,11 +19,11 @@ import { defaultLang, type Lang } from './ui';
  * a typo should be a compile error, not a silently orphaned IRI that no other
  * node ever resolves to.
  */
-export type EntityFragment = 'website' | 'sunerpy' | 'codegraph' | 'pt-tools' | 'agentlens';
+export type EntityFragment = 'website' | 'sunerpy' | 'pt-tools' | 'agentlens';
 
 /**
- * Per-locale entity IRI: `https://firlab.app/#codegraph` for Chinese,
- * `https://firlab.app/en/#codegraph` for English.
+ * Per-locale entity IRI: `https://firlab.app/#agentlens` for Chinese,
+ * `https://firlab.app/en/#agentlens` for English.
  *
  * Namespaced by locale because these nodes carry localized prose. A `WebSite` or
  * `SoftwareApplication` node here is a description of the subject in one

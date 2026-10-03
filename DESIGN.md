@@ -8,7 +8,7 @@ motion rule that is not named here.
 **Locales.** `zh-cn` owns the bare root (`/`); `en` lives at `/en/`. Chinese is the
 primary audience and the apex URL was already indexed, so `prefixDefaultLocale` is
 `false` — `/` is never redirected. Both locales render from ONE component per page
-(`HomePage.astro`, `VoltipPage.astro`, …), which keeps them structurally identical:
+(`HomePage.astro`, `AgentLensPage.astro`, …), which keeps them structurally identical:
 a section added to Chinese cannot silently go missing from English.
 
 ## 0. Direction
@@ -398,7 +398,8 @@ dark. Nothing is below 4.5:1.
 ## 8. Verified (2026-10-02)
 
 Local build served statically, Chrome via CDP. The `/voltip/` pages measured here were removed
-on 2026-10-03 (§4).
+on 2026-10-03 (§4), and the `/codegraph/` pages were replaced by CodeGraph's documentation site
+the same day (§13).
 
 - `astro check`: 0 errors, 0 warnings. `astro build`: 8 pages; `dist/CNAME` is `firlab.app`.
 - 64 route × width combinations — `/`, `/en/`, `/codegraph/`, `/en/codegraph/`, `/agentlens/`,
