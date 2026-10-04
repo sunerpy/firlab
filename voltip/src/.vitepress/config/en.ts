@@ -31,6 +31,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: 'AI polish and presets', link: '/recognition/polish' },
       { text: 'Scenes', link: '/recognition/scenes' },
       { text: 'Dictionary and rules', link: '/recognition/dictionary' },
+      { text: 'Local service', link: '/recognition/service' },
     ],
   },
   {

@@ -31,6 +31,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: 'AI 润色与预设', link: '/zh/recognition/polish' },
       { text: '场景', link: '/zh/recognition/scenes' },
       { text: '词典与替换规则', link: '/zh/recognition/dictionary' },
+      { text: '本机服务', link: '/zh/recognition/service' },
     ],
   },
   {
