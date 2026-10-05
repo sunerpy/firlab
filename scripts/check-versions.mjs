@@ -22,6 +22,12 @@ const products = [
     releasedConstant: 'codegraphReleased',
   },
   {
+    name: 'kiro-provider',
+    repository: 'sunerpy/kiro-provider',
+    versionConstant: 'kiroproviderVersion',
+    releasedConstant: 'kiroproviderReleased',
+  },
+  {
     name: 'AgentLens',
     repository: 'sunerpy/AgentLens',
     versionConstant: 'AGENTLENS_VERSION',

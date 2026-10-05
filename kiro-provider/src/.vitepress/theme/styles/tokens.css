@@ -1,0 +1,221 @@
+/*
+ * kiro-provider documentation palette.
+ *
+ * FirLab's ramp (firlab/DESIGN.md §1, §10, §12, §13 and §15), which is itself read off the
+ * product marks: ink #0B1220, pale #E7EDF5, orange #F97316, teal #14B8A6 and slate #64748B.
+ * kiro-provider's mark is drawn in those values (navy tile, a pale gateway bracket, an orange
+ * request dot). Nothing on this site is purple: VitePress's indigo (its default brand), purple
+ * ("important" blocks), sponsor pink and hero gradient are all remapped below.
+ *
+ * Buttons and links follow the Voltip site (§10, after OpenAI's developer docs): the
+ * primary button is ink on paper, inverted in the dark theme; secondary buttons are a
+ * translucent ink fill; links are body-coloured text with a soft underline. There is no
+ * coloured link or button text anywhere.
+ *
+ * Contrast, measured (WCAG 2.x): every text colour here is at least 4.5:1 on the
+ * surfaces it is used on — the lowest is light --kp-ink-400 on --kp-paper-2, 4.87:1.
+ * The brand orange #F97316 measures 2.73:1 on paper, so it only ever marks (dots,
+ * the logo), never text.
+ *
+ * Dark ramp: FirLab's measured OKLCH steps (sheet L 18.5, desk 16.7, block 30.3,
+ * rule 35.0), plus two surfaces VitePress needs that FirLab has no name for —
+ * soft #181C21 (L 22.5) and elevated #1F2329 (L 25.5) — on the same hue and chroma
+ * curve (H ≈ 255, C ≈ 0.011).
+ */
+
+:root {
+  --kp-ink-900: #0b1220;
+  --kp-ink-700: #1e293b;
+  --kp-ink-500: #475569;
+  --kp-ink-400: #5b6779;
+
+  --kp-paper-0: #fbfcfe; /* the sheet: where the words sit */
+  --kp-paper-1: #f3f6fa; /* the desk: sidebar, code blocks */
+  --kp-paper-soft: #eef2f7;
+  --kp-paper-elv: #ffffff;
+  --kp-paper-2: #e7edf5; /* blocks, inline code, row hover */
+  --kp-rule: #dce4ee;
+
+  /* The primary button, active navigation and the focus ring: ink, never a hue. */
+  --kp-accent: var(--kp-ink-900);
+  --kp-accent-hover: var(--kp-ink-700);
+  --kp-accent-ink: #ffffff; /* text on the accent */
+  --kp-link-line: rgb(11 18 32 / 0.3); /* a link's underline at rest */
+  --kp-fill: rgb(11 18 32 / 0.06); /* secondary buttons, the active sidebar row */
+  --kp-fill-hover: rgb(11 18 32 / 0.1);
+  --kp-mark: #f97316; /* marks only, never text */
+  --kp-mark-soft: rgb(249 115 22 / 0.12);
+  --kp-live: #0d6b64; /* "available" */
+  --kp-live-mark: #14b8a6;
+  --kp-live-soft: rgb(20 184 166 / 0.12);
+  --kp-slate: #64748b;
+  --kp-slate-soft: rgb(100 116 139 / 0.14);
+
+  --kp-radius-chip: 4px;
+  --kp-radius-control: 8px;
+  --kp-radius-plate: 12px;
+  --kp-radius-pill: 999px; /* buttons */
+  --kp-shadow-plate: 0 1px 2px 0 rgb(11 18 32 / 0.05), 0 18px 40px -24px rgb(11 18 32 / 0.28);
+  --kp-shadow-pill: 0 1px 2px 0 rgb(0 0 0 / 0.12), 0 10px 28px -8px rgb(11 18 32 / 0.3);
+  --kp-pill-drop: drop-shadow(0 10px 22px rgb(11 18 32 / 0.22));
+
+  /* System faces only (fonts.css): kiro-provider has no interface whose face the page should
+     match, so no text face is downloaded, FirLab's default (§1 "Type", §15). Code is
+     JetBrains Mono, self-hosted. */
+  --kp-font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei UI', 'Microsoft YaHei', 'Noto Sans SC', 'Noto Sans CJK SC', Roboto,
+    system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --kp-font-mono:
+    'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo,
+    Consolas, 'PingFang SC', 'Microsoft YaHei UI', 'Noto Sans SC', monospace;
+
+  /* Per-script metrics (FirLab §1 "Script-dependent metrics"): hanzi are full-height
+     square boxes, so Latin leading and tracking read cramped. */
+  --kp-lh-prose: 1.7;
+  --kp-lh-display: 1.08;
+  --kp-ls-display: -0.022em;
+}
+
+:root:lang(zh-CN) {
+  --kp-lh-prose: 1.85;
+  --kp-lh-display: 1.22;
+  --kp-ls-display: 0.006em;
+  /* Full-width quotes, dashes and ellipses come from the CJK face (fonts.css). Only on
+     Chinese pages, as in VitePress's own fonts.css: on an English page the same rule would
+     set "quotes" and dashes at full width. */
+  --vp-font-family-base: 'Punctuation SC', var(--kp-font-sans);
+}
+
+.dark {
+  --kp-ink-900: #eceff3;
+  --kp-ink-700: #d4d8dd;
+  --kp-ink-500: #abb0b7;
+  --kp-ink-400: #9499a0;
+
+  --kp-paper-0: #101317;
+  --kp-paper-1: #0c0f13;
+  --kp-paper-soft: #181c21;
+  --kp-paper-elv: #1f2329;
+  --kp-paper-2: #2a2f35;
+  --kp-rule: #353b43;
+
+  --kp-accent-ink: #0c0f13;
+  --kp-link-line: rgb(236 239 243 / 0.34);
+  --kp-fill: rgb(236 239 243 / 0.09);
+  --kp-fill-hover: rgb(236 239 243 / 0.14);
+  --kp-mark-soft: rgb(249 115 22 / 0.16);
+  --kp-live: #2dd4bf;
+  --kp-live-mark: #2dd4bf;
+  --kp-live-soft: rgb(45 212 191 / 0.12);
+  --kp-slate: #9499a0;
+  --kp-slate-soft: rgb(148 153 160 / 0.16);
+
+  --kp-shadow-plate: inset 0 1px 0 0 rgb(255 255 255 / 0.06), 0 18px 40px -24px rgb(0 0 0 / 0.7);
+  --kp-shadow-pill: inset 0 1px 0 0 rgb(255 255 255 / 0.06), 0 10px 28px -8px rgb(0 0 0 / 0.6);
+  --kp-pill-drop: drop-shadow(0 10px 22px rgb(0 0 0 / 0.5));
+}
+
+/* ---- VitePress variables ------------------------------------------------ */
+
+:root {
+  --vp-c-white: #ffffff;
+  --vp-c-black: #0b1220;
+  --vp-c-neutral: var(--kp-ink-900);
+  --vp-c-neutral-inverse: var(--kp-paper-0);
+
+  --vp-c-gray-1: #d5dde8;
+  --vp-c-gray-2: #e2e8f0;
+  --vp-c-gray-3: #ebf0f6;
+  --vp-c-gray-soft: var(--kp-slate-soft);
+
+  /* indigo is VitePress's default brand; purple drives "important" blocks. */
+  --vp-c-indigo-1: var(--kp-accent);
+  --vp-c-indigo-2: var(--kp-accent-hover);
+  --vp-c-indigo-3: var(--kp-accent);
+  --vp-c-indigo-soft: var(--kp-mark-soft);
+  --vp-c-purple-1: var(--kp-ink-700);
+  --vp-c-purple-2: var(--kp-ink-500);
+  --vp-c-purple-3: var(--kp-ink-500);
+  --vp-c-purple-soft: var(--kp-slate-soft);
+  --vp-c-green-1: var(--kp-live);
+  --vp-c-green-2: var(--kp-live);
+  --vp-c-green-3: var(--kp-live);
+  --vp-c-green-soft: var(--kp-live-soft);
+
+  --vp-c-bg: var(--kp-paper-0);
+  --vp-c-bg-alt: var(--kp-paper-1);
+  --vp-c-bg-elv: var(--kp-paper-elv);
+  --vp-c-bg-soft: var(--kp-paper-soft);
+
+  --vp-c-border: var(--kp-rule);
+  --vp-c-divider: var(--kp-rule);
+  --vp-c-gutter: var(--kp-rule);
+
+  --vp-c-text-1: var(--kp-ink-900);
+  --vp-c-text-2: var(--kp-ink-500);
+  --vp-c-text-3: var(--kp-ink-400);
+
+  --vp-c-brand-1: var(--kp-accent);
+  --vp-c-brand-2: var(--kp-accent-hover);
+  --vp-c-brand-3: var(--kp-accent);
+  --vp-c-brand-soft: var(--kp-mark-soft);
+
+  --vp-c-tip-1: var(--kp-live);
+  --vp-c-tip-2: var(--kp-live);
+  --vp-c-tip-3: var(--kp-live);
+  --vp-c-tip-soft: var(--kp-live-soft);
+  --vp-c-important-1: var(--kp-ink-700);
+  --vp-c-important-2: var(--kp-ink-500);
+  --vp-c-important-3: var(--kp-ink-500);
+  --vp-c-important-soft: var(--kp-slate-soft);
+  --vp-c-warning-1: var(--kp-accent);
+  --vp-c-warning-2: var(--kp-accent-hover);
+  --vp-c-warning-3: var(--kp-accent);
+  --vp-c-warning-soft: var(--kp-mark-soft);
+  --vp-c-sponsor: var(--kp-accent);
+
+  --vp-font-family-base: var(--kp-font-sans);
+  --vp-font-family-mono: var(--kp-font-mono);
+
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-text: var(--kp-accent-ink);
+  --vp-button-brand-bg: var(--kp-accent);
+  --vp-button-brand-hover-border: transparent;
+  --vp-button-brand-hover-text: var(--kp-accent-ink);
+  --vp-button-brand-hover-bg: var(--kp-accent-hover);
+  --vp-button-brand-active-border: transparent;
+  --vp-button-brand-active-text: var(--kp-accent-ink);
+  --vp-button-brand-active-bg: var(--kp-accent-hover);
+  --vp-button-alt-border: transparent;
+  --vp-button-alt-text: var(--kp-ink-900);
+  --vp-button-alt-bg: var(--kp-fill);
+  --vp-button-alt-hover-border: transparent;
+  --vp-button-alt-hover-text: var(--kp-ink-900);
+  --vp-button-alt-hover-bg: var(--kp-fill-hover);
+  --vp-button-alt-active-border: transparent;
+  --vp-button-alt-active-text: var(--kp-ink-900);
+  --vp-button-alt-active-bg: var(--kp-fill-hover);
+
+  --vp-home-hero-name-color: var(--kp-ink-900);
+  --vp-home-hero-name-background: none;
+  --vp-home-hero-image-background-image: none;
+  --vp-home-hero-image-filter: none;
+
+  --vp-code-color: var(--kp-ink-700);
+  --vp-code-bg: var(--kp-paper-2);
+  --vp-code-block-bg: var(--kp-paper-1);
+  --vp-code-copy-code-active-text: var(--kp-ink-500);
+
+  --vp-local-search-highlight-bg: var(--kp-mark-soft);
+  --vp-local-search-highlight-text: var(--kp-ink-900);
+
+  --vp-nav-logo-height: 26px;
+}
+
+.dark {
+  --vp-c-gray-1: #4a515b;
+  --vp-c-gray-2: #3a4048;
+  --vp-c-gray-3: #2a2f35;
+  --vp-code-block-bg: var(--kp-paper-1);
+}

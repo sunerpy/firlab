@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="kiro-provider — Kiro accounts for the agents you already use. A gateway on your own machine for OpenAI Responses and Anthropic Messages.">
+  <title>kiro-provider — Kiro accounts for the agents you already use</title>
+  <!-- The source of og.png (1200 × 630, rendered in Chrome; kiro-provider/README.md). The colours
+       are the site's light theme (theme/styles/tokens.css); the terminal lines are the first
+       command of the home page's recorded session and its real output. -->
+
+  <!-- Ground -->
+  <rect width="1200" height="630" fill="#F3F6FA"/>
+
+  <!-- Accent hairline, top edge: the brand orange marks, it never carries text -->
+  <rect x="0" y="0" width="1200" height="6" fill="#F97316"/>
+
+  <!-- The mark (kiro-provider-logo.svg at 60 px) and the name -->
+  <g transform="translate(88, 84)">
+    <svg width="60" height="60" viewBox="0 0 100 100">
+      <rect width="100" height="100" rx="22" fill="#0B1220"/>
+      <path d="M40 28 H30 V72 H40" fill="none" stroke="#E7EDF5" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M60 28 H70 V72 H60" fill="none" stroke="#E7EDF5" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="50" cy="50" r="7" fill="#F97316"/>
+    </svg>
+    <text x="80" y="43"
+      font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif"
+      font-size="40" font-weight="650" letter-spacing="-0.6" fill="#0B1220">kiro-provider</text>
+  </g>
+
+  <!-- Address line, level with the name -->
+  <text x="1112" y="127" text-anchor="end"
+    font-family="'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Consolas, monospace"
+    font-size="22" fill="#5B6779">firlab.app/kiro-provider</text>
+
+  <!-- Headline: the hero's text; below it what the gateway serves -->
+  <text
+    font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif"
+    font-size="62" font-weight="700" letter-spacing="-1.2" fill="#0B1220">
+    <tspan x="84" y="244">Kiro accounts for the agents</tspan>
+    <tspan x="84" y="318">you already use</tspan>
+  </text>
+
+  <text x="88" y="375"
+    font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif"
+    font-size="26" font-weight="400" fill="#475569">A gateway on your own machine for OpenAI Responses and Anthropic Messages.</text>
+
+  <!-- The first request of the recorded session, framed by a hairline -->
+  <rect x="88" y="404" width="1024" height="178" rx="12" fill="#FBFCFE"/>
+  <rect x="88.5" y="404.5" width="1023" height="177" rx="11.5" fill="none" stroke="#DCE4EE"/>
+  <text
+    font-family="'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Consolas, monospace"
+    font-size="19" fill="#0B1220" xml:space="preserve">
+    <tspan x="116" y="442"><tspan fill="#5B6779">$ </tspan>curl -s $KP/responses -H "Authorization: Bearer $KEY" --json '{</tspan>
+    <tspan x="116" y="470">      "model": "gpt-5.6-sol", "store": false,</tspan>
+    <tspan x="116" y="498">      "input": "Reply with exactly: KIRO_OK"}' |</tspan>
+    <tspan x="116" y="526">    jq -r '.output[-1].content[0].text'</tspan>
+    <tspan x="116" y="560" fill="#334155">KIRO_OK</tspan>
+  </text>
+</svg>

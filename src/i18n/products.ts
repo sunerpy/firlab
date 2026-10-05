@@ -24,6 +24,8 @@
  *     "nothing leaves your computer".
  *   - Lockra goes online for its own updates and, once the user sets it up, for
  *     sync through storage of their own. Never write "no network connections".
+ *   - kiro-provider serves the user's own Kiro accounts. Never write that it shares,
+ *     pools or resells access, gives free access, or gets around usage limits.
  */
 
 import { getRelativeLocaleUrl } from 'astro:i18n';
@@ -33,6 +35,8 @@ import {
   AGENTLENS_VERSION,
   codegraphReleased,
   codegraphVersion,
+  kiroproviderReleased,
+  kiroproviderVersion,
   LOCKRA_RELEASED,
   LOCKRA_VERSION,
   pttoolsReleased,
@@ -41,7 +45,7 @@ import {
   VOLTIP_VERSION,
 } from './versions';
 
-export type ProductId = 'pttools' | 'codegraph' | 'agentlens' | 'voltip' | 'lockra';
+export type ProductId = 'pttools' | 'codegraph' | 'kiroprovider' | 'agentlens' | 'voltip' | 'lockra';
 
 /** `live` is a product with a steady release history; `early` has shipped but is young. */
 export type Status = 'live' | 'early' | 'wip';
@@ -110,6 +114,22 @@ export const products: Product[] = [
     tagline: {
       'zh-cn': '把代码仓库解析成符号和调用关系的索引，供命令行、编辑器和编码 Agent 查询，不依赖任何模型。',
       en: 'Indexes the symbols and calls in a repository for the command line, editors and coding agents to query. No model involved.',
+    },
+  },
+  {
+    id: 'kiroprovider',
+    name: 'kiro-provider',
+    category: 'service',
+    platforms: ['linux', 'macos', 'windows'],
+    status: 'live',
+    version: kiroproviderVersion,
+    released: kiroproviderReleased,
+    license: 'MIT',
+    repo: 'https://github.com/sunerpy/kiro-provider',
+    page: { href: { 'zh-cn': '/kiro-provider/zh/', en: '/kiro-provider/' } },
+    tagline: {
+      'zh-cn': '运行在本机的网关，以 OpenAI Responses 和 Anthropic Messages 接口提供你自己的 AWS Kiro 账号，供 Codex CLI、Claude Code 等 Agent 使用。',
+      en: 'A gateway on your own machine that serves your AWS Kiro accounts through OpenAI Responses and Anthropic Messages, for Codex CLI, Claude Code and other agents.',
     },
   },
   {

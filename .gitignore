@@ -50,3 +50,8 @@ pt-tools/.vitepress-cache/
 # firlab.app under /codegraph/ (codegraph/README.md).
 codegraph/dist/
 codegraph/.vitepress-cache/
+
+# The kiro-provider sub-site, which installs on its own the same way and is published inside
+# firlab.app under /kiro-provider/ (kiro-provider/README.md).
+kiro-provider/dist/
+kiro-provider/.vitepress-cache/

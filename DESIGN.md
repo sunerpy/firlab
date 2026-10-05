@@ -765,3 +765,68 @@ module once a VitePress release ships the fix.
 **pt-tools' privacy band.** `.pt-privacy-grid` gains the `display: grid; gap: 16px` the other
 sites have. Before, its three cards stacked full width with no gap even at 1800 px, because only
 the ≥ 960 px column rule existed.
+
+## 15. Product documentation inside firlab.app: firlab.app/kiro-provider
+
+`kiro-provider/` is the §10 site for a fifth product, published like CodeGraph's (§13) under a path
+of this site: VitePress builds it with `base: '/kiro-provider/'` and `deploy.yml` copies it to
+`dist/kiro-provider/` after `kiro-provider/scripts/check-dist.sh` has passed. It keeps the VitePress
+1.6.4 setup, the palette mapping, the button and link treatment, the code contrast table, the
+`<main>` home root, the home-page frontmatter contract and the §14 fixes, through the same files
+with a `kp-` prefix. This section records only where it departs from §10–§13, each with its
+reason; `kiro-provider/README.md` covers ownership and deployment.
+
+**A new path, not a replaced page (2026-10-05).** kiro-provider had no page on this site, so
+nothing redirects. Its catalog entry (§4) is new: category `service`, `page.href` to this site in
+each language. A first attempt at a `kiro-provider.firlab.app` subdomain was never published; the
+owner asked for a route of firlab.app instead, for §11's reasons.
+
+**English is the root locale, as on the Lockra site (§11).** kiro-provider's README and canonical
+references are English, and most references have a Chinese translation
+(`docs/readme/<NAME>.zh-CN.md`), so the sync publishes each reference in both languages at the
+same path. The three that exist in English only get a generated Chinese pointer, `noindex`, left
+out of the sitemap and without an edit link, CodeGraph's arrangement (§13) the other way round.
+Each reference opens with a GitHub language line (`[简体中文](…) · English`); the sync drops it,
+because the site's language menu does the same job. Links are rewritten as on the CodeGraph site,
+and heading ids are GitHub's (`githubSlug`).
+
+**Type: system faces.** kiro-provider has no interface whose face the page should match, so the
+reason for Voltip's Instrument Sans and CodeGraph's Inter does not apply; the text uses the system
+stack, as on the pt-tools site (§12), and code is JetBrains Mono Variable, self-hosted.
+
+**Status: `available` and `opt-in`.** Web search (`web_search_enabled`) and the legacy Chat
+Completions route ship switched off and work once the reader turns them on. They are `opt-in`,
+drawn like CodeGraph's `preview`: orange text behind an orange ring. Everything else is
+`available`.
+
+**Hero: a recorded terminal session.** With no interface to capture, the hero's evidence is the
+program's own output: two requests, one per API, and their answers, recorded against a test
+instance of kiro-provider 3.8.0 and copied line for line (`HeroVisual`). The frame is the site's
+plate, a hairline and the plate shadow; there is no drawn window and nothing moves. The transcript
+schema has a `continuation` kind for a command's further lines, which carry no prompt. Every line
+is its own block with no whitespace between blocks, because inside `<pre>` a newline between two
+blocks renders as an empty line; the first build double-spaced the session for that reason. The
+hero carries two facts, not three: with three, the Install button fell below the fold at
+1280 × 800.
+
+**Bands.** The feature index (four groups: serve, accounts, clients, operate), four steps from
+install to the first answer, three text-and-evidence splits that each show a table (the routes
+with what they speak and whether they are on, the clients with their API and how each is set up,
+web search with each API's tool and what the answer carries), the platform table, what goes where,
+the install commands and what kiro-provider does not do (a dashed plate). The three tables share
+one component (`ProofTable`) and one frontmatter shape (`columns`, `rows`, `code`, `caption`).
+
+**Mark.** kiro-provider ships no app icon, so its mark was drawn for this site in the §1 values: a
+request (the orange dot) between the loopback brackets of `[::1]` on the navy tile. The same
+drawing is the site's logo (`kiro-provider-logo.svg`, owned by kiro-provider) and the catalog's
+`AppIcon`.
+
+**Verified 2026-10-05 (local preview, Chrome).** At 1280 × 800, 1440 × 900 and 375 × 812, the
+headline, both facts and the Install button end above the fold in both languages (the lowest,
+English at 375 × 812, ends at 725 of 812 px). No horizontal overflow at 375
+or 1280 px on 35 pages (both home pages, every guide page, the references, a Chinese pointer), no
+broken image, and all 532 in-site anchors resolve. Lighthouse: accessibility 100 and SEO 100 on
+the English home page (mobile) and the Chinese configuration reference (desktop); best practices
+78 only for HTTPS, which the local preview does not serve. The configuration reference shows a
+layout shift of 0.12 while JetBrains Mono loads, which Lighthouse reports only in its agentic
+browsing category.
