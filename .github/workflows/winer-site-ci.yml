@@ -1,0 +1,52 @@
+name: winer site CI
+
+# Builds the winer sub-site on pull requests that touch it, without deploying. The content
+# checks (both languages, registered components, word lists, screenshots) run in winer
+# before a sync lands here; this catches changes to the site itself: config, theme, components, lockfile,
+# and the deploy steps that publish it under /winer/.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'winer/**'
+      - '.github/workflows/winer-site-ci.yml'
+      - '.github/workflows/deploy.yml'
+
+concurrency:
+  group: winer-site-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build the winer site
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          package_json_file: winer/package.json
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+          cache-dependency-path: winer/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: winer
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: winer
+        run: pnpm build
+
+      - name: Check both languages, the links and the /winer/ base
+        working-directory: winer
+        run: ./scripts/check-dist.sh dist

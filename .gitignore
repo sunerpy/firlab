@@ -55,3 +55,8 @@ codegraph/.vitepress-cache/
 # firlab.app under /kiro-provider/ (kiro-provider/README.md).
 kiro-provider/dist/
 kiro-provider/.vitepress-cache/
+
+# The winer sub-site, which installs on its own the same way and is published inside
+# firlab.app under /winer/ (winer/README.md).
+winer/dist/
+winer/.vitepress-cache/

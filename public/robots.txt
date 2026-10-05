@@ -5,3 +5,4 @@ Sitemap: https://firlab.app/sitemap-index.xml
 Sitemap: https://firlab.app/pt-tools/sitemap.xml
 Sitemap: https://firlab.app/codegraph/sitemap.xml
 Sitemap: https://firlab.app/kiro-provider/sitemap.xml
+Sitemap: https://firlab.app/winer/sitemap.xml
