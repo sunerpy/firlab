@@ -28,6 +28,15 @@ const products = [
     releasedConstant: 'kiroproviderReleased',
   },
   {
+    name: 'bedrock-gateway',
+    repository: 'sunerpy/bedrock-gateway-rust',
+    versionConstant: 'bedrockgatewayVersion',
+    releasedConstant: 'bedrockgatewayReleased',
+    // release-please tags this repository by component: bedrock-gateway-rust-v0.17.0. The
+    // committed tag is this prefix followed by the version.
+    tagPrefixConstant: 'bedrockgatewayTagPrefix',
+  },
+  {
     name: 'AgentLens',
     repository: 'sunerpy/AgentLens',
     versionConstant: 'AGENTLENS_VERSION',
@@ -144,7 +153,7 @@ async function latestStableRelease(repository, token) {
   }
 
   return {
-    version: release.tag_name,
+    tag: release.tag_name,
     released: publishedAt.toISOString().slice(0, 10),
     publishedAt: release.published_at,
   };
@@ -154,9 +163,15 @@ function printDrift(product, committed, live) {
   console.error(`--- ${VERSION_PATH} (committed)`);
   console.error(`+++ GitHub ${product.repository} latest stable release`);
   console.error(`@@ ${product.versionConstant} / ${product.releasedConstant} @@`);
-  if (committed.version !== live.version) {
-    console.error(`- ${product.versionConstant} = '${committed.version}'`);
-    console.error(`+ ${product.versionConstant} = '${live.version}'`);
+  if (committed.tag !== live.tag) {
+    if (live.tag.startsWith(committed.tagPrefix)) {
+      console.error(`- ${product.versionConstant} = '${committed.version}'`);
+      console.error(`+ ${product.versionConstant} = '${live.tag.slice(committed.tagPrefix.length)}'`);
+    } else {
+      // The tags no longer start the way the committed prefix says: the prefix itself moved.
+      console.error(`- tag '${committed.tag}' (${product.tagPrefixConstant ?? 'no prefix'} + ${product.versionConstant})`);
+      console.error(`+ tag '${live.tag}'`);
+    }
   }
   if (committed.released !== live.released) {
     console.error(`- ${product.releasedConstant} = '${committed.released}'`);
@@ -178,13 +193,14 @@ async function main() {
   let committed;
   try {
     committed = new Map(
-      products.map((product) => [
-        product.repository,
-        {
-          version: readConstant(source, product.versionConstant),
-          released: readConstant(source, product.releasedConstant),
-        },
-      ]),
+      products.map((product) => {
+        const version = readConstant(source, product.versionConstant);
+        const tagPrefix = product.tagPrefixConstant ? readConstant(source, product.tagPrefixConstant) : '';
+        return [
+          product.repository,
+          { version, tagPrefix, tag: `${tagPrefix}${version}`, released: readConstant(source, product.releasedConstant) },
+        ];
+      }),
     );
   } catch (error) {
     console.error(`VERSION CHECK INCOMPLETE\n! ${error.message}`);
@@ -209,7 +225,7 @@ async function main() {
   const drift = checks.filter((check) => {
     const { product, live } = check.value;
     const local = committed.get(product.repository);
-    return local.version !== live.version || local.released !== live.released;
+    return local.tag !== live.tag || local.released !== live.released;
   });
 
   if (drift.length > 0) {
@@ -224,7 +240,9 @@ async function main() {
 
   for (const check of checks) {
     const { product, live } = check.value;
-    console.log(`✓ ${product.name}: ${live.version} / ${live.released} (${live.publishedAt})`);
+    const { version } = committed.get(product.repository);
+    const tag = live.tag === version ? '' : `tag ${live.tag}, `;
+    console.log(`✓ ${product.name}: ${version} / ${live.released} (${tag}${live.publishedAt})`);
   }
   console.log('All committed product versions match the latest stable GitHub releases.');
   return 0;

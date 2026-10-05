@@ -904,3 +904,67 @@ pages in either theme falls in OKLCH hue 270–330 with chroma above 0.04; the c
 `/winer/` and `/winer/en/`. Lighthouse: accessibility 100 and SEO 100 on the Chinese home page
 (mobile) and the English rating page (desktop); best practices 78 only for HTTPS, which the local
 preview does not serve.
+
+## 17. Product documentation inside firlab.app: firlab.app/bedrock-gateway
+
+`bedrock-gateway/` is the kiro-provider site (§15) for bedrock-gateway, published the same way under a path of this
+site: VitePress builds it with `base: '/bedrock-gateway/'` and `deploy.yml` copies it to `dist/bedrock-gateway/` after
+`bedrock-gateway/scripts/check-dist.sh` has passed. It keeps everything §15 records (English root locale, system faces
+with JetBrains Mono, the hero's recorded terminal session, the home-page frontmatter contract with three evidence
+tables, `available` and `opt-in`, the table scroll boxes, the §14 fixes) through the same files with a `bg-` prefix.
+This section records only where it departs from §15, each with its reason; `bedrock-gateway/README.md` covers
+ownership and deployment.
+
+**A new path and a tag with a prefix (2026-10-06).** bedrock-gateway had no page on this site, so nothing redirects;
+its catalog entry (§4) is new, category `service`, licence MIT-0. Its repository is tagged by release-please per
+component (`bedrock-gateway-rust-v0.17.0`), which breaks §4's assumption that a tag is the version string. The version
+stays `v0.17.0` in `versions.ts`, so the card reads like every other, and the prefix is a third constant,
+`bedrockgatewayTagPrefix`: `check-versions.mjs` compares the prefix plus the version with the latest stable tag, and
+`releaseTagHref` builds the release link from both. A tag that loses the prefix is reported as drift of the prefix.
+
+**A Chinese-only reference.** bedrock-gateway-rust's references are English except `docs/caching-and-reasoning.md`,
+which is written in Chinese. The sync publishes it under `/zh/reference/` and generates an English pointer at the same
+path without `/zh/`, `noindex`, out of the sitemap and without an edit link: §15's English-only arrangement the other
+way round, for one page. No reference is bilingual yet, so the sync's `REFERENCES` list is empty and stays wired for
+one. A page links a one-language reference in its own language, wherever the reader came from.
+
+**Navigation.** The bar carries Operate beside Guide, Clients and Reference, because deployment (Docker, ECS, Lambda)
+is half of what a reader of a self-hosted gateway looks for. Measured in Chrome on 2026-10-06, the bar with the extra
+item still fits on one line at 768, 960, 1100 and 1280 px in both languages, with and without a sidebar, under §10's
+search-button rules. Privacy and Developers close the sidebar as a group without a heading, after a divider.
+
+**Evidence tables with long codes.** The routes carry the `/api/v1` prefix and the models table lists IDs such as
+`global.anthropic.claude-sonnet-5-5`, several to a cell. Three changes keep them inside their plates:
+
+- a code cell after the first column wraps between its words and never inside one: `ProofTable` renders each word as
+  an inline block that keeps its line, so a list of IDs wraps and an ID stays whole (on a phone an ID longer than the
+  whole card may still break, rather than widen it);
+- a row's name may wrap: the shared `th` rule keeps every heading cell on one line, which held
+  "Nova, DeepSeek and others" on one line and pushed the models table 26 px past the plate's inner edge at 1280 px;
+- the text and its table sit side by side from 1200 px instead of 960: between 960 and about 1140 px the routes and
+  models tables ran up to 89 px past the plate's inner edge even with both fixes, so there the text sits above its
+  table, as on a phone.
+
+A `SplitBlock` whose `proof` names no table fails the build by name, since a page writes it as a plain attribute that
+no type check sees.
+
+**What goes where: four cards.** The home page's privacy band has four modes (model requests, the model list, image
+URLs, the client key) where kiro-provider's has three, so four sit two by two from 640 px instead of three and one.
+
+**`opt-in` includes a build option.** The two opt-in rows are reasoning across Chat Completions tool calls, which needs
+a signing key of the reader's own, and OpenTelemetry export, which needs a build with the `otel` feature; the tag reads
+"Opt-in" / 「需开启」 as on the kiro-provider site.
+
+**Mark (2026-10-06).** bedrock-gateway ships no app icon, so its mark is drawn for this site in the §1 values: two pale
+lanes, the OpenAI APIs a client speaks, merge into one and pass between two pale gateposts; past the gate the lane is
+teal, Amazon Bedrock. There is no AWS logo, and no orange: on anything about Bedrock, orange reads as AWS's. As on the
+kiro-provider site the hue is teal and nothing on the site is orange. The same drawing is the site's logo
+(`bedrock-gateway-logo.svg`, owned by bedrock-gateway-rust) and the catalog's `AppIcon`.
+
+**Checked so far (2026-10-06, local preview, Chrome).** On a build from the pages that existed that day (the home
+page with its comma-holding table cells quoted), with placeholders for the rest and an English copy as the Chinese
+home page: no horizontal overflow on the 44 pages at 375,
+768 and 1280 px, no table box past the text column, every box that scrolls focusable; no table past its plate on the
+home pages from 960 to 1440 px; the English headline, both facts and the Install button end above the fold at
+1280 × 800 (703 px), 1440 × 900 and 375 × 812 (771 px). Not yet checked: the Chinese pages with their real text,
+Lighthouse, and the colour sweep.

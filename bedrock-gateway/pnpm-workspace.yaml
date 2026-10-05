@@ -1,0 +1,13 @@
+# pnpm settings for the bedrock-gateway documentation sub-site.
+#
+# Like `docs/` (Zuno), `voltip/` and the other product sites, this directory is
+# deliberately NOT part of a pnpm workspace: the repository root is a single-package
+# Astro project, and adding a `packages:` key there would change the install layout of
+# the site already in production. `bedrock-gateway/` installs on its own, with its own
+# lockfile.
+
+# esbuild (via Vite, via VitePress) ships its platform binary through a
+# postinstall script. Approving it keeps `pnpm install` non-interactive and
+# actually materialises the binary.
+onlyBuiltDependencies:
+  - esbuild

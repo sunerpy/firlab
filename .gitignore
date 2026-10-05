@@ -60,3 +60,8 @@ kiro-provider/.vitepress-cache/
 # firlab.app under /winer/ (winer/README.md).
 winer/dist/
 winer/.vitepress-cache/
+
+# The bedrock-gateway sub-site, which installs on its own the same way and is published inside
+# firlab.app under /bedrock-gateway/ (bedrock-gateway/README.md).
+bedrock-gateway/dist/
+bedrock-gateway/.vitepress-cache/

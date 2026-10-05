@@ -1,0 +1,19 @@
+{
+  "name": "bedrock-gateway-docs",
+  "private": true,
+  "type": "module",
+  "description": "bedrock-gateway documentation site, published at https://firlab.app/bedrock-gateway/",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "packageManager": "pnpm@10.25.0",
+  "scripts": {
+    "dev": "vitepress dev src",
+    "build": "vitepress build src",
+    "preview": "vitepress preview src"
+  },
+  "devDependencies": {
+    "@fontsource-variable/jetbrains-mono": "5.3.0",
+    "vitepress": "1.6.4"
+  }
+}

@@ -6,3 +6,4 @@ Sitemap: https://firlab.app/pt-tools/sitemap.xml
 Sitemap: https://firlab.app/codegraph/sitemap.xml
 Sitemap: https://firlab.app/kiro-provider/sitemap.xml
 Sitemap: https://firlab.app/winer/sitemap.xml
+Sitemap: https://firlab.app/bedrock-gateway/sitemap.xml

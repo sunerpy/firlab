@@ -16,6 +16,12 @@
  * Every repository is public, so `GITHUB_TOKEN` reads all of their releases. A new
  * product adds its two constants here and a row in `scripts/check-versions.mjs`
  * (see `products.ts`).
+ *
+ * A repository whose release tags carry a component prefix (release-please's
+ * `bedrock-gateway-rust-v0.17.0`) keeps the version here without it, so its card shows
+ * `v0.17.0` like every other, and the prefix as a third constant: the tag is the prefix
+ * followed by the version. The check and the release links both rebuild the tag from
+ * the two.
  */
 
 export const pttoolsVersion = 'v0.48.0';
@@ -26,6 +32,10 @@ export const codegraphReleased = '2026-10-03';
 
 export const kiroproviderVersion = 'v3.8.0';
 export const kiroproviderReleased = '2026-10-05';
+
+export const bedrockgatewayVersion = 'v0.17.0';
+export const bedrockgatewayReleased = '2026-10-05';
+export const bedrockgatewayTagPrefix = 'bedrock-gateway-rust-';
 
 export const AGENTLENS_VERSION = 'v0.0.7';
 export const AGENTLENS_RELEASED = '2026-08-13';
