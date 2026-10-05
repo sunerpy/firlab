@@ -37,4 +37,4 @@ export const LOCKRA_VERSION = 'v0.7.5';
 export const LOCKRA_RELEASED = '2026-10-05';
 
 export const winerVersion = 'v0.0.1';
-export const winerReleased = '2026-10-06';
+export const winerReleased = '2026-10-05';
