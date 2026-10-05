@@ -1,0 +1,42 @@
+/*
+ * Fonts. Text uses the system faces: no text face is downloaded, which is FirLab's default
+ * (DESIGN.md §1 "Type"), and the page is Chinese first, whose hanzi are system faces anyway
+ * (§16). The theme is imported from
+ * `vitepress/theme-without-fonts`, so VitePress's Inter is not shipped either.
+ *
+ * Code is JetBrains Mono, self-hosted through fontsource and loaded by unicode-range, so
+ * a page fetches the Latin file only where code appears and nothing from a third party.
+ *
+ * `Punctuation SC` is VitePress's own trick, copied from its fonts.css: quotes,
+ * dashes and the ellipsis come from the CJK face, so Chinese text keeps full-width
+ * punctuation whatever Latin face the system puts first.
+ */
+@import '@fontsource-variable/jetbrains-mono/index.css';
+
+@font-face {
+  font-family: 'Punctuation SC';
+  font-weight: 400;
+  src: local('PingFang SC Regular'), local('Noto Sans CJK SC'), local('Microsoft YaHei');
+  unicode-range: U+201C, U+201D, U+2018, U+2019, U+2E3A, U+2014, U+2013, U+2026, U+00B7, U+007E, U+002F;
+}
+
+@font-face {
+  font-family: 'Punctuation SC';
+  font-weight: 500;
+  src: local('PingFang SC Medium'), local('Noto Sans CJK SC'), local('Microsoft YaHei');
+  unicode-range: U+201C, U+201D, U+2018, U+2019, U+2E3A, U+2014, U+2013, U+2026, U+00B7, U+007E, U+002F;
+}
+
+@font-face {
+  font-family: 'Punctuation SC';
+  font-weight: 600;
+  src: local('PingFang SC Semibold'), local('Noto Sans CJK SC Bold'), local('Microsoft YaHei Bold');
+  unicode-range: U+201C, U+201D, U+2018, U+2019, U+2E3A, U+2014, U+2013, U+2026, U+00B7, U+007E, U+002F;
+}
+
+@font-face {
+  font-family: 'Punctuation SC';
+  font-weight: 700;
+  src: local('PingFang SC Semibold'), local('Noto Sans CJK SC Bold'), local('Microsoft YaHei Bold');
+  unicode-range: U+201C, U+201D, U+2018, U+2019, U+2E3A, U+2014, U+2013, U+2026, U+00B7, U+007E, U+002F;
+}

@@ -1,0 +1,415 @@
+/* Hallmark · macrostructure: Split Studio (15) with a step strip (F4)
+ * genre: technical editorial · theme: FirLab tokens (theme/styles/tokens.css) · nav: VitePress
+ * default (as on voltip.firlab.app) · footer: Ft2 single line
+ * The same grammar as the pt-tools site (DESIGN.md §12); what differs is recorded in §16.
+ */
+/*
+ * The home page. Hero first (what it is, where it runs, how it works, how to get it — all
+ * above the fold), then the index of everything it does, the three steps from install to
+ * the first callout, two text-and-capture splits (the history, the rating), where data
+ * goes, and install. The page body renders inside VitePress's `.vp-doc`, so each band
+ * resets the doc styles it does not want.
+ */
+
+/* ---- Hero ---------------------------------------------------------------- */
+
+.VPHome .VPHero.has-image .container {
+  text-align: left;
+}
+
+.VPHome .VPHero.has-image .name,
+.VPHome .VPHero.has-image .text,
+.VPHome .VPHero.has-image .tagline {
+  margin: 0;
+}
+
+.VPHome .VPHero.has-image .actions {
+  justify-content: flex-start;
+}
+
+.VPHome .VPHero .name {
+  letter-spacing: -0.02em;
+}
+
+.VPHome .VPHero .text {
+  font-weight: 650;
+  letter-spacing: var(--wn-ls-display);
+  color: var(--wn-ink-700);
+  text-wrap: balance;
+}
+
+.VPHome .VPHero .tagline {
+  font-weight: 450;
+  color: var(--wn-ink-500);
+  text-wrap: pretty;
+}
+
+/* Heavier padding below the hero than above it pulls the hero into the page. */
+html .VPHome .VPHero {
+  padding-top: calc(var(--vp-nav-height) + var(--vp-layout-top-height, 0px) + 40px);
+  padding-bottom: 64px;
+}
+
+@media (min-width: 640px) {
+  html .VPHome .VPHero {
+    padding-top: calc(var(--vp-nav-height) + var(--vp-layout-top-height, 0px) + 64px);
+    padding-bottom: 88px;
+  }
+}
+
+.VPHome .VPHero .image {
+  order: 3;
+  margin: 40px 0 0;
+}
+
+.VPHome .VPHero .image-container {
+  width: 100%;
+  height: auto;
+  transform: none;
+  display: block;
+}
+
+.VPHome .VPHero .image-bg {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .VPHome .VPHero .tagline {
+    font-size: 19px;
+    line-height: 31px;
+  }
+}
+
+@media (min-width: 960px) {
+  .VPHome .VPHero .text {
+    font-size: 44px;
+    line-height: 52px;
+  }
+
+  :root:lang(zh-CN) .VPHome .VPHero .text {
+    font-size: 42px;
+    line-height: 54px;
+  }
+
+  .VPHome .VPHero .tagline {
+    font-size: 19px;
+    line-height: 32px;
+  }
+
+  .VPHome .VPHero.has-image .main {
+    width: 46%;
+    max-width: 520px;
+    flex-shrink: 0;
+  }
+
+  .VPHome .VPHero .image {
+    order: 2;
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 8px 0 0 56px;
+  }
+}
+
+/* ---- Bands --------------------------------------------------------------- */
+
+.VPHome .wn-band {
+  margin-top: 88px;
+}
+
+.VPHome .vp-doc .wn-band-title,
+.VPHome .vp-doc > h2,
+.VPHome .vp-doc .wn-split-text h2 {
+  margin: 0 0 12px;
+  padding-top: 0;
+  border-top: 0;
+  font-size: 28px;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: var(--wn-ls-display);
+  color: var(--wn-ink-900);
+}
+
+.VPHome .vp-doc > h2 {
+  margin-top: 88px;
+}
+
+.VPHome .vp-doc .wn-band .wn-band-intro {
+  max-width: min(720px, 72ch);
+  margin: 0 0 28px;
+  color: var(--wn-ink-500);
+  font-size: 17px;
+}
+
+.VPHome .vp-doc ul.wn-index-list,
+.VPHome .vp-doc ol.wn-steps-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.VPHome .vp-doc ul.wn-index-list > li + li,
+.VPHome .vp-doc ol.wn-steps-list > li + li {
+  margin-top: 0;
+}
+
+.VPHome .vp-doc .wn-band p {
+  margin: 0;
+}
+
+.VPHome .vp-doc .wn-band h3 {
+  margin: 0;
+  letter-spacing: normal;
+}
+
+/* ---- Index ------------------------------------------------------------------ */
+
+.wn-index-grid {
+  display: grid;
+  gap: 40px 56px;
+}
+
+@media (min-width: 768px) {
+  .wn-index-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.VPHome .vp-doc .wn-index-name {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--wn-ink-900);
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.4;
+  color: var(--wn-ink-900);
+}
+
+.wn-index-item {
+  padding: 12px 0 16px;
+  border-bottom: 1px solid var(--wn-rule);
+}
+
+.wn-index-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.VPHome .vp-doc .wn-index-title {
+  min-width: 0;
+  font-size: 15.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--wn-ink-900);
+  text-decoration: none;
+}
+
+.VPHome .vp-doc a.wn-index-title:hover {
+  color: var(--wn-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.VPHome .vp-doc .wn-index-body {
+  margin-top: 4px;
+  color: var(--wn-ink-500);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+:root:lang(zh-CN) .VPHome .vp-doc .wn-index-body {
+  line-height: 1.75;
+}
+
+/* ---- Steps ------------------------------------------------------------------- */
+
+.wn-steps-list {
+  display: grid;
+  gap: 28px;
+  counter-reset: none;
+}
+
+@media (min-width: 640px) {
+  .wn-steps-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .wn-steps-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .wn-step + .wn-step {
+    border-left: 1px solid var(--wn-rule);
+  }
+
+  .wn-step {
+    padding: 0 24px;
+  }
+
+  .wn-step:first-child {
+    padding-left: 0;
+  }
+}
+
+.wn-step-number {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--wn-ink-400);
+  font-family: var(--wn-font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.VPHome .vp-doc .wn-step-title {
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.4;
+  color: var(--wn-ink-900);
+}
+
+.VPHome .vp-doc .wn-step-command {
+  margin-top: 8px;
+}
+
+.VPHome .vp-doc .wn-step-command code {
+  display: inline-block;
+  max-width: 100%;
+  padding: 2px 8px;
+  border-radius: var(--wn-radius-chip);
+  background: var(--wn-paper-2);
+  color: var(--wn-ink-700);
+  font-family: var(--wn-font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.VPHome .vp-doc .wn-step-body {
+  margin-top: 8px;
+  color: var(--wn-ink-500);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+
+/* ---- Text and proof ------------------------------------------------------------- */
+
+.wn-split {
+  display: grid;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .wn-split {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: 56px;
+  }
+
+  .wn-split-flip {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  }
+
+  .wn-split-flip .wn-split-text {
+    order: 2;
+  }
+}
+
+.VPHome .vp-doc .wn-split-text p {
+  margin: 0 0 16px;
+  color: var(--wn-ink-500);
+  font-size: 16px;
+}
+
+.VPHome .vp-doc .wn-split-text p:last-child {
+  margin-bottom: 0;
+}
+
+.VPHome .vp-doc .wn-split-text a {
+  font-weight: 550;
+}
+
+/* ---- Tables --------------------------------------------------------------------- */
+
+@media (max-width: 767px) {
+  /* Rows become cards: each cell carries its column name. */
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+}
+
+.wn-privacy-grid {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 960px) {
+  .wn-privacy-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.wn-privacy-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--wn-rule);
+  border-radius: var(--wn-radius-plate);
+  background: var(--wn-paper-1);
+}
+
+.dark .wn-privacy-mode {
+  background: var(--wn-paper-soft);
+}
+
+.VPHome .vp-doc .wn-privacy-name {
+  font-size: 16.5px;
+  font-weight: 650;
+  color: var(--wn-ink-900);
+}
+
+.VPHome .vp-doc .wn-privacy-sends {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: baseline;
+}
+
+.wn-privacy-label {
+  color: var(--wn-ink-400);
+  font-family: var(--wn-font-mono);
+  font-size: 12px;
+}
+
+.wn-privacy-value {
+  color: var(--wn-ink-900);
+  font-family: var(--wn-font-mono);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.VPHome .vp-doc .wn-privacy-detail {
+  color: var(--wn-ink-500);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+
+/* ---- Roadmap -------------------------------------------------------------------- */
+
+/* ---- Install (plain Markdown on the home page) --------------------------------------- */
+
+.VPHome .vp-doc > p {
+  color: var(--wn-ink-500);
+}

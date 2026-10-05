@@ -26,6 +26,10 @@
  *     sync through storage of their own. Never write "no network connections".
  *   - kiro-provider serves the user's own Kiro accounts. Never write that it shares,
  *     pools or resells access, gives free access, or gets around usage limits.
+ *   - winer works through the API the League client opens on the user's computer and
+ *     the region's match-history server the client signs in to. Never write that it
+ *     reads or changes the game, its memory or its files, or that it plays for the
+ *     user; it is not a Riot Games product.
  */
 
 import { getRelativeLocaleUrl } from 'astro:i18n';
@@ -43,9 +47,18 @@ import {
   pttoolsVersion,
   VOLTIP_RELEASED,
   VOLTIP_VERSION,
+  winerReleased,
+  winerVersion,
 } from './versions';
 
-export type ProductId = 'pttools' | 'codegraph' | 'kiroprovider' | 'agentlens' | 'voltip' | 'lockra';
+export type ProductId =
+  | 'pttools'
+  | 'codegraph'
+  | 'kiroprovider'
+  | 'agentlens'
+  | 'voltip'
+  | 'lockra'
+  | 'winer';
 
 /** `live` is a product with a steady release history; `early` has shipped but is young. */
 export type Status = 'live' | 'early' | 'wip';
@@ -178,6 +191,22 @@ export const products: Product[] = [
     tagline: {
       'zh-cn': '离线使用的两步验证器。验证码加密保存在本机，可选通过自己的存储在多台设备间同步。',
       en: 'An offline two-factor authenticator. Codes are encrypted on your computer, with optional sync between devices through storage of your own.',
+    },
+  },
+  {
+    id: 'winer',
+    name: 'winer',
+    category: 'desktop',
+    platforms: ['windows'],
+    status: 'early',
+    version: winerVersion,
+    released: winerReleased,
+    license: 'MIT',
+    repo: 'https://github.com/sunerpy/winer',
+    page: { href: { 'zh-cn': '/winer/', en: '/winer/en/' } },
+    tagline: {
+      'zh-cn': '英雄联盟客户端助手：选人时显示队友的近期战绩和档位，可翻阅任意玩家的全部战绩，自动接受对局、选禁英雄和喊话。',
+      en: "A League of Legends client companion: teammates' recent form and tiers in champ select, anyone's whole match history, and optional automatic accepting, picking, banning and callouts.",
     },
   },
 ];

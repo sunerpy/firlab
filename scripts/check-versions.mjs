@@ -45,6 +45,12 @@ const products = [
     versionConstant: 'LOCKRA_VERSION',
     releasedConstant: 'LOCKRA_RELEASED',
   },
+  {
+    name: 'winer',
+    repository: 'sunerpy/winer',
+    versionConstant: 'winerVersion',
+    releasedConstant: 'winerReleased',
+  },
 ];
 
 class CheckFailedError extends Error {}

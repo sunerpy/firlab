@@ -46,6 +46,7 @@ jobs:
             pt-tools/pnpm-lock.yaml
             codegraph/pnpm-lock.yaml
             kiro-provider/pnpm-lock.yaml
+            winer/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -168,6 +169,32 @@ jobs:
           fi
           cp -R kiro-provider/dist dist/kiro-provider
           test -f dist/kiro-provider/index.html && test -f dist/kiro-provider/zh/index.html
+
+      # The winer documentation site is published the same way, under /winer/
+      # (winer/README.md). Chinese is its root locale and English sits under /en/.
+      - name: Install the winer site's dependencies
+        working-directory: winer
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the winer site
+        working-directory: winer
+        run: pnpm build
+
+      # Both languages, every in-site link resolves, and every link, asset and sitemap entry
+      # stays under /winer/.
+      - name: Check the winer site
+        working-directory: winer
+        run: ./scripts/check-dist.sh dist
+
+      - name: Add the winer site under /winer/
+        run: |
+          set -euo pipefail
+          if [ -e dist/winer ]; then
+            echo "::error::the main site already emits dist/winer; the winer site would overwrite it"
+            exit 1
+          fi
+          cp -R winer/dist dist/winer
+          test -f dist/winer/index.html && test -f dist/winer/en/index.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

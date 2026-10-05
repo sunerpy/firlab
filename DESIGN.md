@@ -852,3 +852,55 @@ preview, Chrome).** On the 57 pages of the sitemap at 375 and 1280 px, no page s
 no table box runs past the text column, and every box that scrolls is focusable. Lighthouse:
 accessibility 100 and SEO 100 on the configuration reference (desktop) and the Chinese Crush page
 (mobile); best practices 78 only for HTTPS.
+
+## 16. Product documentation inside firlab.app: firlab.app/winer
+
+`winer/` is the §10 site for winer, published like pt-tools' (§12) under a path of this site:
+VitePress builds it with `base: '/winer/'` and `deploy.yml` copies it to `dist/winer/` after
+`winer/scripts/check-dist.sh` has passed. It is the pt-tools site with a `wn-` prefix: the same
+VitePress 1.6.4 setup, palette mapping, buttons and links, code contrast table, `<main>` home
+root, home-page frontmatter contract, Chinese alert titles, system faces and §14 fixes. This
+section records only where it departs, each with its reason; `winer/README.md` covers ownership
+and deployment.
+
+**A new path, not a replaced page (2026-10-06).** winer had no page on this site, so nothing
+redirects. Its catalog entry (§4) is new: category `desktop`, Windows only, `page.href` to this
+site in each language. The owner asked for a path of firlab.app rather than a DNS name of its own,
+for §11's reasons.
+
+**Chinese is the root locale, as on the pt-tools site (§12).** winer is tested on the Tencent
+client and its window opens in Chinese, so `/winer/` is Chinese and English sits under
+`/winer/en/`; `x-default` points at the Chinese page. Unlike pt-tools, winer writes every page in
+both languages (`docs/site/` and `docs/site/en/`) and the sync refuses a page that exists in one
+language only, so there are no generated placeholders.
+
+**The words come from winer.** `winer/scripts/sync-winer-docs.sh` copies winer's `docs/site/`
+and its mark. Besides the pt-tools sync's checks it refuses a page that names a screenshot
+`docs/site/public/screens/` does not have, or that uses a name from winer's code (`SeatRating`,
+`TierSet` and the like) or a colloquial word: the pages are a user guide in standard written
+language.
+
+**Mark: the gold hexagon badge (user decision 2026-10-06).** winer's mark is a gold hexagon with a
+W cut through it, which the owner chose from the concepts drawn for it. winer's
+`scripts/brand/icons.py` generates it; the site's logo and favicon are its `app-icon.svg`, synced
+as `winer-logo.svg`, and the catalog's `AppIcon` draws the same paths on the navy tile with the
+gradient flattened to the tray glyph's gold (#E3BD66). The gold measures 1.9:1 on paper, so like
+pt-tools' orange it only marks (dots, the logo), never text.
+
+**Hero: one capture, in the page's theme.** winer is a desktop app with no phone layout, so the
+hero shows the window alone: the game analysis in champ select at 1440 × 900, captured from
+winer's demo client so no real player appears, the light theme on a light page and Hextech on a
+dark one. The phone overlay the pt-tools component carried is gone. The two text-and-evidence
+splits show the history page and the rating settings the same way.
+
+**Verified 2026-10-06 (local preview with GitHub Pages' lookup rules, Chrome).** On the main site
+and `dist/winer/` assembled the way `deploy.yml` assembles them: at 1280 × 800, 1440 × 900 and
+375 × 812 the headline, both facts and the Install button end above the fold in both languages
+(the lowest, English at 375 × 812, ends at 731 of 812 px); none of the 24 pages overflows
+horizontally at 375 or 1280 px or shows a broken image; all 188 in-site links and fragments
+resolve; the language menu maps every page onto the same path in the other locale, and canonical
+and hreflang links are absolute under `https://firlab.app/winer/`; no computed colour on three
+pages in either theme falls in OKLCH hue 270–330 with chroma above 0.04; the catalog card leads to
+`/winer/` and `/winer/en/`. Lighthouse: accessibility 100 and SEO 100 on the Chinese home page
+(mobile) and the English rating page (desktop); best practices 78 only for HTTPS, which the local
+preview does not serve.

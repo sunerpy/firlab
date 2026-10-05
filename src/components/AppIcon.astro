@@ -19,6 +19,9 @@ import type { ProductId } from '../i18n/products';
  *   kiro-provider  kiro-provider docs/site/public/kiro-provider-logo.svg: a four-point spark
  *              (the model) inside a ring with three connection points (the clients it
  *              serves); it has no app icon, so the documentation site's logo is the mark
+ *   winer      winer app/src-tauri/app-icon.svg (512 grid, scaled to 100): the gold hexagon
+ *              badge with its W cut through to the tile, the gradient flattened to the
+ *              tray glyph's gold so a page with many icons repeats no gradient id
  *
  * The tile does not follow the theme — an app icon is the same object on a light
  * page and a dark one. Only its rim (`--tile-edge`) does, so a navy tile keeps its
@@ -44,6 +47,7 @@ const PALE = '#E7EDF5';
 const ORANGE = '#F97316';
 const TEAL = '#14B8A6';
 const SLATE = '#64748B';
+const GOLD = '#E3BD66';
 ---
 
 <svg
@@ -164,6 +168,24 @@ const SLATE = '#64748B';
         <circle cx="50" cy="55.5" r="3.5" fill={NAVY} />
         <rect x="48.25" y="56" width="3.5" height="7" rx="1.75" fill={NAVY} />
       </>
+    )
+  }
+
+  {
+    product === 'winer' && (
+      <g transform="scale(0.1953125)">
+        <path d="M256 74 L413.6 165 L413.6 347 L256 438 L98.4 347 L98.4 165 Z" fill={GOLD} />
+        <path
+          d="M256 88 L401.5 172 L401.5 340 L256 424 L110.5 340 L110.5 172 Z"
+          stroke="#FFF3C4"
+          stroke-opacity="0.35"
+          stroke-width="6"
+        />
+        <path
+          d="M148.2 215.3 L203.9 382.5 L256 296.4 L308.1 382.5 L363.8 215.3 L320.2 200.7 L295.9 273.5 L256 207.6 L216.1 273.5 L191.8 200.7 Z"
+          fill={NAVY}
+        />
+      </g>
     )
   }
 </svg>
