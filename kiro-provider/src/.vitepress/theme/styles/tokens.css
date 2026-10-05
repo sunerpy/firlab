@@ -3,9 +3,10 @@
  *
  * FirLab's ramp (firlab/DESIGN.md §1, §10, §12, §13 and §15), which is itself read off the
  * product marks: ink #0B1220, pale #E7EDF5, orange #F97316, teal #14B8A6 and slate #64748B.
- * kiro-provider's mark is drawn in those values (navy tile, a pale gateway bracket, an orange
- * request dot). Nothing on this site is purple: VitePress's indigo (its default brand), purple
- * ("important" blocks), sponsor pink and hero gradient are all remapped below.
+ * kiro-provider's mark is drawn in those values (navy tile, a pale ring with three connection
+ * points, a teal spark), and teal is its hue here: the site has no orange. Nothing on this site
+ * is purple either: VitePress's indigo (its default brand), purple ("important" blocks), sponsor
+ * pink and hero gradient are all remapped below.
  *
  * Buttons and links follow the Voltip site (§10, after OpenAI's developer docs): the
  * primary button is ink on paper, inverted in the dark theme; secondary buttons are a
@@ -14,8 +15,8 @@
  *
  * Contrast, measured (WCAG 2.x): every text colour here is at least 4.5:1 on the
  * surfaces it is used on — the lowest is light --kp-ink-400 on --kp-paper-2, 4.87:1.
- * The brand orange #F97316 measures 2.73:1 on paper, so it only ever marks (dots,
- * the logo), never text.
+ * The mark teal #14B8A6 measures 2.42:1 on paper, so it only ever marks (the logo, tints),
+ * never text.
  *
  * Dark ramp: FirLab's measured OKLCH steps (sheet L 18.5, desk 16.7, block 30.3,
  * rule 35.0), plus two surfaces VitePress needs that FirLab has no name for —
@@ -43,8 +44,8 @@
   --kp-link-line: rgb(11 18 32 / 0.3); /* a link's underline at rest */
   --kp-fill: rgb(11 18 32 / 0.06); /* secondary buttons, the active sidebar row */
   --kp-fill-hover: rgb(11 18 32 / 0.1);
-  --kp-mark: #f97316; /* marks only, never text */
-  --kp-mark-soft: rgb(249 115 22 / 0.12);
+  --kp-mark: #14b8a6; /* marks only, never text */
+  --kp-mark-soft: rgb(20 184 166 / 0.12);
   --kp-live: #0d6b64; /* "available" */
   --kp-live-mark: #14b8a6;
   --kp-live-soft: rgb(20 184 166 / 0.12);
@@ -104,7 +105,7 @@
   --kp-link-line: rgb(236 239 243 / 0.34);
   --kp-fill: rgb(236 239 243 / 0.09);
   --kp-fill-hover: rgb(236 239 243 / 0.14);
-  --kp-mark-soft: rgb(249 115 22 / 0.16);
+  --kp-mark-soft: rgb(45 212 191 / 0.16);
   --kp-live: #2dd4bf;
   --kp-live-mark: #2dd4bf;
   --kp-live-soft: rgb(45 212 191 / 0.12);

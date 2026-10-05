@@ -34,8 +34,11 @@ To change a sentence on the live site, open a pull request against kiro-provider
 
 1. A kiro-provider pull request that touches the pages or the references runs kiro-provider's `docs-site.yml`: it
    syncs them into a checkout of this repository's `main`, builds and runs `scripts/check-dist.sh`, without a secret.
-2. After the merge, kiro-provider's `publish-site.yml` runs `scripts/sync-kiro-provider-docs.sh` from this repository
-   and pushes the result to `main` as `docs(kiro-provider): sync from kiro-provider@<sha>`.
+2. After the merge, kiro-provider's `publish-site.yml` runs `scripts/sync-kiro-provider-docs.sh` from this repository,
+   commits the result as `docs(kiro-provider): sync from kiro-provider@<sha>` to the branch `kiro-provider-docs/sync`
+   and opens a pull request from it, or updates the open one. When this repository's checks pass on that pull
+   request, the workflow squash-merges it at the commit that was checked. Nothing is pushed to `main` directly; a
+   failed check leaves the pull request open.
 3. `deploy.yml` builds the main site and this one, checks this one, copies it to `dist/kiro-provider/` and deploys
    firlab.app to GitHub Pages.
 
@@ -106,14 +109,16 @@ the Pages artifact, refusing to overwrite a `dist/kiro-provider/` the main site 
 ### One-time setup
 
 1. **Token in kiro-provider.** kiro-provider's `publish-site.yml` needs `FIRLAB_DOCS_TOKEN`: a fine-grained personal
-   access token for `sunerpy/firlab` only, with Contents read and write and nothing else.
+   access token for `sunerpy/firlab` only, with Contents and Pull requests read and write and nothing else. A pull
+   request opened with it starts this repository's pull request workflows, which one opened with `GITHUB_TOKEN` would
+   not.
 
    ```sh
    gh secret set FIRLAB_DOCS_TOKEN --repo sunerpy/kiro-provider
    ```
 
    Until it exists, that workflow reports that the token is missing and stops, and a sync from kiro-provider's `main`
-   reaches this repository through a pull request instead.
+   reaches this repository through a pull request opened by hand.
 
 2. **The entry on firlab.app.** kiro-provider is an entry in `src/i18n/products.ts`. Its `page.href` is this site's
    absolute path in each language (`/kiro-provider/`, `/kiro-provider/zh/`).

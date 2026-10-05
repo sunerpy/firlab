@@ -2,8 +2,8 @@
 /**
  * Release state, stated as text. The dot's colour reinforces the label and never carries
  * the meaning alone (WCAG 1.4.1). `opt-in` is a feature that ships switched off until the
- * configuration turns it on, drawn like the CodeGraph site's `preview`: an orange ring and
- * orange text.
+ * configuration turns it on: ink text behind a slate ring, so a switched-off feature carries
+ * no hue.
  */
 import { computed } from 'vue';
 import { useData } from 'vitepress';
@@ -53,9 +53,9 @@ const label = computed(() => (LABELS[lang.value] ?? LABELS['en-US'])[props.statu
   color: var(--kp-accent);
 }
 
-/* Shipping but switched off until configured: an orange ring rather than a dot. */
+/* Shipping but switched off until configured: a slate ring rather than a dot. */
 .kp-status[data-status='opt-in']::before {
   background: transparent;
-  box-shadow: inset 0 0 0 1.5px var(--kp-mark);
+  box-shadow: inset 0 0 0 1.5px var(--kp-slate);
 }
 </style>

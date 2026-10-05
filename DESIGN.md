@@ -795,13 +795,16 @@ reason for Voltip's Instrument Sans and CodeGraph's Inter does not apply; the te
 stack, as on the pt-tools site (§12), and code is JetBrains Mono Variable, self-hosted.
 
 **Status: `available` and `opt-in`.** Web search (`web_search_enabled`) and the legacy Chat
-Completions route ship switched off and work once the reader turns them on. They are `opt-in`,
-drawn like CodeGraph's `preview`: orange text behind an orange ring. Everything else is
-`available`.
+Completions route ship switched off and work once the reader turns them on. They are `opt-in`:
+ink text behind a slate ring, so a feature that is off until configured carries no hue (until
+2026-10-05 it was CodeGraph's orange `preview` ring). Everything else is `available`.
 
 **Hero: a recorded terminal session.** With no interface to capture, the hero's evidence is the
-program's own output: two requests, one per API, and their answers, recorded against a test
-instance of kiro-provider 3.8.0 and copied line for line (`HeroVisual`). The frame is the site's
+program's own output: two requests, one per API, and their answers, recorded against
+kiro-provider 3.8.0 serving the default address, `127.0.0.1:8787`, in a container of its own, and
+copied line for line (`HeroVisual`). Because the session uses the address a reader's own gateway
+has, it needs no caption; the owner asked for no notes on how or when a run was recorded
+(2026-10-05), and `caption` is optional in the schema. The frame is the site's
 plate, a hairline and the plate shadow; there is no drawn window and nothing moves. The transcript
 schema has a `continuation` kind for a command's further lines, which carry no prompt. Every line
 is its own block with no whitespace between blocks, because inside `<pre>` a newline between two
@@ -814,12 +817,25 @@ install to the first answer, three text-and-evidence splits that each show a tab
 with what they speak and whether they are on, the clients with their API and how each is set up,
 web search with each API's tool and what the answer carries), the platform table, what goes where,
 the install commands and what kiro-provider does not do (a dashed plate). The three tables share
-one component (`ProofTable`) and one frontmatter shape (`columns`, `rows`, `code`, `caption`).
+one component (`ProofTable`) and one frontmatter shape (`columns`, `rows`, `code`, an optional
+`caption`).
 
-**Mark.** kiro-provider ships no app icon, so its mark was drawn for this site in the §1 values: a
-request (the orange dot) between the loopback brackets of `[::1]` on the navy tile. The same
-drawing is the site's logo (`kiro-provider-logo.svg`, owned by kiro-provider) and the catalog's
-`AppIcon`.
+**Tables in the pages scroll in their own box.** The shared rule (`display: table`, code in a cell
+kept on one line) let a table wider than the text column run under the outline and past the
+window, where `overflow-x: clip` cut it off: at 1280 px eleven pages did, and the configuration
+reference's first table (about 1,700 px) lost most of its columns. `config/shared.ts` wraps every
+Markdown table in a `.kp-table-scroll` box that scrolls sideways, and `theme/table-scroll.ts` puts
+a box that does scroll in the tab order (`tabindex="0"`, WCAG 2.1.1), measured again whenever the
+box or its table changes size. The other documentation sites still have the shared rule.
+
+**Mark (redrawn 2026-10-05).** kiro-provider ships no app icon, so its mark is drawn for this site
+in the §1 values: a four-point spark, the model, at the centre of a pale ring with three connection
+points, the clients one provider serves, on the navy tile. The spark is teal. The first drawing,
+a request (an orange dot) between the loopback brackets of `[::1]`, was replaced because the owner
+asked for a mark that is not orange and that shows AI and a provider. The site follows the mark: `--kp-mark` (text selection, search
+highlight, the soft brand tint) and the social card's hairline are teal, and nothing on the site
+is orange. The same drawing is the site's logo (`kiro-provider-logo.svg`, owned by kiro-provider)
+and the catalog's `AppIcon`.
 
 **Verified 2026-10-05 (local preview, Chrome).** At 1280 × 800, 1440 × 900 and 375 × 812, the
 headline, both facts and the Install button end above the fold in both languages (the lowest,
@@ -830,3 +846,9 @@ the English home page (mobile) and the Chinese configuration reference (desktop)
 78 only for HTTPS, which the local preview does not serve. The configuration reference shows a
 layout shift of 0.12 while JetBrains Mono loads, which Lighthouse reports only in its agentic
 browsing category.
+
+**Verified again 2026-10-05, after the client pages, the new mark and the table boxes (local
+preview, Chrome).** On the 57 pages of the sitemap at 375 and 1280 px, no page scrolls sideways,
+no table box runs past the text column, and every box that scrolls is focusable. Lighthouse:
+accessibility 100 and SEO 100 on the configuration reference (desktop) and the Chinese Crush page
+(mobile); best practices 78 only for HTTPS.
