@@ -16,6 +16,9 @@ import type { ProductId } from '../i18n/products';
  *   CodeGraph  codegraph-rust ui/src/components/BrandMark.svelte (36 grid, scaled to 100):
  *              its two linked nodes, on the navy tile instead of the viewer's violet
  *              gradient, the same drawing as the documentation site's logo
+ *   kiro-provider  kiro-provider docs/site/public/kiro-provider-logo.svg: a request (the
+ *              orange dot) inside the loopback brackets of [::1]; it has no app icon, so
+ *              the documentation site's logo is the mark
  *
  * The tile does not follow the theme — an app icon is the same object on a light
  * page and a dark one. Only its rim (`--tile-edge`) does, so a navy tile keeps its
@@ -98,6 +101,28 @@ const SLATE = '#64748B';
         />
         <rect x="19" y="19" width="7" height="7" rx="1.8" fill={ORANGE} />
       </g>
+    )
+  }
+
+  {
+    product === 'kiroprovider' && (
+      <>
+        <path
+          d="M40 28 H30 V72 H40"
+          stroke={PALE}
+          stroke-width="7"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M60 28 H70 V72 H60"
+          stroke={PALE}
+          stroke-width="7"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <circle cx="50" cy="50" r="7" fill={ORANGE} />
+      </>
     )
   }
 

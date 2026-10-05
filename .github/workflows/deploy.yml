@@ -45,6 +45,7 @@ jobs:
             lockra/pnpm-lock.yaml
             pt-tools/pnpm-lock.yaml
             codegraph/pnpm-lock.yaml
+            kiro-provider/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -141,6 +142,32 @@ jobs:
           fi
           cp -R codegraph/dist dist/codegraph
           test -f dist/codegraph/index.html && test -f dist/codegraph/en/index.html
+
+      # The kiro-provider documentation site is published the same way, under /kiro-provider/
+      # (kiro-provider/README.md). English is its root locale and Chinese sits under /zh/.
+      - name: Install the kiro-provider site's dependencies
+        working-directory: kiro-provider
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the kiro-provider site
+        working-directory: kiro-provider
+        run: pnpm build
+
+      # Both languages, every in-site link resolves, and every link, asset and sitemap entry
+      # stays under /kiro-provider/.
+      - name: Check the kiro-provider site
+        working-directory: kiro-provider
+        run: ./scripts/check-dist.sh dist
+
+      - name: Add the kiro-provider site under /kiro-provider/
+        run: |
+          set -euo pipefail
+          if [ -e dist/kiro-provider ]; then
+            echo "::error::the main site already emits dist/kiro-provider; the kiro-provider site would overwrite it"
+            exit 1
+          fi
+          cp -R kiro-provider/dist dist/kiro-provider
+          test -f dist/kiro-provider/index.html && test -f dist/kiro-provider/zh/index.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

@@ -1,0 +1,254 @@
+# Architecture
+
+## Request flow
+
+```
+OpenAI Responses / Anthropic Messages / explicitly enabled legacy Chat
+        │
+        ▼
+API-key gate (Authorization: Bearer or x-api-key, accepted on every route)
+        │
+        ▼
+Route dispatch (/v1/responses, /v1/messages, optional /v1/chat/completions)
+        │
+        ▼
+Per-request correlation id (`request_id`, never model-visible)
+        │
+        ▼
+CanonicalRequest (roles, content blocks, tools, reasoning, source paths)
+        │
+        ▼
+Capability validation + safe/explicit legacy Kiro projection
+        │
+        ▼
+Explicit-only session affinity when a key is present (tenant-isolated hash →
+persisted account and Kiro conversationId); otherwise a fresh conversation
+        │
+        ▼
+Session queue + account selection (preferred binding first, then sticky /
+round-robin / lowest-usage)
+        │
+        ▼
+Account capacity reservation + token refresh if near expiry (provider-owned local auth runtime
+by default, via optional proxy)
+        │
+        ▼
+Cached AWS CodeWhisperer Streaming SDK client and account-scoped transport
+(model-call sockets fresh by default; no provider-owned prompt text)
+        │
+        ▼
+Kiro / CodeWhisperer event stream
+        │
+        ▼
+CanonicalCompletion / CanonicalEvent
+(strict versioned internal JSON / NDJSON media types)
+        │
+        ▼
+Protocol-specific JSON/SSE encoders (Responses, Anthropic Messages, or
+explicitly enabled legacy Chat)
+```
+
+Responses and Messages never traverse an internal Chat-shaped output. Both
+non-streaming and streaming paths consume the same canonical completion/event
+contract, so protocol-specific encoders cannot silently reinterpret Kiro
+events through another public API's semantics.
+
+The gateway's own HTTP surface (`src/server/app.ts`) is a small `fetch`-style
+handler: it checks the API key, dispatches on method + path, and delegates
+to a route handler. There is no framework in the middle — request handling,
+account selection, and the upstream call are explicit function calls, which
+keeps the retry/failover logic (see below) easy to follow.
+
+Protocol adapters do not add model-visible instructions. Client system text,
+messages, tool descriptions, and tool results are carried as client data.
+Opaque replayed reasoning is not converted into plaintext. A capability that
+cannot be represented structurally (for example Anthropic forced tool choice)
+is rejected rather than approximated with a hidden prompt.
+
+The same random `request_id` follows one public request through canonical
+shape diagnostics, projection, history construction, every actual SDK send,
+completion witnesses, and stream terminals. `attempt` counts real SDK sends,
+so retries are distinguishable from separate Agent turns without subtracting
+unrelated step counters.
+
+## Transport
+
+Upstream calls go through `@aws/codewhisperer-streaming-client`, AWS's
+generated SDK for the CodeWhisperer streaming API — this is the same
+transport Kiro's own clients use. When `proxy_url` is configured, the SDK's
+HTTP handler is built with an `https-proxy-agent` wrapping that URL, so proxy
+support is a transport-layer concern applied uniformly to every SDK call
+(chat requests, token refresh, and device-code login all reuse the same
+resolution).
+
+SDK clients are cached by account, region, endpoint, proxy, and the current
+access token. Token rotation invalidates the credential-bound client
+immediately while retaining the account-scoped `NodeHttpHandler`; the client
+is configured with a single SDK attempt (`maxAttempts: 1`) because the
+pipeline owns retries. Effort is no longer part of the cache key: it is merged
+into each command's `additionalModelRequestFields`, so one client per account
+transport serves every effort level. When an account disappears from the
+store its clients and transport are evicted. By default the direct and proxy
+agents use fresh sockets (`sdk_http_keep_alive: false`); setting the option
+to `true` explicitly opts into pooled socket reuse. Transport reuse therefore
+survives token refresh, but no mode promises a specific physical TCP
+connection. On idle timeout, consumer cancel, or a failed non-stream
+collection the pipeline aborts the upstream request and destroys the response
+body (Bun drops the SDK's own abort listener once a response starts), so a
+released account lease never leaves a Kiro stream running.
+
+## Authentication authority and provider state
+
+The production default is `auth_source: "local"`.
+`~/.config/kiro-provider/accounts.db` (`%APPDATA%\kiro-provider\accounts.db`
+on Windows) is the single authority for credentials, usage, health, and
+provider state. Operators may authenticate directly with
+`kiro-provider login` or copy existing `opencode-kiro-auth` accounts once with
+`kiro-provider accounts import`. Import does not establish a live database
+link or shared lock.
+
+The local runtime uses generation-based compare-and-swap persistence for token
+rotation and tombstones. A provider-owned background maintenance loop:
+
+- proactively refreshes access tokens near expiry;
+- rebuilds token-bound SDK clients while preserving transports;
+- refreshes stale usage through Kiro `getUsageLimits`;
+- keeps exhausted accounts out of model attempts until a due authoritative
+  probe confirms a new quota window;
+- marks permanently dead refresh credentials unhealthy; and
+- deduplicates account probes with bounded concurrency and pass deadlines.
+
+The same database also stores provider state:
+
+- `session_affinity` stores only a tenant-isolated request fingerprint,
+  account ID, Kiro conversation ID, and timestamps. It never stores the
+  original client session value or prompt.
+- A row is created only for an explicit affinity key in the default mode.
+  Requests without one receive a fresh Kiro conversation and do not collide
+  merely because their prompt text is identical.
+- The database file and its WAL/SHM siblings are created with `0600`
+  permissions on POSIX only; Windows has no equivalent mode bits, so the
+  per-user profile directory provides the isolation there.
+
+The former `auth_source: "opencode-shared"` compatibility mode (a live reader of
+OpenCode's database with a shared per-account refresh lock) was removed in
+0.7.0. It reintroduced cross-process credential ownership and, because
+`bun:sqlite` is synchronous, could block the whole event loop for up to 30
+seconds while another process held the write lock. The one-time
+`kiro-provider accounts import` command is the supported migration path; a
+configuration that still selects the removed mode fails at startup with that
+instruction.
+
+The selected account manager layers strategy (`sticky` / `round-robin` /
+`lowest-usage`) and failover on top of the configured authority. When a
+request's chosen account fails or is rate-limited before acceptance, the pipeline
+can retry within its configured budget on an eligible account. Accepted streams
+are not replayed, and owner-bound continuations retain their identity restrictions.
+
+The scheduler separates execution ordering from account capacity:
+
+- a tenant-scoped branch queue prevents overlapping turns of the same execution;
+- a shared account semaphore admits up to `account_inference_concurrency`
+  requests per account, default **10**, configurable from **1 to 10**.
+
+Messages and native/stateless Responses use the same process-wide capacity.
+Selection favors the least occupied eligible accounts and reserves a slot
+synchronously. A saturated request waits for any eligible slot; owner-bound
+waiters do not block other accounts. Native Responses shares explicit branch
+keys with stateless Responses and uses the stored previous response or reasoning
+origin when no explicit key exists.
+
+The account lease remains owned by a committed stream until that stream
+reaches terminal cleanup. The terminal callback fires promptly, while lease
+release awaits asynchronous SDK cleanup within the bounded grace. On account failover, the
+persisted session binding and Kiro conversation ID are rotated together.
+Bindings persist across service restarts, while queue and socket-pool ownership
+remain process-local. The default single-instance lock prevents a second
+provider process from splitting those owners.
+
+The default `session_affinity_mode: "explicit-only"` accepts Responses
+`metadata.zuno_session_id`, `metadata.kiro_provider_session_id`,
+compatibility `client_metadata`, or `prompt_cache_key`; Chat accepts only
+`prompt_cache_key`. Anthropic uses `x-claude-code-session-id` plus the stable
+`x-claude-code-agent-id` when present, separating a main thread and its children
+without treating those headers as replay authorization.
+The migration-only `legacy-initial-input` mode restores old fingerprint
+heuristics without changing model-visible content. Tool declarations authorize
+only the current generation. Stored Responses continuations can carry private
+historical alias bindings; each request builds its own immutable mapping and
+keeps historical identity separate from output authorization.
+
+Authenticated `GET /ready` verifies that the configured authority can be
+read and has at least one active account. `GET /health` remains a liveness
+check only.
+
+## HTTP surface details
+
+- Route dispatch tolerates one trailing slash. A known path with the wrong
+  method returns `405` with an `Allow` header in the protocol's error envelope;
+  `OPTIONS` is treated the same way (CORS is out of scope for a loopback
+  gateway). `HEAD /health` returns `200` without a body.
+- `401` responses carry `WWW-Authenticate: Bearer`; the `Bearer` scheme is
+  matched case-insensitively and `x-api-key` is accepted on every route.
+- `Bun.serve` runs with `development: false`, `maxRequestBodySize` equal to
+  `max_request_body_bytes` (Bun answers oversized bodies with a plain `413`
+  before the JSON envelope), and a fixed `500` envelope for unhandled errors.
+  Internal exception text is never returned; responses carry a `request_id`
+  that is also written to the audit log with a hashed detail.
+- Request-body failures are classified: a client that disconnects mid-upload
+  ends the request without a response (`499` internally), a malformed body is
+  `400 malformed_request_body`, and a genuine read error is the fixed `500`.
+- `429` responses include `Retry-After` when the upstream delay is known. On
+  `/v1/messages`, quota exhaustion maps to `429 rate_limit_error` (a retryable
+  class) with the structured code preserved in the message.
+- `GET /ready` distinguishes `authentication_store_unavailable`,
+  `reasoning_replay_store_unavailable`, and `model_catalog_unavailable`.
+- Once a route has produced its `CanonicalRequest`, the shared
+  `buildPipelineOptions` step emits one debug-level `request_shape` audit
+  event (`src/server/request-shape.ts`): message and role counts, tool
+  declaration/call/result and orphan-result counts, image/document counts,
+  reasoning-replay presence, `input_text_chars`, and a `tool_set_hash`. It is
+  computed only when `log_level` is `debug` and never carries message text,
+  tool arguments, or tool names; see
+  [TROUBLESHOOTING.md](../operate/troubleshooting.md#request-shape-diagnostics-request_shape-debug).
+
+## Process lifecycle
+
+- The single-instance lock uses `stale: 15s` / `update: 5s`. Acquisition
+  retries for up to 20 × 1s so a restart after `SIGKILL` succeeds once the stale
+  window passes; the final error names the lock path and the stale window.
+- If the lock is compromised (for example the lock directory is deleted), the
+  provider fails closed: it logs `single_instance_lock_compromised`, stops
+  accepting requests, drains in-flight requests for up to 10s, stops
+  maintenance, and exits with code 1 so the service manager restarts it. It
+  never keeps serving without the lock.
+- `SIGTERM` / `SIGINT` run the same shutdown routine and exit 0. Repeated
+  signals join the in-progress shutdown.
+
+## Where to look in the code
+
+- `src/server/app.ts` — HTTP entry point and route dispatch.
+- `src/server/ingress.ts` — shared request ingress: body-size limit, request
+  deadlines, and the abort signals handed to every route.
+- `src/server/request-shape.ts` — content-free structural summary of a
+  canonical request behind the debug `request_shape` audit event.
+- `src/server/routes/` — per-endpoint handlers (`responses.ts`, `messages.ts`,
+  `chat-completions.ts`, `models.ts`, `health.ts`, `readiness.ts`).
+- `src/protocol/output.ts` — strict, versioned canonical completion/event
+  schema and internal media types.
+- `src/kiro/transform/streaming/sdk-output-transformer.ts` — direct Kiro SDK
+  event-to-canonical transformation.
+- `src/server/chat-output.ts`, `src/server/responses/sse-adapter.ts`, and
+  `src/server/anthropic/response-adapter.ts` — protocol-specific encoders that
+  consume canonical output without a Chat wire intermediary.
+- `src/server/anthropic/` — Anthropic request, response, and SSE adapters.
+- `src/server/session-affinity.ts` — standard-field affinity extraction and
+  tenant-isolated hashing.
+- `src/core/account-manager.ts` — selection strategy and failover.
+- `src/core/pipeline-runtime.ts` — session/account keyed queue ownership.
+- `src/core/sdk-client.ts` — mutable-token SDK cache and configurable HTTP transports.
+- `src/core/token-refresher.ts`, `src/core/proxy.ts` — token refresh and
+  proxy resolution.
+- `src/storage/accounts-db.ts` — provider affinity/state and local-mode account
+  store.
+- `src/cli/` — the `serve` / `login` / `accounts` command-line surface.
