@@ -30,5 +30,5 @@ export const AGENTLENS_RELEASED = '2026-08-13';
 export const VOLTIP_VERSION = 'v0.0.40';
 export const VOLTIP_RELEASED = '2026-10-04';
 
-export const LOCKRA_VERSION = 'v0.7.3';
-export const LOCKRA_RELEASED = '2026-10-04';
+export const LOCKRA_VERSION = 'v0.7.4';
+export const LOCKRA_RELEASED = '2026-10-05';
