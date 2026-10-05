@@ -175,6 +175,19 @@ export const shared = defineConfig({
     // site-wide label set. English is the root locale here, so a Chinese page gets Chinese
     // titles and an English page keeps VitePress's; a title written after the marker wins.
     config(md) {
+      // Every table gets a scroll box of its own, so one wider than the text column scrolls
+      // inside the page (styles/base.css, theme/table-scroll.ts) instead of running under the
+      // outline or past the window: the configuration reference's first table is about 1,700 px
+      // wide.
+      const tableOpen = md.renderer.rules.table_open;
+      const tableClose = md.renderer.rules.table_close;
+      md.renderer.rules.table_open = (tokens, idx, options, env, self) =>
+        `<div class="kp-table-scroll">${
+          tableOpen ? tableOpen(tokens, idx, options, env, self) : self.renderToken(tokens, idx, options)
+        }`;
+      md.renderer.rules.table_close = (tokens, idx, options, env, self) =>
+        `${tableClose ? tableClose(tokens, idx, options, env, self) : self.renderToken(tokens, idx, options)}</div>\n`;
+
       const render = md.renderer.rules.github_alert_open;
       if (!render) return;
       md.renderer.rules.github_alert_open = (tokens, idx, options, env, self) => {

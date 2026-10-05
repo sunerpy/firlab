@@ -25,6 +25,7 @@ import SplitBlock from './components/SplitBlock.vue';
 import StatusTag from './components/StatusTag.vue';
 import { useSearchButtonLabel } from './search-button';
 import { useSidebarGroups } from './sidebar-groups';
+import { useScrollableTables } from './table-scroll';
 
 export default {
   extends: DefaultTheme,
@@ -36,6 +37,7 @@ export default {
   setup() {
     useSearchButtonLabel();
     useSidebarGroups();
+    useScrollableTables();
   },
   enhanceApp({ app }) {
     app.component('HomeIndex', HomeIndex);

@@ -16,9 +16,9 @@ import type { ProductId } from '../i18n/products';
  *   CodeGraph  codegraph-rust ui/src/components/BrandMark.svelte (36 grid, scaled to 100):
  *              its two linked nodes, on the navy tile instead of the viewer's violet
  *              gradient, the same drawing as the documentation site's logo
- *   kiro-provider  kiro-provider docs/site/public/kiro-provider-logo.svg: a request (the
- *              orange dot) inside the loopback brackets of [::1]; it has no app icon, so
- *              the documentation site's logo is the mark
+ *   kiro-provider  kiro-provider docs/site/public/kiro-provider-logo.svg: a four-point spark
+ *              (the model) inside a ring with three connection points (the clients it
+ *              serves); it has no app icon, so the documentation site's logo is the mark
  *
  * The tile does not follow the theme — an app icon is the same object on a light
  * page and a dark one. Only its rim (`--tile-edge`) does, so a navy tile keeps its
@@ -107,21 +107,14 @@ const SLATE = '#64748B';
   {
     product === 'kiroprovider' && (
       <>
+        <circle cx="50" cy="50" r="31" stroke={PALE} stroke-width="5" />
+        <circle cx="50" cy="19" r="7" fill={PALE} />
+        <circle cx="76.85" cy="65.5" r="7" fill={PALE} />
+        <circle cx="23.15" cy="65.5" r="7" fill={PALE} />
         <path
-          d="M40 28 H30 V72 H40"
-          stroke={PALE}
-          stroke-width="7"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          d="M50 32 Q52.4 47.6 68 50 Q52.4 52.4 50 68 Q47.6 52.4 32 50 Q47.6 47.6 50 32 Z"
+          fill={TEAL}
         />
-        <path
-          d="M60 28 H70 V72 H60"
-          stroke={PALE}
-          stroke-width="7"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-        <circle cx="50" cy="50" r="7" fill={ORANGE} />
       </>
     )
   }
