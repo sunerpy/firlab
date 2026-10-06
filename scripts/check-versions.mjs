@@ -32,9 +32,6 @@ const products = [
     repository: 'sunerpy/bedrock-gateway-rust',
     versionConstant: 'bedrockgatewayVersion',
     releasedConstant: 'bedrockgatewayReleased',
-    // release-please tags this repository by component: bedrock-gateway-rust-v0.17.0. The
-    // committed tag is this prefix followed by the version.
-    tagPrefixConstant: 'bedrockgatewayTagPrefix',
   },
   {
     name: 'AgentLens',
