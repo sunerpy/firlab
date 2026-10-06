@@ -29,6 +29,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: 'How rating works', link: '/en/rating' },
       { text: 'FAQ', link: '/en/faq' },
       { text: 'Data and privacy', link: '/en/privacy' },
+      { text: 'Acknowledgements and disclaimer', link: '/en/guide/about' },
     ],
   },
 ];
@@ -51,7 +52,7 @@ export const en = defineConfig({
         activeMatch: '^/en/guide/(live|history|automation|client|settings)',
       },
       { text: 'Rating', link: '/en/rating', activeMatch: '^/en/rating' },
-      { text: 'Reference', link: '/en/faq', activeMatch: '^/en/(faq|privacy)' },
+      { text: 'Reference', link: '/en/faq', activeMatch: '^/en/(faq|privacy|guide/about)' },
       {
         text: 'More',
         items: [

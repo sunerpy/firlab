@@ -29,6 +29,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: '评级说明', link: '/rating' },
       { text: '常见问题', link: '/faq' },
       { text: '数据与隐私', link: '/privacy' },
+      { text: '致谢与免责声明', link: '/guide/about' },
     ],
   },
 ];
@@ -51,7 +52,7 @@ export const zh = defineConfig({
         activeMatch: '^/guide/(live|history|automation|client|settings)',
       },
       { text: '评级', link: '/rating', activeMatch: '^/rating' },
-      { text: '参考', link: '/faq', activeMatch: '^/(faq|privacy)' },
+      { text: '参考', link: '/faq', activeMatch: '^/(faq|privacy|guide/about)' },
       {
         text: '更多',
         items: [
