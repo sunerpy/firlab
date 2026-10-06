@@ -47,6 +47,7 @@ jobs:
             codegraph/pnpm-lock.yaml
             kiro-provider/pnpm-lock.yaml
             winer/pnpm-lock.yaml
+            bedrock-gateway/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -195,6 +196,32 @@ jobs:
           fi
           cp -R winer/dist dist/winer
           test -f dist/winer/index.html && test -f dist/winer/en/index.html
+
+      # The bedrock-gateway documentation site is published the same way, under /bedrock-gateway/
+      # (bedrock-gateway/README.md). English is its root locale and Chinese sits under /zh/.
+      - name: Install the bedrock-gateway site's dependencies
+        working-directory: bedrock-gateway
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the bedrock-gateway site
+        working-directory: bedrock-gateway
+        run: pnpm build
+
+      # Both languages, every in-site link resolves, and every link, asset and sitemap entry
+      # stays under /bedrock-gateway/.
+      - name: Check the bedrock-gateway site
+        working-directory: bedrock-gateway
+        run: ./scripts/check-dist.sh dist
+
+      - name: Add the bedrock-gateway site under /bedrock-gateway/
+        run: |
+          set -euo pipefail
+          if [ -e dist/bedrock-gateway ]; then
+            echo "::error::the main site already emits dist/bedrock-gateway; the bedrock-gateway site would overwrite it"
+            exit 1
+          fi
+          cp -R bedrock-gateway/dist dist/bedrock-gateway
+          test -f dist/bedrock-gateway/index.html && test -f dist/bedrock-gateway/zh/index.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

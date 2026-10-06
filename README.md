@@ -43,23 +43,26 @@ also be triggered manually from the Actions tab.
 Pull requests run [`.github/workflows/ci.yml`](.github/workflows/ci.yml), which
 installs, type-checks, and builds without deploying.
 
-Seven product documentation sites live here too, each a VitePress project that
+Eight product documentation sites live here too, each a VitePress project that
 installs on its own. Two deploy to Cloudflare Pages on their own subdomains:
 `docs/` is [zuno.firlab.app](https://zuno.firlab.app) (`deploy-docs.yml`) and
 `voltip/` is [voltip.firlab.app](https://voltip.firlab.app) (`deploy-voltip.yml`).
-The other five have no domain of their own: `deploy.yml` builds `lockra/`,
-`pt-tools/`, `codegraph/`, `kiro-provider/` and `winer/` with the bases `/lockra/`,
-`/pt-tools/`, `/codegraph/`, `/kiro-provider/` and `/winer/`, and publishes them inside
-this site at [firlab.app/lockra](https://firlab.app/lockra/),
+The other six have no domain of their own: `deploy.yml` builds `lockra/`,
+`pt-tools/`, `codegraph/`, `kiro-provider/`, `winer/` and `bedrock-gateway/` with the
+bases `/lockra/`, `/pt-tools/`, `/codegraph/`, `/kiro-provider/`, `/winer/` and
+`/bedrock-gateway/`, and publishes them inside this site at
+[firlab.app/lockra](https://firlab.app/lockra/),
 [firlab.app/pt-tools](https://firlab.app/pt-tools/),
 [firlab.app/codegraph](https://firlab.app/codegraph/),
-[firlab.app/kiro-provider](https://firlab.app/kiro-provider/) and
-[firlab.app/winer](https://firlab.app/winer/)
+[firlab.app/kiro-provider](https://firlab.app/kiro-provider/),
+[firlab.app/winer](https://firlab.app/winer/) and
+[firlab.app/bedrock-gateway](https://firlab.app/bedrock-gateway/)
 (`lockra-site-ci.yml`, `pt-tools-site-ci.yml`, `codegraph-site-ci.yml`,
-`kiro-provider-site-ci.yml` and `winer-site-ci.yml` check them on pull requests). Their
-pages are pushed in from the product repositories; `docs/README.md`, `voltip/README.md`,
-`lockra/README.md`, `pt-tools/README.md`, `codegraph/README.md`,
-`kiro-provider/README.md` and `winer/README.md` describe the sync and the one-time setup.
+`kiro-provider-site-ci.yml`, `winer-site-ci.yml` and `bedrock-gateway-site-ci.yml` check
+them on pull requests). Their pages are pushed in from the product repositories;
+`docs/README.md`, `voltip/README.md`, `lockra/README.md`, `pt-tools/README.md`,
+`codegraph/README.md`, `kiro-provider/README.md`, `winer/README.md` and
+`bedrock-gateway/README.md` describe the sync and the one-time setup.
 
 ## Custom domain
 

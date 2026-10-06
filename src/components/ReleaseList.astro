@@ -9,7 +9,8 @@ import { latestReleases, releaseTagHref } from '../i18n/products';
  * Built from the same `versions.ts` constants the cards show, which the daily
  * drift check holds to each repository's latest stable release, so this list
  * moves when a product ships and needs no editing of its own. Each row links to
- * that release's notes on GitHub; the tag name equals the version string.
+ * that release's notes on GitHub; the tag name is the version string, after the
+ * product's `tagPrefix` where it has one (`releaseTagHref`).
  *
  * Capped, because past a handful of rows it stops being "latest" and becomes an
  * archive, which GitHub already is.

@@ -19,6 +19,10 @@ import type { ProductId } from '../i18n/products';
  *   kiro-provider  kiro-provider docs/site/public/kiro-provider-logo.svg: a four-point spark
  *              (the model) inside a ring with three connection points (the clients it
  *              serves); it has no app icon, so the documentation site's logo is the mark
+ *   bedrock-gateway  bedrock-gateway-rust docs/site/public/bedrock-gateway-logo.svg: two lanes
+ *              (the OpenAI APIs a client speaks) merge and pass between two gateposts, and
+ *              the lane past the gate is teal (Amazon Bedrock); no app icon either, so the
+ *              documentation site's logo is the mark
  *   winer      winer app/src-tauri/app-icon.svg (512 grid, scaled to 100): the gold hexagon
  *              badge with its W cut through to the tile, the gradient flattened to the
  *              tray glyph's gold so a page with many icons repeats no gradient id
@@ -119,6 +123,23 @@ const GOLD = '#E3BD66';
           d="M50 32 Q52.4 47.6 68 50 Q52.4 52.4 50 68 Q47.6 52.4 32 50 Q47.6 47.6 50 32 Z"
           fill={TEAL}
         />
+      </>
+    )
+  }
+
+  {
+    product === 'bedrockgateway' && (
+      <>
+        <path
+          d="M18 31 H30 C42 31 42 50 54 50 M18 69 H30 C42 69 42 50 54 50"
+          stroke={PALE}
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path d="M50 46 H62 V54 H50 Z" fill={PALE} />
+        <path d="M62 46 H82 A4 4 0 0 1 82 54 H62 Z" fill={TEAL} />
+        <path d="M62 24 V38 M62 62 V76" stroke={PALE} stroke-width="8" stroke-linecap="round" />
       </>
     )
   }

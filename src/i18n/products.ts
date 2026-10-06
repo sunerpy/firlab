@@ -26,6 +26,8 @@
  *     sync through storage of their own. Never write "no network connections".
  *   - kiro-provider serves the user's own Kiro accounts. Never write that it shares,
  *     pools or resells access, gives free access, or gets around usage limits.
+ *   - bedrock-gateway calls Bedrock with the user's own AWS account. Never write that it
+ *     gives free or shared access to models.
  *   - winer works through the API the League client opens on the user's computer and
  *     the region's match-history server the client signs in to. Never write that it
  *     reads or changes the game, its memory or its files, or that it plays for the
@@ -37,6 +39,9 @@ import type { Lang } from './ui';
 import {
   AGENTLENS_RELEASED,
   AGENTLENS_VERSION,
+  bedrockgatewayReleased,
+  bedrockgatewayTagPrefix,
+  bedrockgatewayVersion,
   codegraphReleased,
   codegraphVersion,
   kiroproviderReleased,
@@ -55,6 +60,7 @@ export type ProductId =
   | 'pttools'
   | 'codegraph'
   | 'kiroprovider'
+  | 'bedrockgateway'
   | 'agentlens'
   | 'voltip'
   | 'lockra'
@@ -80,7 +86,12 @@ export interface Product {
   version?: string;
   /** UTC date of that release. */
   released?: string;
-  license: 'MIT' | 'Apache-2.0' | 'AGPL-3.0-or-later';
+  /**
+   * What the repository's release tags put before the version, for a repository that tags
+   * by component (`bedrock-gateway-rust-v0.17.0`). Absent where the tag is the version.
+   */
+  tagPrefix?: string;
+  license: 'MIT' | 'MIT-0' | 'Apache-2.0' | 'AGPL-3.0-or-later';
   repo: string;
   /**
    * Where the product's name leads. `slug` is an in-site page relative to the locale
@@ -143,6 +154,23 @@ export const products: Product[] = [
     tagline: {
       'zh-cn': '运行在本机的网关，以 OpenAI Responses 和 Anthropic Messages 接口提供你自己的 AWS Kiro 账号，供 Codex CLI、Claude Code 等 Agent 使用。',
       en: 'A gateway on your own machine that serves your AWS Kiro accounts through OpenAI Responses and Anthropic Messages, for Codex CLI, Claude Code and other agents.',
+    },
+  },
+  {
+    id: 'bedrockgateway',
+    name: 'bedrock-gateway',
+    category: 'service',
+    platforms: ['linux', 'macos', 'windows'],
+    status: 'live',
+    version: bedrockgatewayVersion,
+    released: bedrockgatewayReleased,
+    tagPrefix: bedrockgatewayTagPrefix,
+    license: 'MIT-0',
+    repo: 'https://github.com/sunerpy/bedrock-gateway-rust',
+    page: { href: { 'zh-cn': '/bedrock-gateway/zh/', en: '/bedrock-gateway/' } },
+    tagline: {
+      'zh-cn': '自己部署的网关，用 OpenAI Chat Completions、Responses 和 Embeddings 接口提供 Amazon Bedrock 上的模型，供 OpenAI SDK、Codex CLI 等 Agent 使用。',
+      en: 'A gateway you run yourself that serves Amazon Bedrock models through the OpenAI Chat Completions, Responses and Embeddings APIs, for the OpenAI SDKs, Codex CLI and other agents.',
     },
   },
   {
@@ -234,9 +262,14 @@ export function releasesHref(product: Pick<Product, 'repo'>): string {
   return `${product.repo}/releases`;
 }
 
-/** The release page of the version the site shows. Tags equal the version strings. */
-export function releaseTagHref(product: Pick<Product, 'repo' | 'version'>): string {
-  return product.version ? `${product.repo}/releases/tag/${product.version}` : releasesHref(product);
+/**
+ * The release page of the version the site shows. A tag is the version string, after the
+ * product's `tagPrefix` where it has one.
+ */
+export function releaseTagHref(product: Pick<Product, 'repo' | 'version' | 'tagPrefix'>): string {
+  return product.version
+    ? `${product.repo}/releases/tag/${product.tagPrefix ?? ''}${product.version}`
+    : releasesHref(product);
 }
 
 export function sortedPlatforms(product: Pick<Product, 'platforms'>): Platform[] {

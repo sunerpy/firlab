@@ -1,0 +1,223 @@
+/*
+ * bedrock-gateway documentation palette.
+ *
+ * FirLab's ramp (firlab/DESIGN.md §1, §10, §12, §13, §15 and §17), which is itself read off the
+ * product marks: ink #0B1220, pale #E7EDF5, orange #F97316, teal #14B8A6 and slate #64748B.
+ * bedrock-gateway's mark is drawn in those values (navy tile, two pale lanes that merge and pass
+ * between two pale gateposts, the lane past the gate in teal), and teal is its hue here: the site
+ * has no orange, which belongs to AWS on anything about Bedrock. Nothing on this site is purple
+ * either: VitePress's indigo (its default brand), purple ("important" blocks), sponsor pink and
+ * hero gradient are all remapped below.
+ *
+ * Buttons and links follow the Voltip site (§10, after OpenAI's developer docs): the
+ * primary button is ink on paper, inverted in the dark theme; secondary buttons are a
+ * translucent ink fill; links are body-coloured text with a soft underline. There is no
+ * coloured link or button text anywhere.
+ *
+ * Contrast, measured (WCAG 2.x): every text colour here is at least 4.5:1 on the
+ * surfaces it is used on — the lowest is light --bg-ink-400 on --bg-paper-2, 4.87:1.
+ * The mark teal #14B8A6 measures 2.42:1 on paper, so it only ever marks (the logo, tints),
+ * never text.
+ *
+ * Dark ramp: FirLab's measured OKLCH steps (sheet L 18.5, desk 16.7, block 30.3,
+ * rule 35.0), plus two surfaces VitePress needs that FirLab has no name for —
+ * soft #181C21 (L 22.5) and elevated #1F2329 (L 25.5) — on the same hue and chroma
+ * curve (H ≈ 255, C ≈ 0.011).
+ */
+
+:root {
+  --bg-ink-900: #0b1220;
+  --bg-ink-700: #1e293b;
+  --bg-ink-500: #475569;
+  --bg-ink-400: #5b6779;
+
+  --bg-paper-0: #fbfcfe; /* the sheet: where the words sit */
+  --bg-paper-1: #f3f6fa; /* the desk: sidebar, code blocks */
+  --bg-paper-soft: #eef2f7;
+  --bg-paper-elv: #ffffff;
+  --bg-paper-2: #e7edf5; /* blocks, inline code, row hover */
+  --bg-rule: #dce4ee;
+
+  /* The primary button, active navigation and the focus ring: ink, never a hue. */
+  --bg-accent: var(--bg-ink-900);
+  --bg-accent-hover: var(--bg-ink-700);
+  --bg-accent-ink: #ffffff; /* text on the accent */
+  --bg-link-line: rgb(11 18 32 / 0.3); /* a link's underline at rest */
+  --bg-fill: rgb(11 18 32 / 0.06); /* secondary buttons, the active sidebar row */
+  --bg-fill-hover: rgb(11 18 32 / 0.1);
+  --bg-mark: #14b8a6; /* marks only, never text */
+  --bg-mark-soft: rgb(20 184 166 / 0.12);
+  --bg-live: #0d6b64; /* "available" */
+  --bg-live-mark: #14b8a6;
+  --bg-live-soft: rgb(20 184 166 / 0.12);
+  --bg-slate: #64748b;
+  --bg-slate-soft: rgb(100 116 139 / 0.14);
+
+  --bg-radius-chip: 4px;
+  --bg-radius-control: 8px;
+  --bg-radius-plate: 12px;
+  --bg-radius-pill: 999px; /* buttons */
+  --bg-shadow-plate: 0 1px 2px 0 rgb(11 18 32 / 0.05), 0 18px 40px -24px rgb(11 18 32 / 0.28);
+  --bg-shadow-pill: 0 1px 2px 0 rgb(0 0 0 / 0.12), 0 10px 28px -8px rgb(11 18 32 / 0.3);
+  --bg-pill-drop: drop-shadow(0 10px 22px rgb(11 18 32 / 0.22));
+
+  /* System faces only (fonts.css): bedrock-gateway has no interface whose face the page should
+     match, so no text face is downloaded, FirLab's default (§1 "Type", §15, §17). Code is
+     JetBrains Mono, self-hosted. */
+  --bg-font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei UI', 'Microsoft YaHei', 'Noto Sans SC', 'Noto Sans CJK SC', Roboto,
+    system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --bg-font-mono:
+    'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo,
+    Consolas, 'PingFang SC', 'Microsoft YaHei UI', 'Noto Sans SC', monospace;
+
+  /* Per-script metrics (FirLab §1 "Script-dependent metrics"): hanzi are full-height
+     square boxes, so Latin leading and tracking read cramped. */
+  --bg-lh-prose: 1.7;
+  --bg-lh-display: 1.08;
+  --bg-ls-display: -0.022em;
+}
+
+:root:lang(zh-CN) {
+  --bg-lh-prose: 1.85;
+  --bg-lh-display: 1.22;
+  --bg-ls-display: 0.006em;
+  /* Full-width quotes, dashes and ellipses come from the CJK face (fonts.css). Only on
+     Chinese pages, as in VitePress's own fonts.css: on an English page the same rule would
+     set "quotes" and dashes at full width. */
+  --vp-font-family-base: 'Punctuation SC', var(--bg-font-sans);
+}
+
+.dark {
+  --bg-ink-900: #eceff3;
+  --bg-ink-700: #d4d8dd;
+  --bg-ink-500: #abb0b7;
+  --bg-ink-400: #9499a0;
+
+  --bg-paper-0: #101317;
+  --bg-paper-1: #0c0f13;
+  --bg-paper-soft: #181c21;
+  --bg-paper-elv: #1f2329;
+  --bg-paper-2: #2a2f35;
+  --bg-rule: #353b43;
+
+  --bg-accent-ink: #0c0f13;
+  --bg-link-line: rgb(236 239 243 / 0.34);
+  --bg-fill: rgb(236 239 243 / 0.09);
+  --bg-fill-hover: rgb(236 239 243 / 0.14);
+  --bg-mark-soft: rgb(45 212 191 / 0.16);
+  --bg-live: #2dd4bf;
+  --bg-live-mark: #2dd4bf;
+  --bg-live-soft: rgb(45 212 191 / 0.12);
+  --bg-slate: #9499a0;
+  --bg-slate-soft: rgb(148 153 160 / 0.16);
+
+  --bg-shadow-plate: inset 0 1px 0 0 rgb(255 255 255 / 0.06), 0 18px 40px -24px rgb(0 0 0 / 0.7);
+  --bg-shadow-pill: inset 0 1px 0 0 rgb(255 255 255 / 0.06), 0 10px 28px -8px rgb(0 0 0 / 0.6);
+  --bg-pill-drop: drop-shadow(0 10px 22px rgb(0 0 0 / 0.5));
+}
+
+/* ---- VitePress variables ------------------------------------------------ */
+
+:root {
+  --vp-c-white: #ffffff;
+  --vp-c-black: #0b1220;
+  --vp-c-neutral: var(--bg-ink-900);
+  --vp-c-neutral-inverse: var(--bg-paper-0);
+
+  --vp-c-gray-1: #d5dde8;
+  --vp-c-gray-2: #e2e8f0;
+  --vp-c-gray-3: #ebf0f6;
+  --vp-c-gray-soft: var(--bg-slate-soft);
+
+  /* indigo is VitePress's default brand; purple drives "important" blocks. */
+  --vp-c-indigo-1: var(--bg-accent);
+  --vp-c-indigo-2: var(--bg-accent-hover);
+  --vp-c-indigo-3: var(--bg-accent);
+  --vp-c-indigo-soft: var(--bg-mark-soft);
+  --vp-c-purple-1: var(--bg-ink-700);
+  --vp-c-purple-2: var(--bg-ink-500);
+  --vp-c-purple-3: var(--bg-ink-500);
+  --vp-c-purple-soft: var(--bg-slate-soft);
+  --vp-c-green-1: var(--bg-live);
+  --vp-c-green-2: var(--bg-live);
+  --vp-c-green-3: var(--bg-live);
+  --vp-c-green-soft: var(--bg-live-soft);
+
+  --vp-c-bg: var(--bg-paper-0);
+  --vp-c-bg-alt: var(--bg-paper-1);
+  --vp-c-bg-elv: var(--bg-paper-elv);
+  --vp-c-bg-soft: var(--bg-paper-soft);
+
+  --vp-c-border: var(--bg-rule);
+  --vp-c-divider: var(--bg-rule);
+  --vp-c-gutter: var(--bg-rule);
+
+  --vp-c-text-1: var(--bg-ink-900);
+  --vp-c-text-2: var(--bg-ink-500);
+  --vp-c-text-3: var(--bg-ink-400);
+
+  --vp-c-brand-1: var(--bg-accent);
+  --vp-c-brand-2: var(--bg-accent-hover);
+  --vp-c-brand-3: var(--bg-accent);
+  --vp-c-brand-soft: var(--bg-mark-soft);
+
+  --vp-c-tip-1: var(--bg-live);
+  --vp-c-tip-2: var(--bg-live);
+  --vp-c-tip-3: var(--bg-live);
+  --vp-c-tip-soft: var(--bg-live-soft);
+  --vp-c-important-1: var(--bg-ink-700);
+  --vp-c-important-2: var(--bg-ink-500);
+  --vp-c-important-3: var(--bg-ink-500);
+  --vp-c-important-soft: var(--bg-slate-soft);
+  --vp-c-warning-1: var(--bg-accent);
+  --vp-c-warning-2: var(--bg-accent-hover);
+  --vp-c-warning-3: var(--bg-accent);
+  --vp-c-warning-soft: var(--bg-mark-soft);
+  --vp-c-sponsor: var(--bg-accent);
+
+  --vp-font-family-base: var(--bg-font-sans);
+  --vp-font-family-mono: var(--bg-font-mono);
+
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-text: var(--bg-accent-ink);
+  --vp-button-brand-bg: var(--bg-accent);
+  --vp-button-brand-hover-border: transparent;
+  --vp-button-brand-hover-text: var(--bg-accent-ink);
+  --vp-button-brand-hover-bg: var(--bg-accent-hover);
+  --vp-button-brand-active-border: transparent;
+  --vp-button-brand-active-text: var(--bg-accent-ink);
+  --vp-button-brand-active-bg: var(--bg-accent-hover);
+  --vp-button-alt-border: transparent;
+  --vp-button-alt-text: var(--bg-ink-900);
+  --vp-button-alt-bg: var(--bg-fill);
+  --vp-button-alt-hover-border: transparent;
+  --vp-button-alt-hover-text: var(--bg-ink-900);
+  --vp-button-alt-hover-bg: var(--bg-fill-hover);
+  --vp-button-alt-active-border: transparent;
+  --vp-button-alt-active-text: var(--bg-ink-900);
+  --vp-button-alt-active-bg: var(--bg-fill-hover);
+
+  --vp-home-hero-name-color: var(--bg-ink-900);
+  --vp-home-hero-name-background: none;
+  --vp-home-hero-image-background-image: none;
+  --vp-home-hero-image-filter: none;
+
+  --vp-code-color: var(--bg-ink-700);
+  --vp-code-bg: var(--bg-paper-2);
+  --vp-code-block-bg: var(--bg-paper-1);
+  --vp-code-copy-code-active-text: var(--bg-ink-500);
+
+  --vp-local-search-highlight-bg: var(--bg-mark-soft);
+  --vp-local-search-highlight-text: var(--bg-ink-900);
+
+  --vp-nav-logo-height: 26px;
+}
+
+.dark {
+  --vp-c-gray-1: #4a515b;
+  --vp-c-gray-2: #3a4048;
+  --vp-c-gray-3: #2a2f35;
+  --vp-code-block-bg: var(--bg-paper-1);
+}
