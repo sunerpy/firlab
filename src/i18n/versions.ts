@@ -4,14 +4,17 @@
  * The source of truth is each public repository's latest stable GitHub Release:
  * compare the tag name (never the release title), and derive the date from
  * `publishedAt` in UTC. Product manifests are deliberately not consulted because
- * they can trail the release tag. `scripts/check-versions.mjs` verifies these
- * committed values against GitHub and names the constant to update when they
- * drift.
+ * they can trail the release tag.
+ *
+ * The values are not edited by hand: `.github/workflows/sync-versions.yml` runs
+ * `scripts/check-versions.mjs --write` every half hour, commits the constants that
+ * drifted to `main` and starts the deploy. Only a new product, or a tag prefix that
+ * moved, needs a person here.
  *
  * Keep the site build offline and deterministic. Fetching here would not make a
  * new upstream release appear without another FirLab build, while a failed fetch
  * would make deploys network-dependent or force the same silent stale fallback
- * this module exists to prevent. The network belongs in the check, not the build.
+ * this module exists to prevent. The network belongs in the sync, not the build.
  *
  * Every repository is public, so `GITHUB_TOKEN` reads all of their releases. A new
  * product adds its two constants here and a row in `scripts/check-versions.mjs`
