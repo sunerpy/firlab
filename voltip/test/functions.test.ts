@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { ADMIN_COOKIE, FAILS_PER_ADDRESS, FAILS_PER_HOUR, login, logout, stats } from "../functions/_lib/admin";
+import { ADMIN_COOKIE, EDGE_FRESH_MS, FAILS_PER_ADDRESS, FAILS_PER_HOUR, login, logout, receiveEdgeStats, stats } from "../functions/_lib/admin";
 import { bump, DAY } from "../functions/_lib/counters";
 import { hashPassword, passwordMatches, sign, verify } from "../functions/_lib/crypto";
 import type { D1Like, D1Statement, Deps, Env } from "../functions/_lib/env";
@@ -15,13 +15,15 @@ const NOW = 1_790_000_000_000;
 const PASSWORD = "correct horse battery staple 42";
 
 /** The statements the counters use, over a Map. */
-function memoryD1(): D1Like & { rows: Map<string, { n: number; expires_at: number }> } {
+function memoryD1(): D1Like & { rows: Map<string, { n: number; expires_at: number }>; snapshots: Map<string, { body: string; updated_at: number }> } {
   const rows = new Map<string, { n: number; expires_at: number }>();
+  const snapshots = new Map<string, { body: string; updated_at: number }>();
   const statement = (sql: string, values: unknown[] = []): D1Statement => ({
     bind: (...v: unknown[]) => statement(sql, v),
     async first<T>() {
       const key = String(values[0]);
       if (sql.startsWith("SELECT n FROM counters")) return (rows.has(key) ? { n: rows.get(key)!.n } : null) as T | null;
+      if (sql.startsWith("SELECT body, updated_at FROM snapshots")) return (snapshots.get(key) ?? null) as T | null;
       if (sql.startsWith("SELECT expires_at FROM counters")) {
         const row = rows.get(key);
         return (row && row.expires_at > Number(values[1]) ? { expires_at: row.expires_at } : null) as T | null;
@@ -36,6 +38,10 @@ function memoryD1(): D1Like & { rows: Map<string, { n: number; expires_at: numbe
     },
     async run() {
       if (sql.startsWith("CREATE ")) return {};
+      if (sql.startsWith("INSERT INTO snapshots")) {
+        snapshots.set(String(values[0]), { body: String(values[1]), updated_at: Number(values[2]) });
+        return {};
+      }
       if (sql.startsWith("INSERT INTO counters") && sql.includes("SET expires_at")) {
         rows.set(String(values[0]), { n: 1, expires_at: Number(values[1]) });
         return {};
@@ -45,7 +51,7 @@ function memoryD1(): D1Like & { rows: Map<string, { n: number; expires_at: numbe
       return {};
     },
   });
-  return { rows, prepare: (sql: string) => statement(sql) };
+  return { rows, snapshots, prepare: (sql: string) => statement(sql) };
 }
 
 interface Call {
@@ -272,6 +278,62 @@ describe("admin page", () => {
     expect(await answer.json()).toMatchObject({ edge: { days: [{ users: 3 }] }, try_today: { asr: 0, polish: 0 } });
     const edge = calls.find((c) => c.url.endsWith("/stats/recent.json"))!;
     expect((edge.init.headers as Record<string, string>).authorization).toBe("Bearer stats-token");
+  });
+
+  const signedInCookie = async (env: Env, deps: Deps) => (await send(env, deps, PASSWORD)).headers.get("set-cookie")!.split(";")[0]!;
+  const readStats = async (env: Env, deps: Deps, cookie: string) =>
+    (await (await stats(new Request(`${SITE}/api/admin/stats`, { headers: { cookie } }), env, deps)).json()) as {
+      edge: { days: { users: number }[] } | null;
+      edge_error: string | null;
+      edge_received_at: number | null;
+    };
+  const push = (env: Env, deps: Deps, body: string, token = "stats-token") =>
+    receiveEdgeStats(new Request(`${SITE}/api/admin/edge-stats`, { method: "POST", headers: { authorization: `Bearer ${token}` }, body }), env, deps);
+  const edgeCalls = (calls: Call[]) => calls.filter((c) => c.url.endsWith("/stats/recent.json")).length;
+
+  it("keeps the edge's push and serves it without asking the edge", async () => {
+    const { env, deps, calls } = await setup(() => {
+      throw new Error("the edge must not be asked");
+    });
+    expect((await push(env, deps, JSON.stringify({ generated: "2026-10-07T23:05:00+08:00", days: [{ day: "2026-10-07", users: 7 }] }))).status).toBe(204);
+    const cookie = await signedInCookie(env, deps);
+    const answer = await readStats(env, deps, cookie);
+    expect(answer).toMatchObject({ edge: { days: [{ users: 7 }] }, edge_error: null, edge_received_at: NOW });
+    expect(edgeCalls(calls)).toBe(0);
+  });
+
+  it("refuses a push without the stats token or without the summaries", async () => {
+    const { env, deps } = await setup();
+    const days = JSON.stringify({ days: [] });
+    expect((await receiveEdgeStats(new Request(`${SITE}/api/admin/edge-stats`, { method: "POST", body: days }), env, deps)).status).toBe(401);
+    expect((await push(env, deps, days, "try-token")).status).toBe(401);
+    expect((await push(env, deps, "not json")).status).toBe(400);
+    expect((await push(env, deps, JSON.stringify({ users: 3 }))).status).toBe(400);
+    expect((env.DB as ReturnType<typeof memoryD1>).snapshots.size).toBe(0);
+  });
+
+  it("pulls a missing or old copy once and keeps what it pulled", async () => {
+    let users = 3;
+    const { env, deps, calls, advance } = await setup((url) => (url.endsWith("/stats/recent.json") ? Response.json({ days: [{ day: "2026-10-07", users }] }) : new Response("", { status: 404 })));
+    const cookie = await signedInCookie(env, deps);
+    expect((await readStats(env, deps, cookie)).edge?.days[0]?.users).toBe(3);
+    expect((await readStats(env, deps, cookie)).edge?.days[0]?.users).toBe(3);
+    expect(edgeCalls(calls)).toBe(1);
+    users = 4;
+    advance(EDGE_FRESH_MS + 1);
+    expect(await readStats(env, deps, cookie)).toMatchObject({ edge: { days: [{ users: 4 }] }, edge_error: null, edge_received_at: NOW + EDGE_FRESH_MS + 1 });
+    expect(edgeCalls(calls)).toBe(2);
+  });
+
+  it("regression: shows the old copy and says why when the edge cannot be reached", async () => {
+    const { env, deps, advance } = await setup((url) => {
+      if (url.endsWith("/stats/recent.json")) throw new DOMException("The operation was aborted due to timeout", "TimeoutError");
+      return new Response("", { status: 404 });
+    });
+    await push(env, deps, JSON.stringify({ days: [{ day: "2026-10-07", users: 6 }] }));
+    advance(EDGE_FRESH_MS + 1);
+    const cookie = await signedInCookie(env, deps);
+    expect(await readStats(env, deps, cookie)).toMatchObject({ edge: { days: [{ users: 6 }] }, edge_error: "edge timed out", edge_received_at: NOW });
   });
 
   it("refuses the stats without a session and after logging out", async () => {

@@ -25,6 +25,8 @@ interface Day {
 }
 interface Stats {
   edge: { generated?: string; days?: Day[] } | null;
+  /** When the copy shown arrived from the edge (ms). */
+  edge_received_at: number | null;
   edge_error: string | null;
   try_today: { asr: number; polish: number; limits: { asrPerDay: number; polishPerDay: number } };
 }
@@ -153,9 +155,16 @@ const rows = computed(() =>
 );
 const NUMBERS = ['asr', 'refine', 'tryAsr', 'tryRefine', 'updates', 'limited', 'upstream429'] as const;
 const totals = computed(() => Object.fromEntries(NUMBERS.map((k) => [k, rows.value.reduce((n, r) => n + r[k], 0)])) as Record<(typeof NUMBERS)[number], number>);
+const timeOf = (at: number | string) => new Date(at).toLocaleString(lang.value === 'zh' ? 'zh-CN' : 'en');
 const generated = computed(() => {
   const at = stats.value?.edge?.generated;
-  return at ? fill(a.value.generated, { t: new Date(at).toLocaleString(lang.value === 'zh' ? 'zh-CN' : 'en') }) : '';
+  return at ? fill(a.value.generated, { t: timeOf(at) }) : '';
+});
+/** A failed pull: with an older copy to show, or with nothing. */
+const edgeProblem = computed(() => {
+  const s = stats.value;
+  if (!s?.edge_error) return '';
+  return s.edge && s.edge_received_at ? fill(a.value.edgeStale, { e: s.edge_error, t: timeOf(s.edge_received_at) }) : fill(a.value.edgeError, { e: s.edge_error });
 });
 const tryToday = computed(() => {
   const today = stats.value?.try_today;
@@ -188,7 +197,7 @@ const tryToday = computed(() => {
           <button type="button" class="vt-admin-btn" @click="signOut">{{ a.signOut }}</button>
         </span>
       </div>
-      <p v-if="stats.edge_error" class="vt-admin-error" role="alert">{{ fill(a.edgeError, { e: stats.edge_error }) }}</p>
+      <p v-if="edgeProblem" class="vt-admin-error" role="alert">{{ edgeProblem }}</p>
       <p>{{ tryToday }}</p>
 
       <p v-if="!rows.length" class="vt-admin-hint">{{ a.empty }}</p>

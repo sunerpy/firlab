@@ -9,11 +9,14 @@ import type { D1Like } from "./env";
 export const SCHEMA = [
   "CREATE TABLE IF NOT EXISTS counters (key TEXT PRIMARY KEY, n INTEGER NOT NULL, expires_at INTEGER NOT NULL)",
   "CREATE INDEX IF NOT EXISTS counters_expires_at ON counters (expires_at)",
+  // functions/_lib/snapshots.ts
+  "CREATE TABLE IF NOT EXISTS snapshots (name TEXT PRIMARY KEY, body TEXT NOT NULL, updated_at INTEGER NOT NULL)",
 ];
 
 let created: Promise<void> | null = null;
 
-async function ready(db: D1Like): Promise<D1Like> {
+/** `db` once the schema exists. */
+export async function ready(db: D1Like): Promise<D1Like> {
   created ??= (async () => {
     for (const sql of SCHEMA) await db.prepare(sql).run();
   })().catch((error: unknown) => {
