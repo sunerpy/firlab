@@ -9,6 +9,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
     text: '开始使用',
     items: [
       { text: 'Voltip 是什么', link: '/zh/guide/what-is-voltip' },
+      { text: '在线体验', link: '/zh/guide/try' },
       { text: '安装', link: '/zh/guide/install' },
       { text: '快速开始', link: '/zh/guide/quick-start' },
       { text: '更新、卸载与数据位置', link: '/zh/guide/updates' },
@@ -73,7 +74,8 @@ export const zh = defineConfig({
 
   themeConfig: {
     nav: [
-      { text: '指南', link: '/zh/guide/what-is-voltip', activeMatch: '^/zh/guide/' },
+      { text: '指南', link: '/zh/guide/what-is-voltip', activeMatch: '^/zh/guide/(?!try)' },
+      { text: '在线体验', link: '/zh/guide/try', activeMatch: '^/zh/guide/try' },
       { text: '听写', link: '/zh/dictation/shortcuts', activeMatch: '^/zh/dictation/' },
       { text: '识别与 AI', link: '/zh/recognition/local', activeMatch: '^/zh/recognition/' },
       { text: '手机', link: '/zh/phone/', activeMatch: '^/zh/phone/' },

@@ -70,10 +70,15 @@ PUBLIC_DIRS=(screens)
 OPTIONAL_PUBLIC_DIRS=(community)
 PUBLIC_FILES=(voltip-logo.svg)
 
+# The app's built-in polish presets (id and prompt), which the try page's functions send as the
+# system prompt (functions/_lib/presets.ts), so the page polishes as the app does.
+PRESETS_SRC="$VOLTIP_ROOT/packages/shared/src/fixtures/ipc/presets-builtin.json"
+PRESETS_DEST="$SITE_ROOT/src/.vitepress/theme/data/presets-builtin.json"
+
 # Components a page may use: the ones src/.vitepress/theme/index.ts registers, plus
 # VitePress's own Badge. An unknown tag would render as an empty custom element with
 # only a console warning, so it fails the sync instead.
-ALLOWED_COMPONENTS=(Badge HomeIndex HomeSteps SplitBlock HomePlatforms HomeModels HomePrivacy HomeRoadmap ScreenFigure StatusTag VideoFigure QrCode)
+ALLOWED_COMPONENTS=(Badge HomeIndex HomeSteps SplitBlock HomePlatforms HomeModels HomePrivacy HomeRoadmap ScreenFigure StatusTag VideoFigure QrCode TryVoltip)
 
 fail=0
 problem() {
@@ -100,6 +105,18 @@ done
 for file in "${PUBLIC_FILES[@]}"; do
   [ -f "$SRC/public/$file" ] || problem "expected file docs/site/public/$file is missing"
 done
+if [ ! -f "$PRESETS_SRC" ]; then
+  problem "expected file packages/shared/src/fixtures/ipc/presets-builtin.json is missing"
+elif ! python3 -c '
+import json, sys
+presets = json.load(open(sys.argv[1]))
+ok = isinstance(presets, list) and presets and all(
+    isinstance(p, dict) and isinstance(p.get("id"), str) and isinstance(p.get("prompt"), str) and p["prompt"]
+    for p in presets)
+sys.exit(0 if ok else 1)
+' "$PRESETS_SRC"; then
+  problem "packages/shared/src/fixtures/ipc/presets-builtin.json is not a list of {id, prompt}"
+fi
 [ "$fail" -eq 0 ] || exit 1
 
 # Every page exists in both languages, at the same path.
@@ -231,6 +248,9 @@ for file in "${PUBLIC_FILES[@]}"; do
   cp "$SRC/public/$file" "$DEST/public/$file"
   printf '  %-14s ok\n' "public/$file"
 done
+
+cp "$PRESETS_SRC" "$PRESETS_DEST"
+printf '  %-14s ok\n' "presets"
 
 # A stamp so a stale sync is visible on the site (the footer shows the commit).
 # Recorded as data, not prose. A second run from the same commit keeps the old time,

@@ -73,8 +73,9 @@ export const shared = defineConfig({
   sitemap: {
     hostname: HOST,
     // The English placeholders of the Chinese design documents say "read it in
-    // Chinese" and nothing else; they are noindex and stay out of the sitemap.
-    transformItems: (items) => items.filter((item) => !/^\/?dev\//.test(item.url)),
+    // Chinese" and nothing else; they are noindex and stay out of the sitemap, as does the
+    // admin page.
+    transformItems: (items) => items.filter((item) => !/^\/?(dev\/|admin$)/.test(item.url)),
   },
 
   markdown: {
@@ -125,8 +126,9 @@ export const shared = defineConfig({
   transformHead({ pageData }) {
     if (pageData.isNotFound) return [];
     const rel = pageData.relativePath;
-    // The English design-document pointers are noindex: no canonical, no alternates.
-    if (rel.startsWith('dev/')) return [];
+    // The English design-document pointers and the admin page are noindex: no canonical, no
+    // alternates.
+    if (rel.startsWith('dev/') || rel === 'admin.md') return [];
     const head: HeadConfig[] = [['link', { rel: 'canonical', href: pageUrl(rel) }]];
     const base = rel.startsWith('zh/') ? rel.slice(3) : rel;
     if (base.startsWith('dev/')) return head;

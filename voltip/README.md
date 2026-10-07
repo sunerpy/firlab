@@ -20,6 +20,9 @@ This repository owns the site:
 | `src/public/screens/`, `src/public/voltip-logo.svg` | voltip | Synced |
 | `src/public/community/` | voltip | Synced when voltip has it: the Telegram and WeChat QR codes of the community page. The WeChat group code expires every 7 days and is replaced in voltip |
 | `src/.vitepress/synced.json` | sync script | The commit the content came from; the footer shows it |
+| `src/.vitepress/theme/data/presets-builtin.json` | voltip | Synced from `packages/shared/src/fixtures/ipc/`: the app's polish presets, which the try page sends as the system prompt |
+| `src/admin.md` | this repo | The admin page (`AdminStats`); noindex, outside the sitemap and the search |
+| `functions/`, `test/`, `scripts/admin-password.mjs` | this repo | The API of the try page and the admin page (Cloudflare Pages Functions), its tests, and the admin password hasher |
 | `src/.vitepress/` (config, theme, components) | this repo | |
 | `src/public/{og.svg,og.png,robots.txt,_headers}` | this repo | |
 | `src/public/media/` | this repo | The tutorial videos and their posters (`VideoFigure`). Kept here because a 13 MB render would grow voltip's history on every re-render; H.264 with `+faststart`, each file under Cloudflare Pages' 25 MiB limit |
@@ -110,6 +113,59 @@ requests.
 gh run list --repo sunerpy/firlab --workflow='Deploy Voltip site' --limit 3
 curl -sI https://voltip.firlab.app/ | head -1
 ```
+
+## The try page and the admin page
+
+`/guide/try` (`TryVoltip`, in voltip's pages) records or uploads up to 60 seconds, has the
+built-in service recognise it and polishes the text with a model and a preset or prompt the
+visitor picks. `/admin` (`AdminStats`) shows the built-in service's daily statistics after a
+sign-in. Both talk to Pages Functions on the same origin, under `/api/`:
+
+| Route | Does |
+| --- | --- |
+| `GET /api/try/options` | models, presets, languages, limits, the Turnstile site key |
+| `POST /api/try/session` | checks a Turnstile answer, sets a 30-minute HttpOnly cookie |
+| `POST /api/try/transcribe` | a 16 kHz mono WAV of at most 60 s → text, through the edge's `/try/v1/` |
+| `POST /api/try/polish` | text, model, preset or prompt → polished text, through the edge's `/try/refine/v1/` |
+| `POST /api/admin/login`, `/logout` | the admin password and a Turnstile answer → a 12-hour HttpOnly cookie |
+| `GET /api/admin/stats` | the edge's `/stats/recent.json` and today's counts of the try page |
+
+The edge (the built-in service's gateway) accepts these only with tokens of their own, which
+are not the app's, and logs the visitor's address the Functions send with each request. The
+Functions keep their counters in the D1 database `voltip-playground`, under an HMAC of the
+address: 20 recognitions and 10 polishes an hour per address, 300 and 60 a day for all
+visitors, and for the admin page a 15-minute lock after five failed sign-ins from one address
+and a lock for everyone after 30 failures in an hour. The table is created on first use; rows
+go once their window has passed.
+
+### Project settings
+
+The Pages project `voltip-docs` holds the binding and the secrets (Settings → Variables and
+Secrets, production), so the deploy token needs Pages only:
+
+| Name | What |
+| --- | --- |
+| `DB` | D1 binding: `voltip-playground` |
+| `EDGE_BASE` | the edge's origin, `https://<asr-host>` |
+| `TRY_TOKEN`, `STATS_TOKEN` | the edge's tokens for `/try/` and `/stats/` |
+| `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET` | the Turnstile widget `voltip.firlab.app` |
+| `ADMIN_PASSWORD_HASH` | `node scripts/admin-password.mjs < password.txt` (PBKDF2, never the password) |
+| `SESSION_KEY`, `IP_SALT` | random, 32 bytes each, e.g. `openssl rand -hex 32` |
+
+To change the admin password, hash the new one, replace `ADMIN_PASSWORD_HASH` and redeploy
+(`gh workflow run deploy-voltip.yml`); replacing `SESSION_KEY` also signs everyone out.
+
+### Locally
+
+```sh
+pnpm build
+pnpm functions:dev     # wrangler pages dev on http://localhost:8788, with a local D1
+pnpm test              # the Functions against a fake D1 and a fake edge
+```
+
+`functions:dev` reads `voltip/.dev.vars` (git-ignored): the variables above, Turnstile's test
+keys (`1x00000000000000000000AA`, `1x0000000000000000000000000000000AA`) and
+`TURNSTILE_HOSTNAMES=example.com`, the host those keys report.
 
 ## Adding a page
 

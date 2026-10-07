@@ -63,6 +63,14 @@ jobs:
         working-directory: voltip
         run: pnpm build
 
+      # The try page's and the admin page's API (voltip/functions/). The deploy compiles them
+      # too; this fails first, on a test.
+      - name: Check the Functions
+        working-directory: voltip
+        run: |
+          pnpm typecheck
+          pnpm test
+
       # A misconfigured locale emits only the root one, which still looks like a green build.
       - name: Verify both languages were emitted
         working-directory: voltip
@@ -103,12 +111,16 @@ jobs:
           print('project', d['result']['name'], 'subdomain', d['result'].get('subdomain'))
           PY
 
+      # From voltip/, where wrangler finds functions/ and uploads it with the pages. The D1
+      # binding and the secrets are the project's settings (voltip/README.md); this token needs
+      # Pages only. The action runs the wrangler of voltip/package.json.
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy voltip/dist --project-name=voltip-docs --branch=main
+          workingDirectory: voltip
+          command: pages deploy dist --project-name=voltip-docs --branch=main
 
       # After the deploy, so the domain's state never holds back a deploy. Attaching does not
       # create the DNS record; until the record points at the project the domain stays

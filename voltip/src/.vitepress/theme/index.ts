@@ -14,6 +14,7 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/home.css';
 
+import AdminStats from './components/AdminStats.vue';
 import HeroFacts from './components/HeroFacts.vue';
 import HeroVisual from './components/HeroVisual.vue';
 import HomeIndex from './components/HomeIndex.vue';
@@ -26,6 +27,7 @@ import QrCode from './components/QrCode.vue';
 import ScreenFigure from './components/ScreenFigure.vue';
 import SplitBlock from './components/SplitBlock.vue';
 import StatusTag from './components/StatusTag.vue';
+import TryVoltip from './components/TryVoltip.vue';
 import VideoFigure from './components/VideoFigure.vue';
 import { useSearchButtonLabel } from './search-button';
 import { useSidebarGroups } from './sidebar-groups';
@@ -53,5 +55,8 @@ export default {
     app.component('StatusTag', StatusTag);
     app.component('VideoFigure', VideoFigure);
     app.component('QrCode', QrCode);
+    app.component('TryVoltip', TryVoltip);
+    // Only src/admin.md uses it; the sync script does not allow it in voltip's pages.
+    app.component('AdminStats', AdminStats);
   },
 } satisfies Theme;
