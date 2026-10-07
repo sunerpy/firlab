@@ -27,14 +27,17 @@ Recent form reads how each game was played, not only wins and KDA: the score of 
   queues whose type names the computer as the opponent (Doom Bots, for one); the tutorial counts as
   well.
 - Remakes among the 20 are shown, and count toward no win, KDA, streak or form.
-- In champ select, in game and in a lobby only the mode being played counts: Summoner's Rift
-  (ranked, normal, quickplay) apart from ARAM (classic and Hextech), Arena and the rotating modes
-  each on their own. While that mode has fewer than 5 of the recent games, every mode counts. The
-  History page reads every mode.
-- The games come from the shard's match-history server first, the newest 20 with all ten players
-  of each; where it cannot be read (a shard other than Tencent's, or the server failing) from the
-  client's own list, which holds the player's own row of each game only. A Tencent client's list
-  holds 5 games right after signing in, 20 a few minutes later.
+- In champ select, in game and in a lobby only the mode being played counts, never mixed with
+  another: Summoner's Rift (ranked, normal, quickplay) apart from ARAM (classic and Hextech), Arena
+  and the rotating modes each on their own. With fewer than 20 games of it, the games there are
+  count, and the fewer they are the harder they are pulled toward the average; with none, the
+  player gets no tier there. The History page reads every mode.
+- The games come from the shard's match-history server first, with all ten players of each: the
+  newest 20, then 40 further back at a time, until there are 20 games that count as above, 100 games
+  at most: older games are not read. Where the server cannot be read (a shard other than
+  Tencent's, or the server failing), they come from the client's own list, which holds the
+  player's own row of each game only. A Tencent client's list holds 5 games right after signing
+  in, 20 a few minutes later.
 
 ### Each game's score
 
@@ -177,11 +180,10 @@ and F 💀. Emoji show in the client's chat only; lines typed in a game have non
 
 - The first line names your side and "winer rating", followed by the opening line if you wrote one;
   the rich style puts 📢 before it.
-- In Chinese, names, titles and the opening line sit in 【】, and so do champions in the in-game
-  lines: the client's chat masks some words, and it reads across spaces and some punctuation,
-  joining the characters of neighbouring fields. The tier 上等马, a space and the name 会跑路的防御塔
-  hold 马会, which gets masked; the brackets keep the two apart. A hidden name drops its brackets
-  too.
+- The Chinese default follows Sona's `seat: tier|win rate|KDA|strength` format and omits player
+  names, titles and quips. Champ-select seats already identify the players, and removing free-form
+  text prevents the client filter from joining 上等马 with a name such as 会跑路的防御塔. The window
+  and in-client panel still show those details; a custom template may still include them.
 - `{seat}` is the teammate's place in your team's list in champ select, counted from the top: P1 to
   P5 (1L to 5L in Chinese). A line names the seat and the player, not the champion: champions can
   still change during champ select, seats do not.

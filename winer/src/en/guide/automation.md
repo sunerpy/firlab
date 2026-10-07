@@ -21,6 +21,11 @@ there. The automation switches on the overview list their modes too.
 - **Pick mode**: **Lock in** locks the pick; **Hover only** puts the champion up once and leaves the
   rest to you.
 - **Show an intent while planning**: shows your pick to the team during the planning phase.
+- **When autofilled, use only that lane's list**: on by default. Sent to a lane you did not ask for
+  in the lobby, the pick comes from that lane's own list only, never from "Any"; with no list for
+  that lane, nothing is picked. FILL asked for, no lane asked for, or a mode without positions never
+  counts as autofilled. A champion you hovered yourself is still locked. Your seat in champ select
+  says **Autofilled**.
 - **Auto-ban a champion**: on your ban turn, bans the first champion on the ban list that can be
   banned; a champion a teammate picked or showed is never banned. A champion you chose to ban
   yourself is the one banned.
@@ -78,9 +83,9 @@ summoner spells for Jhin"; a failure says why. Nothing is posted to chat.
   select (P1 to P5, from the top), `{name}`, `{champion}`, `{games}`, `{winRate}`, `{kda}`, `{score}`
   the recent-form score, `{title}` and `{quip}`. Blank uses the chosen style's default, which names
   the seat and the player rather than a champion that can still change; a live preview shows the
-  result. In Chinese the opening line and the names go in 【】, so that the client's chat filter does
-  not read a tier and a name as one word (see [How rating works](/en/rating#callout)); a hidden name
-  drops its brackets too.
+  result. The Chinese default follows Sona's seat, tier and data columns and omits free-form names,
+  titles and quips so the client filter cannot join them (see [How rating works](/en/rating#callout)).
+  A custom template may still use every placeholder.
 - **Shortcut to send the callout**: none by default. Once set, pressing it in champ select posts the
   callout to the team chat, as **Send to team** on the Live game page does; in a game, with
   **In-game sending** on, it types the in-game lines chosen below into the game's team chat. It
