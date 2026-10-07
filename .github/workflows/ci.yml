@@ -34,11 +34,6 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
 
-      - name: Check published versions
-        run: node scripts/check-versions.mjs
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

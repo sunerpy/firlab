@@ -43,6 +43,11 @@ also be triggered manually from the Actions tab.
 Pull requests run [`.github/workflows/ci.yml`](.github/workflows/ci.yml), which
 installs, type-checks, and builds without deploying.
 
+Product versions and release dates follow the releases on their own:
+[`.github/workflows/sync-versions.yml`](.github/workflows/sync-versions.yml) checks
+every half hour, commits the changed constants of `src/i18n/versions.ts` to `main`
+and starts the deploy. Run it from the Actions tab to update at once.
+
 Eight product documentation sites live here too, each a VitePress project that
 installs on its own. Two deploy to Cloudflare Pages on their own subdomains:
 `docs/` is [zuno.firlab.app](https://zuno.firlab.app) (`deploy-docs.yml`) and

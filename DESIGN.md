@@ -310,11 +310,19 @@ manifest (manifests trail their tags) and never the release title (titles are no
 dates come from `published_at` in UTC.
 
 **The build does not fetch.** `scripts/check-versions.mjs` does, and its three-way exit code is
-the contract: `0` matches the latest stable release, `1` is proven drift (and may open or update
-the drift issue naming the constant), `2` means the API could not give a verdict
-(`VERSION CHECK INCOMPLETE`, never reported as drift). `ci.yml` runs it on pull requests;
-`version-drift.yml` runs it daily and keeps one marker-tagged issue. It never auto-commits a fix:
-a commit to `main` publishes, and a bot must not publish a version claim no human reviewed.
+the contract: `0` matches the latest stable release, `1` is proven drift, `2` means the API could
+not give a verdict (`VERSION CHECK INCOMPLETE`, never reported as drift). With `--write` it
+rewrites the drifted constants instead and exits `0`; a tag whose prefix moved is still `1` and is
+left to a person. `sync-versions.yml` runs it every half hour, commits `versions.ts` alone to
+`main` as `chore(site): 同步 … 的发布版本` and dispatches `deploy.yml`, so a release reaches the
+site within the hour. A failed run is the alarm; nothing is committed then.
+
+This replaced a pull-request check and a daily drift issue (user decision 2026-10-07): every
+release of any of the eight products turned every open pull request red until someone opened a
+hand-made version pull request, fifteen of them in four days. The values the bot writes come
+straight from the release API and are validated (stable, not a draft, a tag of version
+characters), so there is nothing left for a reviewer to judge. Pull requests no longer run the
+check: they build with the committed values.
 
 ### Structured data
 

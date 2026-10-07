@@ -1,12 +1,23 @@
 #!/usr/bin/env node
 
+// Compares the constants in src/i18n/versions.ts with each product's latest stable GitHub
+// release. With --write it rewrites the constants that drifted instead of reporting them, and
+// prints `COMMIT_SUBJECT=<subject>` when it changed the file (sync-versions.yml commits that).
+//
+//   node scripts/check-versions.mjs           exit 0 match, 1 drift, 2 no verdict
+//   node scripts/check-versions.mjs --write   exit 0 up to date or rewritten, 1 drift it cannot
+//                                             write (a tag prefix moved), 2 no verdict
+
 import { execFileSync } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 
 const VERSION_FILE = new URL('../src/i18n/versions.ts', import.meta.url);
 const VERSION_PATH = 'src/i18n/versions.ts';
 const EXIT_DRIFT = 1;
 const EXIT_CHECK_FAILED = 2;
+const WRITE = process.argv.includes('--write');
+// What a tag may hold before it goes into a quoted TypeScript constant.
+const SAFE_TAG = /^[A-Za-z0-9._+-]+$/;
 
 const products = [
   {
@@ -61,12 +72,27 @@ const products = [
 
 class CheckFailedError extends Error {}
 
+function constantPattern(name) {
+  return new RegExp(`^export const ${name} = '([^']+)';$`, 'm');
+}
+
 function readConstant(source, name) {
-  const match = source.match(new RegExp(`^export const ${name} = '([^']+)';$`, 'm'));
+  const match = source.match(constantPattern(name));
   if (!match) {
     throw new CheckFailedError(`Could not read ${VERSION_PATH}:${name}; keep it as an exported string constant.`);
   }
   return match[1];
+}
+
+function writeConstant(source, name, value) {
+  return source.replace(constantPattern(name), `export const ${name} = '${value}';`);
+}
+
+/** `chore(site): 同步 A v1 与 B v2 的发布版本`, the subject the hand-made syncs used. */
+function commitSubject(updates) {
+  const named = updates.map(({ product, version }) => `${product.name} ${version}`);
+  const list = named.length === 1 ? named[0] : `${named.slice(0, -1).join('、')} 与 ${named.at(-1)}`;
+  return `chore(site): 同步 ${list} 的发布版本`;
 }
 
 function resolveToken() {
@@ -142,6 +168,9 @@ async function latestStableRelease(repository, token) {
   }
   if (typeof release.tag_name !== 'string' || typeof release.published_at !== 'string') {
     throw new CheckFailedError(`${repository}: latest stable release is missing tag_name or published_at.`);
+  }
+  if (!SAFE_TAG.test(release.tag_name)) {
+    throw new CheckFailedError(`${repository}: tag ${JSON.stringify(release.tag_name)} has characters a version constant cannot hold.`);
   }
 
   const publishedAt = new Date(release.published_at);
@@ -225,6 +254,10 @@ async function main() {
     return local.tag !== live.tag || local.released !== live.released;
   });
 
+  if (drift.length > 0 && WRITE) {
+    return writeDrift(source, committed, drift);
+  }
+
   if (drift.length > 0) {
     console.error('VERSION DRIFT DETECTED');
     for (const check of drift) {
@@ -242,6 +275,31 @@ async function main() {
     console.log(`✓ ${product.name}: ${version} / ${live.released} (${tag}${live.publishedAt})`);
   }
   console.log('All committed product versions match the latest stable GitHub releases.');
+  return 0;
+}
+
+/** Rewrites the drifted constants; a tag whose prefix moved needs a person, so nothing is written then. */
+async function writeDrift(source, committed, drift) {
+  const updates = [];
+  for (const check of drift) {
+    const { product, live } = check.value;
+    const local = committed.get(product.repository);
+    if (!live.tag.startsWith(local.tagPrefix)) {
+      console.error('VERSION DRIFT DETECTED');
+      printDrift(product, local, live);
+      console.error(`${product.name}: the tag no longer starts with ${product.tagPrefixConstant}; update ${VERSION_PATH} by hand.`);
+      return EXIT_DRIFT;
+    }
+    updates.push({ product, version: live.tag.slice(local.tagPrefix.length), released: live.released, local });
+  }
+  let next = source;
+  for (const { product, version, released, local } of updates) {
+    next = writeConstant(next, product.versionConstant, version);
+    next = writeConstant(next, product.releasedConstant, released);
+    console.log(`updated ${product.name}: ${local.version} / ${local.released} -> ${version} / ${released}`);
+  }
+  await writeFile(VERSION_FILE, next);
+  console.log(`COMMIT_SUBJECT=${commitSubject(updates)}`);
   return 0;
 }
 
