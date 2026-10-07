@@ -30,8 +30,8 @@ export const pttoolsReleased = '2026-10-01';
 export const codegraphVersion = 'v0.53.3';
 export const codegraphReleased = '2026-10-03';
 
-export const kiroproviderVersion = 'v3.8.0';
-export const kiroproviderReleased = '2026-10-05';
+export const kiroproviderVersion = 'v3.8.1';
+export const kiroproviderReleased = '2026-10-07';
 
 export const bedrockgatewayVersion = 'v0.18.1';
 export const bedrockgatewayReleased = '2026-10-06';
@@ -45,5 +45,5 @@ export const VOLTIP_RELEASED = '2026-10-05';
 export const LOCKRA_VERSION = 'v0.7.6';
 export const LOCKRA_RELEASED = '2026-10-06';
 
-export const winerVersion = 'v0.0.4';
-export const winerReleased = '2026-10-06';
+export const winerVersion = 'v0.0.11';
+export const winerReleased = '2026-10-07';
