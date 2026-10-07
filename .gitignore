@@ -35,6 +35,9 @@ docs/.vitepress-cache/
 # The Voltip sub-site, which installs on its own the same way (voltip/README.md).
 voltip/dist/
 voltip/.vitepress-cache/
+# `wrangler pages dev`: the local D1 and the secrets it reads (voltip/README.md).
+voltip/.wrangler/
+voltip/.dev.vars
 
 # The Lockra sub-site, which installs on its own the same way and is published inside
 # firlab.app under /lockra/ (lockra/README.md).

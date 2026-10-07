@@ -9,6 +9,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
     text: 'Getting started',
     items: [
       { text: 'What is Voltip', link: '/guide/what-is-voltip' },
+      { text: 'Try it online', link: '/guide/try' },
       { text: 'Install', link: '/guide/install' },
       { text: 'Quick start', link: '/guide/quick-start' },
       { text: 'Updates, uninstall and your data', link: '/guide/updates' },
@@ -73,7 +74,8 @@ export const en = defineConfig({
 
   themeConfig: {
     nav: [
-      { text: 'Guide', link: '/guide/what-is-voltip', activeMatch: '^/guide/' },
+      { text: 'Guide', link: '/guide/what-is-voltip', activeMatch: '^/guide/(?!try)' },
+      { text: 'Try it', link: '/guide/try', activeMatch: '^/guide/try' },
       { text: 'Dictation', link: '/dictation/shortcuts', activeMatch: '^/dictation/' },
       { text: 'Recognition & AI', link: '/recognition/local', activeMatch: '^/recognition/' },
       { text: 'Phone', link: '/phone/', activeMatch: '^/phone/' },

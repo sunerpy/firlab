@@ -46,6 +46,14 @@ jobs:
         working-directory: voltip
         run: pnpm build
 
+      # The Functions: types, tests, and the bundle wrangler would upload.
+      - name: Check the Functions
+        working-directory: voltip
+        run: |
+          pnpm typecheck
+          pnpm test
+          pnpm exec wrangler pages functions build --outdir "$RUNNER_TEMP/functions"
+
       - name: Verify both languages were emitted
         working-directory: voltip
         run: |
