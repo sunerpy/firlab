@@ -128,10 +128,16 @@ sign-in. Both talk to Pages Functions on the same origin, under `/api/`:
 | `POST /api/try/transcribe` | a 16 kHz mono WAV of at most 60 s → text, through the edge's `/try/v1/` |
 | `POST /api/try/polish` | text, model, preset or prompt → polished text, through the edge's `/try/refine/v1/` |
 | `POST /api/admin/login`, `/logout` | the admin password and a Turnstile answer → a 12-hour HttpOnly cookie |
-| `GET /api/admin/stats` | the edge's `/stats/recent.json` and today's counts of the try page |
+| `GET /api/admin/stats` | the edge's daily summaries and today's counts of the try page |
+| `POST /api/admin/edge-stats` | the edge's hourly push of its summaries (`Authorization: Bearer <STATS_TOKEN>`) |
 
 The edge (the built-in service's gateway) accepts these only with tokens of their own, which
-are not the app's, and logs the visitor's address the Functions send with each request. The
+are not the app's, and logs the visitor's address the Functions send with each request. The edge
+pushes its summaries every hour, after the cron job that writes them, and the admin page reads
+that copy from D1: pulling them on each page load crosses from Cloudflare's overseas data
+centres into mainland China and sometimes took longer than the timeout. The page pulls only when
+the copy is missing or more than 90 minutes old, and shows the old copy, saying so, when the pull
+fails too. The
 Functions keep their counters in the D1 database `voltip-playground`, under an HMAC of the
 address: 20 recognitions and 10 polishes an hour per address, 300 and 60 a day for all
 visitors, and for the admin page a 15-minute lock after five failed sign-ins from one address
