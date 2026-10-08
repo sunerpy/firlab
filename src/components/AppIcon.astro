@@ -11,7 +11,8 @@ import type { ProductId } from '../i18n/products';
  *   pt-tools   brand/pt-tools/logo.svg (1024 grid, scaled to 100)
  *   AgentLens  AgentLens src-tauri/icons/source/icon.svg — a plateless hexagon,
  *              set on the tile at 72% so it sits like the others
- *   Voltip     voltip packages/ui/src/components/Logo.tsx
+ *   Voltip     voltip packages/ui/src/components/Logo.tsx: 「声波光标」, three white sound bars
+ *              running into a cyan text cursor, the cursor's gradient flattened to its cyan
  *   Lockra     lockra apps/desktop/src-tauri/icons/icon.svg: a blue padlock under a pale
  *              shackle, its body showing a masked code (three dots)
  *   CodeGraph  codegraph-rust ui/src/components/BrandMark.svelte (36 grid, scaled to 100):
@@ -50,6 +51,8 @@ const { product, size = 48, label, class: className = '', transitionName } = Ast
 const NAVY = '#0B1220';
 const PALE = '#E7EDF5';
 const ORANGE = '#F97316';
+const WHITE = '#FFFFFF';
+const CYAN = '#22D3EE';
 const BLUE = '#339CFF';
 const TEAL = '#14B8A6';
 const SLATE = '#64748B';
@@ -166,8 +169,10 @@ const GOLD = '#E3BD66';
   {
     product === 'voltip' && (
       <>
-        <polygon points="22.5,22 39.5,22 50,46 50,79" fill={PALE} />
-        <polygon points="60.5,22 77.5,22 50,79 50,46" fill={ORANGE} />
+        <rect x="23.83" y="39.26" width="8.2" height="21.48" rx="4.1" fill={WHITE} />
+        <rect x="36.72" y="29.49" width="8.2" height="41.02" rx="4.1" fill={WHITE} />
+        <rect x="49.61" y="35.35" width="8.2" height="29.3" rx="4.1" fill={WHITE} />
+        <rect x="69.14" y="22.66" width="7.03" height="54.69" rx="3.52" fill={CYAN} />
       </>
     )
   }
