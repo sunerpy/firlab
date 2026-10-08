@@ -42,8 +42,8 @@ export const bedrockgatewayReleased = '2026-10-06';
 export const AGENTLENS_VERSION = 'v0.0.7';
 export const AGENTLENS_RELEASED = '2026-08-13';
 
-export const VOLTIP_VERSION = 'v0.0.46';
-export const VOLTIP_RELEASED = '2026-10-07';
+export const VOLTIP_VERSION = 'v0.0.47';
+export const VOLTIP_RELEASED = '2026-10-08';
 
 export const LOCKRA_VERSION = 'v0.7.6';
 export const LOCKRA_RELEASED = '2026-10-06';
