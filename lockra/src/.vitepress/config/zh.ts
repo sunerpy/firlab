@@ -34,6 +34,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
     items: [
       { text: '备份与恢复', link: '/zh/backup/' },
       { text: '多设备同步', link: '/zh/backup/sync' },
+      { text: '自建中继', link: '/zh/backup/relay' },
       { text: 'Lockra 如何保护你的账号', link: '/zh/security/' },
       { text: '隐私', link: '/zh/privacy' },
     ],
@@ -63,7 +64,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
 export const zh = defineConfig({
   lang: 'zh-CN',
   description:
-    'Lockra 把两步验证码保存在本机的一个加密文件中，适用于 Windows、macOS 和 Linux。可以在 Lockra 与 Google 身份验证器、Microsoft Authenticator 之间迁移账号，把加密备份写入你选择的文件夹，并通过你自己的存储在多台设备之间同步。',
+    'Lockra 把两步验证码保存在本机的一个加密文件中，适用于 Windows、macOS 和 Linux。可以在 Lockra 与 Google 身份验证器、Microsoft Authenticator 之间迁移账号，把加密备份写入你选择的文件夹，并经 Lockra 中继或你自己的存储，在多台设备之间端到端加密地同步。',
 
   themeConfig: {
     nav: [
