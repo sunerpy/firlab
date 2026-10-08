@@ -1,10 +1,10 @@
 /*
  * Lockra documentation palette: the Voltip site's (voltip/src/.vitepress/theme/styles/tokens.css),
- * unchanged.
+ * with Lockra's own mark colour in place of Voltip's orange.
  *
  * FirLab's ramp (firlab/DESIGN.md §1 and §10), which is itself read off the product
- * marks: ink #0B1220, pale #E7EDF5, orange #F97316 — the Lockra icon's own three
- * values, as they are Voltip's — plus teal #14B8A6 and slate #64748B. Nothing on this site is purple:
+ * marks: ink #0B1220, pale #E7EDF5, blue #339CFF — the Lockra icon's own three
+ * values (Voltip's third is orange) — plus teal #14B8A6 and slate #64748B. Nothing on this site is purple:
  * VitePress's indigo (its default brand), purple ("important" blocks), sponsor pink
  * and hero gradient are all remapped below.
  *
@@ -15,7 +15,7 @@
  *
  * Contrast, measured (WCAG 2.x): every text colour here is at least 4.5:1 on the
  * surfaces it is used on — the lowest is light --lk-ink-400 on --lk-paper-2, 4.87:1.
- * The brand orange #F97316 measures 2.73:1 on paper, so it only ever marks (dots,
+ * The brand blue #339CFF measures 2.79:1 on paper, so it only ever marks (dots,
  * the logo), never text.
  *
  * Dark ramp: FirLab's measured OKLCH steps (sheet L 18.5, desk 16.7, block 30.3,
@@ -44,8 +44,8 @@
   --lk-link-line: rgb(11 18 32 / 0.3); /* a link's underline at rest */
   --lk-fill: rgb(11 18 32 / 0.06); /* secondary buttons, the active sidebar row */
   --lk-fill-hover: rgb(11 18 32 / 0.1);
-  --lk-mark: #f97316; /* marks only, never text */
-  --lk-mark-soft: rgb(249 115 22 / 0.12);
+  --lk-mark: #339cff; /* marks only, never text */
+  --lk-mark-soft: rgb(51 156 255 / 0.12);
   --lk-live: #0d6b64; /* "available" */
   --lk-live-mark: #14b8a6;
   --lk-live-soft: rgb(20 184 166 / 0.12);
@@ -97,7 +97,7 @@
   --lk-link-line: rgb(236 239 243 / 0.34);
   --lk-fill: rgb(236 239 243 / 0.09);
   --lk-fill-hover: rgb(236 239 243 / 0.14);
-  --lk-mark-soft: rgb(249 115 22 / 0.16);
+  --lk-mark-soft: rgb(51 156 255 / 0.16);
   --lk-live: #2dd4bf;
   --lk-live-mark: #2dd4bf;
   --lk-live-soft: rgb(45 212 191 / 0.12);

@@ -12,7 +12,8 @@ import type { ProductId } from '../i18n/products';
  *   AgentLens  AgentLens src-tauri/icons/source/icon.svg — a plateless hexagon,
  *              set on the tile at 72% so it sits like the others
  *   Voltip     voltip packages/ui/src/components/Logo.tsx
- *   Lockra     lockra apps/desktop/src-tauri/icons/icon.svg
+ *   Lockra     lockra apps/desktop/src-tauri/icons/icon.svg: a blue padlock under a pale
+ *              shackle, its body showing a masked code (three dots)
  *   CodeGraph  codegraph-rust ui/src/components/BrandMark.svelte (36 grid, scaled to 100):
  *              its two linked nodes, on the navy tile instead of the viewer's violet
  *              gradient, the same drawing as the documentation site's logo
@@ -49,6 +50,7 @@ const { product, size = 48, label, class: className = '', transitionName } = Ast
 const NAVY = '#0B1220';
 const PALE = '#E7EDF5';
 const ORANGE = '#F97316';
+const BLUE = '#339CFF';
 const TEAL = '#14B8A6';
 const SLATE = '#64748B';
 const GOLD = '#E3BD66';
@@ -174,20 +176,15 @@ const GOLD = '#E3BD66';
     product === 'lockra' && (
       <>
         <path
-          d="M50 18 A32 32 0 1 1 18 50"
-          stroke={ORANGE}
-          stroke-width="8"
-          stroke-linecap="round"
-        />
-        <path
-          d="M42 47 V42 A8 8 0 0 1 58 42 V47"
+          d="M37 45 V36 A13 13 0 0 1 63 36 V45"
           stroke={PALE}
-          stroke-width="6"
+          stroke-width="7"
           stroke-linecap="round"
         />
-        <rect x="36" y="46" width="28" height="23" rx="5" fill={PALE} />
-        <circle cx="50" cy="55.5" r="3.5" fill={NAVY} />
-        <rect x="48.25" y="56" width="3.5" height="7" rx="1.75" fill={NAVY} />
+        <rect x="26" y="43" width="48" height="37" rx="9" fill={BLUE} />
+        <circle cx="38" cy="61.5" r="4.2" fill={PALE} />
+        <circle cx="50" cy="61.5" r="4.2" fill={PALE} />
+        <circle cx="62" cy="61.5" r="4.2" fill={PALE} />
       </>
     )
   }
