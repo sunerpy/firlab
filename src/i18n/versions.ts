@@ -30,8 +30,8 @@
 export const pttoolsVersion = 'v0.48.0';
 export const pttoolsReleased = '2026-10-01';
 
-export const codegraphVersion = 'v0.53.3';
-export const codegraphReleased = '2026-10-03';
+export const codegraphVersion = 'v0.54.0';
+export const codegraphReleased = '2026-10-08';
 
 export const kiroproviderVersion = 'v3.8.1';
 export const kiroproviderReleased = '2026-10-07';
@@ -45,8 +45,8 @@ export const AGENTLENS_RELEASED = '2026-08-13';
 export const VOLTIP_VERSION = 'v0.0.47';
 export const VOLTIP_RELEASED = '2026-10-08';
 
-export const LOCKRA_VERSION = 'v0.7.6';
-export const LOCKRA_RELEASED = '2026-10-06';
+export const LOCKRA_VERSION = 'v0.8.0';
+export const LOCKRA_RELEASED = '2026-10-08';
 
 export const winerVersion = 'v0.0.14';
 export const winerReleased = '2026-10-07';
