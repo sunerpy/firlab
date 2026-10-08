@@ -6,14 +6,27 @@
   <!-- Ground -->
   <rect width="1200" height="630" fill="#F3F6FA"/>
 
-  <!-- Accent hairline, top edge: the brand orange marks, it never carries text -->
-  <rect x="0" y="0" width="1200" height="6" fill="#F97316"/>
+  <!-- Accent hairline, top edge: the mark's cyan marks, it never carries text -->
+  <rect x="0" y="0" width="1200" height="6" fill="#22D3EE"/>
 
   <!-- The app mark and the name -->
   <g transform="translate(88, 84)">
-    <rect width="60" height="60" rx="13.2" fill="#0B1220"/>
-    <polygon points="13.5,13.2 23.7,13.2 30,27.6 30,47.4" fill="#E7EDF5"/>
-    <polygon points="36.3,13.2 46.5,13.2 30,47.4 30,27.6" fill="#F97316"/>
+    <!-- 「声波光标」 (voltip packages/ui/src/components/Logo.tsx), on its 1024 grid scaled to 60 -->
+    <defs>
+      <linearGradient id="og-tile" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#0B1220"/>
+        <stop offset="1" stop-color="#1B2A4A"/>
+      </linearGradient>
+      <linearGradient id="og-cursor" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#38BDF8"/>
+        <stop offset="1" stop-color="#22D3EE"/>
+      </linearGradient>
+    </defs>
+    <rect width="60" height="60" rx="13.59" fill="url(#og-tile)"/>
+    <rect x="14.3" y="23.55" width="4.92" height="12.89" rx="2.46" fill="#FFFFFF"/>
+    <rect x="22.03" y="17.7" width="4.92" height="24.61" rx="2.46" fill="#FFFFFF"/>
+    <rect x="29.77" y="21.21" width="4.92" height="17.58" rx="2.46" fill="#FFFFFF"/>
+    <rect x="41.48" y="13.59" width="4.22" height="32.81" rx="2.11" fill="url(#og-cursor)"/>
     <text x="80" y="43"
       font-family="'Instrument Sans Variable', 'Instrument Sans', 'Segoe UI', system-ui, sans-serif"
       font-size="40" font-weight="650" letter-spacing="-0.6" fill="#0B1220">Voltip</text>
