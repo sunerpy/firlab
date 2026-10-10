@@ -36,8 +36,8 @@ export const codegraphReleased = '2026-10-08';
 export const kiroproviderVersion = 'v3.8.5';
 export const kiroproviderReleased = '2026-10-09';
 
-export const bedrockgatewayVersion = 'v0.18.1';
-export const bedrockgatewayReleased = '2026-10-06';
+export const bedrockgatewayVersion = 'v0.18.2';
+export const bedrockgatewayReleased = '2026-10-10';
 
 export const AGENTLENS_VERSION = 'v0.0.7';
 export const AGENTLENS_RELEASED = '2026-08-13';
