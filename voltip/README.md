@@ -22,7 +22,7 @@ This repository owns the site:
 | `src/.vitepress/synced.json` | sync script | The commit the content came from; the footer shows it |
 | `src/.vitepress/theme/data/presets-builtin.json` | voltip | Synced from `packages/shared/src/fixtures/ipc/`: the app's polish presets, which the try page sends as the system prompt |
 | `src/admin.md` | this repo | The admin page (`AdminStats`); noindex, outside the sitemap and the search |
-| `functions/`, `test/`, `scripts/admin-password.mjs` | this repo | The API of the try page and the admin page (Cloudflare Pages Functions), its tests, and the admin password hasher |
+| `functions/`, `test/`, `scripts/admin-password.mjs` | this repo | The API of the try page and the admin page, and the apps' update channel (Cloudflare Pages Functions), their tests, and the admin password hasher |
 | `src/.vitepress/` (config, theme, components) | this repo | |
 | `src/public/{og.svg,og.png,robots.txt,_headers}` | this repo | |
 | `src/public/media/` | this repo | The tutorial videos and their posters (`VideoFigure`). Kept here because a 13 MB render would grow voltip's history on every re-render; H.264 with `+faststart`, each file under Cloudflare Pages' 25 MiB limit |
@@ -166,12 +166,39 @@ To change the admin password, hash the new one, replace `ADMIN_PASSWORD_HASH` an
 ```sh
 pnpm build
 pnpm functions:dev     # wrangler pages dev on http://localhost:8788, with a local D1
-pnpm test              # the Functions against a fake D1 and a fake edge
+pnpm test              # the Functions against a fake D1, a fake edge and a fake GitHub
 ```
 
 `functions:dev` reads `voltip/.dev.vars` (git-ignored): the variables above, Turnstile's test
 keys (`1x00000000000000000000AA`, `1x0000000000000000000000000000000AA`) and
 `TURNSTILE_HOSTNAMES=example.com`, the host those keys report.
+
+## The update channel
+
+The apps look for updates here first and at GitHub second (voltip's `docs/dictation.md` §9 and
+§20.9): many networks in China reach GitHub's release downloads slowly or not at all, while
+this site, on Cloudflare, they reach well. `functions/updates/[[path]].ts` answers:
+
+| Route | Does |
+| --- | --- |
+| `GET /updates/latest.json` | the desktop updater's manifest: the latest release's `latest.json`, every package address moved to `/updates/download/` |
+| `GET /updates/android.json` | the latest release in the shape of GitHub's latest-release answer (`tag_name`, `body`, `published_at`, `assets`), with the APK on this site |
+| `GET`, `HEAD /updates/download/<tag>/<file>` | one of `sunerpy/voltip`'s release files |
+
+GitHub stays the source; the channel needs no setting, secret or storage of its own. The two
+documents are built from GitHub's latest release and reused for 5 minutes, and the last good
+manifest answers for a week while GitHub cannot be reached (`x-voltip-stale: 1`). A release
+file is copied into the data centre's cache (the Cache API, up to 512 MB a file) the first time
+someone there asks for it; the copy finishes before the answer starts, and later downloads come
+from the cache. Only this repository's releases are served, by a `vX.Y.Z` tag and a plain file
+name, so the route is no open proxy. Nothing is signed here: the desktop app checks every
+package against the minisign key built into it, and Android installs an APK over the app only
+when it carries the same signing key.
+
+Cloudflare's terms ask for its Developer Platform (Pages, Workers, R2) when a site serves large
+files, which is what this is. If the release files should not depend on GitHub at all, the next
+step is an R2 bucket the release workflow uploads to, which needs a payment method on the
+account even within R2's free tier.
 
 ## Adding a page
 
