@@ -2,7 +2,8 @@
   <title>Lockra — two-factor codes that stay on your computer.</title>
   <!-- The source of og.png (1200 × 630, rendered in a browser with the site's fonts;
        lockra/README.md). The colours are the site's light theme (theme/styles/tokens.css); the
-       two rows are a real capture of the app (screens/codes-en-light.webp). -->
+       two rows are a real capture of the app in 澄空, its default theme (the AWS and Cloudflare
+       rows of screens/codes-en-light.webp). -->
 
   <!-- Ground -->
   <rect width="1200" height="630" fill="#F3F6FA"/>
@@ -49,7 +50,7 @@
   </clipPath>
   <g clip-path="url(#rows)">
     <rect x="88" y="470" width="640" height="80" fill="#FFFFFF"/>
-    <svg x="88" y="470" width="640" height="80" viewBox="335 197 994 124" preserveAspectRatio="xMidYMid slice">
+    <svg x="88" y="470" width="640" height="80" viewBox="351 447 994 124" preserveAspectRatio="xMidYMid slice">
       <image href="/screens/codes-en-light.webp" width="1440" height="900"/>
     </svg>
   </g>
