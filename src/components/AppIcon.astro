@@ -13,8 +13,10 @@ import type { ProductId } from '../i18n/products';
  *              set on the tile at 72% so it sits like the others
  *   Voltip     voltip packages/ui/src/components/Logo.tsx: 「声波光标」, three white sound bars
  *              running into a cyan text cursor, the cursor's gradient flattened to its cyan
- *   Lockra     lockra apps/desktop/src-tauri/icons/icon.svg: a blue padlock under a pale
- *              shackle, its body showing a masked code (three dots)
+ *   Lockra     lockra apps/desktop/src-tauri/icons/icon.svg: a white padlock, its body
+ *              showing a masked code (three dots), on the brand's blue-violet tile — the one
+ *              tile that is not navy (Lockra 0.8.7); the gradient's id is made per icon, so a
+ *              page with many icons repeats none
  *   CodeGraph  codegraph-rust ui/src/components/BrandMark.svelte (36 grid, scaled to 100):
  *              its two linked nodes, on the navy tile instead of the viewer's violet
  *              gradient, the same drawing as the documentation site's logo
@@ -53,10 +55,14 @@ const PALE = '#E7EDF5';
 const ORANGE = '#F97316';
 const WHITE = '#FFFFFF';
 const CYAN = '#22D3EE';
-const BLUE = '#339CFF';
 const TEAL = '#14B8A6';
 const SLATE = '#64748B';
 const GOLD = '#E3BD66';
+const LOCKRA_FROM = '#3D7BFF';
+const LOCKRA_TO = '#7C5CFF';
+const LOCKRA_DOTS = '#5B6BFF';
+// Lockra's tile is a gradient: one id per icon, so two icons on a page never share it.
+const lockraTile = product === 'lockra' ? `lockra-tile-${crypto.randomUUID().slice(0, 8)}` : '';
 ---
 
 <svg
@@ -68,7 +74,18 @@ const GOLD = '#E3BD66';
   style={transitionName ? `view-transition-name: ${transitionName}` : undefined}
   {...(label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' })}
 >
-  <rect width="100" height="100" rx="22" fill={NAVY}></rect>
+  {
+    product === 'lockra' && (
+      <defs>
+        <linearGradient id={lockraTile} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color={LOCKRA_FROM} />
+          <stop offset="1" stop-color={LOCKRA_TO} />
+        </linearGradient>
+      </defs>
+    )
+  }
+  <rect width="100" height="100" rx="22" fill={product === 'lockra' ? `url(#${lockraTile})` : NAVY}
+  ></rect>
   <rect
     x="0.5"
     y="0.5"
@@ -182,14 +199,14 @@ const GOLD = '#E3BD66';
       <>
         <path
           d="M37 45 V36 A13 13 0 0 1 63 36 V45"
-          stroke={PALE}
+          stroke={WHITE}
           stroke-width="7"
           stroke-linecap="round"
         />
-        <rect x="26" y="43" width="48" height="37" rx="9" fill={BLUE} />
-        <circle cx="38" cy="61.5" r="4.2" fill={PALE} />
-        <circle cx="50" cy="61.5" r="4.2" fill={PALE} />
-        <circle cx="62" cy="61.5" r="4.2" fill={PALE} />
+        <rect x="26" y="43" width="48" height="37" rx="9" fill={WHITE} />
+        <circle cx="38" cy="61.5" r="4.2" fill={LOCKRA_DOTS} />
+        <circle cx="50" cy="61.5" r="4.2" fill={LOCKRA_DOTS} />
+        <circle cx="62" cy="61.5" r="4.2" fill={LOCKRA_DOTS} />
       </>
     )
   }
