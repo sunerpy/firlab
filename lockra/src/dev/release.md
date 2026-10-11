@@ -37,6 +37,12 @@ Versions: `package.json` is the only source (`tauri.conf.json` points at it, `Ca
 release. The first release is `0.1.0` (`initial-version` in `release-please-config.json`): with no
 earlier release tag, release-please would otherwise start at `1.0.0`.
 
+History: on 2026-10-11 the repository was started again from one commit holding the 0.8.9 tree
+(the owner's request); the releases `v0.1.1`–`v0.8.9` and every tag before it were deleted, and the
+versions go on from `0.9.0` so installed copies keep updating and the Android version code keeps
+rising. Those releases were immutable, so their tag names can never be used again here: do not
+release any of `0.1.1`–`0.8.9`. The pull requests #1–#116 stay on GitHub with their commits.
+
 release-please picks the next version from the commits since the last tag: a `fix` bumps the patch,
 a `feat` the minor (below 1.0 a breaking change too, `bump-minor-pre-major`). To release another
 version, for example only a patch after a `feat`, squash-merge a pull request whose commit message
