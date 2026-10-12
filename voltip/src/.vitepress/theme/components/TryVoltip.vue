@@ -27,7 +27,7 @@ interface Options {
   turnstile_site_key: string;
 }
 
-const { lang: siteLang } = useData();
+const { lang: siteLang, isDark } = useData();
 const lang = computed(() => langOf(siteLang.value));
 const t = computed(() => strings(lang.value));
 
@@ -135,7 +135,14 @@ onMounted(async () => {
   model.value = opts.value.polish_models[0] ?? '';
   if (turnstileBox.value && opts.value.turnstile_site_key) {
     try {
-      turnstile = await widget(turnstileBox.value, opts.value.turnstile_site_key, lang.value === 'zh' ? 'zh-cn' : 'en', onToken, () => (verified.value = false));
+      // The answer only opens the 30-minute session (`/api/try/session`); once that cookie is set
+      // the answer lapsing changes nothing, so it is not fetched again and the page stays usable.
+      // A lapsed session comes back from the API as `no_session`, which resets the widget (`call`).
+      // (2026-10-12: re-verifying every five minutes left the record button waiting mid-session.)
+      turnstile = await widget(turnstileBox.value, opts.value.turnstile_site_key, lang.value === 'zh' ? 'zh-cn' : 'en', onToken, () => {}, {
+        theme: isDark.value ? 'dark' : 'light',
+        refreshExpired: 'never',
+      });
     } catch {
       verifyError.value = t.value.verifyFailed;
     }
@@ -238,8 +245,8 @@ async function copy(which: 'heard' | 'polished') {
 
 <template>
   <div class="vt-try">
-    <!-- Empty unless Cloudflare needs the visitor to click (interaction-only). -->
-    <div ref="turnstileBox" class="vt-try-turnstile" />
+    <!-- Empty unless Cloudflare needs the visitor to click (interaction-only); gone once verified. -->
+    <div v-show="!verified" ref="turnstileBox" class="vt-try-turnstile" />
     <p v-if="verifyError" class="vt-try-error" role="alert">{{ verifyError }}</p>
 
     <section class="vt-try-rec">
