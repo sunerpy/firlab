@@ -64,7 +64,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
 export const en = defineConfig({
   lang: 'en-US',
   description:
-    'Lockra keeps your two-factor codes in one encrypted file on your computer, for Windows, macOS and Linux. Move accounts from and to Google Authenticator and Microsoft Authenticator, keep encrypted backups in a folder you choose, and sync your devices, end-to-end encrypted, through a Lockra relay or storage of your own.',
+    'Lockra keeps your two-factor codes in an encrypted file on each of your devices: Windows, macOS, Linux and Android. Sync keeps the same accounts on every device, end-to-end encrypted, through a Lockra relay or storage of your own; move accounts from and to Google Authenticator and Microsoft Authenticator, and keep encrypted backups in a folder you choose.',
 
   themeConfig: {
     nav: [

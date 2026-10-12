@@ -64,7 +64,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
 export const zh = defineConfig({
   lang: 'zh-CN',
   description:
-    'Lockra 把两步验证码保存在本机的一个加密文件中，适用于 Windows、macOS 和 Linux。可以在 Lockra 与 Google 身份验证器、Microsoft Authenticator 之间迁移账号，把加密备份写入你选择的文件夹，并经 Lockra 中继或你自己的存储，在多台设备之间端到端加密地同步。',
+    'Lockra 把两步验证码加密保存在每台设备上，适用于 Windows、macOS、Linux 和 Android。经 Lockra 中继或你自己的存储端到端加密同步，每台设备上的账号保持一致；可以在 Lockra 与 Google 身份验证器、Microsoft Authenticator 之间迁移账号，并把加密备份写入你选择的文件夹。',
 
   themeConfig: {
     nav: [
