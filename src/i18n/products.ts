@@ -28,6 +28,9 @@
  *     pools or resells access, gives free access, or gets around usage limits.
  *   - bedrock-gateway calls Bedrock with the user's own AWS account. Never write that it
  *     gives free or shared access to models.
+ *   - godot-mcp runs no arbitrary GDScript and downloads no engine; the tools that run Godot
+ *     use the build the user installed. Never write that it works without Godot for
+ *     everything, or that it makes an untrusted project safe to open.
  *   - winer works through the API the League client opens on the user's computer and
  *     the region's match-history server the client signs in to. Never write that it
  *     reads or changes the game, its memory or its files, or that it plays for the
@@ -58,6 +61,7 @@ import {
 export type ProductId =
   | 'pttools'
   | 'codegraph'
+  | 'godotmcp'
   | 'kiroprovider'
   | 'bedrockgateway'
   | 'agentlens'
@@ -137,6 +141,21 @@ export const products: Product[] = [
     tagline: {
       'zh-cn': '把代码仓库解析成符号和调用关系的索引，供命令行、编辑器和编码 Agent 查询，不依赖任何模型。',
       en: 'Indexes the symbols and calls in a repository for the command line, editors and coding agents to query. No model involved.',
+    },
+  },
+  {
+    id: 'godotmcp',
+    name: 'godot-mcp',
+    category: 'cli',
+    platforms: ['linux', 'macos', 'windows'],
+    // No release yet: no version, and no row in check-versions.mjs until the first one.
+    status: 'wip',
+    license: 'MIT',
+    repo: 'https://github.com/sunerpy/godot-mcp',
+    page: { href: { 'zh-cn': '/godot-mcp/zh/', en: '/godot-mcp/' } },
+    tagline: {
+      'zh-cn': '面向 Godot 项目的 MCP 服务器：Agent 不用引擎就能读懂脚本和场景，通过写入日志的事务修改项目，还能运行、操控和调试游戏与编辑器。',
+      en: 'An MCP server for Godot projects: your agent reads scripts and scenes without the engine, changes the project through journaled transactions, and runs, drives and debugs the game and the editor.',
     },
   },
   {

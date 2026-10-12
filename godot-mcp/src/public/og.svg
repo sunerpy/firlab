@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="godot-mcp — an MCP server for Godot projects. Analysis without the engine, journaled edits, and the games and editors it runs.">
+  <title>godot-mcp — an MCP server for Godot projects</title>
+  <!-- The source of og.png (1200 × 630, rendered in Chrome; godot-mcp/README.md). The colours
+       are the site's light theme (theme/styles/tokens.css); the exchange is the first call of the
+       home page's recorded session and fields of its real answer. -->
+
+  <!-- Ground -->
+  <rect width="1200" height="630" fill="#F3F6FA"/>
+
+  <!-- Accent hairline, top edge: the mark's orange, it never carries text -->
+  <rect x="0" y="0" width="1200" height="6" fill="#F97316"/>
+
+  <!-- The mark (godot-mcp-logo.svg at 60 px) and the name -->
+  <g transform="translate(88, 76)">
+    <svg width="60" height="60" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="14" fill="#0B1220"/>
+      <path d="M32 22v8m0 0H20v9m12-9h12v9" fill="none" stroke="#E7EDF5" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="32" cy="17" r="6" fill="#E7EDF5"/>
+      <circle cx="20" cy="45" r="6" fill="#E7EDF5"/>
+      <circle cx="44" cy="45" r="6" fill="#F97316"/>
+    </svg>
+    <text x="80" y="43"
+      font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif"
+      font-size="40" font-weight="650" letter-spacing="-0.6" fill="#0B1220">godot-mcp</text>
+  </g>
+
+  <!-- Address line, level with the name -->
+  <text x="1112" y="119" text-anchor="end"
+    font-family="'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Consolas, monospace"
+    font-size="22" fill="#5B6779">firlab.app/godot-mcp</text>
+
+  <!-- Headline: the hero's text; below it what the server does -->
+  <text
+    font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif"
+    font-size="62" font-weight="700" letter-spacing="-1.2" fill="#0B1220">
+    <tspan x="84" y="230">An MCP server for</tspan>
+    <tspan x="84" y="302">Godot projects</tspan>
+  </text>
+
+  <text x="88" y="356"
+    font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif"
+    font-size="26" font-weight="400" fill="#475569">Analysis without the engine, journaled edits, and the games and editors it runs.</text>
+
+  <!-- The first call of the recorded session and its answer, framed by a hairline -->
+  <rect x="88" y="386" width="1024" height="204" rx="12" fill="#FBFCFE"/>
+  <rect x="88.5" y="386.5" width="1023" height="203" rx="11.5" fill="none" stroke="#DCE4EE"/>
+  <text
+    font-family="'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Consolas, monospace"
+    font-size="19" fill="#334155" xml:space="preserve">
+    <tspan x="116" y="424" fill="#0B1220" font-weight="600"><tspan fill="#5B6779" font-weight="400">› </tspan>scene.tree.get  scene: main.tscn</tspan>
+    <tspan x="116" y="458">.            Node         main.gd</tspan>
+    <tspan x="116" y="485">Player       Area2D       player/player.gd</tspan>
+    <tspan x="116" y="512">HUD          CanvasLayer  ui/hud.gd</tspan>
+    <tspan x="116" y="539">Mob          RigidBody2D</tspan>
+    <tspan x="116" y="566">Mob.body_entered → ._on_mob_body_entered  exact</tspan>
+  </text>
+</svg>
