@@ -31,13 +31,16 @@ function load(): Promise<TurnstileApi> {
   return loading;
 }
 
-/** Renders a widget into `element`; `onToken` gets each answer, `onExpired` when it lapses. */
+/** Renders a widget into `element`; `onToken` gets each answer, `onExpired` when it lapses.
+ *  `interaction-only`: the widget stays out of sight and appears only when Cloudflare needs the
+ *  visitor to click it, so the try page does not open on a checkbox (2026-10-12). */
 export async function widget(element: HTMLElement, siteKey: string, language: string, onToken: (token: string) => void, onExpired: () => void): Promise<{ reset(): void; remove(): void }> {
   const api = await load();
   const id = api.render(element, {
     sitekey: siteKey,
     language,
     theme: 'auto',
+    appearance: 'interaction-only',
     callback: onToken,
     'expired-callback': onExpired,
     'error-callback': onExpired,

@@ -21,6 +21,7 @@ import HomeIndex from './components/HomeIndex.vue';
 import HomeModels from './components/HomeModels.vue';
 import HomePlatforms from './components/HomePlatforms.vue';
 import HomePrivacy from './components/HomePrivacy.vue';
+import HomeTryBand from './components/HomeTryBand.vue';
 import HomeRoadmap from './components/HomeRoadmap.vue';
 import HomeSteps from './components/HomeSteps.vue';
 import QrCode from './components/QrCode.vue';
@@ -38,6 +39,8 @@ export default {
     h(DefaultTheme.Layout, null, {
       'home-hero-info-after': () => h(HeroFacts),
       'home-hero-image': () => h(HeroVisual),
+      // The way to the try page, under the hero (renders only with `home.try`).
+      'home-hero-after': () => h(HomeTryBand),
     }),
   setup() {
     useSearchButtonLabel();

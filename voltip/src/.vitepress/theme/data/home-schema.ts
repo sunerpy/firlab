@@ -37,8 +37,19 @@ export interface IndexItem {
   link?: string;
 }
 
+/** The band under the hero that leads to the try page: what it offers, a heard → polished
+ *  sample, and the button. Optional, so the site builds before the pages carry it. */
+export interface TryBand {
+  title: string;
+  body: string;
+  heard: string;
+  polished: string;
+  action: { text: string; link: string };
+}
+
 export interface Home {
   facts: Fact[];
+  try?: TryBand;
   visual: Visual;
   index: { title: string; intro?: string; groups: { name: string; items: IndexItem[] }[] };
   steps: { title: string; items: { title: string; body: string; keys?: string[] }[] };
@@ -124,10 +135,25 @@ const obj =
     }
   };
 
+const optional =
+  (check: Check): Check =>
+  (v, path, problems) => {
+    if (v !== undefined) check(v, path, problems);
+  };
+
 const shot = obj({ light: str(), dark: str(), width: num, height: num, alt: str() });
 
 const HOME: Check = obj({
   facts: list(obj({ term: str(), text: str() }), 2),
+  try: optional(
+    obj({
+      title: str(),
+      body: str(),
+      heard: str(),
+      polished: str(),
+      action: obj({ text: str(), link: str() }),
+    }),
+  ),
   visual: obj({ home: shot, pill: list(shot, 1) }),
   index: obj({
     title: str(),
