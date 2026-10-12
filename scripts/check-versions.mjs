@@ -45,6 +45,12 @@ const products = [
     releasedConstant: 'bedrockgatewayReleased',
   },
   {
+    name: 'godot-mcp',
+    repository: 'sunerpy/godot-mcp',
+    versionConstant: 'godotmcpVersion',
+    releasedConstant: 'godotmcpReleased',
+  },
+  {
     name: 'AgentLens',
     repository: 'sunerpy/AgentLens',
     versionConstant: 'AGENTLENS_VERSION',
