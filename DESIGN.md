@@ -1019,11 +1019,11 @@ side from 1200 px, the one-language references with pointers in the other langua
 files with a `gm-` prefix. This section records only where it departs from §17, each with its reason;
 `godot-mcp/README.md` covers ownership and deployment.
 
-**A new path and no release (2026-10-12).** godot-mcp had no page on this site, so nothing redirects; its catalog
-entry (§4) is new, category `cli`, licence MIT. It has published no release yet, so the entry is `wip` with no
-version, and `versions.ts` and `check-versions.mjs` have no row for it: the check fails on a repository without a
-release. The first release adds both and moves the entry to `early`. Until then the guide's install page and the home
-page's Install section say that there is no release and point at the source build.
+**A new path, then the first release (2026-10-12).** godot-mcp had no page on this site, so nothing redirects; its
+catalog entry (§4) is new, category `cli`, licence MIT. It went live as `wip` with no version, because
+`check-versions.mjs` fails on a repository without a release, and the guide said so. The same day v0.1.0 was
+published: the entry is `early`, its version is in `versions.ts` with a `check-versions.mjs` row, and the pages no
+longer mention a missing release.
 
 **The hero is an MCP exchange.** godot-mcp is a protocol server: a terminal session would show a process waiting on
 stdin. The visual is what a client sends and what godot-mcp answers, from a recorded session against a small project:

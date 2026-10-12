@@ -121,9 +121,9 @@ the Pages artifact, refusing to overwrite a `dist/godot-mcp/` the main site emit
    ```
 
 2. **The entry on firlab.app.** godot-mcp is an entry in `src/i18n/products.ts`. Its `page.href` is this site's
-   absolute path in each language (`/godot-mcp/`, `/godot-mcp/zh/`). It has no release yet, so the entry is `wip`
-   with no version, and neither `src/i18n/versions.ts` nor `scripts/check-versions.mjs` has a row for it: the check
-   fails on a repository without a release. The first release adds both, and the entry becomes `early`.
+   absolute path in each language (`/godot-mcp/`, `/godot-mcp/zh/`). Its version and release date are the
+   `godotmcpVersion` and `godotmcpReleased` constants in `src/i18n/versions.ts`, which `scripts/check-versions.mjs`
+   keeps in step with the latest release.
 
 Merge order: this sub-site first, then the godot-mcp change that adds the two workflows, so the first check finds
 `godot-mcp/scripts/sync-godot-mcp-docs.sh` on `main`.
