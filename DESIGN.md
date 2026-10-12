@@ -502,7 +502,7 @@ when this site was built (§1 has since moved to 1.12 / 1.3 for its sans heading
 375 × 812: what it does (name, headline, tagline), where it runs and where the audio goes
 (two fact rows), how to get it (the Download button). The hero puts the words left and a real
 capture of the app's home page right, with the overlay pill below it cycling through its
-three states. Then: the feature index (two columns of groups, each row with its status), one
+three states. Then: the band that leads to the try page (below), the feature index (two columns of groups, each row with its status), one
 dictation in four steps, three text-and-evidence splits that alternate sides (local and
 cloud recognition with the model table, AI polish with a before-and-after, the phone with its
 pairing methods), the platform table (rows become cards under 768 px), what leaves the
@@ -518,6 +518,38 @@ the same hairline, radius and plate shadow, `preload="metadata"` and a poster, s
 video bytes until the reader presses play; the captions are burned into the picture. `QrCode` is
 the pt-tools component on this site's tokens, with its white plate in both themes
 (`--vt-qr-plate`) because a scanner needs a light ground.
+
+**The try page and the way in (2026-10-12, the owner's pick of three drawn directions).** The
+owner found the try page buried: one grey button among five in the hero, and a documentation page
+whose sidebar, outline, three prose sections and pager outweighed the tool on it. Of the three
+directions drawn and rendered on this theme, the owner took the band (B) for the way in and the
+single column (A) for the page:
+
+- The hero keeps three buttons: Download, Try it online, Quick start. The video and GitHub
+  buttons left it; the video stays on What is Voltip, GitHub in the nav bar.
+- Under the hero, `HomeTryBand` draws `home.try` (optional in `home-schema.ts`, so the site
+  builds before the pages carry it): a plate with a microphone, the offer, a heard → polished
+  sample and its own button, the whole plate one link target. The sample hides below 1100 px.
+- The nav bar's try item is the one item drawn as an outlined pill, with a microphone from 1200 px;
+  below that the English bar has no room for the icon beside a sidebar (measured at 1100 px: the
+  last item ended at the window's edge), so the item keeps the other items' width.
+- `guide/try.md` is a `layout: page` with `pageClass: vt-try-page` and `sidebar: false`: one
+  centred column, the Markdown's title and line, then `TryVoltip`. A tool page with one action,
+  so the home page's "no centred hero" does not apply. The record button is 112 px of ink with a
+  hairline ring at rest and, while it records, an orange ring that follows the input level (still
+  under reduced motion). The settings are three native selects drawn as pills (`field-sizing:
+  content` where the browser has it) and the polish switch; both texts share one card, the heard
+  one above, the polished one below, the step marked on the rule between them. A one-line note
+  (nothing is kept, the hourly limits, the privacy link) and the app's line with the Download
+  button close the page. What is sent where stays on the privacy page.
+- Turnstile renders with `appearance: 'interaction-only'`: the page no longer opens on a
+  checkbox, the record button waits, disabled, until the check has passed, and the widget shows
+  only when Cloudflare needs a click.
+
+Checked 2026-10-12 on the local build with the API answered in the page: both languages, both
+themes, 390 / 768 / 960 / 1100 / 1200 / 1440 px, a full take (record, recognise, polish) and the
+states in between. Nothing new overflows; the English bar at 768 px with a scroll bar already ended
+25 px past the window before this change (the same on the live site).
 
 **Structure.** The home page's root is a `<main>`: `theme/components/HomeMain.vue` replaces
 VitePress's `VPHome`, which has no main landmark, through the alias VitePress documents for
