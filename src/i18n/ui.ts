@@ -87,6 +87,7 @@ const zh = {
   'platform.windows': 'Windows',
   'platform.macos': 'macOS',
   'platform.linux': 'Linux',
+  'platform.android': 'Android',
   'platform.docker': 'Docker',
 
   'card.repo': '{name} 的 GitHub 仓库',
@@ -156,6 +157,7 @@ const en: Record<keyof typeof zh, string> = {
   'platform.windows': 'Windows',
   'platform.macos': 'macOS',
   'platform.linux': 'Linux',
+  'platform.android': 'Android',
   'platform.docker': 'Docker',
 
   'card.repo': '{name} on GitHub',

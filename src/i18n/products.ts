@@ -23,7 +23,8 @@
  *     polish paths send audio or text to the service the user chose. Never write
  *     "nothing leaves your computer".
  *   - Lockra goes online for its own updates and, once the user sets it up, for
- *     sync through storage of their own. Never write "no network connections".
+ *     sync through storage of their own or a Lockra relay. Never write "no network
+ *     connections".
  *   - kiro-provider serves the user's own Kiro accounts. Never write that it shares,
  *     pools or resells access, gives free access, or gets around usage limits.
  *   - bedrock-gateway calls Bedrock with the user's own AWS account. Never write that it
@@ -74,10 +75,10 @@ export type Status = 'live' | 'early' | 'wip';
 
 export type Category = 'service' | 'cli' | 'desktop';
 
-export type Platform = 'windows' | 'macos' | 'linux' | 'docker';
+export type Platform = 'windows' | 'macos' | 'linux' | 'android' | 'docker';
 
 /** Canonical rendering order, whatever order an entry lists its platforms in. */
-export const PLATFORM_ORDER: readonly Platform[] = ['windows', 'macos', 'linux', 'docker'];
+export const PLATFORM_ORDER: readonly Platform[] = ['windows', 'macos', 'linux', 'android', 'docker'];
 
 export interface Product {
   id: ProductId;
@@ -226,7 +227,7 @@ export const products: Product[] = [
     id: 'lockra',
     name: 'Lockra',
     category: 'desktop',
-    platforms: ['windows', 'macos', 'linux'],
+    platforms: ['windows', 'macos', 'linux', 'android'],
     status: 'early',
     version: LOCKRA_VERSION,
     released: LOCKRA_RELEASED,
@@ -234,8 +235,8 @@ export const products: Product[] = [
     repo: 'https://github.com/sunerpy/lockra',
     page: { href: { 'zh-cn': '/lockra/zh/', en: '/lockra/' } },
     tagline: {
-      'zh-cn': '离线使用的两步验证器。验证码加密保存在本机，可选通过自己的存储在多台设备间同步。',
-      en: 'An offline two-factor authenticator. Codes are encrypted on your computer, with optional sync between devices through storage of your own.',
+      'zh-cn': '电脑和 Android 手机上的两步验证器。账号加密保存在每台设备上，可以经内置中继或你自己的存储端到端加密同步。',
+      en: 'A two-factor authenticator for your computers and your Android phone. Accounts are encrypted on each device, with optional end-to-end encrypted sync through the built-in relay or storage of your own.',
     },
   },
   {

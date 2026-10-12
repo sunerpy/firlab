@@ -44,7 +44,7 @@ const CODE_CONTRAST: Record<'light' | 'dark', Record<string, string>> = {
 
 export const shared = defineConfig({
   title: 'Lockra',
-  description: 'Two-factor codes that stay on your computer. Windows, macOS and Linux.',
+  description: 'Two-factor codes that stay on your devices. Windows, macOS, Linux and Android.',
   lang: 'en-US',
   base: BASE,
 
