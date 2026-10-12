@@ -1008,3 +1008,55 @@ home page: no horizontal overflow on the 44 pages at 375,
 home pages from 960 to 1440 px; the English headline, both facts and the Install button end above the fold at
 1280 × 800 (703 px), 1440 × 900 and 375 × 812 (771 px). Not yet checked: the Chinese pages with their real text,
 Lighthouse, and the colour sweep.
+
+## 18. Product documentation inside firlab.app: firlab.app/godot-mcp
+
+`godot-mcp/` is the bedrock-gateway site (§17) for godot-mcp, published the same way under a path of this site:
+VitePress builds it with `base: '/godot-mcp/'` and `deploy.yml` copies it to `dist/godot-mcp/` after
+`godot-mcp/scripts/check-dist.sh` has passed. It keeps everything §17 records (English root locale, system faces with
+JetBrains Mono, the home-page frontmatter contract with three evidence tables, the table scroll boxes, splits side by
+side from 1200 px, the one-language references with pointers in the other language, the §14 fixes) through the same
+files with a `gm-` prefix. This section records only where it departs from §17, each with its reason;
+`godot-mcp/README.md` covers ownership and deployment.
+
+**A new path and no release (2026-10-12).** godot-mcp had no page on this site, so nothing redirects; its catalog
+entry (§4) is new, category `cli`, licence MIT. It has published no release yet, so the entry is `wip` with no
+version, and `versions.ts` and `check-versions.mjs` have no row for it: the check fails on a repository without a
+release. The first release adds both and moves the entry to `early`. Until then the guide's install page and the home
+page's Install section say that there is no release and point at the source build.
+
+**The hero is an MCP exchange.** godot-mcp is a protocol server: a terminal session would show a process waiting on
+stdin. The visual is what a client sends and what godot-mcp answers, from a recorded session against a small project:
+`call` lines carry a `›` the reader does not send, `argument` lines sit under their call past the prompt, and
+`answer` lines are fields of the structured answer with every value copied unchanged. These three kinds replace §15's
+`command`, `continuation` and `output`.
+
+**What a capability needs, not a release state.** Every tool ships in the same release, so `available` and `opt-in`
+would say nothing. What a reader has to know is whether a tool needs Godot: an index row is `no-engine` ("No engine" /
+「无需引擎」, teal text behind a teal dot) or `engine` ("Needs Godot" / 「需要 Godot」, ink text behind a slate ring, so a
+requirement carries no hue). The platform rows carry no tag: each platform has an archive.
+
+**The three splits.** Profiles (what each one adds, with example tools), the managed sessions (the tools for each
+task) and the locked Godot builds (what CI runs against each). Their code cells hold tool names such as
+`gdscript.references.get`, which do not break, so §17's 1200 px breakpoint and word-keeping code cells apply as they
+are.
+
+**Navigation.** The bar carries Guide, Operate and Reference, one item fewer than §17's. The sidebar adds a Use group
+between Guide and Operate for the five task pages (analysis, editing, the engine, games and editors, the editor
+add-on); Privacy and Developers close it as on §17.
+
+**Mark (2026-10-12).** godot-mcp ships no app icon, so its mark is drawn for this site in the §1 values: on the navy
+tile, a pale scene tree of three nodes whose third node is orange, the client the tree is answered to. Orange returns
+because nothing here is about AWS (§17's reason for teal); the palette is the Voltip site's as it is, and orange keeps
+its role there: the logo, the dots and tints, never text. There is no Godot logo and no Godot blue: godot-mcp is not
+affiliated with the Godot Engine project, and the footer says so in both languages. The same drawing is the site's
+logo (`godot-mcp-logo.svg`, owned by godot-mcp) and the catalog's `AppIcon`; `og.svg` carries it with the headline and
+the first call of the hero's session, and `og.png` is rendered from it in Chrome.
+
+**Checked so far (2026-10-12, local preview, Chrome).** On a build from the pages as they stand that day, all 60 pages
+(30 in each language) at 375, 768 and 1280 px: no page scrolls sideways, nothing reaches past the viewport outside a
+scroll box, and every box that scrolls sideways is focusable. On both home pages from 960 to 1440 px every evidence
+table ends inside its plate and none of them scrolls. The Install button ends above the fold: 702 px of 800 at
+1280 × 800 (and of 900 at 1440 × 900) and 725 px of 812 at 375 × 812 in English, 650 px at 1280 × 800 and 375 × 812
+in Chinese. Not yet checked: Lighthouse and a colour-contrast sweep; the dark theme was looked at only on the Chinese
+home page at 375 px.

@@ -27,6 +27,9 @@ import type { ProductId } from '../i18n/products';
  *              (the OpenAI APIs a client speaks) merge and pass between two gateposts, and
  *              the lane past the gate is teal (Amazon Bedrock); no app icon either, so the
  *              documentation site's logo is the mark
+ *   godot-mcp  godot-mcp docs/site/public/godot-mcp-logo.svg (64 grid, scaled to 100): a
+ *              scene tree of three pale nodes, the third orange (the client it answers); no app
+ *              icon either, so the documentation site's logo is the mark
  *   winer      winer app/src-tauri/app-icon.svg (512 grid, scaled to 100): the gold hexagon
  *              badge with its W cut through to the tile, the gradient flattened to the
  *              tray glyph's gold so a page with many icons repeats no gradient id
@@ -130,6 +133,23 @@ const lockraTile = product === 'lockra' ? `lockra-tile-${crypto.randomUUID().sli
           stroke-linecap="round"
         />
         <rect x="19" y="19" width="7" height="7" rx="1.8" fill={ORANGE} />
+      </g>
+    )
+  }
+
+  {
+    product === 'godotmcp' && (
+      <g transform="scale(1.5625)">
+        <path
+          d="M32 22v8m0 0H20v9m12-9h12v9"
+          stroke={PALE}
+          stroke-width="3.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <circle cx="32" cy="17" r="6" fill={PALE} />
+        <circle cx="20" cy="45" r="6" fill={PALE} />
+        <circle cx="44" cy="45" r="6" fill={ORANGE} />
       </g>
     )
   }

@@ -48,6 +48,7 @@ jobs:
             kiro-provider/pnpm-lock.yaml
             winer/pnpm-lock.yaml
             bedrock-gateway/pnpm-lock.yaml
+            godot-mcp/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -222,6 +223,32 @@ jobs:
           fi
           cp -R bedrock-gateway/dist dist/bedrock-gateway
           test -f dist/bedrock-gateway/index.html && test -f dist/bedrock-gateway/zh/index.html
+
+      # The godot-mcp documentation site is published the same way, under /godot-mcp/
+      # (godot-mcp/README.md). English is its root locale and Chinese sits under /zh/.
+      - name: Install the godot-mcp site's dependencies
+        working-directory: godot-mcp
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the godot-mcp site
+        working-directory: godot-mcp
+        run: pnpm build
+
+      # Both languages, every in-site link resolves, and every link, asset and sitemap entry
+      # stays under /godot-mcp/.
+      - name: Check the godot-mcp site
+        working-directory: godot-mcp
+        run: ./scripts/check-dist.sh dist
+
+      - name: Add the godot-mcp site under /godot-mcp/
+        run: |
+          set -euo pipefail
+          if [ -e dist/godot-mcp ]; then
+            echo "::error::the main site already emits dist/godot-mcp; the godot-mcp site would overwrite it"
+            exit 1
+          fi
+          cp -R godot-mcp/dist dist/godot-mcp
+          test -f dist/godot-mcp/index.html && test -f dist/godot-mcp/zh/index.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
