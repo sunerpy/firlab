@@ -33,6 +33,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: '场景', link: '/zh/recognition/scenes' },
       { text: '词典与替换规则', link: '/zh/recognition/dictionary' },
       { text: '本机服务', link: '/zh/recognition/service' },
+      { text: 'AI 工具接入', link: '/zh/recognition/mcp' },
     ],
   },
   {
