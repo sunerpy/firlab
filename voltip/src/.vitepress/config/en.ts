@@ -33,6 +33,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: 'Scenes', link: '/recognition/scenes' },
       { text: 'Dictionary and rules', link: '/recognition/dictionary' },
       { text: 'Local service', link: '/recognition/service' },
+      { text: 'AI tools', link: '/recognition/mcp' },
     ],
   },
   {
