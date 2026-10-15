@@ -4,6 +4,9 @@ import synced from '../synced.json';
 
 const REPO = 'https://github.com/sunerpy/lockra';
 
+/** 密码管理（Lockra 0.10.0）：同步带来它的页面后才列出（scripts/sync-lockra-docs.sh，synced.json 的 `sections`）。 */
+const passwords = ((synced as { sections?: string[] }).sections ?? []).includes('passwords');
+
 const sidebar: DefaultTheme.SidebarItem[] = [
   {
     text: '开始使用',
@@ -21,6 +24,18 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: '添加账号', link: '/zh/accounts/add' },
     ],
   },
+  ...(passwords
+    ? [
+        {
+          text: '密码',
+          items: [
+            { text: '密码', link: '/zh/passwords/' },
+            { text: '浏览器扩展', link: '/zh/passwords/browser' },
+            { text: '导入与导出登录项', link: '/zh/passwords/import-export' },
+          ],
+        },
+      ]
+    : []),
   {
     text: '迁移账号',
     items: [
@@ -70,6 +85,7 @@ export const zh = defineConfig({
     nav: [
       { text: '指南', link: '/zh/guide/what-is-lockra', activeMatch: '^/zh/guide/' },
       { text: '账号', link: '/zh/accounts/codes', activeMatch: '^/zh/accounts/' },
+      ...(passwords ? [{ text: '密码', link: '/zh/passwords/', activeMatch: '^/zh/passwords/' }] : []),
       { text: '迁移账号', link: '/zh/transfer/google', activeMatch: '^/zh/transfer/' },
       { text: '备份与安全', link: '/zh/backup/', activeMatch: '^/zh/(backup|security)/|^/zh/privacy' },
       {
