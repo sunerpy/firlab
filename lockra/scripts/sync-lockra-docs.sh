@@ -41,6 +41,11 @@ fi
 
 # The user guide. English sections sit at the root, the whole Chinese tree under zh/.
 SYNCED_DIRS=(guide accounts transfer backup security reference zh)
+# Sections lockra adds in a pull request before its main has them: synced when present (and gone
+# here when gone there). The navigation lists one once its pages are here: the sync records the
+# sections it brought as `sections` in .vitepress/synced.json. passwords/: Lockra 0.10.0's password
+# management (its Chinese pages come with zh/).
+OPTIONAL_DIRS=(passwords)
 SYNCED_FILES=(index.md privacy.md roadmap.md developers.md)
 
 # Design documents, written in English for contributors, copied to /dev/. Each also gets a
@@ -166,7 +171,16 @@ done < <(find "$SRC" -name '*.md' -print0)
 
 echo "syncing from $SRC"
 
-for dir in "${SYNCED_DIRS[@]}"; do
+present=("${SYNCED_DIRS[@]}")
+for dir in "${OPTIONAL_DIRS[@]}"; do
+  if [ -d "$SRC/$dir" ]; then
+    present+=("$dir")
+  else
+    rm -rf "${DEST:?}/$dir"
+  fi
+done
+
+for dir in "${present[@]}"; do
   # Replace the directory wholesale so a page removed upstream disappears here too.
   rm -rf "${DEST:?}/$dir"
   mkdir -p "$DEST/$dir"
@@ -239,12 +253,14 @@ synced_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 if [ -f "$STAMP" ] && grep -q "\"shortCommit\": \"$SHORT\"" "$STAMP" && grep -q "\"commit\": \"$COMMIT\"" "$STAMP"; then
   synced_at="$(sed -n 's/.*"syncedAt": "\([^"]*\)".*/\1/p' "$STAMP")"
 fi
+sections="$(printf '"%s", ' "${present[@]}")"
 cat >"$STAMP" <<JSON
 {
   "source": "$REPO",
   "commit": "$COMMIT",
   "shortCommit": "$SHORT",
-  "syncedAt": "$synced_at"
+  "syncedAt": "$synced_at",
+  "sections": [${sections%, }]
 }
 JSON
 

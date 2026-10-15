@@ -4,6 +4,10 @@ import synced from '../synced.json';
 
 const REPO = 'https://github.com/sunerpy/lockra';
 
+/** Password management (Lockra 0.10.0), listed once the sync has brought its pages
+ *  (scripts/sync-lockra-docs.sh, `sections` in synced.json). */
+const passwords = ((synced as { sections?: string[] }).sections ?? []).includes('passwords');
+
 const sidebar: DefaultTheme.SidebarItem[] = [
   {
     text: 'Getting started',
@@ -21,6 +25,18 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: 'Adding an account', link: '/accounts/add' },
     ],
   },
+  ...(passwords
+    ? [
+        {
+          text: 'Passwords',
+          items: [
+            { text: 'Passwords', link: '/passwords/' },
+            { text: 'The browser extension', link: '/passwords/browser' },
+            { text: 'Importing and exporting logins', link: '/passwords/import-export' },
+          ],
+        },
+      ]
+    : []),
   {
     text: 'Moving accounts',
     items: [
@@ -70,6 +86,7 @@ export const en = defineConfig({
     nav: [
       { text: 'Guide', link: '/guide/what-is-lockra', activeMatch: '^/guide/' },
       { text: 'Accounts', link: '/accounts/codes', activeMatch: '^/accounts/' },
+      ...(passwords ? [{ text: 'Passwords', link: '/passwords/', activeMatch: '^/passwords/' }] : []),
       { text: 'Moving accounts', link: '/transfer/google', activeMatch: '^/transfer/' },
       { text: 'Backups & security', link: '/backup/', activeMatch: '^/(backup|security)/|^/privacy' },
       {
