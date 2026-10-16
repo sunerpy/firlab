@@ -23,6 +23,7 @@ import HomePrivacy from './components/HomePrivacy.vue';
 import HomeScope from './components/HomeScope.vue';
 import HomeSteps from './components/HomeSteps.vue';
 import ScreenFigure from './components/ScreenFigure.vue';
+import ScreenVideo from './components/ScreenVideo.vue';
 import SplitBlock from './components/SplitBlock.vue';
 import StatusTag from './components/StatusTag.vue';
 import { useSearchButtonLabel } from './search-button';
@@ -47,6 +48,7 @@ export default {
     app.component('HomePrivacy', HomePrivacy);
     app.component('HomeScope', HomeScope);
     app.component('ScreenFigure', ScreenFigure);
+    app.component('ScreenVideo', ScreenVideo);
     app.component('StatusTag', StatusTag);
   },
 } satisfies Theme;
