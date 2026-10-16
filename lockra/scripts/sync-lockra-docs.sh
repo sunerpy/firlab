@@ -70,7 +70,7 @@ PUBLIC_FILES=(lockra-logo.svg)
 # Components a page may use: the ones src/.vitepress/theme/index.ts registers, plus
 # VitePress's own Badge. An unknown tag would render as an empty custom element with only a
 # console warning, so it fails the sync instead.
-ALLOWED_COMPONENTS=(Badge HomeIndex HomeSteps SplitBlock HomePlatforms HomePrivacy HomeScope ScreenFigure StatusTag)
+ALLOWED_COMPONENTS=(Badge HomeIndex HomeSteps SplitBlock HomePlatforms HomePrivacy HomeScope ScreenFigure ScreenVideo StatusTag)
 
 fail=0
 problem() {
