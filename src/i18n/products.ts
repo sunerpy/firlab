@@ -238,8 +238,8 @@ export const products: Product[] = [
     repo: 'https://github.com/sunerpy/lockra',
     page: { href: { 'zh-cn': '/lockra/zh/', en: '/lockra/' } },
     tagline: {
-      'zh-cn': '电脑和 Android 手机上的两步验证器。账号加密保存在每台设备上，可以经内置中继或你自己的存储端到端加密同步。',
-      en: 'A two-factor authenticator for your computers and your Android phone. Accounts are encrypted on each device, with optional end-to-end encrypted sync through the built-in relay or storage of your own.',
+      'zh-cn': '电脑和 Android 手机上的两步验证器和密码管理器。验证码和密码加密保存在每台设备上，浏览器扩展替你填入登录项，可以经内置中继或你自己的存储端到端加密同步。',
+      en: 'A two-factor authenticator and password manager for your computers and your Android phone. Codes and passwords are encrypted on each device and a browser extension fills your logins, with optional end-to-end encrypted sync through the built-in relay or storage of your own.',
     },
   },
   {

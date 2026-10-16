@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Lockra — two-factor codes that stay on your devices. An encrypted authenticator for Windows, macOS, Linux and Android.">
-  <title>Lockra — two-factor codes that stay on your devices.</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Lockra — codes and passwords that stay on your devices. An encrypted authenticator and password manager for Windows, macOS, Linux and Android.">
+  <title>Lockra — codes and passwords that stay on your devices.</title>
   <!-- The source of og.png (1200 × 630, rendered in a browser with the site's fonts;
        lockra/README.md). The colours are the site's light theme (theme/styles/tokens.css); the
        two rows are a real capture of the app in 澄空, its default theme (the AWS and Cloudflare
@@ -36,13 +36,13 @@
   <text
     font-family="'Instrument Sans Variable', 'Instrument Sans', 'Segoe UI', system-ui, sans-serif"
     font-size="76" font-weight="650" letter-spacing="-1.6" fill="#0B1220">
-    <tspan x="84" y="270">Two-factor codes that</tspan>
+    <tspan x="84" y="270">Codes and passwords that</tspan>
     <tspan x="84" y="356">stay on your devices.</tspan>
   </text>
 
   <text x="88" y="418"
     font-family="'Instrument Sans Variable', 'Instrument Sans', 'Segoe UI', system-ui, sans-serif"
-    font-size="28" font-weight="450" fill="#475569">An encrypted authenticator for Windows, macOS, Linux and Android.</text>
+    font-size="28" font-weight="450" fill="#475569">An encrypted authenticator and password manager, on every device.</text>
 
   <!-- Two rows of the codes page, a real capture, framed by a hairline -->
   <clipPath id="rows">
