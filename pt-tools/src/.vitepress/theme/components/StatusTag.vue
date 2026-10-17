@@ -2,7 +2,8 @@
 /**
  * Maturity, stated as text. The dot's colour reinforces the label and never carries
  * the meaning alone (WCAG 1.4.1). firlab.app's three states, plus `experimental` for a
- * feature that ships without end-to-end verification.
+ * feature that ships without end-to-end verification and `preview` for one that ships only
+ * in the preview releases so far.
  */
 import { computed } from 'vue';
 import { useData } from 'vitepress';
@@ -12,8 +13,14 @@ const props = defineProps<{ status: Status }>();
 const { lang } = useData();
 
 const LABELS: Record<string, Record<Status, string>> = {
-  'zh-CN': { available: '已发布', experimental: '实验性', building: '开发中', planned: '计划中' },
-  'en-US': { available: 'Available', experimental: 'Experimental', building: 'In development', planned: 'Planned' },
+  'zh-CN': { available: '已发布', preview: '预览版', experimental: '实验性', building: '开发中', planned: '计划中' },
+  'en-US': {
+    available: 'Available',
+    preview: 'Preview',
+    experimental: 'Experimental',
+    building: 'In development',
+    planned: 'Planned',
+  },
 };
 
 const label = computed(() => (LABELS[lang.value] ?? LABELS['zh-CN'])[props.status] ?? props.status);
@@ -44,8 +51,15 @@ const label = computed(() => (LABELS[lang.value] ?? LABELS['zh-CN'])[props.statu
   background: currentColor;
 }
 
-.pt-status[data-status='available'] {
+.pt-status[data-status='available'],
+.pt-status[data-status='preview'] {
   color: var(--pt-live);
+}
+
+/* Shipped, in the preview releases only: the green of "available", as a ring rather than a dot. */
+.pt-status[data-status='preview']::before {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px currentColor;
 }
 
 .pt-status[data-status='building'],
