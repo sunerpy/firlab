@@ -186,8 +186,11 @@ this site, on Cloudflare, they reach well. `functions/updates/[[path]].ts` answe
 | `GET`, `HEAD /updates/download/<tag>/<file>` | one of `sunerpy/voltip`'s release files |
 
 GitHub stays the source; the channel needs no setting, secret or storage of its own. The two
-documents are built from GitHub's latest release and reused for 5 minutes, and the last good
-manifest answers for a week while GitHub cannot be reached (`x-voltip-stale: 1`). A release
+documents are built from GitHub's latest release and reused for 5 minutes. While GitHub cannot be
+read from a data centre, both answer there with a 502, and the desktop app and the phone ask GitHub
+themselves, their next address. An older copy is never given instead: it is a 2xx answer the apps
+take, so it told everyone asking there that they were up to date (2026-10-17: Columbus could not
+read GitHub and answered with 0.1.6 after 0.1.7 was out). A release
 file is copied into the data centre's cache (the Cache API, up to 512 MB a file) the first time
 someone there asks for it; the copy finishes before the answer starts, and later downloads come
 from the cache. Only this repository's releases are served, by a `vX.Y.Z` tag and a plain file

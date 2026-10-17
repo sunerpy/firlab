@@ -93,19 +93,30 @@ describe("update channel", () => {
     expect(calls).toHaveLength(2);
   });
 
-  it("regression: answers with the last good manifest while GitHub is unreachable, and with a 502 without one", async () => {
+  it("regression: answers no manifest while GitHub cannot be read, so the app asks GitHub itself", async () => {
+    // 2026-10-17: GitHub could not be read from Cloudflare's Columbus location, which kept answering
+    // with the manifest of the release before (0.1.6) for an hour after 0.1.7: a 2xx answer, so the
+    // desktop updater and the phone took it, said they were up to date and never asked GitHub.
     let down = false;
     const { deps, advance } = setup((url, init) => {
       if (down) throw new TypeError("network connection lost");
       return github()(url, init);
     });
     expect((await route(get("/updates/latest.json"), ["latest.json"], deps)).status).toBe(200);
+    expect((await route(get("/updates/android.json"), ["android.json"], deps)).status).toBe(200);
     down = true;
     advance((MANIFEST_TTL + 1) * 1000);
-    const kept = await route(get("/updates/latest.json"), ["latest.json"], deps);
-    expect(kept.status).toBe(200);
-    expect(kept.headers.get("x-voltip-stale")).toBe("1");
-    expect(((await kept.json()) as typeof MANIFEST).version).toBe("0.0.52");
+    for (const path of ["latest.json", "android.json"]) {
+      const answer = await route(get(`/updates/${path}`), [path], deps);
+      expect(answer.status).toBe(502);
+      expect(answer.headers.get("cache-control")).toBe("no-store");
+      expect(answer.headers.get("x-voltip-stale")).toBeNull();
+    }
+    // GitHub answering again: the release is served at once.
+    down = false;
+    const back = await route(get("/updates/latest.json"), ["latest.json"], deps);
+    expect(back.status).toBe(200);
+    expect(((await back.json()) as typeof MANIFEST).version).toBe("0.0.52");
 
     const empty = setup(() => {
       throw new TypeError("network connection lost");

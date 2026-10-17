@@ -21,8 +21,6 @@ export const LATEST_MANIFEST = `${RELEASES}/latest/download/latest.json`;
 
 /** How long the manifest is reused: a new release reaches every app within five minutes. */
 export const MANIFEST_TTL = 300;
-/** How long the last good manifest is kept to answer with while GitHub cannot be reached. */
-export const STALE_TTL = 7 * 24 * 3600;
 /** Release files never change under a tag. */
 export const FILE_TTL = 365 * 24 * 3600;
 /** Cloudflare's cache takes files up to 512 MB; larger ones are passed through uncached. */
@@ -131,35 +129,30 @@ async function fetchManifest(origin: string, deps: UpdateDeps): Promise<Manifest
 }
 
 /**
- * The manifest, from the cache while it is fresh, else from GitHub; while GitHub cannot be reached,
- * the last good copy of the past week (`x-voltip-stale: 1`), and with none a 502, on which the
- * desktop updater tries its next address.
+ * The manifest, from the cache while it is fresh, else from GitHub. While GitHub cannot be read
+ * from this Cloudflare location there is none, and the caller answers with a 502: the desktop
+ * updater and the phone then ask their next address, GitHub itself. A copy kept from before would
+ * be a 2xx answer they take, telling every client that asks here it is up to date (2026-10-17:
+ * Columbus could not read GitHub and kept answering with 0.1.6 after 0.1.7 was out).
  */
-async function currentManifest(request: Request, deps: UpdateDeps): Promise<{ manifest: Manifest; stale: boolean } | null> {
+async function currentManifest(request: Request, deps: UpdateDeps): Promise<Manifest | null> {
   const cache = deps.cache();
   const fresh = siteKey(request, "latest.json");
-  const lastGood = siteKey(request, "latest.json?last-good");
   const hit = await cache.match(fresh);
   if (hit) {
     const manifest = readManifest(await hit.json());
-    if (manifest) return { manifest, stale: false };
+    if (manifest) return manifest;
   }
   const manifest = await fetchManifest(new URL(request.url).origin, deps);
-  if (manifest) {
-    await cache.put(fresh, jsonBody(manifest, MANIFEST_TTL));
-    await cache.put(lastGood, jsonBody(manifest, STALE_TTL));
-    return { manifest, stale: false };
-  }
-  const old = await cache.match(lastGood);
-  const kept = old ? readManifest(await old.json()) : null;
-  return kept ? { manifest: kept, stale: true } : null;
+  if (manifest) await cache.put(fresh, jsonBody(manifest, MANIFEST_TTL));
+  return manifest;
 }
 
 /** `GET /updates/latest.json`: what tauri-plugin-updater reads. */
 export async function latest(request: Request, deps: UpdateDeps = defaultUpdateDeps): Promise<Response> {
-  const current = await currentManifest(request, deps);
-  if (!current) return text(502, "the latest release could not be read from GitHub");
-  return jsonBody(current.manifest, MANIFEST_TTL, current.stale ? { "x-voltip-stale": "1" } : {});
+  const manifest = await currentManifest(request, deps);
+  if (!manifest) return text(502, "the latest release could not be read from GitHub");
+  return jsonBody(manifest, MANIFEST_TTL);
 }
 
 /** The phone's APK of `version`, the name `.github/release-targets.json` gives it. */
@@ -177,9 +170,9 @@ export async function android(request: Request, deps: UpdateDeps = defaultUpdate
   const key = siteKey(request, "android.json");
   const hit = await cache.match(key);
   if (hit) return hit;
-  const current = await currentManifest(request, deps);
-  if (!current) return text(502, "the latest release could not be read from GitHub");
-  const { version, notes, pub_date } = current.manifest;
+  const manifest = await currentManifest(request, deps);
+  if (!manifest) return text(502, "the latest release could not be read from GitHub");
+  const { version, notes, pub_date } = manifest;
   const tag = `v${version}`;
   const name = apkName(version);
   const apk = { name, browser_download_url: `${new URL(request.url).origin}/updates/download/${tag}/${name}` };
@@ -192,7 +185,6 @@ export async function android(request: Request, deps: UpdateDeps = defaultUpdate
     // An unanswered probe is no reason to hide the release: every release carries the APK.
   }
   const answer = { tag_name: tag, body: notes ?? null, published_at: pub_date ?? null, assets };
-  if (current.stale) return jsonBody(answer, MANIFEST_TTL, { "x-voltip-stale": "1" });
   await cache.put(key, jsonBody(answer, MANIFEST_TTL));
   return jsonBody(answer, MANIFEST_TTL);
 }
