@@ -28,6 +28,8 @@ Configure it on the Rules → Auto cleanup (规则 → 自动清理) page of the
 | **Check interval (检查间隔（分钟）)**                  | 30 minutes | How often the cleanup runs; at least 5 minutes                 |
 | **Delete the data files too (删除时连数据文件一起删)** | On         | Whether a deleted torrent's downloaded data is deleted as well |
 
+When another torrent in the downloader still uses the data (a torrent added by [IYUU cross-seeding](reseed.md) uses the same files as the original torrent, for example), only the torrent is deleted and the data stays, even with Delete the data files too turned on, so that the other torrent keeps its data. pt-tools compares the paths where the torrents keep their data: the same path counts as shared (for a qBittorrent multi-file torrent without a subfolder it compares the files, and only a common file counts). When all the torrents sharing the data are deleted together, the data is deleted as usual.
+
 ### Management scope
 
 Three modes decide which torrents auto-delete manages:
@@ -58,7 +60,7 @@ A torrent that meets the configured conditions is marked for deletion.
 - **OR mode (任一满足即删（OR）)**, the default: a torrent is deleted when any one condition is met. Good for freeing space quickly.
 - **AND mode (全部满足才删（AND）)**: every configured condition has to be met at the same time. More conservative, for getting the most out of each torrent.
 
-Delete torrents still unfinished when freeleech ends is checked on its own, whatever the condition logic: when it is on, a torrent whose free period has passed before it finished is deleted even in AND mode.
+Delete torrents still unfinished when freeleech ends is checked on its own, whatever the condition logic: when it is on, a torrent whose free period has passed before it finished is deleted even in AND mode. The free period follows the site details the RSS subscription read most recently: if the site extends freeleech, pt-tools waits for the new end time; if freeleech is cancelled or ends early, it counts as ended once the subscription has read that.
 
 > A condition set to 0 is ignored. With the seeding time at 72 hours and the ratio at 0, for example, only the seeding time counts.
 
@@ -81,7 +83,7 @@ Disk space protection works in **two ways**:
 
 > **Note**: emergency cleanup strictly respects the management scope. If the deletable torrents within the scope cannot free enough space, nothing outside the scope is deleted; push blocking then keeps new torrents out, so the disk fills no further.
 
-Emergency cleanup deletes extra torrents only when deleting the data files is turned on: removing a task from the downloader alone frees no disk space. When working out how much space is still missing, it counts the torrents the deletion conditions already selected, so it does not delete more than needed.
+Emergency cleanup deletes extra torrents only when deleting the data files is turned on: removing a task from the downloader alone frees no disk space. When working out how much space is still missing, it counts the torrents the deletion conditions already selected, so it does not delete more than needed. Deleting one of several torrents that share data frees no space: when all of them can be deleted, emergency cleanup picks them together and counts the space once; when one of them is protected or outside the managed scope, it picks none of them.
 
 ### Protection rules
 
@@ -122,6 +124,11 @@ These torrents are not deleted, even when they meet the deletion conditions:
 7. Delete, update the database and write the log
 ```
 
+### Preview and the last run
+
+- Preview what would be deleted (预览会删哪些) runs the flow above with the rules on the page (unsaved ones too) without deleting anything. For each downloader it shows how many torrents are in scope, how many are protected, which ones would be deleted, and why each one would go (the condition it meets, or low disk space and emergency cleanup). Torrents whose data other torrents still use are marked as deleting the torrent only and keeping the data. An actual run works with the torrents in the downloader at that time.
+- Below the card is the last run's result (how many each downloader deleted, and why a downloader couldn't be checked or a deletion failed) and roughly when the next run is. These start over when pt-tools restarts.
+
 ## H&R protection
 
 H&R (Hit and Run) is a rule on some private trackers: after downloading a torrent you have to seed it for a certain time, or you are penalised.
@@ -130,8 +137,9 @@ H&R (Hit and Run) is a rule on some private trackers: after downloading a torren
 
 1. When pt-tools downloads a torrent, it records the H&R flag and the required seeding time that the site returns
 2. Auto-delete checks the H&R information in the database. For sites whose built-in definition declares H&R rules, the required seeding time is worked out from those rules even when a torrent has no H&R flag of its own
-3. A torrent with an H&R requirement that has not yet seeded long enough is protected and not deleted
-4. Sites and torrents without an H&R requirement are not affected
+3. When the site's built-in rules have no seeding time, the H&R seeding requirement (hours) (H&R 做种要求（小时）) filled in the site's settings is used; once it is filled in, torrents pushed earlier use it too
+4. A torrent with an H&R requirement that has not yet seeded long enough is protected and not deleted; when the required seeding time is unknown (no built-in rule and nothing filled in), the torrent is protected as well
+5. Sites and torrents without an H&R requirement are not affected
 
 > **Note**: not every site provides H&R information. When a site returns no H&R flag and its built-in definition has no H&R rules either, pt-tools cannot recognise H&R torrents. Set a reasonable minimum keep time as an extra safeguard.
 
@@ -140,7 +148,7 @@ H&R (Hit and Run) is a rule on some private trackers: after downloading a torren
 With several downloaders configured:
 
 - each downloader is **handled separately**, without affecting the others
-- with Torrents pushed by pt-tools only, each torrent is matched exactly to its downloader through the `downloader_name` field in the database
+- with Torrents pushed by pt-tools only, each torrent is matched to its downloader as recorded in the database (by downloader ID, so a renamed downloader is still recognised)
 - a torrent of downloader A is never treated as one of downloader B
 
 ## Example configurations

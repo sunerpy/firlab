@@ -126,8 +126,8 @@ export const products: Product[] = [
     repo: 'https://github.com/sunerpy/pt-tools',
     page: { href: { 'zh-cn': '/pt-tools/', en: '/pt-tools/en/' } },
     tagline: {
-      'zh-cn': 'PT 站点的 RSS 订阅下载、跨站搜索、数据统计和种子清理，自部署在自己的服务器或 NAS 上。',
-      en: 'RSS downloads, cross-site search, statistics and torrent cleanup for private trackers, self-hosted on your own server or NAS.',
+      'zh-cn': 'PT 站点的 RSS 订阅下载、跨站搜索、数据统计和种子清理，自部署在自己的服务器或 NAS 上；1.0 预览版加入了刷流、IYUU 辅种、媒体库整理和手机 App。',
+      en: 'RSS downloads, cross-site search, statistics and torrent cleanup for private trackers, self-hosted on your own server or NAS; the 1.0 preview adds seed boosting, IYUU cross-seeding, media library organising and a mobile app.',
     },
   },
   {

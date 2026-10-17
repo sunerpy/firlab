@@ -6,16 +6,17 @@ This page describes every pt-tools setting in detail: environment variables, glo
 
 Environment variables set how pt-tools runs, which suits Docker deployments.
 
-| Variable         | Meaning                              | Default         | Example            |
-| ---------------- | ------------------------------------ | --------------- | ------------------ |
-| `PT_HOST`        | Address the web interface listens on | `0.0.0.0`       | `127.0.0.1`        |
-| `PT_PORT`        | Port the web interface listens on    | `8080`          | `8888`             |
-| `PT_ADMIN_USER`  | Admin user name                      | `admin`         | `myadmin`          |
-| `PT_ADMIN_PASS`  | Admin password                       | `adminadmin`    | `MySecurePass123`  |
-| `PT_ADMIN_RESET` | Resets the admin password            | -               | `1` (on)           |
-| `PUID`           | User ID inside the container         | `1000`          | `1001`             |
-| `PGID`           | Group ID inside the container        | `1000`          | `1001`             |
-| `TZ`             | Time zone                            | `Asia/Shanghai` | `America/New_York` |
+| Variable              | Meaning                                                                              | Default         | Example            |
+| --------------------- | ------------------------------------------------------------------------------------ | --------------- | ------------------ |
+| `PT_HOST`             | Address the web interface listens on                                                 | `0.0.0.0`       | `127.0.0.1`        |
+| `PT_PORT`             | Port the web interface listens on                                                    | `8080`          | `8888`             |
+| `PT_ADMIN_USER`       | Admin user name                                                                      | `admin`         | `myadmin`          |
+| `PT_ADMIN_PASS`       | Admin password                                                                       | `adminadmin`    | `MySecurePass123`  |
+| `PT_ADMIN_RESET`      | Resets the admin password                                                            | -               | `1` (on)           |
+| `PT_QBIT_COMPAT_ADDR` | Listen address of the [qB-compatible entrance](guide/qbit-compat.md); off when unset | -               | `0.0.0.0:8081`     |
+| `PUID`                | User ID inside the container                                                         | `1000`          | `1001`             |
+| `PGID`                | Group ID inside the container                                                        | `1000`          | `1001`             |
+| `TZ`                  | Time zone                                                                            | `Asia/Shanghai` | `America/New_York` |
 
 ### Using environment variables
 
@@ -132,15 +133,16 @@ Set it to 0 to turn the check off.
 
 ### When freeleech ends
 
-| Setting                                                                     | Meaning                                                                                                    | Default | Suggested         |
-| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------- | ----------------- |
-| **Delete when freeleech ends (免费结束自动删除)**                           | When the free period ends, unfinished torrents are deleted with their data; when off, they are only paused | Off     | On if you need it |
-| **Act early, minutes before freeleech ends (免费期结束前提前处理（分钟）)** | Pauses or deletes unfinished torrents N minutes early, to absorb deletion delay and reporting lag          | 0       | 5 minutes or more |
+| Setting                                                                     | Meaning                                                                                                    | Default          | Suggested         |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------- | ----------------- |
+| **Delete when freeleech ends (免费结束自动删除)**                           | When the free period ends, unfinished torrents are deleted with their data; when off, they are only paused | Off              | On if you need it |
+| **Act early, minutes before freeleech ends (免费期结束前提前处理（分钟）)** | Pauses or deletes unfinished torrents N minutes early, to absorb deletion delay and reporting lag          | 5 (new installs) | 5 minutes or more |
 
 Acting early adds a safety margin: the pause or deletion runs at `freeleech end time - N minutes`. That absorbs the delay of the deletion itself and the lag before the downloader reports to the tracker, so that no non-free download is counted after the free period has ended.
 
 - The range is `[0, 60]` minutes; a value outside it is clamped.
-- `0` acts exactly when freeleech ends. This is the earlier behaviour, so existing setups are unchanged.
+- `0` acts exactly when freeleech ends. A value you already set before upgrading is kept; new installs default to 5. When it is 0 the settings page warns that billed download may still be counted.
+- Pushes that require freeleech (the freeleech path, filter rules with Free only on, subscriptions whose quality profile requires free, brush tasks that only take free discounts) also require more than this much freeleech time left, and at least 5 minutes; otherwise they are not pushed.
 - The periodic fallback check runs every 5 minutes, so `≥5` minutes is recommended. Each torrent's own timer is accurate to the second, so the main path is not limited to that interval.
 - The margin only moves the freeleech-end action; retries keep their own schedule.
 

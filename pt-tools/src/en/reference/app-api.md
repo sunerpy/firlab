@@ -1,0 +1,366 @@
+# App API <Badge type="tip" text="1.0 preview" />
+
+The App API is the interface for the mobile app and for scripts; every address starts with `/api/app/v1`. It exposes only what an app needs: responses never contain site cookies, API keys, passkeys, passwords, RSS addresses or download links, and addresses inside error messages have their query strings removed.
+
+## Authentication
+
+Send `Authorization: Bearer <token>` with every request. Tokens are created under System → API tokens (系统 → API 令牌); see [API tokens](../guide/api-tokens.md). A browser that is signed in to the web interface can also call these endpoints, with every permission.
+
+```bash
+curl -H "Authorization: Bearer $PTT_TOKEN" https://pt-tools.example.com/api/app/v1/overview
+```
+
+- No token, or a token that is wrong, expired or revoked: 401.
+- A token without the permission the endpoint needs: 403. Below, Read is the permission `app:read` and Operate is `app:write`.
+- Tokens work only for the App API: the rest of the web interface (settings, sites, downloaders, notification channels, token management and so on) does not accept them and responds with 401 without a sign-in.
+- A device paired through [remote access](../guide/remote-access.md) calls these endpoints inside an encrypted tunnel, without a token; its permissions are the ones chosen when it was paired, Full control (Read and Operate) or Read only (Read). The tunnel carries only the App API; the rest of the web interface does not exist there.
+
+## Conventions
+
+- Request bodies and responses are JSON. A request body is limited to 1 MiB; a field the endpoint does not know is rejected with 400 rather than ignored.
+- Operate endpoints without a body (sign in, search now, delete a subscription) accept no body or `{}`; anything else gets 400.
+- Times are Unix timestamps in seconds. Sizes and uploaded or downloaded amounts are in bytes, speeds in bytes per second, and progress is a percentage from 0 to 100.
+- Paged endpoints accept the query parameters `page` (starting at 1) and `page_size` (20 by default; each endpoint states its maximum) and respond with `{"items": [...], "total": count, "page": page, "page_size": size}`.
+- Compatibility: `remote_api_level` in `GET /meta` is currently 1 and goes up only for incompatible changes. New endpoints or fields are not incompatible changes, so clients should ignore fields they do not know.
+- Contract: the machine-readable description is [app-api-v1.yaml](https://github.com/sunerpy/pt-tools/blob/v1.0.0-rc/docs/reference/app-api-v1.yaml) (OpenAPI 3.0) in the repository. pt-tools' tests check every endpoint's real responses against it, and the mobile app's Dart models are generated from it.
+
+## Errors
+
+An error responds with `{"error": "code", "message": "explanation"}`. `message` is a human-readable explanation in Chinese; clients should act on `error`.
+
+| `error`                                                         | Status   | Meaning                                                                                                              |
+| --------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------- |
+| `invalid_body`                                                  | 400      | The body is not valid JSON, or has a field that is unknown                                                           |
+| `invalid_argument`                                              | 400      | A parameter is wrong; `message` says which                                                                           |
+| `unauthorized`                                                  | 401      | No valid token                                                                                                       |
+| `forbidden`                                                     | 403      | The token lacks this permission                                                                                      |
+| `not_found`                                                     | 404      | The endpoint, site or subscription does not exist                                                                    |
+| `method_not_allowed`                                            | 405      | The endpoint exists but not with this method; the `Allow` header lists the accepted ones                             |
+| `busy`                                                          | 409, 503 | The same thing is in progress (409, such as signing in to a site); too many image requests (503, with `Retry-After`) |
+| `rate_limited`                                                  | 429      | TMDB is rate limiting; try again later                                                                               |
+| `internal`                                                      | 500      | An internal error in pt-tools                                                                                        |
+| `search_failed`, `download_failed`, `attend_failed`, `upstream` | 502      | Searching, downloading the torrent file, signing in or reaching TMDB failed                                          |
+| `unavailable`                                                   | 503      | The service behind the endpoint is not running                                                                       |
+| `assistant_disabled`, `decided`                                 | 409      | The AI assistant is not enabled; this pending action has already been decided                                        |
+| `too_many`                                                      | 429      | The AI assistant is answering too many questions at once                                                             |
+
+## Endpoints
+
+| Method | Path                                     | Permission | Purpose                                                                       |
+| ------ | ---------------------------------------- | ---------- | ----------------------------------------------------------------------------- |
+| GET    | `/meta`                                  | Read       | Version, compatibility level, feature groups and the caller's own permissions |
+| GET    | `/overview`                              | Read       | Totals across enabled sites and today's changes                               |
+| GET    | `/sites`                                 | Read       | Sites, login status, today's sign-in and your statistics on each site         |
+| POST   | `/sites/{site}/attend`                   | Operate    | Sign in now                                                                   |
+| GET    | `/favicon/{site}`                        | Read       | Site icon                                                                     |
+| GET    | `/torrents`                              | Read       | Torrents in the downloaders                                                   |
+| GET    | `/downloaders`                           | Read       | Downloaders with their current speed and free space                           |
+| POST   | `/torrents/actions`                      | Operate    | Pause, resume and delete torrents                                             |
+| POST   | `/search`                                | Read       | Multi-site search                                                             |
+| POST   | `/push`                                  | Operate    | Push a search result to a downloader                                          |
+| GET    | `/tasks`                                 | Read       | Task list (push records)                                                      |
+| GET    | `/brush/tasks`                           | Read       | Brush tasks                                                                   |
+| GET    | `/media/history`                         | Read       | Organise history                                                              |
+| GET    | `/subscriptions`                         | Read       | Subscriptions                                                                 |
+| GET    | `/subscriptions/{id}`                    | Read       | A subscription with its episodes and downloaded torrents                      |
+| POST   | `/subscriptions`                         | Operate    | Create a subscription                                                         |
+| POST   | `/subscriptions/{id}/status`             | Operate    | Pause or resume a subscription                                                |
+| POST   | `/subscriptions/{id}/search`             | Operate    | Search now                                                                    |
+| DELETE | `/subscriptions/{id}`                    | Operate    | Delete a subscription                                                         |
+| GET    | `/explore`                               | Read       | Explore: TMDB trending, popular and search                                    |
+| GET    | `/images/tmdb/{size}/{file}`             | Read       | A TMDB image (poster), fetched by pt-tools                                    |
+| GET    | `/updates`                               | Read       | Whether a newer release exists                                                |
+| GET    | `/assistant/status`                      | Read       | Whether the AI assistant is on, its model, and whether you can confirm        |
+| GET    | `/assistant/conversations`               | Read       | Your AI assistant conversations                                               |
+| POST   | `/assistant/conversations`               | Read       | Create a conversation, optionally sending the first message                   |
+| GET    | `/assistant/conversations/{id}`          | Read       | A conversation's messages and pending actions                                 |
+| DELETE | `/assistant/conversations/{id}`          | Read       | Delete a conversation                                                         |
+| POST   | `/assistant/conversations/{id}/messages` | Read       | Send a message; the answer is generated in the background                     |
+| POST   | `/assistant/conversations/{id}/cancel`   | Read       | Stop the answer                                                               |
+| GET    | `/assistant/conversations/{id}/events`   | Read       | Long-poll a conversation's progress                                           |
+| POST   | `/assistant/confirmations/{id}`          | Operate    | Confirm or deny an action                                                     |
+| GET    | `/templates`                             | Read       | Message templates: events, variables and the current templates                |
+| POST   | `/templates/preview`                     | Read       | Render a template with sample data                                            |
+| PUT    | `/templates/{type}`                      | Operate    | Save the template for an event                                                |
+| DELETE | `/templates/{type}`                      | Operate    | Restore the default                                                           |
+
+Paths leave out the `/api/app/v1` prefix. Search and the template preview send their content with POST but need only Read. Every call a token makes to an Operate endpoint, including calls refused for lack of permission, is recorded under ChatOps → Audit log (操作审计) with the channel API token (API 令牌); a push that was stopped and batch actions with failures are recorded as errors even though the response is 200.
+
+## Basics
+
+### GET /meta
+
+```json
+{
+  "name": "pt-tools",
+  "version": "v1.0.0",
+  "remote_api_level": 1,
+  "features": [
+    "overview",
+    "sites",
+    "torrents",
+    "downloaders",
+    "tasks",
+    "search",
+    "push",
+    "attendance",
+    "brush",
+    "media",
+    "subscriptions",
+    "updates",
+    "assistant",
+    "templates"
+  ],
+  "principal": { "kind": "api_token", "name": "My phone", "scopes": ["app:read", "app:write"] }
+}
+```
+
+`principal.kind` is `api_token` (a token), `session` (a web sign-in) or `remote_device` (a device paired through remote access); `features` lists the feature groups of this version (earlier versions have no `downloaders`, `updates`, `assistant` or `templates`); `scopes` are the caller's permissions, so a client can decide which actions to show.
+
+### GET /updates
+
+Whether a newer release exists: `current_version`, `has_update`, `new_releases` (each with `version`, `name`, `published_at`, `url` and `changelog`, plus `prerelease: true` for previews) and `checked_at`. With `include_prerelease=1` preview releases count too. The result is cached for a while instead of asking GitHub every time; it never upgrades. When it cannot check and has no earlier result it returns 502 (`upstream`).
+
+## Overview and sites
+
+### GET /overview
+
+- `totals` adds up the enabled sites: `uploaded`, `downloaded`, `ratio`, `seeding`, `leeching`, `bonus`, `bonus_per_hour`, `seeding_size`, `site_count`, `unread_messages`.
+- `today` holds today's changes: `from`, `to`, `uploaded`, `downloaded`, `bonus`, with per-site changes in `sites`. They are counted the same way as in [Statistics](../guide/user-stats.md). When today's changes cannot be computed, `today.error` gives the reason, and the zeros do not mean there was no traffic today.
+- `updated_at` is when the site statistics were last updated.
+- Every `downloaded` here is the billed download: what the site counts toward your ratio after free and discount promotions, not the amount actually transferred. The `today` changes come from the daily snapshots, which keep only the billed figure. See [Two kinds of download figures](../guide/user-stats.md#two-kinds-of-download-figures).
+
+### GET /sites
+
+The response is `{"items": [...], "user_error": "…"}`: `items` has one item per site; when your statistics on the sites cannot be read, `user_error` gives the reason and no item has `user`.
+
+| Field                             | Content                                                                                                                                                                                                                                                                                       |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`, `display_name`, `enabled` | The site's identifier, display name and whether it is enabled                                                                                                                                                                                                                                 |
+| `login`                           | Login status: `tier` is the reminder level (`none`, `30d`, `14d`, `7d`, `3d`, `banned-imminent`, or `unknown` when there is no access record), `days_remaining` is the number of days left before the site's inactivity limit, plus `last_active_at`, `last_probe_at` and `last_probe_status` |
+| `attendance`                      | Today's sign-in: `supported`, `enabled`, `day`, `status` (`pending`, `signed`, `already`, `failed`, `unsupported`), `message`, `last_attempt_at`                                                                                                                                              |
+| `user`                            | Your statistics on the site, absent until they have been fetched: `username`, `level`, `uploaded`, `downloaded`, `ratio`, `bonus`, `bonus_per_hour`, `seeding`, `leeching`, `seeding_size`, `unread_messages`, `hnr_unsatisfied`, `updated_at`                                                |
+
+The `downloaded` in `user` is also the billed download, not the amount actually transferred.
+
+### POST /sites/{site}/attend
+
+Signs in to the site now and responds with the same object as `attendance` in `/sites`. If a sign-in for the site is already running, it responds with 409.
+
+### GET /favicon/{site}
+
+The site icon shown in the web interface. The response is an image, not JSON.
+
+## Downloaders
+
+### GET /downloaders
+
+The enabled downloaders: `id`, `name`, `type` (`qbittorrent` or `transmission`), `default`, `reachable` (status or free space could be read this time), `error` (why not), `version`, `upload_speed`, `download_speed`, `uploaded`, `downloaded` (the downloader's own totals) and `free_space`. No downloader address, username or password.
+
+### GET /torrents
+
+| Parameter           | Description                                                                                                                                                                                     |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `downloader_id`     | Only this downloader                                                                                                                                                                            |
+| `state`             | `downloading`, `seeding`, `paused`, `stopped`, `queued`, `checking` or `error`                                                                                                                  |
+| `q`                 | A keyword in the title                                                                                                                                                                          |
+| `sort`, `order`     | The sort field (`added_at`, `completed_at`, `title`, `progress`, `size`, `ratio`, `state`, `upload_speed`, `download_speed`, `eta`, `seeds`) and `asc` or `desc`; newest added first by default |
+| `page`, `page_size` | `page_size` is at most 200                                                                                                                                                                      |
+
+Each item has `downloader_id`, `downloader`, `task_id`, `info_hash`, `title`, `progress`, `size`, `state`, `ratio`, `seeds`, `peers`, `upload_speed`, `download_speed`, `eta` (estimated seconds left, -1 when it cannot be estimated), `added_at`, `completed_at`, `category`, `tags` and `save_path`. `failures` lists the downloaders whose torrents could not be read (`downloader_id`, `downloader`, `error`); when it is not empty, the list is incomplete.
+
+### POST /torrents/actions
+
+```json
+{ "action": "pause", "targets": [{ "downloader_id": 1, "task_id": "task_id from /torrents" }] }
+```
+
+`action` is `pause`, `resume`, `delete` (removes the torrent and keeps its data) or `delete_with_files` (removes the data too); `targets` holds 1 to 100 torrents. The response has `succeeded`, `failed` and per-torrent `results` (`downloader_id`, `task_id`, `success`, `message`).
+
+## Search and push
+
+### POST /search
+
+| Field         | Description                                                                                                                                      |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `keyword`     | Required, up to 100 characters                                                                                                                   |
+| `sites`       | Search only these sites, up to 100; when empty, every enabled site is searched, and when none of the listed sites is enabled nothing is searched |
+| `category`    | Category                                                                                                                                         |
+| `free_only`   | Free torrents only                                                                                                                               |
+| `min_seeders` | Minimum number of seeders                                                                                                                        |
+
+The response:
+
+- `items` are the results. Each has `site`, `torrent_id`, `title`, `subtitle`, `info_hash`, `size`, `seeders`, `leechers`, `snatched`, `uploaded_at`, `category`, `tags`, `discount`, `discount_end_at`, `free`, `has_hr`, `imdb_id` and `douban_id`. There are no detail-page or download links; push with `POST /push`.
+- `sites` is the number of results per site, `errors` lists the sites that failed (`site`, `error`), and `duration_ms` is how long the search took. A search waits at most 30 seconds.
+
+### POST /push
+
+Pushes one torrent to a downloader: pt-tools downloads the torrent file from the site, then applies the same disk space protection and site seeding capacity checks as an RSS push.
+
+| Field                                    | Description                                                                                                                            |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `site`, `torrent_id`                     | Required, taken from a search result                                                                                                   |
+| `downloader_id`                          | The downloader to push to; when empty, the default downloader, or the first enabled one if there is no default                         |
+| `title`, `category`, `tags`, `save_path` | Optional: the title for the record (the name in the torrent file when empty), and the category, tags and save folder in the downloader |
+
+The response has `success`, `skipped` (the downloader already has this torrent), `message`, `info_hash`, `downloader_id` and `downloader`. When disk space protection or the site seeding capacity stops the push, `success` is `false` and `message` gives the reason, still with status 200; when the torrent file cannot be downloaded, the status is 502. If the torrent was found by a search shortly before, its size, H&R, free status and free expiry from the search result are recorded with the task (H&R protection and free-expiry cleanup use them).
+
+## Task list
+
+### GET /tasks
+
+Push records, newest first.
+
+| Parameter           | Description                 |
+| ------------------- | --------------------------- |
+| `site`              | Only this site              |
+| `q`                 | A keyword in the title      |
+| `pushed`            | `1` for pushed records only |
+| `page`, `page_size` | `page_size` is at most 100  |
+
+Each item has `id`, `site`, `torrent_id`, `title`, `size`, `category`, `tags`, `free`, `free_level`, `free_end_at`, `has_hr`, `pushed`, `pushed_at`, `downloader`, `progress`, `completed`, `completed_at`, `source`, `error` and `created_at`. `source` says where the record came from: RSS is `free_download` or `filter_rule`; the others are `manual_push` (pushed from the web interface), `app_push` (pushed from the app), `brush`, `subscription`, `transfer` (torrent transfer) and `reseed`.
+
+## Brush
+
+### GET /brush/tasks
+
+One item per brush task: `id`, `name`, `enabled`, `site`, `site_enabled`, `downloader`, `active` (torrents being brushed), `downloading` (of those, the ones still downloading), `active_size`, and the results for `today` and `total` (`uploaded`, `downloaded`, `added`, `removed`).
+
+## Media
+
+These endpoints match Media (媒体) in the web interface; see [Subscriptions](../guide/media-subscribe.md) and [Media library organising](../guide/media-library.md). Creating subscriptions and Explore use TMDB; without an API key they respond with 400, see [Enter a TMDB API key](../guide/media-recognize.md#enter-a-tmdb-api-key).
+
+### GET /media/history
+
+Organise history, most recently updated first. Parameters: `status` (`done`, `failed`, `skipped`, `removed`), `q` (keyword), `page` and `page_size` (at most 100). Each item has `id`, `media_type`, `tmdb_id`, `title`, `year`, `season`, `episode`, `episode_end`, `torrent_name`, `library`, `target_path`, `mode`, `size`, `status`, `message` and `created_at`.
+
+### GET /subscriptions
+
+Parameters: `status` (`active`, `paused`, `pending`, `done`) and `q` (keyword). Each item has:
+
+- `id`, `media_type` (`movie` or `tv`), `tmdb_id`, `season`, `title`, `original_title`, `year`, `total_episodes`;
+- `poster_path`: the TMDB poster path; fetch the image with `GET /images/tmdb/w342/<the path without its leading />` (`w342` can also be one of the other sizes listed below), see below;
+- `status`, `upgrade` (whether to upgrade quality), `source` (`manual`, `explore`, `douban`, `chatops`, `app`), `message`, `last_search_at`, `next_search_at`, `created_at`;
+- `progress`: `total`, `aired`, `in_library`, `downloading` and `missing` (the missing episode numbers).
+
+### GET /subscriptions/{id}
+
+The subscription's own fields, plus:
+
+- `episodes`: each episode of a TV season, with `number`, `name`, `air_date` and `state` (`library`, `downloading`, `missing` or `upcoming`);
+- `torrents`: the torrents it downloaded, with `site`, `torrent_id`, `title`, `status` (`downloading`, `done`, `failed`, `replaced`), `episode`, `episode_end`, `complete`, `size`, `message` and `created_at`.
+
+### POST /subscriptions
+
+| Field        | Description                                                   |
+| ------------ | ------------------------------------------------------------- |
+| `media_type` | Required, `movie` or `tv`                                     |
+| `tmdb_id`    | Required, the TMDB ID                                         |
+| `season`     | The season number for TV; the latest season when empty        |
+| `profile_id` | The quality profile; the default from the settings when empty |
+| `upgrade`    | Whether to upgrade quality                                    |
+
+The response is the new subscription, with the source `app`. It responds with 400 when the title is already subscribed and 404 when TMDB does not have it.
+
+### POST /subscriptions/{id}/status
+
+`{"status": "paused"}` pauses and `{"status": "active"}` resumes; a resumed subscription searches again soon. The response is the updated subscription.
+
+### POST /subscriptions/{id}/search
+
+Searches once now and responds with `{"message": "explanation"}`. A paused subscription responds with 400.
+
+### DELETE /subscriptions/{id}
+
+Deletes the subscription and responds with `{"ok": true}`. Torrents in the downloader and files in the media library stay where they are.
+
+### GET /explore
+
+| Parameter | Description                                                                |
+| --------- | -------------------------------------------------------------------------- |
+| `kind`    | Required, `movie` or `tv`                                                  |
+| `list`    | `trending` (the default), `popular`, or `search` (searches for `q`)        |
+| `q`       | The search words for `list=search`, up to 100 characters                   |
+| `page`    | Starting at 1; trending and popular go up to 20 pages, search has one page |
+
+The response has `items`, `page` and `total_pages`. Each item has `id` (the TMDB ID), `media_type`, `title`, `original_title`, `year`, `overview`, `poster_path`, `vote_average`, `in_library`, `subscribed` and `subscription_id`.
+
+### GET /images/tmdb/{size}/{file}
+
+A TMDB image: `file` is `poster_path` without its leading `/`, and `size` is one of the poster sizes `w92`, `w154`, `w185`, `w342`, `w500` and `w780` (originals aren't offered, they can be several MB). pt-tools fetches it with the image address and proxy set under Media recognition and responds with the image and a one-day cache header, so clients never contact TMDB directly. Fetching images doesn't need a TMDB API key. It responds with 404 when TMDB has no such image, and with 502 (`upstream`) when the image can't be fetched. pt-tools fetches at most 4 images at a time; a request that waits longer than 10 seconds gets 503 (`busy`, with `Retry-After`).
+
+## AI assistant
+
+These endpoints match the web page AI assistant; see [AI assistant](../guide/assistant.md). Its settings (which model, the API key) can only be changed on the web, not here. Conversations are kept per caller: each token and each paired device sees only the conversations it created, and a signed-in web session sees the web conversations. Chatting needs only Read; when the model wants to change something, only a caller with Operate can confirm it (for a Read-only caller the model does not get those tools). Times are RFC 3339 strings.
+
+### GET /assistant/status
+
+Responds with `enabled` (turned on, with an endpoint and a model configured), `model`, `can_confirm` (whether the caller can confirm actions) and `chatops`. It never contains the API key or the endpoint. On a host without these endpoints, `features` in `GET /meta` has no `assistant`.
+
+### GET /assistant/conversations
+
+The caller's own conversations, most recently updated first, at most 100. Each has `id`, `title`, `entry` (where it was created: `web`, `app` or `chatops`), `running`, `created_at` and `updated_at`.
+
+### POST /assistant/conversations
+
+`{"title": "…", "message": "…"}`, both optional. Creating only a conversation responds with 201; with `message` it also sends that message and responds with 202, where `run` has the run's `run_id` and the stored user message. If the AI assistant is not enabled it responds with 409 (`assistant_disabled`) and leaves no empty conversation behind.
+
+### GET /assistant/conversations/{id}
+
+The conversation's own fields, plus:
+
+- `messages`: the latest 200 messages, oldest first. Each has `id`, `run_id`, `role` (`user`, `assistant`, `tool` or `notice`), `content` and `created_at`; assistant messages carry `tool_calls` (`id`, `name`, `arguments`, `write`), tool results carry `tool_name`, `tool_call_id` and `is_error`. A `notice` is pt-tools' own note (stopped, failed, step limit reached).
+- `confirmations`: pending actions with `id`, `run_id`, `tool_call_id`, `tool`, `summary` (one readable sentence), `arguments`, `status` (`pending`, `approved`, `denied` or `expired`), `decided_by`, `decided_at`, `expires_at` and `created_at`. Match them to the calls in the messages by `run_id` and `tool_call_id`.
+- `run_id` and `partial`: the run in progress and its answer so far; `last_seq`: read events from here.
+
+### POST /assistant/conversations/{id}/messages
+
+`{"text": "…"}`, up to 4000 characters. Responds with 202, the run's `run_id` and the stored user message. If the conversation is already answering it responds with 409 (`busy`).
+
+### POST /assistant/conversations/{id}/cancel
+
+Stops the answer in progress and responds with `{"ok": true}`; does nothing when nothing is running. An action waiting for confirmation is voided and does not run.
+
+### GET /assistant/conversations/{id}/events
+
+Long polling: `after` is the last sequence number you read (`last_seq` from the conversation, or `last` from the previous page), and `wait` is how many seconds to wait when there are no events (default and maximum 25). Responds with `events`, `reset`, `last` and `running`. When `reset` is true, events in between were lost (or pt-tools restarted): read the conversation again and continue from its `last_seq`.
+
+Every event has `seq`, `type` and `at`, and depending on its type:
+
+| `type`         | Contents                                                                    |
+| -------------- | --------------------------------------------------------------------------- |
+| `run_started`  | `run_id`                                                                    |
+| `delta`        | `text`: a piece of the answer; with `replace` true, the whole answer so far |
+| `message`      | `message`: a stored message (fields as in the conversation)                 |
+| `tool_started` | `tool`: the tool call that started                                          |
+| `confirmation` | `confirmation`: a new pending action, or its decision                       |
+| `run_finished` | `status` (`done`, `canceled` or `failed`), with `error` on failure          |
+
+### POST /assistant/confirmations/{id}
+
+`{"approve": true}` confirms, `{"approve": false}` denies. Needs Operate. Responds with the decided action; one that already has a decision (decided elsewhere first, timed out or voided) gets 409 (`decided`). Confirming and denying are recorded in the audit log; the executed action gets its own entry with the channel AI assistant and the user `token:<token id>` or `device:<device id>`.
+
+## Message templates
+
+These endpoints match ChatOps → Message templates (消息模板) on the web; the syntax is described in [Message templates](../guide/notify-channels.md#message-templates). A template applies to every channel and changes every notification and reply sent after it is saved, so saving and restoring the default need Operate, and only callers with Operate get the template source; changes made by tokens and devices are recorded in the audit log. Anything that looks like a credential is masked in the sample values, the built-in text and preview results. On a host without these endpoints, `features` in `GET /meta` has no `templates`.
+
+### GET /templates
+
+Responds with `groups`, `common_vars` and `events`:
+
+- `groups`: the event groups. `key` is `notify` (notifications), `reply` (ChatOps command replies) or `assistant` (AI assistant replies), with a `name` and a `desc`.
+- `common_vars`: the variables every event has. A variable has a `key`, a `type` (`string`, `int`, `float`, `bool` or `list`), a `desc` and a `sample` (the sample value written as text); a list has no sample, and the fields of each item are in `item`.
+- `events`: one entry per event with `type`, `group`, `name`, `desc`, `no_title` (body only), `vars`, `sample_title` and `sample_text` (what is sent when nothing is changed), `title` and `text` (the current templates; an empty one uses the built-in text; only callers with Operate get them, a read-only caller gets them empty and can tell from `customized` whether there is one), `customized` and `updated_at` (when it was customized, as a Unix timestamp in seconds).
+
+### POST /templates/preview
+
+`{"type": "rss.matched", "title": "…", "text": "…"}` renders the template with the event's sample data and saves nothing. Responds with `{"title": "…", "text": "…"}` (`title` is empty for a body-only event). A template that is not right gets 400 (`invalid_argument`) with a `message` naming the line and the problem; an unknown event gets 404.
+
+### PUT /templates/{type}
+
+`{"title": "…", "text": "…"}` is checked the same way as a preview before it is saved and gets 400 when it is not right; leaving both empty restores the default. A title for a body-only event also gets 400. Responds with the event as saved (the same fields as an entry of `events`).
+
+### DELETE /templates/{type}
+
+Restores the built-in text and responds with `{"ok": true}`; an unknown event gets 404.

@@ -1,4 +1,4 @@
-# Seed boosting (brush tasks)
+# Seed boosting (brush tasks) <Badge type="tip" text="1.0 preview" />
 
 A brush task picks fresh torrents from one site's free-torrent list, pushes them to a downloader, and removes them by rule after they have seeded for a while, so you build up upload and bonus. It runs separately from RSS subscriptions; turning a brush task on does not change how RSS works.
 
@@ -28,7 +28,7 @@ Each round requests the site's torrent list once (subject to the site's own rate
 - **At most N seeders** and **at least N leechers**: pick busy torrents with little competition.
 - **Published within**: only take recent torrents; 0 means no limit.
 - **Title includes / excludes**: one per line or comma separated, case-insensitive, matched against the title and subtitle.
-- **Exclude H&R**: on by default. When the site has site-wide H&R enabled, every torrent from it counts as H&R (the same rule RSS downloads use). With the option off, only H&R torrents whose required seeding time the site definition can compute are taken: without a known requirement, the removal rules cannot tell when a torrent may go.
+- **Exclude H&R**: on by default. When the site has site-wide H&R enabled, every torrent from it counts as H&R (the same rule RSS downloads use). With the option off, only H&R torrents whose required seeding time is known are taken: when the site's built-in rules have no seeding time, fill in H&R seeding requirement (hours) (H&R 做种要求（小时）) in the site's settings. Until it is filled in, such torrents are not taken (the removal rules cannot tell when a torrent may go), and the run result says how many were skipped because the H&R seeding time is unknown (H&R 要求的做种时长未知).
 
 Matching torrents are added in order of most leechers, then fewest seeders. A torrent any brush task has pushed from this site before (including ones already removed) is never added again, so two tasks never add the same torrent; torrents already in the downloader are skipped too.
 
@@ -44,7 +44,7 @@ Pushes go through the same entry point as RSS downloads, so the disk-space prote
 
 ## Removal rules
 
-A torrent is removed as soon as any rule matches. By default its data is deleted too (you can switch to removing the torrent from the downloader only):
+A torrent is removed as soon as any rule matches. By default its data is deleted too (you can switch to removing the torrent from the downloader only); when another torrent still uses the data (a [cross-seed](reseed.md) of it, for example), only the torrent is removed and the data stays:
 
 - **Seeded for N hours**: counted only for completed torrents.
 - **Ratio reaches N**.
