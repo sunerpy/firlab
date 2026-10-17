@@ -21,12 +21,14 @@ Highlights:
 
 ## Supported channels
 
-| Channel                | Protocol                     | Inbound commands | Outbound notifications | Recommended for                                                                                  |
-| ---------------------- | ---------------------------- | :--------------: | :--------------------: | ------------------------------------------------------------------------------------------------ |
-| **QQ OneBot**          | OneBot v11 reverse WebSocket |        ✅        |           ✅           | People whose everyday chat app is QQ                                                             |
-| **Telegram**           | Bot API long polling         |        ✅        |           ✅           | People outside mainland China, or who need notifications over the open internet                  |
-| **WeCom group bot** ⚠️ | WeCom webhook                |        ❌        |    🧪 Experimental     | Outbound notifications only (alerts in a group); implemented but **not yet verified end to end** |
-| **Generic webhook** ⚠️ | HMAC-SHA256 HTTP             |        ❌        |    🧪 Experimental     | Custom integrations such as n8n or Zapier; implemented but **not yet verified end to end**       |
+| Channel                          | Protocol                     | Inbound commands | Outbound notifications | Recommended for                                                                                  |
+| -------------------------------- | ---------------------------- | :--------------: | :--------------------: | ------------------------------------------------------------------------------------------------ |
+| **QQ OneBot**                    | OneBot v11 reverse WebSocket |        ✅        |           ✅           | People whose everyday chat app is QQ                                                             |
+| **Telegram**                     | Bot API long polling         |        ✅        |           ✅           | People outside mainland China, or who need notifications over the open internet                  |
+| **WeCom group bot**              | WeCom webhook                |        ❌        |           ✅           | Outbound notifications (alerts in a group); see [More notification channels](notify-channels.md) |
+| **DingTalk / Feishu group bots** | Webhook (optional signing)   |        ❌        |           ✅           | Outbound notifications; see [More notification channels](notify-channels.md)                     |
+| **Bark / ServerChan / ntfy**     | Their push APIs              |        ❌        |           ✅           | Notifications on your phone; see [More notification channels](notify-channels.md)                |
+| **Generic webhook** ⚠️           | HMAC-SHA256 HTTP             |        ❌        |    🧪 Experimental     | Custom integrations such as n8n or Zapier; implemented but **not yet verified end to end**       |
 
 > Inbound commands (chat app → pt-tools) need a two-way connection; the webhook channels only push outbound.
 
@@ -44,7 +46,8 @@ Do you want to send commands to pt-tools from a chat app?
 │                  └── No → Use Telegram through a proxy
 │
 └── Only outbound notifications (events pushed to a group)?
-     ├── A WeCom group → set up the WeCom webhook
+     ├── A WeCom, DingTalk or Feishu group → the matching group bot (docs/en/guide/notify-channels.md)
+     ├── Your phone → Bark, ServerChan or ntfy (docs/en/guide/notify-channels.md)
      └── Your own system → set up the generic webhook
 ```
 
@@ -54,24 +57,29 @@ Do you want to send commands to pt-tools from a chat app?
 
 Every command starts with `/` and is sent in the private chat. Commands are case-insensitive.
 
-| Command          | What it does                                                                                                     | Permission |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------- | ---------- |
-| `/help`          | Lists every available command and how to use it                                                                  | User       |
-| `/status`        | System status: speeds, disk space and the number of active tasks                                                 | User       |
-| `/version`       | The current version and the latest available one                                                                 | User       |
-| `/tasks`         | The RSS tasks and whether they are running                                                                       | User       |
-| `/sites`         | A summary of the configured sites (name, type)                                                                   | User       |
-| `/torrents`      | Lists the torrents of each downloader, a page at a time                                                          | User       |
-| `/pause <hash>`  | Pauses a torrent (a prefix of the hash is enough)                                                                | Admin      |
-| `/resume <hash>` | Resumes a torrent                                                                                                | Admin      |
-| `/delete <hash>` | Deletes a torrent, after a confirmation                                                                          | Admin      |
-| `/signin [site]` | Signs in now; without a site, signs in every site with automatic sign-in enabled that has no result today        | Admin      |
-| `/bind <code>`   | Links the current account to pt-tools with an 8-character binding code                                           | Anyone     |
-| `/unbind`        | Unlinks the current account                                                                                      | Admin      |
-| `/addrss`        | Adds an RSS subscription interactively (a text wizard, or one line: `/addrss site \| name \| URL \| downloader`) | Admin      |
-| `/delrss`        | Deletes an RSS subscription interactively (lists them first, then you choose one by name, ID or number)          | Admin      |
+| Command          | What it does                                                                                                                            | Permission |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `/help`          | Lists every available command and how to use it                                                                                         | User       |
+| `/status`        | System status: speeds, disk space and the number of active tasks                                                                        | User       |
+| `/version`       | The current version and the latest available one                                                                                        | User       |
+| `/tasks`         | The RSS tasks and whether they are running                                                                                              | User       |
+| `/sites`         | A summary of the configured sites (name, type)                                                                                          | User       |
+| `/torrents`      | Lists the torrents of each downloader, a page at a time                                                                                 | User       |
+| `/pause <hash>`  | Pauses a torrent (a prefix of the hash is enough)                                                                                       | Admin      |
+| `/resume <hash>` | Resumes a torrent                                                                                                                       | Admin      |
+| `/delete <hash>` | Deletes a torrent, after a confirmation                                                                                                 | Admin      |
+| `/signin [site]` | Signs in now; without a site, signs in every site with automatic sign-in enabled that has no result today                               | Admin      |
+| `/bind <code>`   | Links the current account to pt-tools with an 8-character binding code                                                                  | Anyone     |
+| `/unbind`        | Unlinks the current account                                                                                                             | Admin      |
+| `/addrss`        | Adds an RSS subscription interactively (a text wizard, or one line: `/addrss site \| name \| URL \| downloader`)                        | Admin      |
+| `/delrss`        | Deletes an RSS subscription interactively (lists them first, then you choose one by name, ID or number)                                 | Admin      |
+| `/sub <title>`   | Searches TMDB for a film or series; reply with a number to subscribe (add a season for series), see [subscriptions](media-subscribe.md) | Admin      |
+| `/subs`          | Lists your subscriptions and their progress                                                                                             | User       |
+| `/newchat`       | Starts a new AI assistant conversation; later messages carry no earlier context, see [AI assistant](assistant.md)                       | User       |
 
 > **Rate limit**: by default each user can send at most 10 commands a minute. Further commands are silently dropped, with no error reply, so nothing is revealed to the sender.
+
+> **AI assistant**: with **Notification channels (ChatOps)** turned on in **System → AI assistant settings**, messages that do not start with `/` go to the AI assistant, and actions run only after you reply "yes", see [AI assistant](assistant.md#in-notification-channels). Otherwise such messages only get the "commands only" hint.
 
 > [!IMPORTANT]
 > At present **every linked account has admin rights**: the commands marked Admin in the table are available to every linked account. Give binding codes only to accounts you trust, and revoke a binding under ChatOps → ChatOps binding (ChatOps 绑定) when it is no longer needed.
