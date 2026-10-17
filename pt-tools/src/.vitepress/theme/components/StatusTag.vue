@@ -59,7 +59,7 @@ const label = computed(() => (LABELS[lang.value] ?? LABELS['zh-CN'])[props.statu
 /* Shipped, in the preview releases only: the green of "available", as a ring rather than a dot. */
 .pt-status[data-status='preview']::before {
   background: transparent;
-  box-shadow: inset 0 0 0 1.5px var(--pt-live-mark);
+  box-shadow: inset 0 0 0 1.5px currentColor;
 }
 
 .pt-status[data-status='building'],
