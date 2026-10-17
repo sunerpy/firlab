@@ -3,12 +3,15 @@ import { defineConfig, type DefaultTheme } from 'vitepress';
 import synced from '../synced.json';
 
 const REPO = 'https://github.com/sunerpy/pt-tools';
+// 文档按 1.0 预览版发布，页面与更新日志取自 v1.0.0-rc 分支；1.0 合回 main 以后改回 main（en.ts 同）。
+const DOCS_BRANCH = 'v1.0.0-rc';
 
 const sidebar: DefaultTheme.SidebarItem[] = [
   {
     text: '开始使用',
     items: [
       { text: 'pt-tools 是什么', link: '/guide/what-is-pt-tools' },
+      { text: '1.0 预览版新功能', link: '/guide/whats-new-1.0' },
       { text: '安装', link: '/guide/install' },
       { text: '快速开始', link: '/guide/quick-start' },
       { text: '配置说明', link: '/configuration' },
@@ -22,6 +25,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: '获取 Cookie 与 API Key', link: '/guide/get-cookie-apikey' },
       { text: '浏览器扩展', link: '/guide/browser-extension' },
       { text: '登录状态与密钥备份', link: '/guide/site-login-monitoring' },
+      { text: 'CookieCloud 导入', link: '/guide/cookiecloud' },
       { text: '请求新增站点', link: '/guide/request-new-site' },
     ],
   },
@@ -31,6 +35,19 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: 'RSS 订阅', link: '/guide/rss-subscription' },
       { text: '过滤规则与追剧', link: '/guide/filter-rules-tv-series' },
       { text: '自动删种与磁盘保护', link: '/guide/auto-cleanup' },
+      { text: '刷流任务', link: '/guide/brush' },
+      { text: '数据统计与每日战报', link: '/guide/user-stats' },
+      { text: '下载器助手', link: '/guide/downloader-assistant' },
+      { text: '转移做种', link: '/guide/torrent-transfer' },
+      { text: 'IYUU 辅种', link: '/guide/reseed' },
+    ],
+  },
+  {
+    text: '媒体',
+    items: [
+      { text: '订阅', link: '/guide/media-subscribe' },
+      { text: '整理入库', link: '/guide/media-library' },
+      { text: '媒体识别', link: '/guide/media-recognize' },
     ],
   },
   {
@@ -40,6 +57,19 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: 'QQ OneBot（NapCat）', link: '/guide/chatops-qq-napcat' },
       { text: 'Telegram Bot', link: '/guide/chatops-telegram' },
       { text: 'RSS 上新通知', link: '/guide/chatops-rss-notify' },
+      { text: '更多通知通道', link: '/guide/notify-channels' },
+    ],
+  },
+  {
+    text: 'App 与接口',
+    items: [
+      { text: '手机 App', link: '/guide/mobile-app' },
+      { text: '远程访问', link: '/guide/remote-access' },
+      { text: 'AI 助手', link: '/guide/assistant' },
+      { text: 'MCP', link: '/guide/mcp' },
+      { text: 'API 令牌', link: '/guide/api-tokens' },
+      { text: 'App API', link: '/reference/app-api' },
+      { text: 'qB 兼容入口', link: '/guide/qbit-compat' },
     ],
   },
   {
@@ -66,32 +96,43 @@ const sidebar: DefaultTheme.SidebarItem[] = [
 export const zh = defineConfig({
   lang: 'zh-CN',
   description:
-    'pt-tools 是面向 PT 站点的自动化管理工具：RSS 自动下载、多站点统计与搜索、qBittorrent 与 Transmission 管理，以及 QQ、Telegram 上的 ChatOps。支持 Docker、Linux 和 Windows。',
+    'pt-tools 是面向 PT 站点的自动化管理工具：RSS 自动下载、刷流与 IYUU 辅种、媒体库整理、多站点统计与搜索、qBittorrent 与 Transmission 管理，手机 App 和 QQ、Telegram 上的 ChatOps。支持 Docker、Linux 和 Windows。',
 
   themeConfig: {
     nav: [
       {
         text: '指南',
         link: '/guide/what-is-pt-tools',
-        activeMatch: '^/(guide/(what-is-pt-tools|install|quick-start|upgrade)|configuration)',
+        activeMatch: '^/(guide/(what-is-pt-tools|whats-new-1.0|install|quick-start|upgrade)|configuration)',
       },
       {
         text: '站点',
         link: '/sites',
-        activeMatch: '^/(sites|guide/(get-cookie-apikey|browser-extension|site-login-monitoring|request-new-site))',
+        activeMatch: '^/(sites|guide/(get-cookie-apikey|browser-extension|site-login-monitoring|cookiecloud|request-new-site))',
       },
       {
         text: 'RSS 与下载',
         link: '/guide/rss-subscription',
-        activeMatch: '^/guide/(rss-subscription|filter-rules-tv-series|auto-cleanup)',
+        activeMatch:
+          '^/guide/(rss-subscription|filter-rules-tv-series|auto-cleanup|brush|user-stats|downloader-assistant|torrent-transfer|reseed)',
       },
-      { text: 'ChatOps', link: '/guide/chatops-quickstart', activeMatch: '^/guide/chatops-' },
-      { text: '参考', link: '/faq', activeMatch: '^/(faq|reference/|development|design/)' },
+      { text: '媒体', link: '/guide/media-library', activeMatch: '^/guide/media-' },
+      { text: 'ChatOps', link: '/guide/chatops-quickstart', activeMatch: '^/guide/(chatops-|notify-channels)' },
+      {
+        text: 'App 与接口',
+        link: '/guide/mobile-app',
+        activeMatch: '^/(guide/(mobile-app|remote-access|assistant|mcp|api-tokens|qbit-compat)|reference/app-api)',
+      },
+      {
+        text: '参考',
+        link: '/faq',
+        activeMatch: '^/(faq|reference/(cli|security|developers)|development|design/)',
+      },
       {
         text: '更多',
         items: [
           { text: '下载与发布', link: `${REPO}/releases` },
-          { text: '更新日志', link: `${REPO}/blob/main/CHANGELOG.md` },
+          { text: '更新日志', link: `${REPO}/blob/${DOCS_BRANCH}/CHANGELOG.md` },
           { text: '反馈问题', link: `${REPO}/issues` },
           { text: '讨论区', link: `${REPO}/discussions` },
           { text: 'FirLab', link: 'https://firlab.app' },
@@ -104,7 +145,7 @@ export const zh = defineConfig({
     editLink: {
       // VitePress serialises this function into the client bundle with toString(), so it
       // cannot close over REPO: the address is written out in full.
-      pattern: ({ filePath }) => `https://github.com/sunerpy/pt-tools/edit/main/docs/${filePath}`,
+      pattern: ({ filePath }) => `https://github.com/sunerpy/pt-tools/edit/v1.0.0-rc/docs/${filePath}`,
       text: '在 GitHub 上编辑此页',
     },
 
