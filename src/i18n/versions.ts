@@ -30,8 +30,8 @@
 export const pttoolsVersion = 'v0.48.0';
 export const pttoolsReleased = '2026-10-01';
 
-export const codegraphVersion = 'v0.54.0';
-export const codegraphReleased = '2026-10-08';
+export const codegraphVersion = 'v0.55.0';
+export const codegraphReleased = '2026-10-22';
 
 export const kiroproviderVersion = 'v3.8.5';
 export const kiroproviderReleased = '2026-10-09';
