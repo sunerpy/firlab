@@ -1,7 +1,7 @@
 {
   "source": "https://github.com/sunerpy/lockra",
-  "commit": "464f1bb6eecb164ef15410c6841df924d74598f9",
-  "shortCommit": "464f1bb",
-  "syncedAt": "2026-10-22T10:58:47Z",
+  "commit": "d1e3dcbce6dbb25ce04ced330cc69d7162450fea",
+  "shortCommit": "d1e3dcb",
+  "syncedAt": "2026-10-22T11:50:47Z",
   "sections": ["guide", "accounts", "transfer", "backup", "security", "reference", "zh", "passwords"]
 }
