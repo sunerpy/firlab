@@ -2,11 +2,13 @@
 /**
  * The band under the hero that leads to the try page (design B, 2026-10-12): a microphone, what
  * the page offers, a heard → polished sample and the button, all one target. The words come from
- * the page's `home.try` frontmatter; without it nothing renders.
+ * the page's `home.try` frontmatter; without it nothing renders. The heard sample may strike out
+ * the words polish drops (`~~嗯那个~~`, components/inline.ts).
  */
 import { computed } from 'vue';
 import { useData } from 'vitepress';
 import type { Home } from '../data/home-schema';
+import { inline } from './inline';
 
 const { frontmatter } = useData();
 const band = computed(() => (frontmatter.value.home as Home | undefined)?.try);
@@ -16,14 +18,14 @@ const band = computed(() => (frontmatter.value.home as Home | undefined)?.try);
   <section v-if="band" class="vt-tryband-wrap" :aria-label="band.title">
     <div class="vt-tryband">
       <span class="vt-tryband-mic" aria-hidden="true">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z M19 11a7 7 0 0 1-14 0 M12 18v3" /></svg>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z M19 11a7 7 0 0 1-14 0 M12 18v3" /></svg>
       </span>
       <span class="vt-tryband-words">
         <strong>{{ band.title }}</strong>
         <span>{{ band.body }}</span>
       </span>
       <span class="vt-tryband-sample" aria-hidden="true">
-        <span class="vt-tryband-heard">{{ band.heard }}</span>
+        <span class="vt-tryband-heard" v-html="inline(band.heard)" />
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14 M13 6l6 6-6 6" /></svg>
         <span class="vt-tryband-polished">{{ band.polished }}</span>
       </span>
@@ -76,8 +78,8 @@ const band = computed(() => (frontmatter.value.home as Home | undefined)?.try);
 .vt-tryband-mic {
   display: grid;
   place-items: center;
-  width: 60px;
-  height: 60px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: var(--vt-accent);
   color: var(--vt-accent-ink);
@@ -90,13 +92,15 @@ const band = computed(() => (frontmatter.value.home as Home | undefined)?.try);
 }
 .vt-tryband-words strong {
   color: var(--vt-ink-900);
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 650;
   line-height: 1.4;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 .vt-tryband-words span {
   color: var(--vt-ink-500);
-  font-size: 15px;
+  font-size: 14.5px;
   line-height: 1.55;
   text-wrap: pretty;
 }
@@ -125,6 +129,12 @@ const band = computed(() => (frontmatter.value.home as Home | undefined)?.try);
 }
 .vt-tryband-heard {
   color: var(--vt-ink-500);
+}
+/* What polish drops, struck through in the mark colour (a mark, not text). */
+.vt-tryband-heard :deep(del) {
+  color: var(--vt-ink-400);
+  text-decoration-color: var(--vt-mark);
+  text-decoration-thickness: 2px;
 }
 
 .vt-tryband-action {

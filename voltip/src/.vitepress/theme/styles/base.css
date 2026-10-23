@@ -188,6 +188,69 @@ html .VPNavScreenMenuLink[href$='/guide/try']::before {
   --vt-mic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z M19 11a7 7 0 0 1-14 0 M12 18v3'/%3E%3C/svg%3E");
 }
 
+/* The menu as one pill group, the page you are in lifted on paper (design A, 2026-10-23). Where
+   the nav bar shows the two action pills (NavActions.vue), the try item above steps aside. */
+@media (min-width: 768px) {
+  html .VPNavBarMenu.VPNavBarMenu {
+    align-items: center;
+    gap: 0;
+    height: 40px;
+    margin-left: 8px;
+    padding: 0 3px;
+    border: 1px solid var(--vt-rule);
+    border-radius: var(--vt-radius-pill);
+    background: var(--vt-paper-1);
+  }
+
+  html .VPNavBarMenu .VPNavBarMenuLink.VPNavBarMenuLink {
+    padding: 0 10px;
+    color: var(--vt-ink-500);
+  }
+
+  html .VPNavBarMenu .VPNavBarMenuLink.VPNavBarMenuLink:hover,
+  html .VPNavBarMenu .VPNavBarMenuLink.VPNavBarMenuLink.active {
+    color: var(--vt-ink-900);
+    background: var(--vt-paper-elv);
+    box-shadow: var(--vt-shadow-card);
+  }
+
+  html .VPNavBarMenu .VPNavBarMenuGroup .VPFlyout {
+    height: 32px;
+  }
+
+  html .VPNavBarMenu .VPNavBarMenuGroup .VPFlyout > .button {
+    height: 32px;
+    padding: 0 8px 0 10px;
+    border-radius: var(--vt-radius-pill);
+    color: var(--vt-ink-500);
+    transition:
+      color 0.2s,
+      background-color 0.2s;
+  }
+
+  html .VPNavBarMenu .VPNavBarMenuGroup .VPFlyout:hover > .button,
+  html .VPNavBarMenu .VPNavBarMenuGroup .VPFlyout > .button[aria-expanded='true'] {
+    color: var(--vt-ink-900);
+    background: var(--vt-paper-elv);
+  }
+}
+
+/* With room to spare, the items breathe as in design A. */
+@media (min-width: 1100px) {
+  html .VPNavBarMenu.VPNavBarMenu {
+    gap: 2px;
+    margin-left: 16px;
+  }
+
+  html .VPNavBarMenu .VPNavBarMenuLink.VPNavBarMenuLink {
+    padding: 0 14px;
+  }
+
+  html .VPNavBarMenu .VPNavBarMenuGroup .VPFlyout > .button {
+    padding: 0 10px 0 14px;
+  }
+}
+
 /* The sidebar: the current page sits in a soft fill. */
 .VPSidebarItem.level-1 > .item {
   width: calc(100% + 20px);
@@ -294,11 +357,12 @@ html .VPNavScreenMenuLink[href$='/guide/try']::before {
   white-space: nowrap;
 }
 
-/* From 768 px the menu joins the bar, but the English one only fits beside the full search
-   field from 960 px, and on pages with a sidebar (which takes the bar's left 272 px) from
-   1100 px (measured: 820 px of bar in 753 px at 768; 1008 in 945 at 960 with a sidebar).
-   In between, the search button shows its icon alone. */
-@media (min-width: 768px) and (max-width: 959px) {
+/* From 768 px the menu joins the bar. With the menu drawn as a pill group (design A, 2026-10-23)
+   and the action pills beside it on the home page, the full search field fits only from 1380 px
+   (measured in English, the longer menu: 1100 px beside a sidebar ended 40 px past the window
+   with the field, 1280 px 37 px). Below that the search button shows its icon alone, and at
+   768–959 px the items move closer together (at 768 px the bar ended 15 px past the window). */
+@media (min-width: 768px) and (max-width: 1379px) {
   .VPNavBar .DocSearch-Button .DocSearch-Button-Placeholder,
   .VPNavBar .DocSearch-Button .DocSearch-Button-Keys {
     display: none !important;
@@ -314,19 +378,13 @@ html .VPNavScreenMenuLink[href$='/guide/try']::before {
   }
 }
 
-@media (min-width: 960px) and (max-width: 1099px) {
-  .VPNavBar.has-sidebar .DocSearch-Button .DocSearch-Button-Placeholder,
-  .VPNavBar.has-sidebar .DocSearch-Button .DocSearch-Button-Keys {
-    display: none !important;
+@media (min-width: 768px) and (max-width: 959px) {
+  html .VPNavBarMenu .VPNavBarMenuLink.VPNavBarMenuLink {
+    padding: 0 8px;
   }
 
-  html .VPNavBar.has-sidebar .VPNavBarSearch.VPNavBarSearch {
-    flex-grow: 0;
-    padding-left: 16px;
-  }
-
-  .VPNavBar.has-sidebar .DocSearch-Button .DocSearch-Search-Icon {
-    margin-right: 0;
+  html .VPNavBarMenu .VPNavBarMenuGroup .VPFlyout > .button {
+    padding: 0 6px 0 8px;
   }
 }
 

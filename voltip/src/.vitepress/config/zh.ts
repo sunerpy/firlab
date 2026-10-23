@@ -1,5 +1,6 @@
 /** 简体中文导航、侧边栏与界面文案。Markdown 内容由 voltip 仓库同步。 */
-import { defineConfig, type DefaultTheme } from 'vitepress';
+import { defineConfigWithTheme, type DefaultTheme } from 'vitepress';
+import type { VoltipThemeConfig } from '../theme/data/site-config';
 import synced from '../synced.json';
 
 const REPO = 'https://github.com/sunerpy/voltip';
@@ -68,7 +69,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
   },
 ];
 
-export const zh = defineConfig({
+export const zh = defineConfigWithTheme<VoltipThemeConfig>({
   lang: 'zh-CN',
   description:
     'Voltip 是 Windows、macOS 和 Linux 上的语音输入工具：按住快捷键说话，松开后文字出现在光标处。可以在本机识别，也可以使用你选择的云端服务。',
@@ -126,6 +127,76 @@ export const zh = defineConfig({
     footer: {
       message: `Voltip 基于 GNU AGPL v3.0 或更高版本发布，是 <a href="https://firlab.app">FirLab</a> 的项目之一。内容来自 <a href="${REPO}/commit/${synced.commit}">voltip@${synced.shortCommit}</a>。`,
       copyright: 'Copyright © 2026 Voltip contributors',
+    },
+
+    vtActions: [
+      { text: '在线体验', link: '/zh/guide/try', icon: 'mic', theme: 'alt' },
+      { text: '下载', link: '/zh/guide/install', icon: 'download', theme: 'brand' },
+    ],
+
+    vtFooter: {
+      tagline: 'Windows、macOS、Linux 和 Android 上的语音输入。',
+      qr: {
+        src: '/community/wechat-official-account.jpg',
+        alt: '微信公众号「六月水蓝」的二维码',
+        caption: '公众号「六月水蓝」',
+        link: { text: '交流与反馈', link: '/zh/reference/community' },
+      },
+      columns: [
+        {
+          title: '开始使用',
+          items: [
+            { text: 'Voltip 是什么', link: '/zh/guide/what-is-voltip' },
+            { text: '安装', link: '/zh/guide/install' },
+            { text: '在线体验', link: '/zh/guide/try' },
+            { text: '快速开始', link: '/zh/guide/quick-start' },
+            { text: '更新与卸载', link: '/zh/guide/updates' },
+          ],
+        },
+        {
+          title: '听写',
+          items: [
+            { text: '快捷键与录音方式', link: '/zh/dictation/shortcuts' },
+            { text: '文字的插入方式', link: '/zh/dictation/output' },
+            { text: '语音编辑', link: '/zh/dictation/voice-edit' },
+            { text: '历史记录', link: '/zh/dictation/history' },
+            { text: '手机', link: '/zh/phone/' },
+          ],
+        },
+        {
+          title: '识别与 AI',
+          items: [
+            { text: '本地识别', link: '/zh/recognition/local' },
+            { text: '云端服务', link: '/zh/recognition/cloud' },
+            { text: 'AI 润色与预设', link: '/zh/recognition/polish' },
+            { text: '场景', link: '/zh/recognition/scenes' },
+            { text: '词典与替换规则', link: '/zh/recognition/dictionary' },
+            { text: '本机服务', link: '/zh/recognition/service' },
+            { text: 'AI 工具接入', link: '/zh/recognition/mcp' },
+          ],
+        },
+        {
+          title: '参考',
+          items: [
+            { text: '常见问题', link: '/zh/reference/faq' },
+            { text: '隐私', link: '/zh/privacy' },
+            { text: '各平台说明', link: '/zh/reference/platforms' },
+            { text: '命令行', link: '/zh/reference/cli' },
+            { text: '路线图', link: '/zh/roadmap' },
+            { text: '开发者', link: '/zh/developers' },
+          ],
+        },
+        {
+          title: '项目',
+          items: [
+            { text: 'GitHub', link: REPO },
+            { text: '下载与发布', link: `${REPO}/releases` },
+            { text: '更新日志', link: `${REPO}/blob/main/CHANGELOG.md` },
+            { text: '反馈问题', link: `${REPO}/issues` },
+            { text: 'FirLab', link: 'https://firlab.app' },
+          ],
+        },
+      ],
     },
   },
 });

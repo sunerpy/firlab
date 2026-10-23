@@ -8,9 +8,9 @@
  * and hero gradient are all remapped below.
  *
  * Buttons and links follow OpenAI's developer docs (user request 2026-09-29): the
- * primary button is ink on paper, inverted in the dark theme; secondary buttons are a
- * translucent ink fill; links are body-coloured text with a soft underline. There is no
- * coloured link or button text anywhere.
+ * primary button is ink on paper, inverted in the dark theme; secondary buttons are
+ * outlined (design A, 2026-10-23; a translucent ink fill before); links are body-coloured
+ * text with a soft underline. There is no coloured link or button text anywhere.
  *
  * Contrast, measured (WCAG 2.x): every text colour here is at least 4.5:1 on the
  * surfaces it is used on — the lowest is light --vt-ink-400 on --vt-paper-2, 4.87:1.
@@ -60,6 +60,18 @@
   --vt-shadow-pill: 0 1px 2px 0 rgb(0 0 0 / 0.12), 0 10px 28px -8px rgb(11 18 32 / 0.3);
   --vt-pill-drop: drop-shadow(0 10px 22px rgb(11 18 32 / 0.22)); /* the hero's overlay captures */
 
+  /* The 2026-10 home page (DESIGN.md §10, design A). */
+  --vt-rule-strong: #cfd8e3; /* outlined buttons, connector lines, the nav group's edge */
+  --vt-band: var(--vt-paper-1); /* every other band of the home page */
+  --vt-shadow-card: 0 1px 2px 0 rgb(11 18 32 / 0.05), 0 1px 1px 0 rgb(11 18 32 / 0.02);
+  /* What was said, drawn dark in both themes so it reads as the voice beside the typed text. */
+  --vt-said-bg: #0e1524;
+  --vt-said-ink: #e8ecf3;
+  --vt-said-muted: #9aa5b8;
+  --vt-said-edge: transparent;
+  --vt-shadow-said: 0 18px 32px -20px rgb(11 18 32 / 0.6);
+  --vt-scene-plate: var(--vt-paper-soft);
+
   --vt-font-sans:
     'Instrument Sans Variable', 'Instrument Sans', 'PingFang SC', 'Hiragino Sans GB',
     'Microsoft YaHei UI', 'Microsoft YaHei', 'Noto Sans SC', 'Noto Sans CJK SC', system-ui,
@@ -108,6 +120,14 @@
   --vt-shadow-plate: inset 0 1px 0 0 rgb(255 255 255 / 0.06), 0 18px 40px -24px rgb(0 0 0 / 0.7);
   --vt-shadow-pill: inset 0 1px 0 0 rgb(255 255 255 / 0.06), 0 10px 28px -8px rgb(0 0 0 / 0.6);
   --vt-pill-drop: drop-shadow(0 10px 22px rgb(0 0 0 / 0.5));
+
+  --vt-rule-strong: #4a515b;
+  --vt-shadow-card: inset 0 1px 0 0 rgb(255 255 255 / 0.04);
+  --vt-said-bg: #0b0e12;
+  --vt-said-ink: #eceff3;
+  --vt-said-muted: #9499a0;
+  --vt-said-edge: #353b43;
+  --vt-shadow-said: none;
 }
 
 /* ---- VitePress variables ------------------------------------------------ */
@@ -181,13 +201,14 @@
   --vp-button-brand-active-border: transparent;
   --vp-button-brand-active-text: var(--vt-accent-ink);
   --vp-button-brand-active-bg: var(--vt-accent-hover);
-  --vp-button-alt-border: transparent;
+  /* Secondary buttons are outlined pills (design A, 2026-10-23); until then a translucent fill. */
+  --vp-button-alt-border: var(--vt-rule-strong);
   --vp-button-alt-text: var(--vt-ink-900);
-  --vp-button-alt-bg: var(--vt-fill);
-  --vp-button-alt-hover-border: transparent;
+  --vp-button-alt-bg: transparent;
+  --vp-button-alt-hover-border: var(--vt-ink-400);
   --vp-button-alt-hover-text: var(--vt-ink-900);
-  --vp-button-alt-hover-bg: var(--vt-fill-hover);
-  --vp-button-alt-active-border: transparent;
+  --vp-button-alt-hover-bg: var(--vt-fill);
+  --vp-button-alt-active-border: var(--vt-ink-400);
   --vp-button-alt-active-text: var(--vt-ink-900);
   --vp-button-alt-active-bg: var(--vt-fill-hover);
 

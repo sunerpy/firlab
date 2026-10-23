@@ -1,5 +1,6 @@
 /** English navigation, sidebar and interface labels. The Markdown is synced from voltip. */
-import { defineConfig, type DefaultTheme } from 'vitepress';
+import { defineConfigWithTheme, type DefaultTheme } from 'vitepress';
+import type { VoltipThemeConfig } from '../theme/data/site-config';
 import synced from '../synced.json';
 
 const REPO = 'https://github.com/sunerpy/voltip';
@@ -68,7 +69,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
   },
 ];
 
-export const en = defineConfig({
+export const en = defineConfigWithTheme<VoltipThemeConfig>({
   lang: 'en-US',
   description:
     'Voltip is a dictation app for Windows, macOS and Linux: hold a shortcut, speak, and the text appears at your cursor. Recognition on your computer or with a cloud service you choose.',
@@ -127,6 +128,76 @@ export const en = defineConfig({
     footer: {
       message: `Voltip is released under the GNU AGPL v3.0 or later. Part of <a href="https://firlab.app">FirLab</a>. Content from <a href="${REPO}/commit/${synced.commit}">voltip@${synced.shortCommit}</a>.`,
       copyright: 'Copyright © 2026 Voltip contributors',
+    },
+
+    vtActions: [
+      { text: 'Try it online', link: '/guide/try', icon: 'mic', theme: 'alt' },
+      { text: 'Download', link: '/guide/install', icon: 'download', theme: 'brand' },
+    ],
+
+    vtFooter: {
+      tagline: 'Dictation for Windows, macOS, Linux and Android.',
+      qr: {
+        src: '/community/wechat-official-account.jpg',
+        alt: 'QR code of the WeChat Official Account 六月水蓝',
+        caption: 'WeChat Official Account 六月水蓝',
+        link: { text: 'Community', link: '/reference/community' },
+      },
+      columns: [
+        {
+          title: 'Getting started',
+          items: [
+            { text: 'What is Voltip', link: '/guide/what-is-voltip' },
+            { text: 'Install', link: '/guide/install' },
+            { text: 'Try it online', link: '/guide/try' },
+            { text: 'Quick start', link: '/guide/quick-start' },
+            { text: 'Updates', link: '/guide/updates' },
+          ],
+        },
+        {
+          title: 'Dictation',
+          items: [
+            { text: 'Shortcuts', link: '/dictation/shortcuts' },
+            { text: 'Where the text goes', link: '/dictation/output' },
+            { text: 'Voice edit', link: '/dictation/voice-edit' },
+            { text: 'History', link: '/dictation/history' },
+            { text: 'Phone', link: '/phone/' },
+          ],
+        },
+        {
+          title: 'Recognition and AI',
+          items: [
+            { text: 'Local recognition', link: '/recognition/local' },
+            { text: 'Cloud services', link: '/recognition/cloud' },
+            { text: 'AI polish', link: '/recognition/polish' },
+            { text: 'Scenes', link: '/recognition/scenes' },
+            { text: 'Dictionary and rules', link: '/recognition/dictionary' },
+            { text: 'Local service', link: '/recognition/service' },
+            { text: 'AI tools', link: '/recognition/mcp' },
+          ],
+        },
+        {
+          title: 'Reference',
+          items: [
+            { text: 'Questions', link: '/reference/faq' },
+            { text: 'Privacy', link: '/privacy' },
+            { text: 'Platform notes', link: '/reference/platforms' },
+            { text: 'Command line', link: '/reference/cli' },
+            { text: 'Roadmap', link: '/roadmap' },
+            { text: 'Developers', link: '/developers' },
+          ],
+        },
+        {
+          title: 'Project',
+          items: [
+            { text: 'GitHub', link: REPO },
+            { text: 'Releases', link: `${REPO}/releases` },
+            { text: 'Changelog', link: `${REPO}/blob/main/CHANGELOG.md` },
+            { text: 'Report a problem', link: `${REPO}/issues` },
+            { text: 'FirLab', link: 'https://firlab.app' },
+          ],
+        },
+      ],
     },
   },
 });

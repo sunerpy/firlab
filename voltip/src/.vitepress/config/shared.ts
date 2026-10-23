@@ -1,9 +1,31 @@
 /** Locale-independent build, metadata, search and theme settings. */
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { defineConfig, type HeadConfig } from 'vitepress';
+import { inlineLinks } from '../theme/components/inline';
 import { validateHome } from '../theme/data/home-schema';
 
 const HOST = 'https://voltip.firlab.app';
+
+/** Site paths named in the home pages' `hero:` and `home:`: `link` fields and links inside the words. */
+const frontmatterLinks = new Map<string, string[]>();
+
+function collectLinks(value: unknown, into: string[] = []): string[] {
+  if (typeof value === 'string') into.push(...inlineLinks(value));
+  else if (Array.isArray(value)) value.forEach((item) => collectLinks(item, into));
+  else if (typeof value === 'object' && value !== null) {
+    for (const [key, item] of Object.entries(value)) {
+      if (key === 'link' && typeof item === 'string') into.push(item);
+      else collectLinks(item, into);
+    }
+  }
+  return into;
+}
+
+/** Whether a site path is a file of src/public/ (an image, the logo) rather than a page. */
+function isPublicFile(path: string): boolean {
+  return existsSync(fileURLToPath(new URL(`../../public${decodeURI(path)}`, import.meta.url)));
+}
 
 /** `guide/install.md` → `https://voltip.firlab.app/guide/install`; `zh/index.md` → `…/zh/`. */
 function pageUrl(relativePath: string): string {
@@ -66,6 +88,11 @@ export const shared = defineConfig({
           find: /^.*\/VPHome\.vue$/,
           replacement: fileURLToPath(new URL('../theme/components/HomeMain.vue', import.meta.url)),
         },
+        // The footer with the documentation in columns; the same mechanism.
+        {
+          find: /^.*\/VPFooter\.vue$/,
+          replacement: fileURLToPath(new URL('../theme/components/SiteFooter.vue', import.meta.url)),
+        },
       ],
     },
   },
@@ -113,11 +140,27 @@ export const shared = defineConfig({
   ],
 
   // The home pages carry their data in frontmatter; a missing or misspelt field
-  // would render an empty band, so it fails the build here instead.
+  // would render an empty band, so it fails the build here instead. Their links are not
+  // Markdown links, which VitePress checks itself, so buildEnd checks them.
   transformPageData(pageData) {
     if (pageData.relativePath === 'index.md' || pageData.relativePath === 'zh/index.md') {
       validateHome(pageData.relativePath, pageData.frontmatter);
+      frontmatterLinks.set(pageData.relativePath, collectLinks([pageData.frontmatter.hero, pageData.frontmatter.home]));
     }
+  },
+
+  buildEnd(siteConfig) {
+    const pages = new Set(siteConfig.pages.map((page) => `/${page.replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, '')}`));
+    const dead: string[] = [];
+    for (const [page, links] of frontmatterLinks) {
+      for (const link of links) {
+        const path = link.replace(/#.*$/, '');
+        if (path.startsWith('/') && !pages.has(path) && !pages.has(`${path.replace(/\/$/, '')}/`) && !isPublicFile(path)) {
+          dead.push(`${page}: ${link}`);
+        }
+      }
+    }
+    if (dead.length > 0) throw new Error(`dead links in the home frontmatter:\n  ${dead.join('\n  ')}`);
   },
 
   // One canonical URL per page, and hreflang pairs between the two languages. The
