@@ -102,7 +102,8 @@ const home = useHomeV2();
   font-size: 20px;
   font-weight: 500;
   line-height: 1.6;
-  text-wrap: pretty;
+  /* Balanced, so the lines come out even (bands.css: `pretty` left 「据。」 alone here). */
+  text-wrap: balance;
 }
 
 .vt-scene-caret {

@@ -645,6 +645,15 @@ on the home pages at any of those widths (a long install command scrolls inside 
 no clickable text on two lines, and every image loads. The 2026-09 layout still builds and renders
 with the new theme (checked on the content at voltip@02e85d1).
 
+Checked again on the live site after the deploy (2026-10-23, Chrome 154), the same widths and
+both themes: the same results, and every link and image on both home pages answers 200. Short
+last lines were not caught locally: `text-wrap: pretty` left one word or one or two Chinese
+characters alone at the end of 8 text blocks at 1280 px in Chinese (「据。」 in the hero, 「标处。」
+in the phone band) and of 6 at 375 px in English ("Android." in the closer). Every text block on
+the home page and in the footer now balances its lines. That left one: the English presets
+heading, whose forced line break voltip's content drops. The presets' name column is 168 px, so
+"Chinese ⇄ English" stays on one line.
+
 **Hallmark slop test, 2026-10-23 (design A home page, both languages).** Pre-emit critique P4 H5
 E4 S5 R5 V4, stamped at the top of `theme/styles/bands.css`. Fixed on the first build: margins
 that a band-wide reset overrode (now a zero-specificity `:where()` reset), a heading that left one

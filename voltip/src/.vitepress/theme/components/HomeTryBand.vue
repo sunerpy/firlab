@@ -102,7 +102,7 @@ const band = computed(() => (frontmatter.value.home as Home | undefined)?.try);
   color: var(--vt-ink-500);
   font-size: 14.5px;
   line-height: 1.55;
-  text-wrap: pretty;
+  text-wrap: balance;
 }
 
 .vt-tryband-sample {

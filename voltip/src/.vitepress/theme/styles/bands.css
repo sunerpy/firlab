@@ -59,9 +59,13 @@
   overflow-wrap: anywhere;
 }
 
-/* Running text never ends a paragraph on one character or word where the browser can help it. */
-:where(.vt-v2-band) :where(p, dd, li) {
-  text-wrap: pretty;
+/* No text block on the home page ends on one word, or on one or two Chinese characters: every
+   block balances its lines. `pretty` was not enough: measured on the live site in Chrome 154
+   (2026-10-23), it left 「据。」, 「标处。」 and "Android." alone on their last lines, while
+   `balance` left none at 375 or 1280 px in either language. Chromium balances up to six lines and
+   wraps longer text as usual. */
+:where(.VPHome.vt-home-v2, .vt-footer) :where(p, dd, li, figcaption, summary, strong, span) {
+  text-wrap: balance;
 }
 
 .vt-v2-band :is(h2, h3) {
@@ -89,7 +93,6 @@
   color: var(--vt-ink-500);
   font-size: 17px;
   line-height: var(--vt-lh-prose);
-  text-wrap: pretty;
 }
 
 @media (min-width: 768px) {
@@ -535,9 +538,10 @@ html .vt-home-v2 .VPHero .VPButton.VPButton {
   grid-template-columns: minmax(0, 1fr);
 }
 
+/* 168 px holds the longest preset name on one line ("Chinese ⇄ English" is 132 px wide). */
 @media (min-width: 640px) {
   .vt-out {
-    grid-template-columns: 160px minmax(0, 1fr);
+    grid-template-columns: 168px minmax(0, 1fr);
   }
 }
 
