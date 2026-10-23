@@ -39,12 +39,43 @@ export const ICONS = [
   'wand',
   'plug',
   'github',
+  'book',
+  'replace',
+  'cursor',
+  'scale',
+  'stethoscope',
+  'chart',
+  'cap',
+  'audio',
+  'layers',
+  'bot',
 ] as const;
 export type IconName = (typeof ICONS)[number];
 
-/** The vendor marks `ProviderMark.vue` draws, all in the text colour. */
+/** The vendor marks `ProviderMark.vue` draws, each in its own colours (the black ones in the text
+ *  colour, so they follow the theme). */
 export const MARKS = ['openai', 'groq', 'google', 'siliconflow', 'aliyun', 'deepseek', 'ollama'] as const;
 export type MarkName = (typeof MARKS)[number];
+
+/** The applications' marks `AppMark.vue` draws for the built-in scenes. Only applications whose mark
+ *  an open icon set carries (Simple Icons, CC0; Lobe Icons, MIT); the others are named in words. */
+export const APP_MARKS = [
+  'cursor',
+  'kiro',
+  'jetbrains',
+  'iterm2',
+  'warp',
+  'ghostty',
+  'notion',
+  'obsidian',
+  'thunderbird',
+  'wechat',
+  'qq',
+  'telegram',
+  'discord',
+  'imessage',
+] as const;
+export type AppMarkName = (typeof APP_MARKS)[number];
 
 // ---- Shared ----------------------------------------------------------------------------
 
@@ -196,7 +227,36 @@ export interface Presets {
   said: string;
   outputs: { name: string; desc: string; text: string }[];
   note?: string;
-  scenes?: { title: string; note?: string; items: { name: string; body: string; preset: string }[] };
+  scenes?: Scenes;
+}
+
+/** One application a scene applies to, drawn as its mark (or one of the site's icons, for the
+ *  domains, which list no application) with its name under it. */
+export interface SceneApp {
+  name: string;
+  mark?: AppMarkName;
+  icon?: IconName;
+}
+
+export interface SceneItem {
+  name: string;
+  preset: string;
+  /** The applications drawn as marks. */
+  apps?: SceneApp[];
+  /** The applications without a mark, in words ("and VS Code, Windows Terminal…"). */
+  more?: string;
+  /** The extra instruction the scene gives AI polish, as the app has it. */
+  instruction?: string;
+  /** Words about the scene, for one with no instruction or no applications. */
+  body?: string;
+}
+
+export interface Scenes {
+  title: string;
+  note?: string;
+  /** The labels of a scene card's preset and instruction. */
+  labels?: { preset: string; instruction: string };
+  items: SceneItem[];
 }
 
 export interface Chip {
@@ -210,9 +270,9 @@ export interface Mode {
   label: string;
   badge?: string;
   title: string;
-  /** The small diagram: you speak → where the speech is recognised. `local` puts both ends
-   *  inside the box labelled with `Modes.scope`. */
-  flow: { from: string; to: string; icon: IconName; local: boolean };
+  /** No longer drawn (2026-10-24: the modes became one comparison table); still accepted so a page
+   *  written for the earlier cards builds. */
+  flow?: { from: string; to: string; icon: IconName; local: boolean };
   assure: string;
   specs: Term[];
   chipsLabel: string;
@@ -222,10 +282,46 @@ export interface Mode {
 export interface Modes {
   title: string;
   intro?: string;
-  /** The label of the dashed box around what runs on the computer. */
-  scope: string;
+  /** No longer drawn, like `Mode.flow`; still accepted. */
+  scope?: string;
   items: Mode[];
   polish?: { title: string; body: string; marks: { name: string; mark: MarkName }[] };
+  /** inline */
+  note?: string;
+}
+
+/** How one dictation is processed (`home.flow`): the steps in order, each with its options. */
+export interface Flow {
+  title: string;
+  intro?: string;
+  /** `tag`: a short word beside the step's name, such as that it can be switched off. */
+  steps: { icon: IconName; name: string; text: string; tag?: string }[];
+  /** inline */
+  note?: string;
+}
+
+/** One feature of `home.more`. It shows at most one piece of evidence: key caps, chips, a chain of
+ *  steps, a line of code or a correction (what was heard → what is written). */
+export interface MoreItem {
+  title: string;
+  /** inline */
+  body: string;
+  /** Spans two columns from 640 px. */
+  wide?: boolean;
+  keys?: string[];
+  chips?: string[];
+  chain?: string[];
+  code?: string;
+  swap?: { from: string; to: string };
+  /** inline: the guide page that covers it, as a Markdown link. Not `link`, which the build reads
+   *  as a bare path (config/shared.ts). */
+  guide?: string;
+}
+
+export interface More {
+  title: string;
+  intro?: string;
+  items: MoreItem[];
   /** inline */
   note?: string;
 }
@@ -260,6 +356,8 @@ export interface Closer {
   title: string;
   body?: string;
   actions: { text: string; link: string; theme: 'brand' | 'alt'; icon?: IconName }[];
+  /** The shortcut beside the closing words, one key cap per entry (`["Ctrl", "Alt", "Space"]`). */
+  keys?: string[];
 }
 
 export interface HomeV2 {
@@ -267,9 +365,13 @@ export interface HomeV2 {
   checks: string[];
   try?: TryBand;
   scene: Scene;
+  /** How a dictation is processed; optional, so a page written before it builds. */
+  flow?: Flow;
   pairs: Pairs;
   presets: Presets;
   modes: Modes;
+  /** More features; optional, like `flow`. */
+  more?: More;
   phone: PhoneV2;
   platforms: PlatformCards;
   faq: Faq;
@@ -419,6 +521,9 @@ const HOME_V1: Check = obj({
 const icon = oneOf(ICONS);
 const mark = oneOf(MARKS);
 
+/** The evidence fields a `more` item may carry, one at most. */
+const MORE_EVIDENCE = ['keys', 'chips', 'chain', 'code', 'swap'] as const;
+
 const HOME_V2: Check = obj({
   checks: list(str(), 2),
   try: TRY,
@@ -465,21 +570,60 @@ const HOME_V2: Check = obj({
       obj({
         title: str(),
         note: str(true),
-        items: list(obj({ name: str(), body: str(), preset: str() })),
+        labels: optional(obj({ preset: str(), instruction: str() })),
+        items: list(
+          obj({
+            name: str(),
+            preset: str(),
+            apps: optionalList(obj({ name: str(), mark: oneOf(APP_MARKS, true), icon: oneOf(ICONS, true) })),
+            more: str(true),
+            instruction: str(true),
+            body: str(true),
+          }),
+        ),
       }),
     ),
   }),
+  flow: optional(
+    obj({
+      title: str(),
+      intro: str(true),
+      steps: list(obj({ icon, name: str(), text: str(), tag: str(true) }), 3),
+      note: str(true),
+    }),
+  ),
+  more: optional(
+    obj({
+      title: str(),
+      intro: str(true),
+      items: list(
+        obj({
+          title: str(),
+          body: str(),
+          wide: optional(bool),
+          keys: optionalList(str()),
+          chips: optionalList(str()),
+          chain: optionalList(str()),
+          code: str(true),
+          swap: optional(obj({ from: str(), to: str() })),
+          guide: str(true),
+        }),
+        2,
+      ),
+      note: str(true),
+    }),
+  ),
   modes: obj({
     title: str(),
     intro: str(true),
-    scope: str(),
+    scope: str(true),
     items: list(
       obj({
         icon,
         label: str(),
         badge: str(true),
         title: str(),
-        flow: obj({ from: str(), to: str(), icon, local: bool }),
+        flow: optional(obj({ from: str(), to: str(), icon, local: bool })),
         assure: str(),
         specs: list(term),
         chipsLabel: str(),
@@ -514,6 +658,7 @@ const HOME_V2: Check = obj({
     title: str(),
     body: str(true),
     actions: list(obj({ text: str(), link: str(), theme: oneOf(['brand', 'alt']), icon: oneOf(ICONS, true) })),
+    keys: optionalList(str()),
   }),
 });
 
@@ -531,6 +676,23 @@ export function validateHome(page: string, frontmatter: Record<string, unknown>)
       if (pair?.kind === 'dictation' && pair.selection !== undefined) {
         problems.push(`home.pairs.items[${i}].selection: only a voice edit has a selection`);
       }
+    });
+    // A scene says something besides its name: its applications, its instruction or its words; an
+    // application shows its mark or one of the site's icons, not both.
+    raw.presets?.scenes?.items?.forEach((scene, i) => {
+      if (scene?.apps === undefined && scene?.instruction === undefined && scene?.body === undefined) {
+        problems.push(`home.presets.scenes.items[${i}]: give its apps, its instruction or a body`);
+      }
+      scene?.apps?.forEach((app, j) => {
+        if (app?.mark !== undefined && app?.icon !== undefined) {
+          problems.push(`home.presets.scenes.items[${i}].apps[${j}]: give a mark or an icon, not both`);
+        }
+      });
+    });
+    // A feature shows one piece of evidence at most.
+    raw.more?.items?.forEach((item, i) => {
+      const given = MORE_EVIDENCE.filter((key) => item?.[key] !== undefined);
+      if (given.length > 1) problems.push(`home.more.items[${i}]: give one of ${given.join(', ')}, not several`);
     });
     // A chip shows a vendor's mark or one of the site's icons, not both.
     raw.modes?.items?.forEach((mode, i) =>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Platform by platform: what ships, and what works where. The 2026-09 layout draws `platforms` as
- * a table inside the page's `.vp-doc`; the 2026-10 layout draws one card per platform, then the
+ * a table inside the page's `.vp-doc`; the 2026-10 layout draws one strip with a column per platform, then the
  * page's own Markdown (the install commands) in a card of its own, given `.vp-doc` back so the
  * code group keeps VitePress's tabs and copy button.
  */
@@ -20,12 +20,12 @@ const table = computed(() => (v2.value ? undefined : v1.value.platforms));
 <template>
   <section v-if="v2" class="vt-v2-band" aria-labelledby="vt-platforms-title">
     <div class="vt-wrap">
-      <header class="vt-sec-head vt-sec-narrow">
+      <header class="vt-sec-head">
         <h2 id="vt-platforms-title" v-html="inline(v2.platforms.title)" />
         <p v-if="v2.platforms.intro">{{ v2.platforms.intro }}</p>
       </header>
       <ul class="vt-platforms">
-        <li v-for="card in v2.platforms.cards" :key="card.name" class="vt-card vt-platform">
+        <li v-for="card in v2.platforms.cards" :key="card.name" class="vt-platform">
           <h3>{{ card.name }}</h3>
           <StatusTag :status="card.status" />
           <dl>

@@ -3,9 +3,11 @@
  * The hero's right side in the 2026-10 layout (`home.scene`): one real dictation, cut from a
  * screen recording. The overlay while speaking, the text that went in at the cursor, and the
  * overlay after it went in. The two overlays are captures; the inserted text is the page's own
- * text in a plain card, not a drawn window (DESIGN.md §10). The caret blinks four times and
- * then stays, under five seconds (WCAG 2.2.2); with reduced motion it does not blink.
+ * text in a plain card, not a drawn window (DESIGN.md §10). From 960 px the two stages sit side
+ * by side under the hero's words (2026-10-24); below that they stack. The caret blinks four times
+ * and then stays, under five seconds (WCAG 2.2.2); with reduced motion it does not blink.
  */
+import VtIcon from './VtIcon.vue';
 import VtImg from './VtImg.vue';
 import { useHomeV2 } from './useHome';
 
@@ -15,13 +17,18 @@ const home = useHomeV2();
 <template>
   <figure v-if="home" class="vt-scene">
     <div class="vt-scene-plate">
-      <p class="vt-scene-step"><span class="vt-scene-num" aria-hidden="true">1</span>{{ home.scene.steps[0] }}</p>
-      <VtImg class="vt-scene-live" :img="home.scene.live" loading="eager" />
-      <p class="vt-scene-step vt-scene-step-2"><span class="vt-scene-num" aria-hidden="true">2</span>{{ home.scene.steps[1] }}</p>
-      <div class="vt-scene-card">
-        <span class="vt-scene-label">{{ home.scene.label }}</span>
-        <p class="vt-scene-result">{{ home.scene.result }}<span class="vt-scene-caret" aria-hidden="true" /></p>
-        <VtImg class="vt-scene-done" :img="home.scene.inserted" loading="eager" />
+      <div class="vt-scene-stage">
+        <p class="vt-scene-step"><span class="vt-scene-num" aria-hidden="true">1</span>{{ home.scene.steps[0] }}</p>
+        <VtImg class="vt-scene-live" :img="home.scene.live" loading="eager" />
+      </div>
+      <span class="vt-scene-to" aria-hidden="true"><VtIcon name="arrow" :size="18" /></span>
+      <div class="vt-scene-stage">
+        <p class="vt-scene-step"><span class="vt-scene-num" aria-hidden="true">2</span>{{ home.scene.steps[1] }}</p>
+        <div class="vt-scene-card">
+          <span class="vt-scene-label">{{ home.scene.label }}</span>
+          <p class="vt-scene-result">{{ home.scene.result }}<span class="vt-scene-caret" aria-hidden="true" /></p>
+          <VtImg class="vt-scene-done" :img="home.scene.inserted" loading="eager" />
+        </div>
       </div>
     </div>
     <figcaption class="vt-scene-caption">{{ home.scene.caption }}</figcaption>
@@ -36,10 +43,41 @@ const home = useHomeV2();
 
 .vt-scene-plate {
   position: relative;
+  display: grid;
+  gap: 24px;
   padding: 32px 32px 44px;
   border: 1px solid var(--vt-rule);
   border-radius: var(--vt-radius-plate);
   background: var(--vt-scene-plate);
+}
+
+.vt-scene-stage {
+  min-width: 0;
+}
+
+.vt-scene-to {
+  display: none;
+}
+
+@media (min-width: 960px) {
+  .vt-scene-plate {
+    grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr);
+    align-items: center;
+    gap: 0 16px;
+    padding: 36px 40px 48px;
+  }
+
+  .vt-scene-to {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin-top: 28px;
+    border: 1px solid var(--vt-rule);
+    border-radius: 50%;
+    background: var(--vt-paper-elv);
+    color: var(--vt-ink-500);
+  }
 }
 
 .vt-scene-step {
@@ -53,8 +91,8 @@ const home = useHomeV2();
   line-height: 1.5;
 }
 
-.vt-scene-step-2 {
-  margin: 24px 0 12px;
+.vt-scene-card {
+  margin-top: 12px;
 }
 
 .vt-scene-num {
@@ -73,9 +111,10 @@ const home = useHomeV2();
 
 .vt-scene :deep(.vt-scene-live) {
   display: block;
-  width: 88%;
+  width: 100%;
+  max-width: 560px;
   height: auto;
-  margin: 12px 0 0;
+  margin: 14px 0 0;
   filter: var(--vt-pill-drop);
 }
 
@@ -143,9 +182,6 @@ const home = useHomeV2();
     padding: 24px 16px 40px;
   }
 
-  .vt-scene :deep(.vt-scene-live) {
-    width: 100%;
-  }
 
   .vt-scene-card {
     padding: 16px 16px 36px;

@@ -665,6 +665,78 @@ glow or blur, no drawn chrome, no invented number (the one measurement names its
 examples are labelled as examples), two families, no italic heading, contrast at least 4.5:1
 (the said card's muted text is 7.3:1 on `#0E1524`), and tokens for every colour.
 
+**Design A, second pass (2026-10-24): the borrowed structure taken out.** The owner found the
+page too close to the reference and asked for it to keep its content and look but stop following
+the reference's layout and wording. What changed, band by band:
+
+- *Rhythm.* No alternating sheet and desk bands: every band sits on the sheet and opens with a
+  hairline as wide as the column. Every head puts its title in the wider left column and its words
+  on the right, set against the title's last line (one column below 960 px). No eyebrows or section
+  numbers (Hallmark gate 54).
+- *Hero.* The claim in 56–84 px takes the left of the column; the tagline, the buttons and the
+  three facts (a list with dots, no check marks) stand on the right; the recorded dictation runs
+  across the whole column under them, its two stages side by side with an arrow between.
+- *Said and inserted.* One ledger card: a row per example, what was said (muted, the dropped words
+  struck through in the mark orange) beside what went in, an arrow between. No dark cards.
+- *Presets.* One board: the recognised words across its top, each preset's output in a cell of a
+  2 × 2 grid; the scenes below it as rows of name, apps and preset. No connector tree.
+- *Recognition.* One comparison table, a column per mode whose rows line up across (subgrid): what
+  it is, where the audio goes, its terms, its models or vendors; the default mode carries a line of
+  ink across its head. The small "where the audio goes" diagrams are gone (`flow` and `scope` stay
+  optional in the schema, unused); AI polish is one line of marks and names under the table.
+- *Platforms.* One strip with a column per platform instead of four cards.
+- *Questions.* Every answer open, in two columns; no disclosure widgets.
+- *Closer.* Left-aligned words and buttons, and the shortcut as key caps on the right
+  (`closer.keys`, optional).
+- *Words.* voltip's content rewrites the headings and labels that paraphrased the reference
+  (for example 「识别在哪里完成，由你选择」 → 「三种识别方式」, 「按住快捷键，开始说话」 → 「下载 Voltip」).
+
+Checked 2026-10-24 on a local build, Chrome 154: both languages, both themes, 320 / 375 / 414 / 768
+/ 960 / 1024 / 1100 / 1180 / 1280 / 1440 px: no horizontal scroll, no clickable text on two lines
+(the English footer's two wrapped links at exactly 1100 px are the same on the live site), no text
+block ending on one word or one or two characters, every image loads. The site still builds and
+renders voltip's earlier content (voltip@4bdb360).
+
+**Design A, third pass (2026-10-24): the nav bar, brand colours and more of the product.** The
+owner asked for four things: a nav bar that no longer looks like the reference's, the scenes'
+applications as coloured marks with their names under them, coloured vendor marks, and a home page
+that says more about the product, in its own way.
+
+- *Nav bar.* The menu is plain words on the bar, with no frame and no fill; the page you are in
+  is marked by a 2 px ink line along the bar's lower edge, and hover draws the line in the rule
+  colour. The try item is bold ink after the logo's three bars and cursor, with no frame (it was
+  an outlined pill with a microphone); on pages without a sidebar the bar ends with the same try
+  link and the Download pill. (Design A's selector for the flyout's button,
+  `.VPNavBarMenuGroup .VPFlyout`, never matched: VitePress puts both classes on one element.)
+- *Brand colours, an exception the owner asked for.* A mark keeps its own colours, on a 48 px
+  tile tinted with them (10 % over the raised surface, 16 % in the dark theme), with its name
+  under it; a black mark takes the text colour on a neutral tile. Some of these colours are
+  purple (Kiro, Obsidian, SiliconFlow, facets of Model Studio's mark, Discord's blurple): the rule
+  that nothing on the site is purple now reads "nothing of the site's own is purple". Brand
+  colours appear only inside marks. Sources (`theme/data/marks.ts`): Lobe Icons (MIT) for the
+  vendors and Kiro, Simple Icons (CC0) for the other applications. An application no open set
+  carries a mark for (VS Code, Word, Outlook, WPS, OneNote, Slack, Teams, DingTalk, Feishu) is
+  named in words, never drawn.
+- *Scenes.* A card per built-in scene: its name and preset, its applications as tiles, the rest
+  in words, and its extra instructions word for word as the app has them (the English page, whose
+  app has the instructions in Chinese only, describes them instead). The four domain scenes list
+  no application, so their tiles are line icons.
+- *Two new bands, both optional in the schema.* `home.flow`: the six steps a dictation goes
+  through, as nodes on one line (down the page below 1100 px), the two ends in ink.
+  `home.more`: six features the page did not mention (dictionary and rules, a single key,
+  computer audio and long recordings, fallback models, AI tools over MCP, the local service), as
+  cells of one or two columns, each with one piece of evidence (a correction, key caps, chips, a
+  chain or a command) and its guide page.
+- *Words.* A fourth fact under the buttons (the built-in service is free and needs no key), a
+  tagline that says what the product is, and two questions with honest answers: the shortcut need
+  not be held, but there is no wake word and no stop on silence; the Windows installer is not
+  code-signed and the macOS app is not notarized.
+
+Checked 2026-10-24 on a local build, Chrome 154: both languages, both themes, 320 / 360 / 375 /
+390 / 414 / 768 / 960 / 1100 / 1280 / 1440 px: no horizontal scroll, no clickable text on two
+lines except the English footer's two links at exactly 1100 px (as on the live site), no text
+block ending on one word or one or two characters, every image loads.
+
 ## 11. Product documentation inside firlab.app: firlab.app/lockra
 
 `lockra/` is the §10 site for a second product, published under a path of this site instead of
