@@ -78,7 +78,7 @@ PRESETS_DEST="$SITE_ROOT/src/.vitepress/theme/data/presets-builtin.json"
 # Components a page may use: the ones src/.vitepress/theme/index.ts registers, plus
 # VitePress's own Badge. An unknown tag would render as an empty custom element with
 # only a console warning, so it fails the sync instead.
-ALLOWED_COMPONENTS=(Badge HomeIndex HomeSteps SplitBlock HomePlatforms HomeModels HomePrivacy HomeRoadmap ScreenFigure StatusTag VideoFigure QrCode TryVoltip)
+ALLOWED_COMPONENTS=(Badge HomeIndex HomeSteps SplitBlock HomePlatforms HomeModels HomePrivacy HomeRoadmap HomePairs HomePresets HomeModes HomePhone HomeFaq HomeCloser ScreenFigure StatusTag VideoFigure QrCode TryVoltip)
 
 fail=0
 problem() {

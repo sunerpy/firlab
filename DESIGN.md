@@ -477,7 +477,7 @@ prose links in the body colour at 500 with an underline). So:
 | Element | Light | Dark |
 | --- | --- | --- |
 | Primary button | `#0B1220` fill, white text | `#ECEFF3` fill, `#0C0F13` text |
-| Other buttons | ink at 6 % (hover 10 %) | ink at 9 % (hover 14 %) |
+| Other buttons | outlined: `#CFD8E3` hairline, no fill (hover ink at 6 %, `#5B6779` edge); ink at 6 % until 2026-10-23 | the same: `#4A515B` hairline, ink at 9 % on hover |
 | Link | body ink, 500, 1 px underline at ink 30 %, full ink on hover | the same on the dark ink |
 | Current nav item, current sidebar row | the soft fill | the soft fill |
 
@@ -498,7 +498,7 @@ app's face is what makes the screenshots and the page read as one product. Prose
 1.7 for Latin and 1.85 for Chinese; display leading 1.08 / 1.22, the umbrella site's values
 when this site was built (§1 has since moved to 1.12 / 1.3 for its sans headings).
 
-**Layout.** The home page answers four questions above the fold, at 1280 × 800 and at
+**Layout (2026-09, the first layout; replaced by design A below).** The home page answers four questions above the fold, at 1280 × 800 and at
 375 × 812: what it does (name, headline, tagline), where it runs and where the audio goes
 (two fact rows), how to get it (the Download button). The hero puts the words left and a real
 capture of the app's home page right, with the overlay pill below it cycling through its
@@ -510,7 +510,7 @@ computer in each mode, the install commands and the roadmap with what is deliber
 built. No gradients, glows or blur; no drawn window or phone frames; every screenshot is a
 real capture of the app on its mock backend, framed by a hairline.
 
-**Motion.** One animation: the pill cross-fade, opacity only, 2.6 s per state. With
+**Motion (2026-09 layout).** One animation: the pill cross-fade, opacity only, 2.6 s per state. With
 `prefers-reduced-motion: reduce` the last state shows, still.
 
 **Video and QR codes (2026-10-03).** `VideoFigure` frames the tutorial video like a screenshot:
@@ -583,6 +583,78 @@ gradient, no card grid with icons, no nested cards, no side stripes, no centred 
 redrawn chrome, no invented number, at most two families (Instrument Sans for display and body,
 JetBrains Mono for labels and code), no italic heading, contrast at least 4.5:1, and no
 horizontal scroll or wrapped button from 320 to 1440 px.
+
+**The home page in design A, "墨白" (2026-10-23, the owner's go-ahead on three drafts).** The
+owner asked for a better-looking site after sayitapp.site/zh. Three directions were drawn as
+standalone pages on the real captures (A 墨白: the reference's structure on this ink-and-paper
+system; B 澄空: the app's glass theme, which breaks this section's no-blur, no-gradient rules;
+C 夜空: a dark editorial home, which breaks the theme-follows-system rule). The owner approved the
+look and asked for it to be built; A was built because it keeps every rule above. What the
+reference taught, and what it was not followed in: each band makes one claim and shows one piece
+of evidence, and the bands alternate between the sheet and the desk colour; its drawn terminal and
+app windows were not copied (no drawn window frames, above), so every picture here is a capture
+or the page's own text.
+
+- *Two layouts, one schema.* `theme/data/home-schema.ts` accepts the 2026-09 layout (`HomeV1`)
+  and the new one (`HomeV2`), told apart by `home.scene`, each strict. The firlab change ships
+  first and renders voltip's old pages unchanged; voltip's pages then move to the new fields,
+  which the build checks the same way. The new page sets `markdownStyles: false`, so its bands
+  are full-width sections outside `.vp-doc` (`theme/styles/bands.css`), and `HomeMain` marks it
+  `vt-home-v2`. Links in the frontmatter, which VitePress does not check, fail the build when they
+  lead nowhere (`buildEnd` in `config/shared.ts`).
+- *Hero.* The claim in 40–64 px (`clamp`), the tagline, Download and Try it online (the third
+  hero button, Quick start, left with design A; it is in the footer and the guide), three checks
+  under the buttons in teal marks. On the right, one real dictation (`HeroScene`): the overlay
+  while speaking and the overlay after insertion are frames of a screen recording (zh: 0.1.7,
+  en: 0.1.3, built-in service, Proofread), and the inserted sentence is the page's own text in a
+  plain card, not a drawn window. A caret after it blinks four times and stays (under five
+  seconds, WCAG 2.2.2); with reduced motion it does not blink. This is the page's one animation.
+- *Bands.* Said and inserted pairs (the said card is dark in both themes, what polish dropped
+  is struck through in the mark orange as `<del>`, and every result says whether it is a
+  recorded output or an example); one sentence through four presets with connector lines, then
+  the built-in scenes; the three recognition modes, each with a small diagram of where the audio
+  goes; the phone beside two panels of the computer's phone page (captures cut along the
+  panel's own rounded edge, so they carry no second frame); platform cards with the install
+  commands, which stay the page's Markdown in a `.vp-doc` card so VitePress's tabs and copy
+  button work; common questions as native `<details>`; a centred closer. Headings are 30–46 px,
+  700, balanced (`text-wrap: balance`), and Chinese ones break at punctuation (`word-break:
+  keep-all`).
+- *Vendor marks* (Lobe Icons, MIT, the ones the app's provider cards use) are drawn in the text
+  colour, not their own: two of them are purple and one is a gradient. A mark made of coloured
+  facets keeps them as steps of opacity.
+- *Radius.* Cards and plates keep 12 px and chips and badges 4–8 px: the drafts used 16–20 px
+  and pill chips, which this section's 4 / 8 / 12 steps do not allow.
+- *Nav bar.* The menu is one pill group with the current page lifted on paper. On pages without
+  a sidebar (home, try page) two pills follow it from 1100 px, Try it online outlined and
+  Download in ink (`NavActions`), and the menu's own try item steps aside there; beside a sidebar
+  and on narrower screens the bar keeps the try item as before. The search field shows its label
+  from 1380 px and its icon alone from 768 to 1379 px, and the items sit closer at 768–959 px.
+  Measured with every page type in both languages at 768, 820, 960, 1024, 1100, 1180, 1280, 1380,
+  1440 and 1680 px: the bar fits at every width, including English at 768 px, which used to end
+  25 px past the window.
+- *Footer.* `SiteFooter` replaces VPFooter by the same alias as `HomeMain`: on the pages without
+  a sidebar it draws the brand, the WeChat Official Account's code on its white plate and the
+  documentation in five columns (`themeConfig.vtFooter` in each language), above VitePress's
+  licence and source line. Two columns on a phone, so every link stays on one line from 360 px;
+  one column below.
+
+Checked 2026-10-23 on the local build, Chrome: both languages, both themes, 320 / 375 / 768 /
+1280 / 1440 px. Above the fold at 1280 × 800 the headline, both buttons and the checks end by
+602 px (English) and 528 px (Chinese); at 375 × 812 the checks end by 628 px. No horizontal scroll
+on the home pages at any of those widths (a long install command scrolls inside its code block),
+no clickable text on two lines, and every image loads. The 2026-09 layout still builds and renders
+with the new theme (checked on the content at voltip@02e85d1).
+
+**Hallmark slop test, 2026-10-23 (design A home page, both languages).** Pre-emit critique P4 H5
+E4 S5 R5 V4, stamped at the top of `theme/styles/bands.css`. Fixed on the first build: margins
+that a band-wide reset overrode (now a zero-specificity `:where()` reset), a heading that left one
+word on its last line (balanced), a phone title on four lines in English (shortened to the guide
+page's title), a QR caption that split 「六月水蓝」 (kept whole), and footer links that would wrap
+at 320 px (one column below 360 px). Passes by justification: 42, the nav is VitePress's docs bar
+restyled, as before; 7, pure white only on raised surfaces. Every other gate passes: no gradient,
+glow or blur, no drawn chrome, no invented number (the one measurement names its hardware, and
+examples are labelled as examples), two families, no italic heading, contrast at least 4.5:1
+(the said card's muted text is 7.3:1 on `#0E1524`), and tokens for every colour.
 
 ## 11. Product documentation inside firlab.app: firlab.app/lockra
 

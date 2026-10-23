@@ -73,8 +73,16 @@ install.
 
 `DESIGN.md` §10 describes the sub-site's design. The palette is FirLab's (§1) mapped onto
 VitePress's variables in `theme/styles/tokens.css`, with no purple anywhere; buttons and links
-follow OpenAI's developer documentation (ink pills, body-coloured links with a soft
-underline). Instrument Sans and JetBrains Mono are self-hosted; Chinese uses the system fonts.
+follow OpenAI's developer documentation (ink pills, the second button outlined, body-coloured
+links with a soft underline). Instrument Sans and JetBrains Mono are self-hosted; Chinese uses
+the system fonts.
+
+The home page is design A, "墨白" (2026-10-23): a hero whose picture is a real dictation, then
+full-width bands (`theme/styles/bands.css`), each a component that reads its part of the page's
+`home:` frontmatter. `home-schema.ts` also accepts the earlier layout, told apart by
+`home.scene`, so the theme can deploy before the content that uses it. The nav bar's action
+pills and the footer of the pages without a sidebar come from `themeConfig.vtActions` and
+`themeConfig.vtFooter` in `config/{en,zh}.ts`.
 
 `src/public/og.svg` is the source of `og.png` (1200 × 630). To render it, inline the SVG in a
 page that loads the two fonts from `node_modules/@fontsource-variable/*/files/` and serves
