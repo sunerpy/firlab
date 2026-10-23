@@ -126,8 +126,9 @@ curl -sI https://voltip.firlab.app/ | head -1
 
 `/guide/try` (`TryVoltip`, in voltip's pages) records or uploads up to 60 seconds, has the
 built-in service recognise it and polishes the text with a model and a preset or prompt the
-visitor picks. `/admin` (`AdminStats`) shows the built-in service's daily statistics after a
-sign-in. Both talk to Pages Functions on the same origin, under `/api/`:
+visitor picks. `/admin` (`AdminStats`) shows the in-app feedback (`AdminFeedback`: open reports
+first, with the 已处理 mark) and the built-in service's daily statistics after a sign-in. Both
+talk to Pages Functions on the same origin, under `/api/`:
 
 | Route | Does |
 | --- | --- |
@@ -138,6 +139,13 @@ sign-in. Both talk to Pages Functions on the same origin, under `/api/`:
 | `POST /api/admin/login`, `/logout` | the admin password and a Turnstile answer → a 12-hour HttpOnly cookie |
 | `GET /api/admin/stats` | the edge's daily summaries and today's counts of the try page |
 | `POST /api/admin/edge-stats` | the edge's hourly push of its summaries (`Authorization: Bearer <STATS_TOKEN>`) |
+| `GET /api/admin/feedback?state=open\|handled\|all&before=` | a page of reports from the feedback Worker (voltip `services/feedback`) |
+| `POST /api/admin/feedback/handled` | `{id, handled}`: marks a report handled or open again |
+| `GET /api/admin/feedback/<id>/attachments/<n>` | an attachment, always as a download |
+
+The feedback routes call the feedback Worker with its admin token, which only the Functions
+hold; the page never sees it. The Worker itself tells the owner about each new report through a
+Telegram bot (voltip `docs/feedback.md`).
 
 The edge (the built-in service's gateway) accepts these only with tokens of their own, which
 are not the app's, and logs the visitor's address the Functions send with each request. The edge
@@ -165,6 +173,8 @@ Secrets, production), so the deploy token needs Pages only:
 | `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET` | the Turnstile widget `voltip.firlab.app` |
 | `ADMIN_PASSWORD_HASH` | `node scripts/admin-password.mjs < password.txt` (PBKDF2, never the password) |
 | `SESSION_KEY`, `IP_SALT` | random, 32 bytes each, e.g. `openssl rand -hex 32` |
+| `FEEDBACK_API` | the feedback Worker's reports, `https://<feedback-host>/v1/feedback` |
+| `FEEDBACK_ADMIN_TOKEN` | the feedback Worker's `ADMIN_TOKEN` (voltip's `VOLTIP_FEEDBACK_ADMIN_TOKEN`) |
 
 To change the admin password, hash the new one, replace `ADMIN_PASSWORD_HASH` and redeploy
 (`gh workflow run deploy-voltip.yml`); replacing `SESSION_KEY` also signs everyone out.

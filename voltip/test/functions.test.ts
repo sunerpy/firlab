@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { ADMIN_COOKIE, EDGE_FRESH_MS, FAILS_PER_ADDRESS, FAILS_PER_HOUR, login, logout, receiveEdgeStats, stats } from "../functions/_lib/admin";
 import { bump, DAY } from "../functions/_lib/counters";
 import { hashPassword, passwordMatches, sign, verify } from "../functions/_lib/crypto";
+import { FEEDBACK_PAGE_MAX, FEEDBACK_TIMEOUT_MS, feedbackAttachment, listFeedback, markFeedback } from "../functions/_lib/feedback";
 import type { D1Like, D1Statement, Deps, Env } from "../functions/_lib/env";
 import { setCookie } from "../functions/_lib/http";
 import { outputBudget, systemPrompt } from "../functions/_lib/presets";
@@ -410,5 +411,109 @@ describe("pieces", () => {
     expect(outputBudget("prompt", 100)).toBe(428);
     expect(outputBudget("notes", 10)).toBe(128);
     expect(outputBudget("formal", 5000)).toBe(900);
+  });
+});
+
+describe("admin page · feedback", () => {
+  const FEEDBACK = "https://feedback.example.test/v1/feedback";
+  const report = { id: "0d1c7a52-1111-4222-8333-944455556666", kind: "bug", message: "m", handled_at: null, attachments: [] };
+
+  async function owner(worker: (url: string, init: RequestInit) => Response) {
+    const s = await setup(worker);
+    s.env.FEEDBACK_API = FEEDBACK;
+    s.env.FEEDBACK_ADMIN_TOKEN = "feedback-admin";
+    const signed = await login(post("/api/admin/login", JSON.stringify({ password: PASSWORD, turnstile: "human" }), { "content-type": "application/json" }), s.env, s.deps);
+    const cookie = signed.headers.get("set-cookie")!.split(";")[0]!;
+    const toWorker = () => s.calls.filter((c) => c.url.startsWith(FEEDBACK));
+    return { ...s, cookie, toWorker };
+  }
+  const get = (path: string, cookie?: string) => new Request(`${SITE}${path}`, { headers: cookie ? { cookie } : {} });
+  const mark = (body: unknown, cookie: string, headers: Record<string, string> = {}) =>
+    post("/api/admin/feedback/handled", JSON.stringify(body), { "content-type": "application/json", cookie, ...headers });
+
+  it("reads a page of reports from the Worker with its admin token, for a signed-in session only", async () => {
+    const { env, deps, cookie, toWorker } = await owner(() => Response.json({ items: [report], open: 1 }));
+    expect((await listFeedback(get("/api/admin/feedback"), env, deps)).status).toBe(401);
+    expect(toWorker()).toHaveLength(0);
+
+    const answer = await listFeedback(get("/api/admin/feedback", cookie), env, deps);
+    expect(answer.status).toBe(200);
+    expect(answer.headers.get("cache-control")).toBe("no-store");
+    expect(await answer.json()).toEqual({ items: [report], open: 1 });
+    const [first] = toWorker();
+    expect(first!.url).toBe(`${FEEDBACK}?state=open&limit=30`);
+    expect((first!.init.headers as Record<string, string>).authorization).toBe("Bearer feedback-admin");
+    expect(first!.init.signal).toBeInstanceOf(AbortSignal);
+
+    await listFeedback(get(`/api/admin/feedback?state=handled&before=${NOW}&limit=999`, cookie), env, deps);
+    await listFeedback(get("/api/admin/feedback?state=nonsense&before=1;drop&limit=x", cookie), env, deps);
+    expect(toWorker().slice(1).map((c) => c.url)).toEqual([`${FEEDBACK}?state=handled&limit=${FEEDBACK_PAGE_MAX}&before=${NOW}`, `${FEEDBACK}?state=open&limit=30`]);
+    expect(FEEDBACK_TIMEOUT_MS).toBeGreaterThan(0);
+  });
+
+  it("marks a report handled or open again, only from this site and with a well-formed body", async () => {
+    const { env, deps, cookie, toWorker } = await owner((_url, init) => Response.json({ id: report.id, handled_at: init.method === "PUT" ? NOW : null }));
+    expect(await (await markFeedback(mark({ id: report.id, handled: true }, cookie), env, deps)).json()).toEqual({ id: report.id, handled_at: NOW });
+    expect(await (await markFeedback(mark({ id: report.id, handled: false }, cookie), env, deps)).json()).toEqual({ id: report.id, handled_at: null });
+    expect(toWorker().map((c) => [c.init.method, c.url])).toEqual([
+      ["PUT", `${FEEDBACK}/${report.id}/handled`],
+      ["DELETE", `${FEEDBACK}/${report.id}/handled`],
+    ]);
+
+    expect((await markFeedback(mark({ id: report.id, handled: true }, cookie, { origin: "https://elsewhere.test" }), env, deps)).status).toBe(403);
+    expect((await markFeedback(mark({ id: report.id, handled: true }, "vt_admin=forged"), env, deps)).status).toBe(401);
+    for (const bad of [{ id: "../stats", handled: true }, { id: report.id, handled: "yes" }, { handled: true }, null])
+      expect((await markFeedback(mark(bad, cookie), env, deps)).status).toBe(400);
+    expect(toWorker()).toHaveLength(2);
+  });
+
+  it("downloads an attachment as a file, never as a page of this site", async () => {
+    const { env, deps, cookie, toWorker } = await owner(
+      () => new Response("png bytes", { headers: { "content-type": "image/png", "content-disposition": "attachment; filename*=UTF-8''shot.png" } }),
+    );
+    expect((await feedbackAttachment(get("/x"), env, deps, report.id, "0")).status).toBe(401);
+    const file = await feedbackAttachment(get("/x", cookie), env, deps, report.id, "1");
+    expect(file.status).toBe(200);
+    expect(await file.text()).toBe("png bytes");
+    expect(Object.fromEntries(file.headers)).toMatchObject({
+      "content-type": "image/png",
+      "content-disposition": "attachment; filename*=UTF-8''shot.png",
+      "x-content-type-options": "nosniff",
+      "content-security-policy": "sandbox",
+      "cache-control": "no-store",
+    });
+    expect(toWorker()[0]!.url).toBe(`${FEEDBACK}/${report.id}/attachments/1`);
+    expect((await feedbackAttachment(get("/x", cookie), env, deps, report.id, "12")).status).toBe(400);
+    expect((await feedbackAttachment(get("/x", cookie), env, deps, "a/b", "0")).status).toBe(400);
+
+    const bare = await owner(() => {
+      const raw = new Response("raw");
+      raw.headers.delete("content-type");
+      return raw;
+    });
+    const plain = await feedbackAttachment(get("/x", bare.cookie), bare.env, bare.deps, report.id, "0");
+    expect(plain.headers.get("content-type")).toBe("application/octet-stream");
+    expect(plain.headers.get("content-disposition")).toBe("attachment");
+  });
+
+  it("names what went wrong: not set up, gone, refused or unreachable", async () => {
+    const off = await owner(() => Response.json({}));
+    delete off.env.FEEDBACK_ADMIN_TOKEN;
+    expect(await (await listFeedback(get("/api/admin/feedback", off.cookie), off.env, off.deps)).json()).toEqual({ error: "feedback_unconfigured" });
+
+    const gone = await owner(() => Response.json({ error: "not_found" }, { status: 404 }));
+    const missing = await markFeedback(mark({ id: report.id, handled: true }, gone.cookie), gone.env, gone.deps);
+    expect(missing.status).toBe(404);
+    expect(await missing.json()).toEqual({ error: "feedback_not_found" });
+
+    const refused = await owner(() => Response.json({ error: "unauthorized" }, { status: 401 }));
+    const answer = await listFeedback(get("/api/admin/feedback", refused.cookie), refused.env, refused.deps);
+    expect(answer.status).toBe(502);
+    expect(await answer.json()).toEqual({ error: "feedback_failed", status: 401 });
+
+    const down = await owner(() => {
+      throw new TypeError("fetch failed");
+    });
+    expect(await (await listFeedback(get("/api/admin/feedback", down.cookie), down.env, down.deps)).json()).toEqual({ error: "feedback_unreachable" });
   });
 });
