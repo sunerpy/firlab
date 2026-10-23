@@ -36,6 +36,10 @@ export interface Env {
   TRY_ASR_MODEL?: string;
   /** Hosts the Turnstile answer may come from; default voltip.firlab.app. */
   TURNSTILE_HOSTNAMES?: string;
+  /** The feedback Worker's reports, e.g. https://feedback.example/v1/feedback (no trailing slash). */
+  FEEDBACK_API?: string;
+  /** The feedback Worker's admin token (its ADMIN_TOKEN); the admin page's feedback list needs both. */
+  FEEDBACK_ADMIN_TOKEN?: string;
 }
 
 /** What a handler needs besides the environment, injectable in tests. */

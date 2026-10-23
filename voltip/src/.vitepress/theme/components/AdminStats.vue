@@ -3,9 +3,12 @@
  * The admin page: sign in with the admin password and a Turnstile answer, then read the edge's
  * daily summaries (functions/_lib/admin.ts). The session cookie is HttpOnly, so the page asks for
  * the statistics first and shows the sign-in form when the answer is 401. The page sits outside
- * the two locales, so the browser's language picks the words.
+ * the two locales, so the browser's language picks the words. The feedback list (AdminFeedback)
+ * comes first and reloads with the statistics.
  */
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+
+import AdminFeedback from './AdminFeedback.vue';
 
 import { fill, type Lang, langOf, strings } from './try/strings';
 import { widget } from './try/turnstile';
@@ -41,6 +44,8 @@ const busy = ref(false);
 const password = ref('');
 const token = ref('');
 const stats = ref<Stats | null>(null);
+/** Bumped by every load, so the feedback list reloads with the statistics. */
+const reload = ref(0);
 const turnstileBox = ref<HTMLElement | null>(null);
 let turnstile: { reset(): void; remove(): void } | null = null;
 
@@ -78,8 +83,8 @@ async function showSignIn() {
 async function load() {
   const answer = await call('/api/admin/stats');
   if (answer.status === 401) {
+    if (phase.value === 'signedIn') return expired();
     stats.value = null;
-    if (phase.value === 'signedIn') message.value = a.value.signedOut;
     await showSignIn();
     return;
   }
@@ -89,6 +94,14 @@ async function load() {
   }
   stats.value = answer.body as unknown as Stats;
   phase.value = 'signedIn';
+  reload.value += 1;
+}
+
+/** The session ran out while the page was open. */
+async function expired() {
+  stats.value = null;
+  message.value = a.value.signedOut;
+  await showSignIn();
 }
 
 async function signIn() {
@@ -197,6 +210,9 @@ const tryToday = computed(() => {
           <button type="button" class="vt-admin-btn" @click="signOut">{{ a.signOut }}</button>
         </span>
       </div>
+      <AdminFeedback :lang="lang" :reload="reload" @signed-out="expired" />
+
+      <h2 class="vt-admin-section">{{ a.statsTitle }}</h2>
       <p v-if="edgeProblem" class="vt-admin-error" role="alert">{{ edgeProblem }}</p>
       <p>{{ tryToday }}</p>
 
@@ -252,7 +268,8 @@ const tryToday = computed(() => {
   </div>
 </template>
 
-<style scoped>
+<style>
+/* Unscoped: the feedback list (AdminFeedback) shares these classes; every rule is under .vt-admin. */
 .vt-admin {
   display: grid;
   gap: 16px;
@@ -347,6 +364,12 @@ const tryToday = computed(() => {
 .vt-admin-hint {
   font-size: 13px;
   color: var(--vp-c-text-2);
+}
+.vt-admin .vt-admin-section {
+  margin: 16px 0 0;
+  padding: 0;
+  border: 0;
+  font-size: 20px;
 }
 .vt-admin-error {
   padding: 10px 12px;
