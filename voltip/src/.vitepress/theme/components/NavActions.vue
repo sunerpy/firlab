@@ -1,7 +1,8 @@
 <script setup lang="ts">
 /**
- * The two pills at the end of the nav bar (`themeConfig.vtActions`): try it online, outlined, and
- * download, in ink. They show on pages without a sidebar (the home page, the try page) from
+ * The two actions at the end of the nav bar (`themeConfig.vtActions`): try it online, as bold ink
+ * words after the logo's bars (the same look as the menu's own try item, base.css), and download,
+ * as the ink pill. They show on pages without a sidebar (the home page, the try page) from
  * 1100 px, where the bar has room for them beside the menu (measured, DESIGN.md §10); the menu's
  * own try item steps aside wherever they show, so the bar never offers the same page twice.
  * Beside a sidebar, and on narrower screens, the menu keeps its try item and the bar is as before.
@@ -20,15 +21,13 @@ const current = (link: string) => `/${page.value.relativePath.replace(/(^|\/)ind
 <template>
   <div v-if="actions.length" class="vt-nav-actions">
     <template v-for="action in actions" :key="action.link">
-      <a
-        v-if="!current(action.link)"
-        class="vt-btn vt-btn-sm"
-        :class="action.theme === 'brand' ? 'vt-btn-brand' : 'vt-btn-alt'"
-        :href="withBase(action.link)"
-      >
-        <VtIcon :name="action.icon" :size="16" />
-        {{ action.text }}
-      </a>
+      <template v-if="!current(action.link)">
+        <a v-if="action.theme === 'brand'" class="vt-btn vt-btn-sm vt-btn-brand" :href="withBase(action.link)">
+          <VtIcon :name="action.icon" :size="16" />
+          {{ action.text }}
+        </a>
+        <a v-else class="vt-nav-try" :href="withBase(action.link)">{{ action.text }}</a>
+      </template>
     </template>
   </div>
 </template>
@@ -37,8 +36,23 @@ const current = (link: string) => `/${page.value.relativePath.replace(/(^|\/)ind
 .vt-nav-actions {
   display: none;
   align-items: center;
-  gap: 8px;
+  gap: 18px;
   margin-left: 16px;
+}
+
+.vt-nav-try {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--vt-ink-900);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+.vt-nav-try:hover {
+  color: var(--vt-ink-700);
 }
 
 @media (min-width: 1100px) {

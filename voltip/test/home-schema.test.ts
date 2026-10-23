@@ -140,6 +140,71 @@ describe("validateHome, 2026-10 layout", () => {
     expect(() => validateHome("index.md", chip)).toThrow(/chips\[0\]: give a mark or an icon, not both/);
   });
 
+  it("accepts the modes without their old diagram fields, and with them (2026-10-24 comparison table)", () => {
+    const bare = homeV2();
+    delete (bare.home.modes as { scope?: string }).scope;
+    delete (bare.home.modes.items[0] as { flow?: unknown }).flow;
+    expect(() => validateHome("index.md", bare)).not.toThrow();
+    const broken = homeV2();
+    (broken.home.modes.items[0] as { flow: unknown }).flow = { from: "You speak" };
+    expect(() => validateHome("index.md", broken)).toThrow(/modes\.items\[0\]\.flow\.to: expected a non-empty string/);
+  });
+
+  it("takes the closer's shortcut as a list of key caps", () => {
+    const keys = homeV2();
+    (keys.home.closer as { keys?: string[] }).keys = ["Ctrl", "Alt", "Space"];
+    expect(() => validateHome("index.md", keys)).not.toThrow();
+    (keys.home.closer as { keys?: unknown }).keys = [];
+    expect(() => validateHome("index.md", keys)).toThrow(/home\.closer\.keys/);
+    (keys.home.closer as { keys?: unknown }).keys = ["Ctrl", ""];
+    expect(() => validateHome("index.md", keys)).toThrow(/home\.closer\.keys\[1\]: expected a non-empty string/);
+  });
+
+  it("accepts the steps of a dictation and the more features, both optional (2026-10-24)", () => {
+    const flow = {
+      title: "What happens",
+      steps: [
+        { icon: "mic", name: "Recording", text: "Hold to talk." },
+        { icon: "audio", name: "Recognition", text: "A local model." },
+        { icon: "cursor", name: "Insert", text: "At your cursor.", tag: "Optional" },
+      ],
+    };
+    const more = {
+      title: "More",
+      items: [
+        { title: "Dictionary", wide: true, body: "Spelled right.", swap: { from: "cube control", to: "kubectl" }, guide: "[Dictionary](/recognition/dictionary)" },
+        { title: "Single key", body: "Right Ctrl.", keys: ["Right Ctrl", "Fn"] },
+      ],
+    };
+    expect(() => validateHome("index.md", homeV2({ flow, more }))).not.toThrow();
+    expect(() => validateHome("index.md", homeV2({ flow: { ...flow, steps: flow.steps.slice(0, 2) } }))).toThrow(/home\.flow\.steps: expected a list with at least 3/);
+    expect(() => validateHome("index.md", homeV2({ flow: { ...flow, steps: [{ ...flow.steps[0], icon: "rocket" }, ...flow.steps.slice(1)] } }))).toThrow(/home\.flow\.steps\[0\]\.icon/);
+    const twoProofs = { ...more, items: [{ ...more.items[0], chips: ["a"] }, more.items[1]] };
+    expect(() => validateHome("index.md", homeV2({ more: twoProofs }))).toThrow(/home\.more\.items\[0\]: give one of chips, swap, not several/);
+  });
+
+  it("takes a scene's apps as marks or icons, with its instruction or words (2026-10-24 scene cards)", () => {
+    const scenes = (items: unknown[]) => ({ title: "Scenes", labels: { preset: "Preset", instruction: "Extra instructions" }, items });
+    const cards = homeV2();
+    (cards.home.presets as { scenes?: unknown }).scenes = scenes([
+      { name: "Coding", preset: "Proofread", apps: [{ name: "Cursor", mark: "cursor" }, { name: "Legal", icon: "scale" }], more: "And VS Code.", instruction: "Keep code." },
+      { name: "Chat", preset: "Casual chat", body: "No extra instructions." },
+    ]);
+    expect(() => validateHome("index.md", cards)).not.toThrow();
+    const rows = homeV2();
+    (rows.home.presets as { scenes?: unknown }).scenes = { title: "Scenes", items: [{ name: "Coding", body: "Editors.", preset: "Proofread" }] };
+    expect(() => validateHome("index.md", rows)).not.toThrow();
+    const bare = homeV2();
+    (bare.home.presets as { scenes?: unknown }).scenes = scenes([{ name: "Coding", preset: "Proofread" }]);
+    expect(() => validateHome("index.md", bare)).toThrow(/scenes\.items\[0\]: give its apps, its instruction or a body/);
+    const both = homeV2();
+    (both.home.presets as { scenes?: unknown }).scenes = scenes([{ name: "Coding", preset: "Proofread", apps: [{ name: "Cursor", mark: "cursor", icon: "cpu" }] }]);
+    expect(() => validateHome("index.md", both)).toThrow(/apps\[0\]: give a mark or an icon, not both/);
+    const unknown = homeV2();
+    (unknown.home.presets as { scenes?: unknown }).scenes = scenes([{ name: "Coding", preset: "Proofread", apps: [{ name: "VS Code", mark: "vscode" }] }]);
+    expect(() => validateHome("index.md", unknown)).toThrow(/apps\[0\]\.mark: expected one of cursor/);
+  });
+
   it("still checks the 2026-09 layout on a page without a scene", () => {
     expect(() => validateHome("index.md", home({ checks: ["x", "y"] }))).toThrow(/home\.checks: unknown field/);
   });
