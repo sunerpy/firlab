@@ -54,7 +54,21 @@ export type IconName = (typeof ICONS)[number];
 
 /** The vendor marks `ProviderMark.vue` draws, each in its own colours (the black ones in the text
  *  colour, so they follow the theme). */
-export const MARKS = ['openai', 'groq', 'google', 'siliconflow', 'aliyun', 'deepseek', 'ollama'] as const;
+export const MARKS = [
+  'openai',
+  'groq',
+  'google',
+  'siliconflow',
+  'aliyun',
+  'deepseek',
+  'kimi',
+  'glm',
+  'volcengine',
+  'hunyuan',
+  'mimo',
+  'openrouter',
+  'ollama',
+] as const;
 export type MarkName = (typeof MARKS)[number];
 
 /** The applications' marks `AppMark.vue` draws for the built-in scenes. Only applications whose mark
