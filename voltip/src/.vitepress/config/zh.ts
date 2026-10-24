@@ -30,6 +30,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
     items: [
       { text: '本地识别', link: '/zh/recognition/local' },
       { text: '云端服务', link: '/zh/recognition/cloud' },
+      { text: '自建识别服务', link: '/zh/recognition/self-host' },
       { text: 'AI 润色与预设', link: '/zh/recognition/polish' },
       { text: '场景', link: '/zh/recognition/scenes' },
       { text: '词典与替换规则', link: '/zh/recognition/dictionary' },
@@ -168,6 +169,7 @@ export const zh = defineConfigWithTheme<VoltipThemeConfig>({
           items: [
             { text: '本地识别', link: '/zh/recognition/local' },
             { text: '云端服务', link: '/zh/recognition/cloud' },
+            { text: '自建识别服务', link: '/zh/recognition/self-host' },
             { text: 'AI 润色与预设', link: '/zh/recognition/polish' },
             { text: '场景', link: '/zh/recognition/scenes' },
             { text: '词典与替换规则', link: '/zh/recognition/dictionary' },
