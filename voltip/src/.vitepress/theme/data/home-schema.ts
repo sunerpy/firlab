@@ -66,6 +66,8 @@ export const APP_MARKS = [
   'iterm2',
   'warp',
   'ghostty',
+  'alacritty',
+  'wezterm',
   'notion',
   'obsidian',
   'thunderbird',
@@ -73,9 +75,16 @@ export const APP_MARKS = [
   'qq',
   'telegram',
   'discord',
-  'imessage',
 ] as const;
+
+/** The applications shown with their owner's own icon file (`IMAGE_MARKS` in marks.ts). */
+export const IMAGE_MARK_NAMES = ['vscode', 'libreoffice-writer'] as const;
+export type ImageMarkName = (typeof IMAGE_MARK_NAMES)[number];
+
+/** Every name a scene's application may give as its `mark`. */
+export const SCENE_APP_MARKS = [...APP_MARKS, ...IMAGE_MARK_NAMES] as const;
 export type AppMarkName = (typeof APP_MARKS)[number];
+export type SceneAppMark = (typeof SCENE_APP_MARKS)[number];
 
 // ---- Shared ----------------------------------------------------------------------------
 
@@ -234,7 +243,7 @@ export interface Presets {
  *  domains, which list no application) with its name under it. */
 export interface SceneApp {
   name: string;
-  mark?: AppMarkName;
+  mark?: SceneAppMark;
   icon?: IconName;
 }
 
@@ -575,7 +584,7 @@ const HOME_V2: Check = obj({
           obj({
             name: str(),
             preset: str(),
-            apps: optionalList(obj({ name: str(), mark: oneOf(APP_MARKS, true), icon: oneOf(ICONS, true) })),
+            apps: optionalList(obj({ name: str(), mark: oneOf(SCENE_APP_MARKS, true), icon: oneOf(ICONS, true) })),
             more: str(true),
             instruction: str(true),
             body: str(true),

@@ -50,9 +50,9 @@ const home = useHomeV2();
           <h3>{{ home.presets.scenes.title }}</h3>
           <p v-if="home.presets.scenes.note">{{ home.presets.scenes.note }}</p>
         </div>
-        <ul v-if="home.presets.scenes.items.some((scene) => scene.apps)" class="vt-scene-cards">
-          <li v-for="scene in home.presets.scenes.items" :key="scene.name" class="vt-scene-card">
-            <header class="vt-scene-card-head">
+        <ul v-if="home.presets.scenes.items.some((scene) => scene.apps)" class="vt-app-scenes">
+          <li v-for="scene in home.presets.scenes.items" :key="scene.name" class="vt-app-scene">
+            <header class="vt-app-scene-head">
               <h4>{{ scene.name }}</h4>
               <span class="vt-scene-preset">
                 <span v-if="home.presets.scenes.labels">{{ home.presets.scenes.labels.preset }}</span>

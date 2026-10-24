@@ -737,6 +737,30 @@ Checked 2026-10-24 on a local build, Chrome 154: both languages, both themes, 32
 lines except the English footer's two links at exactly 1100 px (as on the live site), no text
 block ending on one word or one or two characters, every image loads.
 
+**The scenes' marks, checked against each owner's terms (2026-10-24).** The owner asked for the
+applications still named in words to get marks too, from the open sets where possible and from the
+owners' own assets otherwise; the owner chose to add only what the owners' terms allow. Added
+from Simple Icons: Alacritty (its icon's licence is Apache-2.0) and WezTerm. Added as the owners'
+own files, byte for byte (`theme/assets/brands/`, with their sources and terms): VS Code, whose
+brand page accepts the icon used to link to the VS Code website and forbids modifying it or
+adding a background, so it sits on no tile and links to code.visualstudio.com; LibreOffice Writer,
+an MPL-2.0 file of the LibreOffice project, under The Document Foundation's policy that permits
+its marks to refer factually to its products. Not added, because the owners' published terms
+forbid this use without a written licence:
+
+- Microsoft's other products (Word, Outlook, OneNote, Teams, Windows Terminal, PowerShell): its
+  trademark page says its logos and app and product icons "can never be used without an express
+  license"; Simple Icons removed every Microsoft icon after a notice from Microsoft
+  (simple-icons#11236).
+- Slack: its brand terms say most uses need a written licence and its logos may not be
+  redistributed; Simple Icons removed Salesforce's icons (simple-icons#14140).
+- Apple (Mail, Pages, Messages): Apple's guidelines for third parties forbid any Apple-owned
+  icon without an express written trademark licence. The iMessage mark that came with Simple
+  Icons left the bundle with this change.
+- DingTalk, Feishu and Lark, WeCom, WPS: their brand rules require the owner's approval for a
+  third party to show the logo; DingTalk's also forbids the symbol on its own.
+- Typora: no published terms for its icon.
+
 ## 11. Product documentation inside firlab.app: firlab.app/lockra
 
 `lockra/` is the §10 site for a second product, published under a path of this site instead of

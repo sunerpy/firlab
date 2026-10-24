@@ -201,8 +201,13 @@ describe("validateHome, 2026-10 layout", () => {
     (both.home.presets as { scenes?: unknown }).scenes = scenes([{ name: "Coding", preset: "Proofread", apps: [{ name: "Cursor", mark: "cursor", icon: "cpu" }] }]);
     expect(() => validateHome("index.md", both)).toThrow(/apps\[0\]: give a mark or an icon, not both/);
     const unknown = homeV2();
-    (unknown.home.presets as { scenes?: unknown }).scenes = scenes([{ name: "Coding", preset: "Proofread", apps: [{ name: "VS Code", mark: "vscode" }] }]);
+    (unknown.home.presets as { scenes?: unknown }).scenes = scenes([{ name: "Office", preset: "Formal", apps: [{ name: "Word", mark: "word" }] }]);
     expect(() => validateHome("index.md", unknown)).toThrow(/apps\[0\]\.mark: expected one of cursor/);
+    const owners = homeV2();
+    (owners.home.presets as { scenes?: unknown }).scenes = scenes([
+      { name: "Coding", preset: "Proofread", apps: [{ name: "VS Code", mark: "vscode" }, { name: "LibreOffice Writer", mark: "libreoffice-writer" }] },
+    ]);
+    expect(() => validateHome("index.md", owners)).not.toThrow();
   });
 
   it("still checks the 2026-09 layout on a page without a scene", () => {
