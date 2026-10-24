@@ -798,6 +798,15 @@ html .vt-home-v2 .VPHero .VPButton.VPButton {
   line-height: 1.4;
 }
 
+/* "Built-in service" and its badge missed one line by a few pixels at 320 px, and in the narrow
+   columns of the table at 960–1099 px. */
+@media (max-width: 359px), (min-width: 960px) and (max-width: 1099px) {
+  .vt-compare-head h3 {
+    gap: 4px 8px;
+    font-size: 18px;
+  }
+}
+
 .vt-compare-head p {
   color: var(--vt-ink-500);
   font-size: 14px;
@@ -943,11 +952,37 @@ html .vt-home-v2 .VPHero .VPButton.VPButton {
 }
 
 .vt-tile-item {
+  display: flex;
+  justify-content: center;
+  min-width: 64px;
+}
+
+.vt-tile-body {
   display: grid;
   justify-items: center;
   align-content: start;
   gap: 8px;
-  min-width: 64px;
+}
+
+/* An owner's own icon file: nothing behind it (the VS Code brand page forbids a background). */
+.vt-tile.vt-tile-bare,
+.dark .vt-tile.vt-tile-bare {
+  border-color: transparent;
+  background: none;
+}
+
+/* A mark that links to its owner's site: the name is the link text, underlined on hover. One
+   class above the bands' link rule, which comes later in this file. */
+.vt-v2-band .vt-tiles a.vt-tile-link {
+  color: inherit;
+  font-weight: inherit;
+  text-decoration: none;
+}
+
+.vt-v2-band .vt-tiles a.vt-tile-link:hover .vt-tile-name {
+  color: var(--vt-ink-900);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .vt-tile {
@@ -981,7 +1016,7 @@ html .vt-home-v2 .VPHero .VPButton.VPButton {
 
 /* ---- Scenes: a card per scene -------------------------------------------------------- */
 
-.vt-scene-cards {
+.vt-app-scenes {
   display: grid;
   gap: 16px;
   margin: 24px 0 0;
@@ -990,12 +1025,12 @@ html .vt-home-v2 .VPHero .VPButton.VPButton {
 }
 
 @media (min-width: 960px) {
-  .vt-scene-cards {
+  .vt-app-scenes {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-.vt-scene-card {
+.vt-app-scene {
   display: grid;
   align-content: start;
   gap: 20px;
@@ -1007,12 +1042,12 @@ html .vt-home-v2 .VPHero .VPButton.VPButton {
 }
 
 @media (min-width: 768px) {
-  .vt-scene-card {
+  .vt-app-scene {
     padding: 28px;
   }
 }
 
-.vt-scene-card-head {
+.vt-app-scene-head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1020,7 +1055,7 @@ html .vt-home-v2 .VPHero .VPButton.VPButton {
   gap: 8px 16px;
 }
 
-.vt-scene-card-head h4 {
+.vt-app-scene-head h4 {
   margin: 0;
   color: var(--vt-ink-900);
   font-size: 18px;
@@ -1028,7 +1063,7 @@ html .vt-home-v2 .VPHero .VPButton.VPButton {
   line-height: 1.4;
 }
 
-.vt-scene-card .vt-scene-preset {
+.vt-app-scene .vt-scene-preset {
   color: var(--vt-ink-400);
   font-size: 13px;
 }
@@ -1225,18 +1260,32 @@ html .vt-home-v2 .VPHero .VPButton.VPButton {
 .vt-keyset kbd {
   display: inline-grid;
   place-items: center;
-  min-width: 44px;
+  min-width: 40px;
   height: 40px;
-  padding: 0 12px;
+  padding: 0 10px;
   border: 1px solid var(--vt-rule-strong);
   border-bottom-width: 3px;
   border-radius: var(--vt-radius-control);
   background: var(--vt-paper-0);
   color: var(--vt-ink-900);
   font-family: var(--vt-font-mono);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
+}
+
+/* The caps of one cell stay on one row from 360 px: measured in English, the longest set
+   ("Right Ctrl", "Right Alt", "Fn") left its last cap alone on a second row at 1100 and 768 px. */
+@media (max-width: 639px) {
+  .vt-keyset {
+    gap: 6px;
+  }
+
+  .vt-keyset kbd {
+    min-width: 36px;
+    padding: 0 8px;
+    font-size: 12.5px;
+  }
 }
 
 .vt-chain {

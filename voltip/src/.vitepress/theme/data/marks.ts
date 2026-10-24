@@ -11,11 +11,17 @@
  *
  * The marks are the vendors' and applications' trademarks, shown only to name the service or the
  * application beside them. An application no open set carries a mark for (VS Code, Word, Outlook,
- * WPS, OneNote, Slack, Teams, DingTalk, Feishu…) is named in words, never drawn. A path without
+ * WPS, OneNote, Slack, Teams, DingTalk, Feishu…) is named in words, never drawn, and so is one
+ * whose owner's terms forbid its use without a written licence (Apple's Mail, Pages and Messages;
+ * checked 2026-10-24, DESIGN.md §10). Two applications show their owner's own file instead,
+ * byte for byte and without a tile (`IMAGE_MARKS`, files and terms in assets/brands/README.md).
+ * A path without
  * `fill` takes the text colour, so the black marks follow the theme; `tint` colours the tile a
  * mark sits on (DESIGN.md §10, 2026-10-24: brand colours belong to the marks, not to the page).
  */
-import type { AppMarkName, MarkName } from './home-schema';
+import type { AppMarkName, ImageMarkName, MarkName } from './home-schema';
+import libreofficeWriter from '../assets/brands/libreoffice-writer.svg';
+import vscode from '../assets/brands/vscode.svg';
 
 export interface MarkPath {
   d: string;
@@ -127,6 +133,20 @@ export const APP_MARK_DATA: Record<AppMarkName, Mark> = {
       { d: 'M12 0C6.7 0 2.4 4.3 2.4 9.6v11.146c0 1.772 1.45 3.267 3.222 3.254a3.18 3.18 0 0 0 1.955-.686 1.96 1.96 0 0 1 2.444 0 3.18 3.18 0 0 0 1.976.686c.75 0 1.436-.257 1.98-.686.715-.563 1.71-.587 2.419-.018.59.476 1.355.743 2.182.699 1.705-.094 3.022-1.537 3.022-3.244V9.601C21.6 4.3 17.302 0 12 0M6.069 6.562a1 1 0 0 1 .46.131l3.578 2.065v.002a.974.974 0 0 1 0 1.687L6.53 12.512a.975.975 0 0 1-.976-1.687L7.67 9.602 5.553 8.38a.975.975 0 0 1 .515-1.818m7.438 2.063h4.7a.975.975 0 1 1 0 1.95h-4.7a.975.975 0 0 1 0-1.95', fill: '#3551F3' },
     ],
   },
+  alacritty: {
+    title: 'Alacritty',
+    tint: '#F46D01',
+    paths: [
+      { d: 'm10.065 0-8.57 21.269h3.595l6.91-16.244 6.91 16.244h3.594l-8.57-21.269zm1.935 9.935c-0.76666 1.8547-1.5334 3.7094-2.298 5.565 1.475 4.54 1.475 4.54 2.298 8.5 0.823-3.96 0.823-3.96 2.297-8.5-0.76637-1.8547-1.5315-3.7099-2.297-5.565z', fill: '#F46D01' },
+    ],
+  },
+  wezterm: {
+    title: 'WezTerm',
+    tint: '#4E49EE',
+    paths: [
+      { d: 'M3.27 8.524c0-.623.62-1.007 2.123-1.007l-.5 2.757c-.931-.623-1.624-1.199-1.624-1.75zm4.008 6.807c0 .647-.644 1.079-2.123 1.15l.524-2.924c.931.624 1.6 1.175 1.6 1.774zm-2.625 5.992.454-2.708c3.603-.336 5.01-1.798 5.01-3.404 0-1.653-2.004-2.948-3.841-4.074l.668-3.548c.764.072 1.67.216 2.744.432l.31-2.469c-.81-.12-1.575-.168-2.29-.216L8.257 2.7l-2.363-.024-.453 2.684C1.838 5.648.43 7.158.43 8.764c0 1.63 2.004 2.876 3.841 3.954l-.668 3.716c-.859-.048-1.908-.192-3.125-.408L0 18.495c1.026.12 1.98.192 2.84.216l-.525 2.588zm15.553-1.894h2.673c.334-2.804.81-8.46 1.121-14.86h-2.553c-.071 1.51-.334 10.498-.43 11.241h-.071c-.644-2.42-1.169-4.386-1.813-6.782h-1.456c-.62 2.396-1.05 4.194-1.694 6.782h-.096c-.071-.743-.477-9.73-.525-11.24h-2.648c.31 6.399.763 12.055 1.097 14.86h2.625l1.838-7.12z', fill: '#4E49EE' },
+    ],
+  },
   notion: {
     title: 'Notion',
     paths: [
@@ -175,11 +195,21 @@ export const APP_MARK_DATA: Record<AppMarkName, Mark> = {
       { d: 'M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z', fill: '#5865F2' },
     ],
   },
-  imessage: {
-    title: 'iMessage',
-    tint: '#34DA50',
-    paths: [
-      { d: 'M5.285 0A5.273 5.273 0 0 0 0 5.285v13.43A5.273 5.273 0 0 0 5.285 24h13.43A5.273 5.273 0 0 0 24 18.715V5.285A5.273 5.273 0 0 0 18.715 0ZM12 4.154a8.809 7.337 0 0 1 8.809 7.338A8.809 7.337 0 0 1 12 18.828a8.809 7.337 0 0 1-2.492-.303A8.656 7.337 0 0 1 5.93 19.93a9.929 7.337 0 0 0 1.54-2.155 8.809 7.337 0 0 1-4.279-6.283A8.809 7.337 0 0 1 12 4.154', fill: '#34DA50' },
-    ],
-  },
+};
+
+/** An owner's own icon file, shown unmodified, at its own aspect ratio and without a background. */
+export interface ImageMark {
+  title: string;
+  src: string;
+  /** The owner's site; the mark is shown only as a link to it when its terms ask for that. */
+  href?: string;
+}
+
+export const IMAGE_MARKS: Record<ImageMarkName, ImageMark> = {
+  // The VS Code brand page accepts the icon used to link to the VS Code website, unmodified and
+  // with no background added (https://code.visualstudio.com/brand).
+  vscode: { title: 'Visual Studio Code', src: vscode, href: 'https://code.visualstudio.com' },
+  // MPL-2.0, part of the LibreOffice project; The Document Foundation's trademark policy permits
+  // its marks to refer factually to its products.
+  'libreoffice-writer': { title: 'LibreOffice Writer', src: libreofficeWriter },
 };
