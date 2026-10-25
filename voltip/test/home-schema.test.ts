@@ -210,6 +210,33 @@ describe("validateHome, 2026-10 layout", () => {
     expect(() => validateHome("index.md", owners)).not.toThrow();
   });
 
+  it("takes a second group of marks for the tools that run inside a scene's apps (2026-10-25 coding agents)", () => {
+    const scenes = (tools: unknown) => ({
+      title: "Scenes",
+      items: [{ name: "Coding", preset: "Proofread", apps: [{ name: "Warp", mark: "warp" }], tools, instruction: "Keep code." }],
+    });
+    const agents = homeV2();
+    (agents.home.presets as { scenes?: unknown }).scenes = scenes({
+      label: "Coding agents in the terminal",
+      apps: [
+        { name: "Codex", mark: "codex" },
+        { name: "OpenCode", mark: "opencode" },
+        { name: "Pi Agent", mark: "pi" },
+      ],
+      more: "And Claude Code.",
+    });
+    expect(() => validateHome("index.md", agents)).not.toThrow();
+    const unlabelled = homeV2();
+    (unlabelled.home.presets as { scenes?: unknown }).scenes = scenes({ apps: [{ name: "Codex", mark: "codex" }] });
+    expect(() => validateHome("index.md", unlabelled)).toThrow(/tools\.label/);
+    const both = homeV2();
+    (both.home.presets as { scenes?: unknown }).scenes = scenes({ label: "Agents", apps: [{ name: "Codex", mark: "codex", icon: "cpu" }] });
+    expect(() => validateHome("index.md", both)).toThrow(/tools\.apps\[0\]: give a mark or an icon, not both/);
+    const unknown = homeV2();
+    (unknown.home.presets as { scenes?: unknown }).scenes = scenes({ label: "Agents", apps: [{ name: "Claude Code", mark: "claude-code" }] });
+    expect(() => validateHome("index.md", unknown)).toThrow(/tools\.apps\[0\]\.mark: expected one of/);
+  });
+
   it("still checks the 2026-09 layout on a page without a scene", () => {
     expect(() => validateHome("index.md", home({ checks: ["x", "y"] }))).toThrow(/home\.checks: unknown field/);
   });
