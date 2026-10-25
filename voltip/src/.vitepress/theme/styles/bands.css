@@ -1074,6 +1074,20 @@ html .vt-home-v2 .VPHero .VPButton.VPButton {
   line-height: 1.7;
 }
 
+/* Tools that run inside the scene's applications (coding agents in a terminal): a second group of
+   marks under a small label, like the instruction's. */
+.vt-scene-tools {
+  display: grid;
+  gap: 12px;
+}
+
+.vt-scene-tools-label {
+  margin: 0;
+  color: var(--vt-ink-400);
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .vt-scene-ask {
   display: grid;
   gap: 4px;

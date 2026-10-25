@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * An application's mark (Simple Icons, CC0; Kiro from Lobe Icons, MIT) in its brand colour; the
+ * An application's mark (Simple Icons, CC0; Kiro and the coding agents from Lobe Icons, MIT) in its brand colour; the
  * black marks take the text colour (data/marks.ts). Decorative: the name is always beside it.
  */
 import type { AppMarkName } from '../data/home-schema';

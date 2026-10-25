@@ -82,6 +82,9 @@ export const APP_MARKS = [
   'ghostty',
   'alacritty',
   'wezterm',
+  'codex',
+  'opencode',
+  'pi',
   'notion',
   'obsidian',
   'thunderbird',
@@ -261,6 +264,13 @@ export interface SceneApp {
   icon?: IconName;
 }
 
+export interface SceneTools {
+  label: string;
+  apps: SceneApp[];
+  /** The tools without a mark, in words. */
+  more?: string;
+}
+
 export interface SceneItem {
   name: string;
   preset: string;
@@ -268,6 +278,9 @@ export interface SceneItem {
   apps?: SceneApp[];
   /** The applications without a mark, in words ("and VS Code, Windows Terminal…"). */
   more?: string;
+  /** Tools that run inside the scene's applications (coding agents in a terminal), drawn as a second
+   *  group of marks under their label: the scene applies to them through the application around them. */
+  tools?: SceneTools;
   /** The extra instruction the scene gives AI polish, as the app has it. */
   instruction?: string;
   /** Words about the scene, for one with no instruction or no applications. */
@@ -600,6 +613,13 @@ const HOME_V2: Check = obj({
             preset: str(),
             apps: optionalList(obj({ name: str(), mark: oneOf(SCENE_APP_MARKS, true), icon: oneOf(ICONS, true) })),
             more: str(true),
+            tools: optional(
+              obj({
+                label: str(),
+                apps: list(obj({ name: str(), mark: oneOf(SCENE_APP_MARKS, true), icon: oneOf(ICONS, true) })),
+                more: str(true),
+              }),
+            ),
             instruction: str(true),
             body: str(true),
           }),
@@ -709,6 +729,11 @@ export function validateHome(page: string, frontmatter: Record<string, unknown>)
       scene?.apps?.forEach((app, j) => {
         if (app?.mark !== undefined && app?.icon !== undefined) {
           problems.push(`home.presets.scenes.items[${i}].apps[${j}]: give a mark or an icon, not both`);
+        }
+      });
+      scene?.tools?.apps?.forEach((app, j) => {
+        if (app?.mark !== undefined && app?.icon !== undefined) {
+          problems.push(`home.presets.scenes.items[${i}].tools.apps[${j}]: give a mark or an icon, not both`);
         }
       });
     });

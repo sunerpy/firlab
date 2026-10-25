@@ -63,6 +63,13 @@ const home = useHomeV2();
               <BrandTile v-for="app in scene.apps" :key="app.name" :name="app.name" :app="app.mark" :icon="app.icon" />
             </ul>
             <p v-if="scene.more" class="vt-scene-more">{{ scene.more }}</p>
+            <div v-if="scene.tools" class="vt-scene-tools">
+              <p class="vt-scene-tools-label">{{ scene.tools.label }}</p>
+              <ul class="vt-tiles">
+                <BrandTile v-for="app in scene.tools.apps" :key="app.name" :name="app.name" :app="app.mark" :icon="app.icon" />
+              </ul>
+              <p v-if="scene.tools.more" class="vt-scene-more">{{ scene.tools.more }}</p>
+            </div>
             <p v-if="scene.instruction" class="vt-scene-ask">
               <span v-if="home.presets.scenes.labels" class="vt-scene-ask-label">{{ home.presets.scenes.labels.instruction }}</span>
               <span>{{ scene.instruction }}</span>

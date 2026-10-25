@@ -761,6 +761,23 @@ forbid this use without a written licence:
   third party to show the logo; DingTalk's also forbids the symbol on its own.
 - Typora: no published terms for its icon.
 
+**The coding scene's agents (2026-10-25).** The owner asked for the logos of the coding agents
+people dictate to: Claude Code, Codex, OpenCode and Pi Agent. They run inside the terminals the
+coding scene names, so the scene applies to them through the terminal around them: the card shows
+them as a group of their own under its applications (`tools`, with its label and its words). The
+three drawn come from Lobe Icons (MIT) at commit 7d7d037, mono, on neutral tiles:
+
+- Codex: OpenAI's brand guidelines (openai.com/brand, read 2026-10-25) let a third party use its
+  marks where they relate directly to OpenAI's service, unaltered, never more prominent than the
+  page's own name and without implying a partnership. Its colour file draws a solid tile, so the
+  mono file is used.
+- OpenCode publishes its marks for use (opencode.ai/brand); Pi Agent is MIT-licensed (pi.dev).
+
+Not drawn: Claude Code. Its terms (code.claude.com/docs/en/legal-and-compliance and Anthropic's
+trademark guidelines, read 2026-10-25) allow a plain-text statement that a product runs Claude
+Code and require written permission for any other use of its name or logo, so it is named in the
+group's words.
+
 ## 11. Product documentation inside firlab.app: firlab.app/lockra
 
 `lockra/` is the §10 site for a second product, published under a path of this site instead of
