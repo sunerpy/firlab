@@ -45,8 +45,8 @@ export const godotmcpReleased = '2026-10-13';
 export const AGENTLENS_VERSION = 'v0.0.7';
 export const AGENTLENS_RELEASED = '2026-08-13';
 
-export const VOLTIP_VERSION = 'v0.2.0';
-export const VOLTIP_RELEASED = '2026-10-28';
+export const VOLTIP_VERSION = 'v0.2.1';
+export const VOLTIP_RELEASED = '2026-10-29';
 
 export const LOCKRA_VERSION = 'v0.16.3';
 export const LOCKRA_RELEASED = '2026-10-22';
