@@ -10,7 +10,7 @@ pt-tools 支持三种站点认证方式：
 | ----------- | ------------------------------------ | -------------------- | --------------------- |
 | **Cookie**  | HDSky, SpringSunday, HDDolby, NovaHD | 传统方式，需定期更新 | ✅ 浏览器扩展自动同步 |
 | **API Key** | M-Team                               | 长期有效             | 手动配置              |
-| **Passkey** | Rousi Pro                            | 长期有效             | 手动配置              |
+| **Passkey** | Rousi Pro（填个人 API Key）          | 长期有效             | 手动配置              |
 
 **Cookie 鉴权站点强烈推荐使用浏览器扩展**，可省去手动复制粘贴的繁琐操作，并在 Cookie 过期时自动更新。
 
@@ -68,14 +68,11 @@ Firefox 只能临时载入，步骤见[浏览器扩展](browser-extension.md)。
 
 如果你登录了多个 PT 站点，可以一次性同步所有站点的 Cookie：
 
-1. 点击扩展图标
-2. 展开底部「**全局设置**」
-3. 在「**批量同步 Cookie**」区域可以看到所有内置站点
-4. 每个站点旁边显示 Cookie 状态（有效 / 即将过期 / 已过期 / 缺失）
-5. 勾选想要同步的站点（或点击「全选」）
-6. 点击「**🔄 同步已选**」
+1. 点击扩展图标，主页面就是「**我的站点**」：浏览器里有 Cookie、或者 pt-tools 里启用了的站点都在这里（其余内置站点点「显示全部」才列出来）
+2. 每个站点显示 Cookie 状态（有效 / 即将过期 / 已过期 / 缺失）和 pt-tools 里的保号状态
+3. 点列表上方的「**同步全部**」，同步所有 Cookie 有效的站点；只同步一个就点那一行的「同步」
 
-> **注意**：使用 API Key 或 Passkey 的站点（如 M-Team、Rousi Pro）会显示为灰色不可选，这些站点需要在 pt-tools 中手动配置认证信息。
+> **注意**：使用 API Key 或 Passkey 的站点（如 M-Team、Rousi Pro）没有「同步」，这些站点需要在 pt-tools 中手动配置认证信息。
 
 ### 开启自动同步
 
@@ -215,6 +212,17 @@ API Key 是站点为用户生成的专用访问令牌，相比 Cookie 具有以�
 ```
 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
+
+### Rousi Pro 个人 API Key 获取方法
+
+Rousi Pro 在 pt-tools 里是 Passkey 认证，但这一栏要填站点的个人 API Key，不是 Tracker Passkey：
+
+1. 用浏览器登录 Rousi Pro，打开「账户 → API Key」（`https://rousi.pro/account/api-key`）。
+2. 授予权限：「读取账户资料」「读取与搜索种子」「下载种子」；要自动签到再勾选「执行签到」。
+3. 点「创建 API Key」，原文只显示这一次，复制下来。
+4. 填到 pt-tools 站点详情里 Rousi Pro 的 Passkey 一栏。
+
+每个账户只有一把个人 API Key，MoviePilot 等别的工具共用它。轮换会让所有工具里的旧 Key 立即失效，要在 pt-tools 里换成新 Key；已有的 Key 改权限，要轮换以后才生效。
 
 ### API Key 安全注意事项
 

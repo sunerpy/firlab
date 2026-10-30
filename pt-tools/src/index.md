@@ -72,7 +72,7 @@ home:
             status: available
             link: /guide/site-login-monitoring
           - title: 每日签到
-            body: 在设定的时间窗里给支持签到的站点签到，也可以用 /signin 命令；不支持自动签到的站点写明原因。默认关闭。
+            body: 独立的「自动签到」页：在设定的时间窗里给支持签到的站点签到，一键签到、签到记录、签到结果推送，也可以用 /signin 命令；要识别验证码或答题的站点可以交给 AI。默认关闭。
             status: preview
             link: /guide/site-login-monitoring#每日签到
           - title: CookieCloud 导入
@@ -133,8 +133,8 @@ home:
             link: /guide/qbit-compat
       - name: 媒体
         items:
-          - title: 订阅
-            body: 订阅电影或剧集的一季，定时到各站点搜索，RSS 里出现时也下载；按质量档案挑资源，剧集补缺的集，洗版换更好的版本，豆瓣想看自动建订阅。
+          - title: 追剧与订阅
+            body: 订阅电影、追剧集的一季，到各站点搜索，RSS 里出现时也下载；追剧按播出时间去搜、只要同一个版本，综艺的上下期也对得上；按质量档案挑资源，洗版换更好的版本，豆瓣想看自动建订阅。
             status: preview
             link: /guide/media-subscribe
           - title: 整理入库

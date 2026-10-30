@@ -5,9 +5,9 @@ pt-tools periodically visits each site's profile with the cookie, API key or pas
 ## How to use it
 
 1. Enable the site under Sites → Site list (站点 → 站点列表) and fill in its credentials. For a site that signs in with a cookie, you can install [PT Tools Helper](browser-extension.md) and sync the cookie in one click once you are signed in to the site in your browser; API keys and passkeys are entered in the web UI.
-2. The Days left (剩余天数) column of the site list shows how many days remain before the site's inactivity limit; a negative number means the limit has passed. The Effective activity (判定活跃) column, hidden by default and turned on under Column settings (列设置), is the activity time the reminders are based on; the rules are under [Effective activity](#effective-activity). Hover over Days left or Effective activity to see what the activity time is based on, when the next probe is due and since when probes have been failing; hover over Status (状态) to see the result of the last probe that did not succeed.
+2. The Days left (剩余天数) column of the site list shows how many days remain before the site's inactivity limit; a negative number means the limit has passed. The Effective activity (判定活跃) column, hidden by default and turned on under Column settings (列设置), is the activity time the reminders are based on; the rules are under [Effective activity](#effective-activity). Hover over Days left or Effective activity to see what the activity time is based on, when the next probe is due and since when probes have been failing; hover over Status (状态) to see the result of the last probe that did not succeed. A site with no probe result yet (never probed, or login probing does not apply to it) shows a grey Not probed (未探测).
 3. Click the Keep-alive settings (保号配置) button on the row to set, per site, the inactivity limit, how many days ahead to remind, the reminder cron, the notification channels and the probe mode.
-4. The Probe now (立即探测) button on the row probes the login status at once, and Test reminder (测试提醒) sends a test message to the notification channels. Probe enabled sites (探测已启用) above the list probes every enabled site once, at most 3 at a time.
+4. The Probe now (立即探测) button on the row probes the login status at once, and Test reminder (测试提醒) sends a test message to the notification channels. Probe enabled sites (探测启用站点) above the list probes every enabled site once, at most 3 at a time.
 5. When a reminder arrives, visit the site as usual. If the cookie has expired, sync it again, then click Probe now to confirm the status has been refreshed.
 
 The Keep-alive rules (保号规则) card on the site's detail page also shows the probe result, what the activity time is based on, the next probe, since when probes have been failing, and the access status.
@@ -32,7 +32,7 @@ The fields of the Keep-alive settings dialog:
 Enabled sites whose probe mode is Auto are probed in the background:
 
 - Once a minute, pt-tools checks which sites are due and probes them one after another.
-- Each site has a fixed random offset between 1 second and 6 hours. Existing sites after an upgrade and newly added sites get their first probe at that offset, so the first round is spread over 6 hours. A restart does not probe every site again; sites that are not due keep waiting.
+- Each site has a fixed random offset between 1 second and 6 hours. Sites that already have probe results but no next probe scheduled (for example after upgrading from an older version) get their first probe at that offset, so the first round is spread over 6 hours. Sites that have never been probed and have no activity data at all (newly added sites, a freshly upgraded database) are probed within 5 minutes, so you do not wait hours to see their last activity. A restart does not probe every site again; sites that are not due keep waiting.
 - After you update a site's credentials (including a cookie synced by the browser extension) or save its settings, the site is probed within a minute instead of waiting for the next scheduled probe (except for sites whose probe mode is Manual or Disabled).
 - Probes share the site connection and rate limit with user statistics and search; a successful probe also refreshes the site's upload, download, bonus and other figures in user statistics.
 - After each probe, the next one is scheduled by the result:
@@ -47,7 +47,7 @@ Enabled sites whose probe mode is Auto are probed in the background:
 
 Probe now is not bound by this table; after it runs, the next probe is rescheduled by its result.
 
-A single probe takes at most 150 seconds, of which the request to the site takes at most 60 seconds. A timeout is recorded as a failure and does not hold up the other sites.
+A single probe takes at most 150 seconds, of which the requests to the site take at most 90 seconds (the same per-site limit as a user info sync). A timeout is recorded as a failure and does not hold up the other sites.
 
 Two checks run before a probe, without sending any request:
 
@@ -86,6 +86,8 @@ Effective activity is the time the days left and the inactivity reminders are ba
 
 What the time is based on is shown as Site last access (站点最近访问), Site last sign-in (站点最近登录) or Browser visit (浏览器访问).
 
+Rousi Pro updates its last-active time only when you visit the website in a browser. Reading the profile and signing in with the API key do not refresh it (checked in 2026-10), and a sign-in does not count as activity either. So sign in to Rousi Pro in a browser now and then. After the visit, the next probe, or the probe before the next reminder, reads the new time.
+
 When the probe is OK but the last-access time the site returns is the same as last time and already more than 48 hours old, the automatic probe is not refreshing that site's access time. The site list then marks Access not taking effect (访问未生效) next to Days left, and the inactivity reminder adds a sentence saying so. Sign in to such a site by hand; the mark disappears once the site's last-access time moves forward again.
 
 ## Reminders
@@ -96,6 +98,7 @@ Reminders start once the days left are no more than Days ahead to remind:
 
 - They are sent at the times of the Reminder cron, at most once per cron slot.
 - When the days left drop into a more urgent band than the previous reminder (14, 7, 3 and 1 days), a reminder goes out at once instead of waiting for the cron.
+- Before a reminder goes out, a site in automatic probe mode is probed once more and judged again if its last probe succeeded more than 30 minutes ago (or it has never been probed), so a reminder based on a result from hours ago does not reach you right after you signed in to the site in a browser. When the last probe failed (expired credentials, rate limiting and so on), or the site is being probed or signed in at that moment, there is no extra probe and the reminder uses the existing result.
 - The reminder gives the last activity time, what it is based on and the days left.
 
 ### Probe failure and recovery reminders
@@ -117,25 +120,39 @@ Reminders start once the days left are no more than Days ahead to remind:
 
 ## Daily sign-in
 
-Daily sign-in was added in the 1.0 preview. pt-tools can sign in to a site once a day (the sign-in plugin of NexusPHP sites, by default a request to `attendance.php`; sites such as HDArea and PTerClub use their own sign-in endpoints). It is off by default.
+Daily sign-in was added in the 1.0 preview. pt-tools can sign in to a site once a day (the sign-in plugin of NexusPHP sites, by default a request to `attendance.php`; sites such as HDArea, PTerClub and Rousi Pro use their own sign-in endpoints). It is off by default. Its switches, results and settings are all on the Sign-in (自动签到) page under Sites in the side navigation.
 
-- Turning it on: click Keep-alive settings (保号配置) on the site's row in the site list and turn on Daily automatic sign-in (每日自动签到). Sites that do not support it cannot be turned on; the reason is shown under the switch.
-- Timing: each day the site is signed in at a random moment within the window set under Global settings → Daily sign-in (每日签到), `08:00`–`10:00` by default, in the server's time zone (`TZ` in Docker). If the window has already passed when you turn it on or when pt-tools starts, the sign-in happens within the next 10 minutes.
-- Results: once the sign-in succeeds, or the site says you already signed in today, no more requests are made that day. A failure is retried after 10 and then 30 minutes; if the third attempt fails too, the day is recorded as a failure (签到失败) and the next day starts afresh.
+- Turning it on: turn on the Auto sign-in (自动签到) switch of the site in the table on the Sign-in page (Keep-alive settings (保号配置) on the site's row in the site list has it too). Sites that do not support it cannot be turned on; the table says why.
+- Timing: each day the site is signed in at a random moment within the window under Sign-in settings (签到设置) on the Sign-in page, `08:00`–`10:00` by default, in the server's time zone (`TZ` in Docker). If the window has already passed when you turn it on or when pt-tools starts, the sign-in happens within the next 10 minutes.
+- Results: once the sign-in succeeds, or the site says you already signed in today, no more requests are made that day. A failure is retried after 10 and then 30 minutes; if the third attempt fails too, the day is recorded as a failure (签到失败) and the next day starts afresh. Every site's result for every day is kept; Sign-in history (签到记录) shows the last 14 days, one cell per day.
+- Sign-in details: under Sign-in history is one day's Sign-in details (签到详情), today by default. Click a date in the history's header to switch to that day, or step back and forward, or pick it from the drop-down. The top line sums the day up (how many sites, how many succeeded and failed; how many sites needed AI, how many AI calls and how many input and output tokens they used). Each site has a row: result, method (direct, AI captcha, AI quiz), attempts, AI usage, time and a note (the site's message on success, the reason on failure, and when the next retry is due). Expand a row to see each attempt that day: scheduled or manual, result, duration and reason. Attempts are kept for 90 days; days before this feature only have the day's result.
 - Sign-in shares the site connection and rate limit with login probes, and a site is never probed and signed in at the same time.
-- Notification: once every site with sign-in turned on has a result for the day, one summary goes to every enabled notification channel; a channel in its quiet hours waits until they end.
-- Signing in by hand: Sign in now (立即签到, the calendar icon) on the site's row, Sign in now on the Keep-alive rules (保号规则) card of the site's detail page, and the ChatOps command `/signin [site]` (without a site, it signs in every site with automatic sign-in turned on that has no result today). Signing in by hand does not require automatic sign-in to be turned on, and a failure does not use up the automatic retries.
+- Notifications: Push sign-in results (推送签到结果) under Sign-in settings is on by default: once every site with sign-in turned on has a result for the day, one summary is sent (how many were signed in, which failed and why). With nothing selected under Send to (推送到) it goes to every enabled notification channel, or pick a few; a channel in its quiet hours waits until they end. With it turned off nothing is sent, and the history is still kept.
+- Sign in to all (一键签到): the button at the top right of the Sign-in page signs in once to every site with automatic sign-in turned on that has no result today. It runs in the background and the page shows the progress; a site that needs a captcha can take a few minutes, so you can leave the page.
+- Signing in by hand: Sign in now (立即签到) on a row of the Sign-in page, Sign in now (the calendar icon) on the site's row in the site list, Sign in now on the Keep-alive rules (保号规则) card of the site's detail page, and the ChatOps command `/signin [site]` (without a site, it signs in every site with automatic sign-in turned on that has no result today). Signing in by hand does not require automatic sign-in to be turned on, and a failure does not use up the automatic retries.
 
-Hover over Sign in now in the site list to see today's sign-in status. These built-in sites do not support automatic sign-in:
+Signing in to HDSky, OpenCD, PTCHDBits and 52PT requires a captcha or a quiz answer and uses AI; see the next section. Rousi Pro signs in with the personal API key entered in the Passkey field of its site settings; the key needs the Sign in (执行签到) permission (`attendance:claim`). Without it the sign-in fails and the reason says so. These built-in sites do not support automatic sign-in:
 
-| Site                               | Reason                                                 |
-| ---------------------------------- | ------------------------------------------------------ |
-| 52PT, PTCHDBits, U2                | Signing in requires answering a question               |
-| HDSky, OpenCD                      | Signing in requires a captcha                          |
-| BTSCHOOL                           | Signing in works differently from usual NexusPHP sites |
-| M-Team, HD Dolby, Rousi Pro, MooKo | Not NexusPHP sites; sign-in is not supported yet       |
+| Site            | Reason                                                                                                                                          |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| M-Team          | It has no sign-in; keep the account alive by signing in with a browser; the site forbids third-party tools from calling its keep-alive endpoint |
+| SpringSunday    | It has no sign-in; the site has no sign-in page                                                                                                 |
+| U2              | Signing in requires picking an anime title from an animated image captcha                                                                       |
+| BTSCHOOL        | Signing in works differently from usual NexusPHP sites                                                                                          |
+| HD Dolby, MooKo | Not NexusPHP sites; sign-in is not supported yet                                                                                                |
 
 Signing in adds one request to the site every day; make sure the site's rules allow automatic sign-in before turning it on.
+
+### Captchas and quiz questions with AI
+
+HDSky and OpenCD ask for a captcha when you sign in, and PTCHDBits and 52PT ask a multiple-choice question. After you turn on Use AI to sign in (用 AI 签到) under Sign-in settings (签到设置) on the Sign-in (自动签到) page, the model of the [AI assistant](assistant.md) handles these sites. It is off by default.
+
+- Requirement: fill in the endpoint, API key and model under AI assistant settings (AI 助手设置) and turn the assistant on.
+- Reading a captcha needs a model that can see images. Choose it under Model for captchas (识别验证码用的模型), for example Gemini, gpt-4o-mini or Llama 4; when none is chosen, the assistant's model is used. DeepSeek models cannot see images. Test vision (测试看图) draws a 6-character captcha on the spot, asks the model to read it, and says whether it got it right.
+- Quiz questions use the assistant's model: the question and the options go to the model, and the option it picks is submitted. A wrong answer still counts as signed in by the site, with the reward its rules give (usually smaller), and the sign-in record says the AI answered wrongly (AI 答错了).
+- When a captcha is read wrongly, a new captcha is fetched and read again, up to 3 per sign-in. If it is still wrong, or the model gives no answer, the sign-in fails and is retried after 10 and then 30 minutes.
+- When Use AI to sign in is off, or the AI assistant is off or not set up, the day's sign-in for these sites is recorded as a failure with a reason that says how to turn it on, and is not retried.
+- Captcha images and questions are sent to the provider set under AI assistant settings; cookies and passkeys are never sent.
 
 ## Backing up the encryption key
 

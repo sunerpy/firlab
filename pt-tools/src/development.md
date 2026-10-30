@@ -6,7 +6,7 @@
 
 | 依赖        | 版本要求 | 说明                                   |
 | ----------- | -------- | -------------------------------------- |
-| **Go**      | 1.26.9   | 后端开发语言；以 `go.mod` 为准         |
+| **Go**      | 1.26.10  | 后端开发语言；以 `go.mod` 为准         |
 | **Node.js** | 25.2.0   | 前端构建环境；以 `.node-version` 为准  |
 | **pnpm**    | 10.25.0  | 前端包管理器；以 `packageManager` 为准 |
 
@@ -16,8 +16,8 @@
 
 ```bash
 # Linux（下载官方归档）
-wget https://go.dev/dl/go1.26.9.linux-amd64.tar.gz
-sudo tar -C /usr/local -xzf go1.26.9.linux-amd64.tar.gz
+wget https://go.dev/dl/go1.26.10.linux-amd64.tar.gz
+sudo tar -C /usr/local -xzf go1.26.10.linux-amd64.tar.gz
 export PATH=$PATH:/usr/local/go/bin
 
 # macOS (使用 Homebrew)
@@ -648,6 +648,14 @@ Edge 商店发布需要仓库 Secrets：
 发版构建内置托管 relay 的地址（网页「远程访问」里因此会出现「填入托管 relay」）：`.goreleaser.yaml` 与 `Dockerfile` 从仓库 Secret `PT_TOOLS_RELAY_URL`（`wss://` 开头）读入 `internal/remote.DefaultRelayURL`，没设时为空。地址随二进制公开，不是秘密；放在 Secret 里只是为了不进仓库、不改代码就能换。
 
 `pt-tools version` 的 `Default relay:` 一行显示 `configured`、`none` 或 `invalid`（不打印地址）。`Release` workflow 在 GoReleaser 之后检查 linux-amd64 归档：Secret 设了却不是 `configured` 时这个 job 失败，draft 不发布。
+
+### 内置的 TMDB Key
+
+发版构建内置一个 TMDB API Key，用户不填自己的 Key 也能识别、整理与订阅（和 Jellyfin、tinyMediaManager 一样）：`.goreleaser.yaml` 从仓库 Secret `PT_TOOLS_TMDB_KEY`（v3 的 API Key 或 v4 的读取令牌）读入 `internal/media/tmdb.BuiltinKey`；`Dockerfile` 自己编译时用 BuildKit secret `tmdb_key`（`docker.yml` 从同一个 Secret 传），不用 build-arg，免得 Key 写进镜像历史与 provenance。没设时为空，用户要在「媒体识别」里填自己的 Key；本地 `make build` 不注入。
+
+Key 随二进制分发，能被取出来，不当作秘密；放在 Secret 里是为了不进仓库、能换。用户填了自己的 Key 时用自己的；用户把 TMDB 接口地址换成镜像或中转时不用内置的（内置的只发给 `api.themoviedb.org` 与 `api.tmdb.org`）。
+
+`pt-tools version` 的 `TMDB key:` 一行显示 `configured`、`none` 或 `invalid`（不打印 Key）。`Release` workflow 和默认 relay 一样检查 linux-amd64 归档：Secret 设了却不是 `configured` 时这个 job 失败，draft 不发布。
 
 ### 部署托管 relay
 

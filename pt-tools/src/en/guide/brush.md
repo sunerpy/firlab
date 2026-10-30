@@ -8,27 +8,30 @@ Brushing adds requests to the site and keeps torrents moving in and out of your 
 
 Open **Download → Brush tasks** in the navigation and click **New task**. One task covers one site and one downloader:
 
-| Setting             | Meaning                                                                                           |
-| ------------------- | ------------------------------------------------------------------------------------------------- |
-| Site                | Built-in sites only. Configure the site's credentials and enable it under **Sites** first         |
-| Downloader          | Where torrents are pushed. An empty save path or category uses the downloader's default           |
-| Extra tags          | Optional. The site name, `pt-tools-brush`, and the task tag `pt-brush-<task id>` are always added |
-| Check interval      | How often a round runs. At least 5 minutes, 10 by default                                         |
-| Enable after saving | New tasks are off by default; turn the task on once you have checked the settings                 |
+| Setting             | Meaning                                                                                                                                                                                                                                                                                                    |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Site                | Built-in sites only, and the list shows enabled sites only: configure the site's credentials and enable it under **Sites** first. Brushing reads the torrent list and downloads torrents with the site credentials, so it needs no RSS link and works even when your account class cannot generate one yet |
+| Section             | M-Team only. The general and adult sections are two separate lists: choose General (综合区), Adult (成人区), or Both (两个都读). General by default                                                                                                                                                        |
+| Downloader          | Where torrents are pushed. The save path can be one of this downloader's preset folders or any path you type; an empty save path or category uses the downloader's default                                                                                                                                 |
+| Extra tags          | Optional. The site name, `pt-tools-brush`, and the task tag `pt-brush-<task id>` are always added                                                                                                                                                                                                          |
+| Check interval      | How often a round runs. At least 5 minutes, 10 by default                                                                                                                                                                                                                                                  |
+| Enable after saving | New tasks are off by default; turn the task on once you have checked the settings                                                                                                                                                                                                                          |
 
 Each round of an enabled task does three things in order: samples the task's torrents (records upload and download), removes torrents by the removal rules, and adds new torrents within the limits.
 
 ## Entry conditions
 
-Each round requests the site's torrent list once (subject to the site's own rate limit) and checks every item locally:
+Each round requests the first page of the site's torrent list once (subject to the site's own rate limit) and checks every item locally. After a temporary network error (connection reset, timeout) or a server error (5xx), the request is retried twice with exponential backoff (about 2 and then 4 seconds, each plus a little random time, each retry first waiting for the site's rate limit); rate limiting, an expired login and a Cloudflare challenge are not retried. When the site returns something other than a torrent list (a block, maintenance or verification page), the round fails and the error gives the page's title and its first words. An M-Team page holds 100 torrents, pinned ones first. With Both, the general and adult sections are requested once each, a torrent listed in both counts once, and when one section cannot be read the other is still used and the run result gives the reason.
 
-- **Discount types**: "Free" and "2x free" by default; you can add 50%, 2x 50%, and others. Some sites (such as M-Team) mix normal torrents into the list; they are filtered out here as well.
+- **Discount types**: "Free" and "2x free" by default; you can add 50%, 2x 50%, and others. Some sites (such as M-Team) mix normal torrents into the list; they are filtered out here as well. M-Team single-torrent free (单种免费) and promotions that cover the torrent also count as free: such a torrent's own discount in the list can be 50%, so pt-tools judges it by the start and end time of the single-torrent free or the promotion instead of asking the site to filter by discount (filtering by the torrent's own discount would miss them).
 - **Discount remaining**: How long the discount must still last, at least 60 minutes by default. Permanent free torrents without an end time are not limited.
 - **Size**: Minimum and maximum size in GB; 0 means no limit. When a size limit is set, torrents whose size the list does not show are skipped.
 - **At most N seeders** and **at least N leechers**: pick busy torrents with little competition.
 - **Published within**: only take recent torrents; 0 means no limit.
 - **Title includes / excludes**: one per line or comma separated, case-insensitive, matched against the title and subtitle.
 - **Exclude H&R**: on by default. When the site has site-wide H&R enabled, every torrent from it counts as H&R (the same rule RSS downloads use). With the option off, only H&R torrents whose required seeding time is known are taken: when the site's built-in rules have no seeding time, fill in H&R seeding requirement (hours) (H&R 做种要求（小时）) in the site's settings. Until it is filled in, such torrents are not taken (the removal rules cannot tell when a torrent may go), and the run result says how many were skipped because the H&R seeding time is unknown (H&R 要求的做种时长未知).
+
+For M-Team tasks, the run result starts with the sections that were read, for example "M-Team 综合区、成人区第 1 页：列表 200 个、符合条件 3 个、加入 2 个" (general and adult sections, page 1: 200 listed, 3 eligible, 2 added). It sums up both lists; it is not the verdict on any single torrent.
 
 Matching torrents are added in order of most leechers, then fewest seeders. A torrent any brush task has pushed from this site before (including ones already removed) is never added again, so two tasks never add the same torrent; torrents already in the downloader are skipped too.
 
@@ -58,6 +61,16 @@ A download counts as complete when it is at 100% and not in a checking or error 
 
 Brushing only touches torrents that carry the task's tag and were added by the task. If you remove the task tag from a torrent, it is handed back to you and brushing stops removing it; torrents removed by hand or by other means are marked "no longer in the downloader". After you switch a task to another downloader, the torrents it already added are still sampled and removed in their original downloader; if that downloader is temporarily unreachable, those torrents are left alone for the round.
 
+## Run history
+
+Each task's actions include **Run history** (运行记录; **History** (记录) on phones), and clicking the result or error in the **Last run** (上次运行) cell opens it too. Every round, scheduled or started with **Run now**, adds one entry; the newest is at the top and expanded:
+
+- Start time, scheduled or manual, duration, and status: Succeeded (成功); Partly failed (部分失败: the round finished but some torrents failed to download, push, remove, or record); Failed (失败: for example the site's torrent list could not be read or the downloader was unreachable); Not finished (没跑完: pt-tools exited in the middle of the round, recorded at the next start); Running (进行中).
+- The round's summary and errors, the same as the task list's **Last run**.
+- Expand an entry for its steps: how many torrents the task had and how much it had added today; how many torrents the list had; how many were added before, already in the downloader, or did not meet the conditions, with the reasons summarized and the first 30 of those torrents listed with their reason; which torrents were added (discount, size, when the discount ends, H&R seeding requirement); which were removed and why; which were no longer in the downloader; and why the round stopped adding (for example the concurrent download limit was reached or disk protection rejected a push).
+
+Each task keeps its latest 500 entries from the last 14 days, and they are deleted with the task. When a round has a very long list of steps, the rest is not recorded and the entry says so.
+
 ## Relation to auto cleanup
 
 All brush torrents carry the `pt-tools-brush` tag. The regular **Auto cleanup** rules (seeding time, ratio, and so on) skip them and leave them to the task's own removal rules, so the two sets of rules never compete. The emergency cleanup that runs when free disk space drops below the minimum still covers every torrent, brush torrents included.
@@ -65,12 +78,28 @@ All brush torrents carry the `pt-tools-brush` tag. The regular **Auto cleanup** 
 ## Turning off and deleting a task
 
 - **Turn off**: no new torrents are added. Torrents already added keep being handled by the removal rules until they are all gone.
-- **Delete**: the task, its statistics, and its torrent records are deleted. The torrents stay in the downloader and are no longer managed by brushing (the regular auto cleanup rules still skip them; handle them by hand if needed).
+- **Delete**: the task, its statistics, its torrent records, and its run history are deleted. The torrents stay in the downloader and are no longer managed by brushing (the regular auto cleanup rules still skip them; handle them by hand if needed).
 - A task cannot be deleted or edited while a round is running; try again shortly (a round uses the settings read when it started).
 
 ## Earnings and the daily report
 
-The top of the brush page shows active torrents, today's upload and download, and the overall ratio; the **30-day earnings** card plots the daily upload of all tasks. Earnings are the difference between two consecutive samples of each brush torrent's total upload and download in the downloader, grouped by day in the server time zone; when two samples straddle midnight, the increment is split between the two days by duration.
+The page header of the brush page has a **Statistics** switch with five steps: day, week, month, quarter, and year. It controls every earnings figure on the page, and the choice is remembered in the browser.
+
+| Step    | Range           | Current period |
+| ------- | --------------- | -------------- |
+| Day     | Last 30 days    | Today          |
+| Week    | Last 12 weeks   | This week      |
+| Month   | Last 12 months  | This month     |
+| Quarter | Last 8 quarters | This quarter   |
+| Year    | Last 5 years    | This year      |
+
+- The number band at the top shows active torrents, the current period's upload and download (with the previous period next to it, for example **last week 77.14 GB**), and the overall ratio; the small bars in each cell are the last 7 periods.
+- The task table's **current period upload / download** column (**today** when the step is day) is each task's earnings in the current period.
+- The earnings card (for example **earnings over the last 12 weeks**) draws one bar per period for the upload. The readout above it shows the selected period's upload, download, added, and removed counts, and starts on the current period; hover a bar, or click the chart and use the left and right arrow keys, to see another period. **Details** lists every period as a table, newest first.
+
+Earnings are the difference between two consecutive samples of each brush torrent's total upload and download in the downloader, grouped by day in the server time zone; when two samples straddle midnight, the increment is split between the two days by duration. Weeks start on Monday and quarters in January, April, July, and October. The current period only counts up to today, so this week or this month is usually lower than the previous one.
+
+The brush page of the [mobile app](mobile-app.md) has the same five steps; tap or drag across the bars there.
 
 With the [daily report](user-stats.md#daily-report) on, a report sent on a day with brush earnings gains a "Brush today" section: total upload, download, added, and removed, plus one line per task when there is more than one.
 
@@ -95,7 +124,10 @@ pt-tools does not support Vertex's custom script rules. For more complex conditi
 | `GET` / `POST /api/brush/tasks`                                  | List tasks (with active torrents and earnings) / create a task                                                       |
 | `GET` / `PUT` / `DELETE /api/brush/tasks/<id>`                   | Read, update, or delete a task                                                                                       |
 | `POST /api/brush/tasks/<id>/run`                                 | Run one round now and return its result; returns 502 when the site or downloader failed and the round did not finish |
+| `GET /api/brush/tasks/<id>/runs?limit=<1–100>&offset=`           | Run history, newest first, with each round's steps                                                                   |
 | `GET /api/brush/tasks/<id>/torrents?state=active\|removed\|gone` | The task's torrents                                                                                                  |
-| `GET /api/brush/stats?days=<1–90>`                               | Daily earnings per task and in total for recent days                                                                 |
+| `GET /api/brush/stats?granularity=<period>&periods=<count>`      | Earnings per task and in total, grouped by period; see below                                                         |
 
 All of these require a logged-in session.
+
+`granularity` is `day`, `week`, `month`, `quarter`, or `year` (default `day`); `periods` defaults to 30, 12, 12, 8, and 5 and is capped at 366, 104, 60, 40, and 20. Every period has its first day in `date` and its last day in `end`; the last period is the current one (`end` is its natural end date, while earnings only count up to today). The old `?days=<1–90>` still works and equals that many day periods.

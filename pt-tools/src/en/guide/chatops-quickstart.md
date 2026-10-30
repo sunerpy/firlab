@@ -57,25 +57,28 @@ Do you want to send commands to pt-tools from a chat app?
 
 Every command starts with `/` and is sent in the private chat. Commands are case-insensitive.
 
-| Command          | What it does                                                                                                                            | Permission |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| `/help`          | Lists every available command and how to use it                                                                                         | User       |
-| `/status`        | System status: speeds, disk space and the number of active tasks                                                                        | User       |
-| `/version`       | The current version and the latest available one                                                                                        | User       |
-| `/tasks`         | The RSS tasks and whether they are running                                                                                              | User       |
-| `/sites`         | A summary of the configured sites (name, type)                                                                                          | User       |
-| `/torrents`      | Lists the torrents of each downloader, a page at a time                                                                                 | User       |
-| `/pause <hash>`  | Pauses a torrent (a prefix of the hash is enough)                                                                                       | Admin      |
-| `/resume <hash>` | Resumes a torrent                                                                                                                       | Admin      |
-| `/delete <hash>` | Deletes a torrent, after a confirmation                                                                                                 | Admin      |
-| `/signin [site]` | Signs in now; without a site, signs in every site with automatic sign-in enabled that has no result today                               | Admin      |
-| `/bind <code>`   | Links the current account to pt-tools with an 8-character binding code                                                                  | Anyone     |
-| `/unbind`        | Unlinks the current account                                                                                                             | Admin      |
-| `/addrss`        | Adds an RSS subscription interactively (a text wizard, or one line: `/addrss site \| name \| URL \| downloader`)                        | Admin      |
-| `/delrss`        | Deletes an RSS subscription interactively (lists them first, then you choose one by name, ID or number)                                 | Admin      |
-| `/sub <title>`   | Searches TMDB for a film or series; reply with a number to subscribe (add a season for series), see [subscriptions](media-subscribe.md) | Admin      |
-| `/subs`          | Lists your subscriptions and their progress                                                                                             | User       |
-| `/newchat`       | Starts a new AI assistant conversation; later messages carry no earlier context, see [AI assistant](assistant.md)                       | User       |
+| Command                  | What it does                                                                                                                                                 | Permission |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- |
+| `/help`                  | Lists every available command and how to use it                                                                                                              | User       |
+| `/status`                | System status: speeds, disk space and the number of active tasks                                                                                             | User       |
+| `/version`               | The current version and the latest available one                                                                                                             | User       |
+| `/tasks`                 | The RSS tasks and whether they are running                                                                                                                   | User       |
+| `/sites`                 | A summary of the configured sites (name, type)                                                                                                               | User       |
+| `/torrents`              | Lists the torrents of each downloader, a page at a time                                                                                                      | User       |
+| `/pause <hash>`          | Pauses a torrent (a prefix of the hash is enough)                                                                                                            | Admin      |
+| `/resume <hash>`         | Resumes a torrent                                                                                                                                            | Admin      |
+| `/delete <hash>`         | Deletes a torrent, after a confirmation                                                                                                                      | Admin      |
+| `/signin [site]`         | Signs in now; without a site, signs in every site with automatic sign-in enabled that has no result today                                                    | Admin      |
+| `/bind <code>`           | Links the current account to pt-tools with an 8-character binding code                                                                                       | Anyone     |
+| `/unbind`                | Unlinks the current account                                                                                                                                  | Admin      |
+| `/addrss`                | Adds an RSS subscription interactively (a text wizard, or one line: `/addrss site \| name \| URL \| downloader`)                                             | Admin      |
+| `/delrss`                | Deletes an RSS subscription interactively (lists them first, then you choose one by name, ID or number)                                                      | Admin      |
+| `/sub <title>`           | Searches TMDB for a film or series; reply with a number to subscribe (add a season for series), see [follow and subscribe](media-subscribe.md)               | Admin      |
+| `/follow <show>`         | Searches TMDB for a series; reply with a number to follow it (add a season if you like). It follows the air time with the version lock on; `/追剧` works too | Admin      |
+| `/subs`                  | Lists your subscriptions: ID, progress (missing episodes, those waiting for the locked version) and the next search                                          | User       |
+| `/runs <id>`             | The last 5 runs of a subscription: what it found, why it skipped a torrent, what it pushed; the ID comes from `/subs`                                        | User       |
+| `/unlock <id> <episode>` | Lets one episode of a followed show use another version (outside the version lock) and searches right away                                                   | Admin      |
+| `/newchat`               | Starts a new AI assistant conversation; later messages carry no earlier context, see [AI assistant](assistant.md)                                            | User       |
 
 > **Rate limit**: by default each user can send at most 10 commands a minute. Further commands are silently dropped, with no error reply, so nothing is revealed to the sender.
 
@@ -102,6 +105,14 @@ Once it is set up, open the audit log page of the web UI (`/chatops/audit`) to c
 ![The ChatOps audit log](../../guide/images/chatops/chatops-audit-stats.webp)
 
 > Web UI → ChatOps → Audit log (操作审计) shows today's command count, the success rate and the latest records.
+
+### Viewing the audit log
+
+Besides commands and write operations from the app and MCP, the audit log records every delivery of a background notification: the daily report, sign-in, followed shows and subscriptions, login reminders, dead torrents, remote access and so on, with the channel, whether it was delivered, and why it failed (for example "QQ 通道无可用收件人", no recipient on the QQ channel, or a Telegram network timeout). A failed notification is retried with backoff; every attempt gets its own record and the last one says that it will not be retried. Credentials in the reason, such as a bot token or a cookie, are masked.
+
+- The **Type** filter in the toolbar (类型) shows only notifications (消息通知) or only commands and API calls (命令与接口); the command column of a notification shows its source, such as daily report (每日战报), sign-in (签到) or followed show (追剧).
+- The **Recent notifications** panel (最近的通知) on the Notifications page also shows why the undelivered ones failed.
+- API: `GET /api/chatops/audit?category=notify|action` (`notify` returns only notification deliveries, `action` everything else).
 
 ---
 

@@ -249,6 +249,21 @@ paths:
               schema: { $ref: "#/components/schemas/AppTaskPage" }
         default: { $ref: "#/components/responses/Error" }
   /brush/tasks:
+    post:
+      operationId: createBrushTask
+      tags: [App]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AppBrushInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppBrushConfig" }
+        default: { $ref: "#/components/responses/Error" }
     get:
       operationId: listBrushTasks
       tags: [App]
@@ -280,6 +295,99 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/AppMediaHistoryPage" }
+        default: { $ref: "#/components/responses/Error" }
+  /media/history/{id}/retry:
+    post:
+      operationId: retryMediaHistory
+      tags: [App]
+      summary: 重新整理一条整理记录对应的种子（多半是失败的那条）
+      parameters:
+        - $ref: "#/components/parameters/HistoryID"
+      responses:
+        "200":
+          description: 这次整理的结果
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppOrganizeResult" }
+        default: { $ref: "#/components/responses/Error" }
+  /media/history/{id}/scrape:
+    post:
+      operationId: rescrapeMediaHistory
+      tags: [App]
+      summary: 重新刮削一条整理记录所在的电影或剧集（这个媒体库里同一部整理好的都刮削；媒体库要开着刮削）
+      parameters:
+        - $ref: "#/components/parameters/HistoryID"
+      responses:
+        "200":
+          description: 这次刮削的结果
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppRescrapeResult" }
+        default: { $ref: "#/components/responses/Error" }
+  /media/libraries:
+    get:
+      operationId: listMediaLibraries
+      tags: [App]
+      summary: 媒体库列表
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AppMediaLibrary" }
+        default: { $ref: "#/components/responses/Error" }
+  /media/recognize:
+    post:
+      operationId: recognizeMedia
+      tags: [App]
+      summary: 识别一个种子标题：解析名字、年份、季集、规格，按手动纠正与识别词到 TMDB 找对应的条目（不改动任何东西）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AppRecognizeInput" }
+      responses:
+        "200":
+          description: 识别结果
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppRecognition" }
+        default: { $ref: "#/components/responses/Error" }
+  /media/organize/preview:
+    post:
+      operationId: previewMediaOrganize
+      tags: [App]
+      summary: 预览整理下载器里的一个种子：认出的条目、媒体库、每个视频的目标位置（不改动任何东西）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AppOrganizeInput" }
+      responses:
+        "200":
+          description: 整理计划
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppOrganizePlan" }
+        default: { $ref: "#/components/responses/Error" }
+  /media/organize:
+    post:
+      operationId: organizeMedia
+      tags: [App]
+      summary: 把下载器里的一个种子整理进媒体库（按媒体库的方式硬链接、复制或移动，刮削，通知媒体服务器扫描）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AppOrganizeInput" }
+      responses:
+        "200":
+          description: 整理的结果；queued 为真时还在后台进行
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppOrganizeResult" }
         default: { $ref: "#/components/responses/Error" }
   /subscriptions:
     get:
@@ -330,6 +438,24 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/AppSubscriptionDetail" }
         default: { $ref: "#/components/responses/Error" }
+    put:
+      operationId: updateSubscription
+      tags: [App]
+      summary: 修改订阅的设置（只改给了的字段；条目与季不能改）
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AppSubscriptionUpdate" }
+      responses:
+        "200":
+          description: 更新后的订阅
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppSubscription" }
+        default: { $ref: "#/components/responses/Error" }
     delete:
       operationId: deleteSubscription
       tags: [App]
@@ -375,6 +501,184 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/AppMessage" }
+        default: { $ref: "#/components/responses/Error" }
+  /subscriptions/{id}/torrents/{tid}/organize:
+    post:
+      operationId: organizeSubscriptionTorrent
+      tags: [App]
+      summary: 重新整理订阅下载的一个种子（整季包与单集一样）：按订阅的条目与媒体库，已经整理好的文件不动
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionID"
+        - $ref: "#/components/parameters/SubscriptionTorrentID"
+      responses:
+        "200":
+          description: 这次整理的结果
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppOrganizeResult" }
+        default: { $ref: "#/components/responses/Error" }
+  /subscriptions/{id}/torrents/{tid}/scrape:
+    post:
+      operationId: rescrapeSubscriptionTorrent
+      tags: [App]
+      summary: 重新刮削订阅下载的一个种子整理进的电影或剧集（要有整理好的文件）
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionID"
+        - $ref: "#/components/parameters/SubscriptionTorrentID"
+      responses:
+        "200":
+          description: 这次刮削的结果
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppRescrapeResult" }
+        default: { $ref: "#/components/responses/Error" }
+  /subscriptions/{id}/episodes:
+    get:
+      operationId: listSubscriptionEpisodes
+      tags: [App]
+      summary: 追剧每一集的情况（电影没有分集，回 400）
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionID"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AppEpisode" }
+        default: { $ref: "#/components/responses/Error" }
+  /subscriptions/{id}/episodes/{n}/skip:
+    post:
+      operationId: skipSubscriptionEpisode
+      tags: [App]
+      summary: 跳过这一集（不追），或重新要它
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionID"
+        - $ref: "#/components/parameters/EpisodeNumber"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AppEpisodeSkip" }
+      responses:
+        "200":
+          description: 改了以后每一集的情况
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AppEpisode" }
+        default: { $ref: "#/components/responses/Error" }
+  /subscriptions/{id}/episodes/{n}/unlock:
+    post:
+      operationId: unlockSubscriptionEpisode
+      tags: [App]
+      summary: 这一集不受版本锁限制（换别的组或分辨率，并马上搜一次），或恢复版本锁
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionID"
+        - $ref: "#/components/parameters/EpisodeNumber"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AppEpisodeUnlock" }
+      responses:
+        "200":
+          description: 改了以后每一集的情况
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AppEpisode" }
+        default: { $ref: "#/components/responses/Error" }
+  /subscriptions/{id}/runs:
+    get:
+      operationId: listSubscriptionRuns
+      tags: [App]
+      summary: 订阅的运行记录（新的在前）：每次搜索找到了什么、为什么没要、推送了哪个
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionID"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize100"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppSubscriptionRunPage" }
+        default: { $ref: "#/components/responses/Error" }
+  /subscriptions/schedule/preview:
+    post:
+      operationId: previewSchedule
+      tags: [App]
+      summary: 看一个追剧定时接下来几次什么时候搜（只读，不改订阅；定时不对时回 400 并写明哪里不对）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AppSchedulePreviewInput" }
+      responses:
+        "200":
+          description: 接下来几次搜索的时间
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppSchedulePreview" }
+        default: { $ref: "#/components/responses/Error" }
+  /subscriptions/{id}/episode-rules:
+    get:
+      operationId: listEpisodeRules
+      tags: [App]
+      summary: 追剧的集号规则（每个制作组一条；组为空的对所有组）
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionID"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AppEpisodeRule" }
+        default: { $ref: "#/components/responses/Error" }
+    put:
+      operationId: saveEpisodeRule
+      tags: [App]
+      summary: 设一个制作组的集号规则（这个组已有规则时替换）
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AppEpisodeRuleInput" }
+      responses:
+        "200":
+          description: 改了以后的全部规则
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AppEpisodeRule" }
+        default: { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteEpisodeRule
+      tags: [App]
+      summary: 删掉一个制作组的集号规则
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionID"
+        - name: group
+          in: query
+          description: 制作组；不给是删对所有组的那条
+          schema: { type: string, maxLength: 64 }
+      responses:
+        "200":
+          description: 删了以后的全部规则
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AppEpisodeRule" }
         default: { $ref: "#/components/responses/Error" }
   /explore:
     get:
@@ -607,6 +911,231 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/AppOK" }
         default: { $ref: "#/components/responses/Error" }
+  /config:
+    get:
+      operationId: getConfigCatalog
+      tags: [App]
+      summary: 配置目录（要 app:config 与 app:read）：能经接口读改的各类配置、能做的操作、能改的字段与密钥字段
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppConfigCatalog" }
+        default: { $ref: "#/components/responses/Error" }
+  /config/{resource}:
+    get:
+      operationId: getConfig
+      tags: [App]
+      summary: 一类配置的现状（要 app:config 与 app:read）；密钥的值是 <已设置> 或空串
+      parameters:
+        - $ref: "#/components/parameters/ConfigResource"
+        - name: id
+          in: query
+          required: false
+          description: 列表类配置只看这一项（id_field 的值）
+          schema: { type: string }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppConfigState" }
+        default: { $ref: "#/components/responses/Error" }
+  /config/{resource}/preview:
+    post:
+      operationId: previewConfigChange
+      tags: [App]
+      summary: 预览一次改动（要 app:config 与 app:read）：每个字段改以前、改以后与可能的影响，不保存
+      parameters:
+        - $ref: "#/components/parameters/ConfigResource"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AppConfigChange" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppConfigResult" }
+        default: { $ref: "#/components/responses/Error" }
+  /config/{resource}/changes:
+    post:
+      operationId: applyConfigChange
+      tags: [App]
+      summary: 保存一次改动（要 app:config 与 app:write）：按现状重新算一遍再保存，回改完的样子
+      parameters:
+        - $ref: "#/components/parameters/ConfigResource"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AppConfigChange" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppConfigResult" }
+        default: { $ref: "#/components/responses/Error" }
+  /mobile/options:
+    get:
+      operationId: getMobileOptions
+      tags: [App]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppMobileOptions" }
+        default: { $ref: "#/components/responses/Error" }
+  /brush/tasks/{id}:
+    get:
+      operationId: getBrushTask
+      tags: [App]
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionID"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppBrushConfig" }
+        default: { $ref: "#/components/responses/Error" }
+    put:
+      operationId: updateBrushTask
+      tags: [App]
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AppBrushInput" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppBrushConfig" }
+        default: { $ref: "#/components/responses/Error" }
+    delete:
+      operationId: deleteBrushTask
+      tags: [App]
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionID"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppOK" }
+        default: { $ref: "#/components/responses/Error" }
+  /brush/tasks/preview:
+    post:
+      operationId: previewBrushTask
+      tags: [App]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AppConfigChange" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppConfigResult" }
+        default: { $ref: "#/components/responses/Error" }
+  /brush/tasks/{id}/status:
+    post:
+      operationId: setBrushTaskStatus
+      tags: [App]
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AppBrushStatus" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppBrushConfig" }
+        default: { $ref: "#/components/responses/Error" }
+  /brush/tasks/{id}/runs:
+    get:
+      operationId: listBrushTaskRuns
+      tags: [App]
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionID"
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100 }
+        - name: offset
+          in: query
+          schema: { type: integer, minimum: 0 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppBrushRunPage" }
+        default: { $ref: "#/components/responses/Error" }
+  /stats/aggregated:
+    get:
+      operationId: getStatsAggregated
+      tags: [App]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppStatsAggregated" }
+        default: { $ref: "#/components/responses/Error" }
+  /brush/stats:
+    get:
+      operationId: getBrushStats
+      tags: [App]
+      summary: 刷流收益按日、周、月、季度或年分段
+      description: >-
+        最近 periods 段全部刷流任务的合计与每个任务的收益（主机时区，周从周一开始）。
+        最后一段是当前这一段（今天、本周、本月、本季度、今年），只算到今天。
+        periods 默认 day 30、week 12、month 12、quarter 8、year 5，最多 366、104、60、40、20。
+        主机的 GET /meta 的 features 里有 brush_stats 时才提供这个接口。
+      parameters:
+        - name: granularity
+          in: query
+          schema: { type: string, enum: [day, week, month, quarter, year], default: day }
+        - name: periods
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 366 }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppBrushStats" }
+        default: { $ref: "#/components/responses/Error" }
+  /stats/summary:
+    get:
+      operationId: getStatsSummary
+      tags: [App]
+      parameters:
+        - name: range
+          in: query
+          schema: { type: string, enum: [today, 7d, 30d] }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AppStatsSummary" }
+        default: { $ref: "#/components/responses/Error" }
 components:
   securitySchemes:
     bearer:
@@ -624,6 +1153,24 @@ components:
       in: path
       required: true
       schema: { type: integer, minimum: 1 }
+    SubscriptionTorrentID:
+      name: tid
+      in: path
+      required: true
+      description: 订阅详情 torrents 里的 id
+      schema: { type: integer, minimum: 1 }
+    EpisodeNumber:
+      name: n
+      in: path
+      required: true
+      description: 集号（TMDB 这一季的第几集）
+      schema: { type: integer, minimum: 1 }
+    HistoryID:
+      name: id
+      in: path
+      required: true
+      description: 整理记录的编号（GET /media/history 的 id）
+      schema: { type: integer, minimum: 1 }
     AssistantID:
       name: id
       in: path
@@ -634,6 +1181,12 @@ components:
       in: path
       required: true
       description: 事件类型，例如 rss.matched、reply.status、assistant.reply
+      schema: { type: string }
+    ConfigResource:
+      name: resource
+      in: path
+      required: true
+      description: 配置的名字，例如 global、downloaders、sites、rss（GET /config 列出全部）
       schema: { type: string }
     Q:
       name: q
@@ -660,7 +1213,7 @@ components:
       properties:
         error:
           type: string
-          description: invalid_body、invalid_argument、unauthorized、forbidden、not_found、method_not_allowed、busy、rate_limited、internal、search_failed、download_failed、attend_failed、upstream、unavailable、assistant_disabled、decided、too_many 等
+          description: invalid_body、invalid_argument、unauthorized、forbidden、not_found、method_not_allowed、busy、conflict、rate_limited、internal、search_failed、download_failed、attend_failed、upstream、unavailable、timeout、assistant_disabled、decided、too_many 等
         message: { type: string }
     AppOK:
       type: object
@@ -1110,6 +1663,39 @@ components:
         downloaded: { type: integer, format: int64 }
         added: { type: integer }
         removed: { type: integer }
+    AppBrushPeriod:
+      type: object
+      required: [start, end, uploaded, downloaded, added, removed]
+      properties:
+        start: { type: string, description: 这一段的第一天（yyyy-mm-dd） }
+        end: { type: string, description: 这一段的最后一天；最后一段可能在今天以后 }
+        uploaded: { type: integer, format: int64 }
+        downloaded: { type: integer, format: int64 }
+        added: { type: integer }
+        removed: { type: integer }
+    AppBrushTaskPeriods:
+      type: object
+      required: [id, name, periods]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        periods:
+          type: array
+          items: { $ref: "#/components/schemas/AppBrushPeriod" }
+    AppBrushStats:
+      type: object
+      required: [granularity, periods, from, to, totals, tasks]
+      properties:
+        granularity: { type: string, enum: [day, week, month, quarter, year] }
+        periods: { type: integer }
+        from: { type: string }
+        to: { type: string }
+        totals:
+          type: array
+          items: { $ref: "#/components/schemas/AppBrushPeriod" }
+        tasks:
+          type: array
+          items: { $ref: "#/components/schemas/AppBrushTaskPeriods" }
     AppBrushTask:
       type: object
       required:
@@ -1168,14 +1754,185 @@ components:
         status: { type: string }
         message: { type: string }
         created_at: { type: integer, format: int64 }
+    AppMediaLibrary:
+      type: object
+      required: [id, name, kind, anime, path, mode, scrape, classify_dir, overwrite_mode, enabled]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        kind: { type: string, description: "movie 或 tv" }
+        anime: { type: boolean, description: "只收 TMDB 类型里有「动画」的条目" }
+        path: { type: string, description: "pt-tools 里看到的库目录" }
+        mode:
+          {
+            type: string,
+            description: "整理方式（hardlink、copy、move 等）；空的是整理设置里的默认方式",
+          }
+        scrape: { type: boolean, description: "写 NFO 与海报" }
+        classify_dir: { type: boolean, description: "按二级分类放进库目录下的分类目录" }
+        overwrite_mode:
+          type: string
+          description: "目标位置已经有 pt-tools 之前放进库的旧版本时：空的不替换，larger 新文件更大时替换"
+        enabled: { type: boolean }
+    AppRecognizeInput:
+      type: object
+      additionalProperties: false
+      properties:
+        title: { type: string, maxLength: 512, description: "种子标题；与 subtitle 至少给一个" }
+        subtitle: { type: string, maxLength: 512, description: "站点给的副标题（常是中文名）" }
+        imdb_id: { type: string, description: "站点给的 IMDb 编号（tt1234567），可选" }
+    AppMediaMeta:
+      type: object
+      description: 从种子标题解析出来的信息（没解析出来的字段没有）
+      properties:
+        name_cn: { type: string }
+        name_en: { type: string }
+        year: { type: integer }
+        type: { type: string, description: "movie 或 tv" }
+        season: { type: integer }
+        season_end: { type: integer }
+        episode: { type: integer }
+        episode_end: { type: integer }
+        complete: { type: boolean, description: "整季（或多季）的合集" }
+        resolution: { type: string }
+        source: { type: string }
+        video_codec: { type: string }
+        hdr:
+          type: array
+          items: { type: string }
+        audio:
+          type: array
+          items: { type: string }
+        group: { type: string }
+        edition:
+          type: array
+          items: { type: string }
+    AppMediaMatch:
+      type: object
+      required: [id, media_type, title]
+      properties:
+        id: { type: integer, description: "TMDB 编号" }
+        media_type: { type: string, description: "movie 或 tv" }
+        title: { type: string }
+        original_title: { type: string }
+        year: { type: integer }
+        overview: { type: string }
+        poster_path: { type: string, description: "海报经 GET /images/tmdb/{size}/{file} 取" }
+        vote_average: { type: number }
+        imdb_id: { type: string }
+        score: { type: number, description: "候选的分数" }
+    AppRecognition:
+      type: object
+      required: [summary, meta, source, candidates]
+      properties:
+        summary: { type: string, description: "给人看的一句话：名字、年份、季集" }
+        meta: { $ref: "#/components/schemas/AppMediaMeta" }
+        match: { $ref: "#/components/schemas/AppMediaMatch" }
+        source:
+          type: string
+          description: "怎么认出来的：override（手动纠正过）、imdb（按站点给的 IMDb 编号）、search（按名字搜）、none（没认出来）"
+        score: { type: number }
+        candidates:
+          type: array
+          description: "最多 5 个候选（没有可靠的匹配时从这里挑）"
+          items: { $ref: "#/components/schemas/AppMediaMatch" }
+        message: { type: string, description: "提示，例如没有填 TMDB API Key、没有可靠的匹配" }
+        error: { type: string, description: "TMDB 出错的原因（标题照样解析了）" }
+    AppOrganizeInput:
+      type: object
+      required: [downloader_id, hash]
+      additionalProperties: false
+      properties:
+        downloader_id: { type: integer, minimum: 1 }
+        hash:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: "种子的 info_hash（GET /torrents 的 info_hash，没有时用 task_id）"
+        media_type:
+          type: string
+          enum: [movie, tv]
+          description: "与 tmdb_id 一起给时按这个条目整理，不自动识别"
+        tmdb_id: { type: integer, minimum: 0 }
+        library_id: { type: integer, minimum: 0, description: "不给时按类型选媒体库" }
+    AppLibraryRef:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+    AppOrganizeItem:
+      type: object
+      required: [rel, size, status]
+      properties:
+        rel: { type: string, description: "种子里的相对路径" }
+        size: { type: integer, format: int64 }
+        target: { type: string, description: "放进库里的位置" }
+        season: { type: integer }
+        episode: { type: integer }
+        episode_end: { type: integer }
+        status:
+          type: string
+          enum: [pending, done, exists, replace, failed]
+          description: "pending 要整理，done 库里已经有了，exists 目标被别的文件占着（不覆盖），replace 换掉 pt-tools 之前放进库的旧版本，failed 整理不了"
+        message: { type: string }
+        history_id: { type: integer }
+    AppOrganizePlan:
+      type: object
+      required: [downloader_id, downloader, hash, name, items, skipped]
+      properties:
+        downloader_id: { type: integer }
+        downloader: { type: string }
+        hash: { type: string }
+        name: { type: string, description: "种子名" }
+        match: { $ref: "#/components/schemas/AppMediaMatch" }
+        library: { $ref: "#/components/schemas/AppLibraryRef" }
+        category: { type: string, description: "放进的二级分类" }
+        mode: { type: string, description: "整理方式" }
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/AppOrganizeItem" }
+        skipped: { type: integer, description: "不整理的文件（样片、太小的、不是视频的）有几个" }
+        problem: { type: string, description: "不为空时整个种子整理不了" }
+    AppOrganizeResult:
+      type: object
+      required: [created, done, skipped, failed, messages, queued]
+      properties:
+        plan: { $ref: "#/components/schemas/AppOrganizePlan" }
+        created: { type: integer, description: "这次整理出的文件数" }
+        done: { type: integer, description: "库里已经有了的" }
+        skipped: { type: integer }
+        failed: { type: integer }
+        messages:
+          type: array
+          items: { type: string }
+        queued: { type: boolean, description: "还在后台进行（等不到结果就先回了），稍后看整理历史" }
+    AppRescrapeResult:
+      type: object
+      required: [records, written, messages, queued]
+      properties:
+        records: { type: integer, description: "刮削了的整理记录数（同一部在这个媒体库里的）" }
+        written: { type: integer, description: "写了的文件数（内容一样的不重写）" }
+        messages:
+          type: array
+          items: { type: string }
+        queued: { type: boolean, description: "还在后台刮削（等不到结果就先回了），稍后看整理历史" }
     AppProgress:
       type: object
       required: [total, aired, in_library, downloading, missing]
       properties:
         total: { type: integer }
+        required:
+          { type: integer, description: "要追的集数（起始集以后、没跳过的）；旧版本的服务端不给" }
         aired: { type: integer }
         in_library: { type: integer }
         downloading: { type: integer }
+        waiting:
+          {
+            type: integer,
+            description: "在等锁住的版本的集数（也算在 missing 里）；旧版本的服务端不给",
+          }
+        skipped: { type: integer, description: "不追的集数；旧版本的服务端不给" }
         missing:
           type: array
           items: { type: integer }
@@ -1184,6 +1941,8 @@ components:
       required:
         [id, media_type, tmdb_id, season, title, status, upgrade, source, progress, created_at]
       properties:
+        include_keywords: { type: string, maxLength: 1024 }
+        exclude_keywords: { type: string, maxLength: 1024 }
         id: { type: integer }
         media_type: { type: string, description: "movie 或 tv" }
         tmdb_id: { type: integer }
@@ -1202,6 +1961,78 @@ components:
         last_search_at: { type: integer, format: int64 }
         next_search_at: { type: integer, format: int64 }
         created_at: { type: integer, format: int64 }
+        # 在哪里找、推到哪里；旧版本的服务端不给
+        profile_id: { type: integer, description: "质量档案（0 用设置里的默认）" }
+        sites:
+          type: array
+          description: 只在这些站点找（空的是全部站点）
+          items: { type: string }
+        downloader_id: { type: integer, description: "推送到哪个下载器（0 用设置里的）" }
+        category: { type: string }
+        tags: { type: string, description: "推送时的标签，逗号分开" }
+        save_path: { type: string, description: "推送时的保存目录（空的按下载器的默认）" }
+        # 以下是追剧（剧集）的设置；旧版本的服务端不给
+        schedule: { $ref: "#/components/schemas/AppSchedule" }
+        lock_version:
+          { type: boolean, description: "版本锁：第一集选定以后只要同一个制作组、同一个分辨率" }
+        lock_group: { type: string, description: "锁住的制作组（还没定时为空）" }
+        lock_resolution: { type: string, description: "锁住的分辨率（还没定时为空）" }
+        start_episode: { type: integer, description: "从第几集开始追（0 与 1 是整季）" }
+        follow_next_season: { type: boolean, description: "追完以后自动追下一季" }
+        next_season_id: { type: integer, description: "自动建的下一季的订阅" }
+        library_id: { type: integer, description: "整理进哪个媒体库（0 按类型自动选）" }
+        completed_at: { type: integer, format: int64, description: "追完的时间" }
+    AppSchedule:
+      type: object
+      required: [kind]
+      additionalProperties: false
+      description: >-
+        主动搜索的定时。kind 为空沿用全局间隔；airtime 按播出时间（at 是当地的播出时刻，空的按 20:00；
+        播出后 air_delay_hours 小时开始搜，没找到每隔 air_retry_hours 小时再搜，在播出后 air_window_days 天里集中重试，0 用默认的 2 小时、6 小时、7 天）；
+        interval 每隔 interval_minutes 分钟搜一次（30 分钟到 7 天，从上次搜索算起）；
+        daily、every_days、weekly、monthly 按 at 的钟点（every 是每隔几天，days 是星期几 0–6 或几号 1–31，短月按月末）；
+        cron 按 cron 表达式（分 时 日 月 星期；几条用分号分开，到点的取最早的；两次搜索至少隔 30 分钟）。
+      properties:
+        kind:
+          type: string
+          description: "空的、airtime、interval、daily、every_days、weekly、monthly 或 cron（回应里不用枚举：以后加了新的种类，旧的 App 也读得了）"
+        at: { type: string, pattern: "^([01][0-9]|2[0-3]):[0-5][0-9]$", description: "HH:MM" }
+        every: { type: integer, minimum: 1, maximum: 30 }
+        days:
+          type: array
+          items: { type: integer, minimum: 0, maximum: 31 }
+        air_delay_hours: { type: integer, minimum: 0, maximum: 72 }
+        air_retry_hours: { type: integer, minimum: 0, maximum: 48 }
+        air_window_days: { type: integer, minimum: 0, maximum: 60 }
+        interval_minutes:
+          { type: integer, minimum: 30, maximum: 10080, description: "interval：每隔几分钟" }
+        cron:
+          type: string
+          maxLength: 512
+          description: "cron：例如「0 20 * * *」（每天 20:00）、「0 22 * * 5; 0 9,13 * * 6」（周五 22:00 与周六 9:00、13:00）"
+    AppSchedulePreviewInput:
+      type: object
+      required: [schedule]
+      additionalProperties: false
+      properties:
+        schedule: { $ref: "#/components/schemas/AppSchedule" }
+        media_type:
+          {
+            type: string,
+            description: "tv 或 movie；不给时按 subscription_id 的订阅，都没有时按剧集",
+          }
+        subscription_id:
+          { type: integer, description: "按这个订阅的类型与建立时间算（每隔几天从建立那天对齐）" }
+        count: { type: integer, minimum: 0, maximum: 10, description: "给几次，默认 5" }
+    AppSchedulePreview:
+      type: object
+      required: [next]
+      properties:
+        next:
+          type: array
+          description: 接下来几次搜索的时间（Unix 秒，不算随机偏移；两次之间至少隔 30 分钟）
+          items: { type: integer, format: int64 }
+        note: { type: string, description: "按播出时间的不给时间，这里说明怎么算" }
     AppEpisode:
       type: object
       required: [number, state]
@@ -1209,11 +2040,22 @@ components:
         number: { type: integer }
         name: { type: string }
         air_date: { type: string }
-        state: { type: string, description: "library、downloading、missing 或 upcoming" }
+        state:
+          type: string
+          description: "library、downloading、missing、waiting_version（在等锁住的版本）、upcoming 或 skipped（不追）"
+        source:
+          {
+            type: string,
+            description: "状态从哪里来：library（媒体库）、subscription（订阅推送的种子）、downloader（下载器里已有的种子）",
+          }
+        version: { type: string, description: "现在的版本（制作组与分辨率）" }
+        manual_skip: { type: boolean, description: "手动跳过的" }
+        manual_unlock: { type: boolean, description: "这一集不受版本锁限制" }
     AppSubscriptionTorrent:
       type: object
       required: [site, torrent_id, title, status, complete, size, created_at]
       properties:
+        id: { type: integer, description: "重新整理、重新刮削用的编号；旧版本的服务端不给" }
         site: { type: string }
         torrent_id: { type: string }
         title: { type: string }
@@ -1224,6 +2066,30 @@ components:
         size: { type: integer, format: int64 }
         message: { type: string }
         created_at: { type: integer, format: int64 }
+        files:
+          type: array
+          description: 每个视频文件的整理记录（还没整理过时为空）；旧版本的服务端不给
+          items: { $ref: "#/components/schemas/AppTorrentFile" }
+        can_organize:
+          {
+            type: boolean,
+            description: "能重新整理：有整理没成、不在自动重试的文件，或者种子标成了失败",
+          }
+        can_rescrape: { type: boolean, description: "能重新刮削：有整理好的文件" }
+    AppTorrentFile:
+      type: object
+      required: [id, name, status]
+      properties:
+        id: { type: integer, description: "整理记录的编号（/media/history 的 id）" }
+        name: { type: string, description: "源文件名" }
+        episode: { type: integer }
+        episode_end: { type: integer }
+        status: { type: string, description: "done、failed、skipped 或 removed" }
+        message: { type: string }
+        scrape_status: { type: string, description: "ok、partial、failed；空的是没刮削过" }
+        scrape_note: { type: string }
+        next_retry_at: { type: integer, format: int64, description: "失败后下次自动重试的时间" }
+        retrying: { type: boolean, description: "整理队列正在重试它" }
     AppSubscriptionDetail:
       allOf:
         - $ref: "#/components/schemas/AppSubscription"
@@ -1241,11 +2107,145 @@ components:
       required: [media_type, tmdb_id]
       additionalProperties: false
       properties:
+        include_keywords: { type: string, maxLength: 1024 }
+        exclude_keywords: { type: string, maxLength: 1024 }
         media_type: { type: string, enum: [movie, tv] }
         tmdb_id: { type: integer, minimum: 1 }
         season: { type: integer, minimum: 0 }
         profile_id: { type: integer, minimum: 0 }
         upgrade: { type: boolean }
+        sites:
+          type: array
+          description: 只在这些站点找（不给或空的是全部站点）
+          items: { type: string }
+        downloader_id:
+          { type: integer, minimum: 0, description: "推送到哪个下载器（0 用设置里的）" }
+        category: { type: string, maxLength: 128 }
+        tags: { type: string, maxLength: 128, description: "逗号分开" }
+        save_path: { type: string, maxLength: 512 }
+        # 以下只用于剧集（追剧）：不给的按播出时间搜索、开着版本锁
+        schedule: { $ref: "#/components/schemas/AppSchedule" }
+        lock_version: { type: boolean }
+        start_episode: { type: integer, minimum: 0, maximum: 2000 }
+        follow_next_season: { type: boolean }
+        library_id: { type: integer, minimum: 0 }
+        from_torrent: { $ref: "#/components/schemas/AppFromTorrent" }
+    AppFromTorrent:
+      type: object
+      required: [site, torrent_id]
+      additionalProperties: false
+      description: 从站点上的这个种子开始追：起始集默认取它的集号，建好以后马上推送它（不合质量档案或已有这几集时不推）
+      properties:
+        site: { type: string, minLength: 1, maxLength: 64 }
+        torrent_id: { type: string, minLength: 1, maxLength: 128 }
+        title:
+          type: string
+          maxLength: 512
+          description: 种子标题：只在搜索缓存里没有这个种子时，用作在这个站点上搜索的关键字
+    AppSubscriptionUpdate:
+      type: object
+      additionalProperties: false
+      description: 只改给了的字段（不给或给 null 的不变）；lock_group、lock_resolution 都给空串是清掉锁住的版本（按之后的版本重新定）
+      properties:
+        include_keywords: { type: string, maxLength: 1024 }
+        exclude_keywords: { type: string, maxLength: 1024 }
+        profile_id: { type: integer, minimum: 0 }
+        upgrade: { type: boolean }
+        sites:
+          type: array
+          nullable: true
+          description: 只在这些站点找（空数组是全部站点；不给或 null 不变，生成的客户端没设时发 null）
+          items: { type: string }
+        downloader_id:
+          { type: integer, minimum: 0, description: "推送到哪个下载器（0 用设置里的）" }
+        category: { type: string, maxLength: 128 }
+        tags: { type: string, maxLength: 128, description: "逗号分开" }
+        save_path: { type: string, maxLength: 512 }
+        schedule: { $ref: "#/components/schemas/AppSchedule" }
+        lock_version: { type: boolean }
+        lock_group: { type: string, maxLength: 64 }
+        lock_resolution: { type: string, maxLength: 16 }
+        start_episode: { type: integer, minimum: 0, maximum: 2000 }
+        follow_next_season: { type: boolean }
+        library_id: { type: integer, minimum: 0 }
+        total_episodes:
+          {
+            type: integer,
+            minimum: 0,
+            maximum: 2000,
+            description: "这一季的集数：大于 0 时以它为准，0 改回按 TMDB",
+          }
+    AppEpisodeSkip:
+      type: object
+      required: [skip]
+      additionalProperties: false
+      properties:
+        skip: { type: boolean, description: "true 跳过这一集，false 重新要" }
+    AppEpisodeUnlock:
+      type: object
+      required: [unlock]
+      additionalProperties: false
+      properties:
+        unlock: { type: boolean, description: "true 这一集不受版本锁限制，false 恢复" }
+    AppRunStep:
+      type: object
+      required: [kind, text]
+      properties:
+        kind: { type: string, description: "search、reject、lock、push、fail、adopt、wait 或 info" }
+        text: { type: string }
+    AppSubscriptionRun:
+      type: object
+      required: [id, trigger, started_at, status, summary, steps, steps_truncated]
+      properties:
+        id: { type: integer }
+        trigger: { type: string, description: "create、schedule、rss、manual 或 ai" }
+        started_at: { type: integer, format: int64 }
+        finished_at: { type: integer, format: int64 }
+        status:
+          type: string
+          description: "ok、nothing、waiting、failed、partial 或 changed（手动改动：改设置、跳过一集、换版本、集号规则，不是一次搜索）"
+        summary: { type: string }
+        steps:
+          type: array
+          items: { $ref: "#/components/schemas/AppRunStep" }
+        steps_truncated: { type: boolean, description: "步骤太多，后面的没有记" }
+    AppSubscriptionRunPage:
+      type: object
+      required: [items, total, page, page_size]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/AppSubscriptionRun" }
+        total: { type: integer }
+        page: { type: integer }
+        page_size: { type: integer }
+    AppEpisodeRule:
+      type: object
+      required: [group, mode, offset, source, updated_at]
+      properties:
+        group: { type: string, description: "制作组；空的对所有组" }
+        mode:
+          type: string
+          description: "tmdb（按 TMDB 的集号）、period_part（按第几期与上下）、date（按播出日期）或 offset（TMDB 的集号 = 标题里的集号 + offset）"
+        offset: { type: integer }
+        source: { type: string, description: "manual、ai 或 auto" }
+        note: { type: string }
+        updated_at: { type: integer, format: int64 }
+    AppEpisodeRuleInput:
+      type: object
+      required: [mode]
+      additionalProperties: false
+      properties:
+        group: { type: string, maxLength: 64 }
+        mode: { type: string, enum: [tmdb, period_part, date, offset] }
+        offset:
+          {
+            type: integer,
+            minimum: -2000,
+            maximum: 2000,
+            description: "mode 是 offset 时用，不能是 0",
+          }
+        note: { type: string, maxLength: 255 }
     AppSubscriptionStatus:
       type: object
       required: [status]
@@ -1302,6 +2302,16 @@ components:
         name: { type: string, description: "工具名（与 MCP 的工具相同）" }
         arguments: { type: string, description: "规范化、脱敏以后的参数（JSON 文本）" }
         write: { type: boolean, description: "改动类操作（要确认）" }
+    AppAssistantAttachment:
+      type: object
+      required: [id, name, kind, mime, size]
+      properties:
+        id: { type: integer }
+        name: { type: string, description: "文件名" }
+        kind: { type: string, enum: [image, text] }
+        mime:
+          { type: string, description: "图片是 image/png 这类；文本是 text/plain; charset=utf-8" }
+        size: { type: integer, format: int64, description: "上传的文件大小（字节）" }
     AppAssistantMessage:
       type: object
       required: [id, role, content, created_at]
@@ -1310,9 +2320,22 @@ components:
         run_id: { type: string }
         role: { type: string, enum: [user, assistant, tool, notice] }
         content: { type: string, description: "脱敏以后的文字；tool 是工具返回的 JSON 文本" }
+        reasoning:
+          type: string
+          description: "模型的推理内容（思考过程，脱敏以后的）：只有助手消息有，模型没给时没有"
+        model:
+          type: string
+          description: "这一轮的模型：用户消息是发的时候选的，助手消息是实际请求的；没有时是设置里的模型"
+        effort:
+          type: string
+          description: "这一轮的推理等级（none、minimal、low、medium、high、xhigh）；没有时是不指定"
         tool_calls:
           type: array
           items: { $ref: "#/components/schemas/AppAssistantToolCall" }
+        attachments:
+          type: array
+          description: "用户消息带的附件（在网页上传的；内容不经 App API 给）"
+          items: { $ref: "#/components/schemas/AppAssistantAttachment" }
         tool_name: { type: string }
         tool_call_id: { type: string }
         is_error: { type: boolean }
@@ -1335,6 +2358,36 @@ components:
         decided_at: { type: string, format: date-time }
         expires_at: { type: string, format: date-time }
         created_at: { type: string, format: date-time }
+        changes:
+          type: array
+          description: 写工具的预览：会改什么（改以前、改以后）；密钥两边都不写原文
+          items: { $ref: "#/components/schemas/AppAssistantChange" }
+        impact:
+          type: array
+          description: 写工具的预览：可能的影响
+          items: { type: string }
+    AppAssistantChange:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string }
+        before: { type: string, description: "新增的没有" }
+        after: { type: string, description: "删掉的没有" }
+        secret: { type: boolean, description: "密钥：两边都不写原文" }
+    AppAssistantUsage:
+      type: object
+      required: [context, window, window_source, auto_compact, compact_percent, input, output]
+      description: 会话的上下文用量
+      properties:
+        context: { type: integer, format: int64, description: "下一次请求大约要带的 token" }
+        estimated: { type: boolean, description: "按字数估算的（服务商没报，或者刚压缩过）" }
+        window: { type: integer, description: "上下文窗口（token）" }
+        window_source: { type: string, description: "setting、provider、table 或 default" }
+        auto_compact: { type: boolean }
+        compact_percent: { type: integer, description: "用到窗口的这个比例时自动压缩" }
+        input: { type: integer, format: int64, description: "本会话服务商报的输入 token 合计" }
+        output: { type: integer, format: int64, description: "本会话服务商报的输出 token 合计" }
+        compacted: { type: boolean, description: "这个会话压缩过" }
     AppAssistantConversationDetail:
       type: object
       required:
@@ -1354,13 +2407,20 @@ components:
           items: { $ref: "#/components/schemas/AppAssistantConfirmation" }
         run_id: { type: string, description: "进行中的运行" }
         partial: { type: string, description: "进行中的运行到现在的回答文字" }
+        partial_reasoning:
+          type: string
+          description: "进行中的运行这一步到现在的推理内容（思考过程）"
         last_seq:
           type: integer
           format: int64
           description: "读事件的 after：从它接着读不会漏"
+        usage: { $ref: "#/components/schemas/AppAssistantUsage" }
     AppAssistantEvent:
       type: object
       required: [seq, type, at]
+      description: >-
+        会话事件流里的一个事件。只有下面这几种：推理内容的增量只在网页的事件流里（这里跳过，last 照样越过它们），
+        推理内容在回答落库以后见消息的 reasoning。
       properties:
         seq: { type: integer, format: int64 }
         type:
@@ -1406,12 +2466,28 @@ components:
       properties:
         title: { type: string, maxLength: 200 }
         message: { type: string, maxLength: 4000 }
+        model:
+          type: string
+          maxLength: 128
+          description: "这一轮用的模型（不能有空格）；不给时用设置里的模型"
+        effort:
+          type: string
+          enum: [none, minimal, low, medium, high, xhigh]
+          description: "推理等级（reasoning_effort）；不给时不指定。模型服务不认时去掉它重试一次，会话里多一条提示"
     AppAssistantSend:
       type: object
       required: [text]
       additionalProperties: false
       properties:
         text: { type: string, minLength: 1, maxLength: 4000 }
+        model:
+          type: string
+          maxLength: 128
+          description: "这一轮用的模型（不能有空格）；不给时用设置里的模型"
+        effort:
+          type: string
+          enum: [none, minimal, low, medium, high, xhigh]
+          description: "推理等级（reasoning_effort）；不给时不指定。模型服务不认时去掉它重试一次，会话里多一条提示"
     AppAssistantDecide:
       type: object
       required: [approve]
@@ -1513,3 +2589,312 @@ components:
       properties:
         title: { type: string }
         text: { type: string }
+    AppConfigCatalog:
+      type: object
+      required: [resources, excluded, secret_placeholder]
+      properties:
+        resources:
+          type: array
+          items: { $ref: "#/components/schemas/AppConfigResource" }
+        excluded:
+          type: array
+          description: 不能经接口读改、只能在网页上改的配置
+          items: { type: string }
+        secret_placeholder:
+          { type: string, description: "有值的密钥读出来的样子；改的时候交回它表示不改" }
+    AppConfigResource:
+      type: object
+      required: [name, title, description, kind, ops, fields]
+      properties:
+        name: { type: string }
+        title: { type: string }
+        description: { type: string }
+        kind:
+          {
+            type: string,
+            description: "object（一份设置，op 只能 set）或 list（一组，op 是 add、update、delete）",
+          }
+        id_field: { type: string, description: "列表类的编号字段" }
+        ops:
+          type: array
+          items: { type: string }
+        fields:
+          type: array
+          description: 能改的字段（config.<键> 这样的写法表示以它开头的字段都能改）
+          items: { type: string }
+        required:
+          type: array
+          description: 新增时必须给的字段
+          items: { type: string }
+        secrets:
+          type: array
+          description: 密钥字段：只写不读
+          items: { type: string }
+        hints:
+          type: object
+          description: 字段说明（字段 → 说明）
+          additionalProperties: { type: string }
+    AppConfigState:
+      type: object
+      required: [resource, kind]
+      properties:
+        resource: { type: string }
+        kind: { type: string }
+        id_field: { type: string }
+        item:
+          type: object
+          description: 对象类配置的现状（键与网页接口的一样）
+          additionalProperties: true
+        items:
+          type: array
+          description: 列表类配置的各项（每项是一个对象，键与网页接口的一样）
+          items: {}
+    AppConfigChange:
+      type: object
+      required: [op]
+      properties:
+        op: { type: string, description: "set、add、update 或 delete" }
+        id: { type: string, description: "update、delete 要给：id_field 的值" }
+        values:
+          type: object
+          description: 只写要改的字段；密钥给新值才改，交回占位表示不改，给空串表示清除
+          additionalProperties: true
+    AppConfigDiff:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string }
+        field: { type: string }
+        before: { type: string }
+        after: { type: string }
+        secret: { type: boolean, description: "密钥：两边都不写原文" }
+    AppConfigResult:
+      type: object
+      required: [resource, op, summary, changes, impact, applied]
+      properties:
+        resource: { type: string }
+        op: { type: string }
+        id: { type: string, description: "新增出来的编号也在这里" }
+        summary: { type: string }
+        changes:
+          type: array
+          items: { $ref: "#/components/schemas/AppConfigDiff" }
+        impact:
+          type: array
+          items: { type: string }
+        applied: { type: boolean, description: "预览时为假" }
+        item:
+          type: object
+          description: 改完的样子（删除时没有）
+          additionalProperties: true
+
+    AppMobileOption:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+    AppMobileSiteOption:
+      type: object
+      required: [name, display_name]
+      properties:
+        name: { type: string }
+        display_name: { type: string }
+    AppMobileOptions:
+      type: object
+      required: [sites, downloaders, profiles, libraries]
+      properties:
+        sites:
+          type: array
+          items: { $ref: "#/components/schemas/AppMobileSiteOption" }
+        downloaders:
+          type: array
+          items: { $ref: "#/components/schemas/AppMobileOption" }
+        profiles:
+          type: array
+          items: { $ref: "#/components/schemas/AppMobileOption" }
+        libraries:
+          type: array
+          items: { $ref: "#/components/schemas/AppMobileOption" }
+        errors:
+          type: object
+          additionalProperties: { type: string }
+    AppBrushConfig:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        enabled: { type: boolean }
+        site_name: { type: string }
+        downloader_id: { type: integer }
+        save_path: { type: string }
+        category: { type: string }
+        tags: { type: string }
+        interval_min: { type: integer }
+        section: { type: string }
+        discounts: { type: string }
+        min_free_remain_min: { type: integer }
+        min_size_gb: { type: number }
+        max_size_gb: { type: number }
+        max_seeders: { type: integer }
+        min_leechers: { type: integer }
+        max_publish_age_min: { type: integer }
+        exclude_hr: { type: boolean }
+        include_keywords: { type: string }
+        exclude_keywords: { type: string }
+        max_downloading: { type: integer }
+        max_total_size_gb: { type: number }
+        max_daily_download_gb: { type: number }
+        remove_seed_time_h: { type: number }
+        remove_ratio: { type: number }
+        remove_low_speed_kbs: { type: number }
+        remove_low_speed_window_min: { type: integer }
+        remove_inactive_h: { type: number }
+        remove_free_expired_incomplete: { type: boolean }
+        remove_with_data: { type: boolean }
+    AppBrushStatus:
+      type: object
+      required: [enabled]
+      additionalProperties: false
+      properties:
+        enabled: { type: boolean }
+    AppBrushRunPage:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/AppBrushRun" }
+        total: { type: integer, format: int64 }
+    AppStatsAggregated:
+      type: object
+      required: [totalUploaded, totalDownloaded, perSiteStats]
+      properties:
+        totalUploaded: { type: integer, format: int64 }
+        totalDownloaded: { type: integer, format: int64 }
+        averageRatio: { type: number }
+        totalSeeding: { type: integer }
+        totalLeeching: { type: integer }
+        totalBonus: { type: number }
+        siteCount: { type: integer }
+        lastUpdate: { type: integer, format: int64 }
+        perSiteStats:
+          type: array
+          items: { $ref: "#/components/schemas/AppStatsSite" }
+    AppStatsSummary:
+      type: object
+      required: [range, from, to, sites, totalUploaded, totalDownloaded, totalBonus]
+      properties:
+        range: { type: string }
+        from: { type: string }
+        to: { type: string }
+        totalUploaded: { type: integer, format: int64 }
+        totalDownloaded: { type: integer, format: int64 }
+        totalBonus: { type: number }
+        sites:
+          type: array
+          items: { $ref: "#/components/schemas/AppStatsSiteDelta" }
+    AppStatsSiteDelta:
+      type: object
+      required: [site, from, to, uploaded, downloaded, bonus, hasBaseline, negative]
+      properties:
+        site: { type: string }
+        from: { type: string }
+        to: { type: string }
+        uploaded: { type: integer, format: int64 }
+        downloaded: { type: integer, format: int64 }
+        bonus: { type: number }
+        hasBaseline: { type: boolean }
+        negative: { type: boolean }
+    AppStatsSite:
+      type: object
+      required: [site, username, uploaded, downloaded, ratio, bonus, seeding, leeching, lastUpdate]
+      properties:
+        site: { type: string }
+        username: { type: string }
+        userId: { type: string }
+        uploaded: { type: integer, format: int64 }
+        downloaded: { type: integer, format: int64 }
+        ratio: { type: number }
+        bonus: { type: number }
+        seeding: { type: integer }
+        leeching: { type: integer }
+        rank: { type: string }
+        joinDate: { type: integer, format: int64 }
+        lastAccess: { type: integer, format: int64 }
+        lastUpdate: { type: integer, format: int64 }
+        levelName: { type: string }
+        levelId: { type: integer }
+        bonusPerHour: { type: number }
+        seedingBonus: { type: number }
+        seedingBonusPerHour: { type: number }
+        unreadMessageCount: { type: integer }
+        totalMessageCount: { type: integer }
+        seederCount: { type: integer }
+        seederSize: { type: integer, format: int64 }
+        leecherCount: { type: integer }
+        leecherSize: { type: integer, format: int64 }
+        hnrUnsatisfied: { type: integer }
+        hnrPreWarning: { type: integer }
+        trueUploaded: { type: integer, format: int64 }
+        trueDownloaded: { type: integer, format: int64 }
+        uploads: { type: integer }
+    AppBrushRun:
+      type: object
+      required: [id, task_id, trigger, started_at, status, summary, error, steps]
+      properties:
+        id: { type: integer }
+        task_id: { type: integer }
+        trigger: { type: string }
+        started_at: { type: string, format: date-time }
+        finished_at: { type: string, format: date-time }
+        status: { type: string }
+        summary: { type: string }
+        error: { type: string }
+        listed: { type: integer }
+        eligible: { type: integer }
+        added: { type: integer }
+        removed: { type: integer }
+        gone: { type: integer }
+        steps_truncated: { type: boolean }
+        steps:
+          type: array
+          items: { $ref: "#/components/schemas/AppBrushRunStep" }
+    AppBrushRunStep:
+      type: object
+      required: [kind, text]
+      properties:
+        kind: { type: string }
+        text: { type: string }
+    AppBrushInput:
+      type: object
+      properties:
+        name: { type: string }
+        enabled: { type: boolean }
+        site_name: { type: string }
+        downloader_id: { type: integer }
+        save_path: { type: string }
+        category: { type: string }
+        tags: { type: string }
+        interval_min: { type: integer }
+        section: { type: string }
+        discounts: { type: string }
+        min_free_remain_min: { type: integer }
+        min_size_gb: { type: number }
+        max_size_gb: { type: number }
+        max_seeders: { type: integer }
+        min_leechers: { type: integer }
+        max_publish_age_min: { type: integer }
+        exclude_hr: { type: boolean }
+        include_keywords: { type: string }
+        exclude_keywords: { type: string }
+        max_downloading: { type: integer }
+        max_total_size_gb: { type: number }
+        max_daily_download_gb: { type: number }
+        remove_seed_time_h: { type: number }
+        remove_ratio: { type: number }
+        remove_low_speed_kbs: { type: number }
+        remove_low_speed_window_min: { type: integer }
+        remove_inactive_h: { type: number }
+        remove_free_expired_incomplete: { type: boolean }
+        remove_with_data: { type: boolean }
