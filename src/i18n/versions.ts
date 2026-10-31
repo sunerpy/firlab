@@ -33,8 +33,8 @@ export const pttoolsReleased = '2026-10-01';
 export const codegraphVersion = 'v0.55.2';
 export const codegraphReleased = '2026-10-22';
 
-export const kiroproviderVersion = 'v3.8.6';
-export const kiroproviderReleased = '2026-10-22';
+export const kiroproviderVersion = 'v3.9.0';
+export const kiroproviderReleased = '2026-10-31';
 
 export const bedrockgatewayVersion = 'v0.18.2';
 export const bedrockgatewayReleased = '2026-10-10';
