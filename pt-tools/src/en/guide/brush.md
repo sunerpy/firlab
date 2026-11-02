@@ -52,14 +52,14 @@ A torrent is removed as soon as any rule matches. By default its data is deleted
 - **Seeded for N hours**: counted only for completed torrents.
 - **Ratio reaches N**.
 - **Average upload below N KB/s**: measured over the last M minutes (30 by default), and only for torrents that are complete, have seeded for at least M minutes, and have samples covering that period.
-- **No activity for N hours**: neither upload nor download grew in that time.
+- **No activity for N hours**: measured from the last time the downloader recorded an upload or download of data for the torrent (qBittorrent and Transmission both record it), the same time auto-delete uses for inactivity. When the downloader does not report that time, brushing uses its own samples and removes the torrent when neither upload nor download grew in that time.
 - **Free period ending before download completes**: on by default. If the discount ends before the next check, the torrent is removed in this round, so nothing is downloaded after the free period at the normal rate.
 
 H&R torrents are never removed before they reach the site's required seeding time, including when the free period ends before they finish downloading.
 
 A download counts as complete when it is at 100% and not in a checking or error state; torrents being checked or with missing files are not complete.
 
-Brushing only touches torrents that carry the task's tag and were added by the task. If you remove the task tag from a torrent, it is handed back to you and brushing stops removing it; torrents removed by hand or by other means are marked "no longer in the downloader". After you switch a task to another downloader, the torrents it already added are still sampled and removed in their original downloader; if that downloader is temporarily unreachable, those torrents are left alone for the round.
+Brushing only touches torrents that carry the task's tag and were added by the task. If you remove the task tag from a torrent, or give it the keep tag (click Keep (保留) in the torrent list on the Downloader page; see [Keeping torrents](./auto-cleanup.md#keeping-torrents)) or one of the auto cleanup protected tags, it is handed back to you: brushing stops removing it and never adds the same torrent again, and auto-delete handles it by its rules from then on (it is not deleted while it has the keep tag or a protected tag). Torrents removed by hand or by other means are marked "no longer in the downloader". After you switch a task to another downloader, the torrents it already added are still sampled and removed in their original downloader; if that downloader is temporarily unreachable, those torrents are left alone for the round.
 
 ## Run history
 
@@ -73,13 +73,17 @@ Each task keeps its latest 500 entries from the last 14 days, and they are delet
 
 ## Relation to auto cleanup
 
-All brush torrents carry the `pt-tools-brush` tag. The regular **Auto cleanup** rules (seeding time, ratio, and so on) skip them and leave them to the task's own removal rules, so the two sets of rules never compete. The emergency cleanup that runs when free disk space drops below the minimum still covers every torrent, brush torrents included.
+The torrents a brush task is managing are handled by the task's own removal rules; the auto-delete deletion conditions (seeding time, ratio, seeding competition, and so on) skip them, so the two sets of rules never compete. Ownership is recognised by the brush task's records, not by the `pt-tools-brush` tag: once the task is deleted or a torrent is handed back to you (task tag removed, or kept), auto-delete handles it by its rules even if it still carries `pt-tools-brush`. The emergency cleanup that runs when free disk space drops below the minimum still covers every torrent, brush torrents included, except those with the keep tag or a protected tag.
 
 ## Turning off and deleting a task
 
 - **Turn off**: no new torrents are added. Torrents already added keep being handled by the removal rules until they are all gone.
-- **Delete**: the task, its statistics, its torrent records, and its run history are deleted. The torrents stay in the downloader and are no longer managed by brushing (the regular auto cleanup rules still skip them; handle them by hand if needed).
+- **Delete**: the task, its statistics, its torrent records, and its run history are deleted. The torrents stay in the downloader and are no longer managed by brushing. When you delete a task, you choose what happens to them:
+  - **Hand over to auto-delete** (交给自动删种, the default): auto-delete handles them by its rules, and its protection rules still apply. If auto-delete is off, they stay in the downloader.
+  - **Keep these torrents** (保留这些种子): every torrent gets the `pt-tools-keep` tag (see [Keeping torrents](./auto-cleanup.md#keeping-torrents)), so auto-delete (including emergency cleanup), seeding competition and the deletion at the end of a free period leave them alone. If a downloader cannot be reached or a tag cannot be added, the task is not deleted and the dialog lists those torrents; the torrents already tagged stay kept and no longer belong to the task. Try again later, or hand them over to auto-delete instead. Torrents that are no longer in the downloader do not block the deletion.
 - A task cannot be deleted or edited while a round is running; try again shortly (a round uses the settings read when it started).
+
+Deleting a task in the [mobile app](mobile-app.md), through MCP or with the AI assistant hands its torrents over to auto-delete.
 
 ## Earnings and the daily report
 
@@ -122,12 +126,14 @@ pt-tools does not support Vertex's custom script rules. For more complex conditi
 | Endpoint                                                         | Purpose                                                                                                              |
 | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | `GET` / `POST /api/brush/tasks`                                  | List tasks (with active torrents and earnings) / create a task                                                       |
-| `GET` / `PUT` / `DELETE /api/brush/tasks/<id>`                   | Read, update, or delete a task                                                                                       |
+| `GET` / `PUT` / `DELETE /api/brush/tasks/<id>`                   | Read, update, or delete a task; see below for `torrents` when deleting                                               |
 | `POST /api/brush/tasks/<id>/run`                                 | Run one round now and return its result; returns 502 when the site or downloader failed and the round did not finish |
 | `GET /api/brush/tasks/<id>/runs?limit=<1–100>&offset=`           | Run history, newest first, with each round's steps                                                                   |
 | `GET /api/brush/tasks/<id>/torrents?state=active\|removed\|gone` | The task's torrents                                                                                                  |
 | `GET /api/brush/stats?granularity=<period>&periods=<count>`      | Earnings per task and in total, grouped by period; see below                                                         |
 
 All of these require a logged-in session.
+
+When deleting a task, `torrents` says what happens to the torrents it leaves behind: `handover` (the default, hand them over to auto-delete) or `keep` (keep them with `pt-tools-keep`); any other value returns 400. With `keep`, success returns `{"success": true, "kept": <torrents kept>, "missing": <torrents no longer in the downloader>}`. When some torrents could not be kept, the task is not deleted and the response is 502, with `failed` listing the `title`, `info_hash`, `downloader_id`, `downloader_name`, and `message` of each one.
 
 `granularity` is `day`, `week`, `month`, `quarter`, or `year` (default `day`); `periods` defaults to 30, 12, 12, 8, and 5 and is capped at 366, 104, 60, 40, and 20. Every period has its first day in `date` and its last day in `end`; the last period is the current one (`end` is its natural end date, while earnings only count up to today). The old `?days=<1–90>` still works and equals that many day periods.
