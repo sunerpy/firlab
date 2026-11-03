@@ -51,5 +51,5 @@ export const VOLTIP_RELEASED = '2026-10-29';
 export const LOCKRA_VERSION = 'v0.16.3';
 export const LOCKRA_RELEASED = '2026-10-22';
 
-export const winerVersion = 'v0.0.18';
-export const winerReleased = '2026-11-01';
+export const winerVersion = 'v0.0.19';
+export const winerReleased = '2026-11-03';
