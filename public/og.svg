@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="FirLab — 开源的桌面应用、命令行工具与自部署服务">
-  <title>FirLab — 开源的桌面应用、命令行工具与自部署服务</title>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="FirLab — 开源软件，从日常应用到开发者工具">
+  <title>FirLab — 开源软件，从日常应用到开发者工具</title>
   <!-- Source of public/og.png, which is a 1200×630 render of this file. It names no
        product on purpose: a card that lists the apps goes stale the day one is added. -->
 
@@ -27,10 +27,10 @@
   <!-- What it offers, in both languages -->
   <text x="88" y="386"
     font-family="'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', system-ui, sans-serif"
-    font-size="44" font-weight="600" fill="#DDE5F0">开源的桌面应用、命令行工具与自部署服务</text>
+    font-size="44" font-weight="600" fill="#DDE5F0">开源软件，从日常应用到开发者工具</text>
   <text x="88" y="440"
     font-family="system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    font-size="26" fill="#8D9BB0">Open-source desktop apps, command-line tools and self-hosted services</text>
+    font-size="26" fill="#8D9BB0">Open-source software, from everyday apps to developer tools</text>
 
   <!-- Rule and address line -->
   <rect x="88" y="512" width="1024" height="1" fill="#1F2A38"/>

@@ -12,8 +12,8 @@ import type { Lang } from './ui';
 
 const zh = {
   /** Pager label. The pager is navigation, not another pitch. */
-  'pager.label': '下一个应用',
-  'pager.nav': '应用顺序导航',
+  'pager.label': '下一个项目',
+  'pager.nav': '项目顺序导航',
   /** Shown on the pager when the sequence wraps back to the first product. */
   'pager.wrap': '回到第一个',
 
@@ -24,8 +24,8 @@ const zh = {
 } as const;
 
 const en: Record<keyof typeof zh, string> = {
-  'pager.label': 'Next app',
-  'pager.nav': 'App sequence',
+  'pager.label': 'Next project',
+  'pager.nav': 'Project sequence',
   'pager.wrap': 'Back to the first',
 
   'copy.action': 'Copy command',

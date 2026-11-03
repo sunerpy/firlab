@@ -1,0 +1,41 @@
+---
+/**
+ * Icon — the line icons of the chrome: Lucide-style 24-grid paths (ISC), stroked in
+ * `currentColor`. Always decorative: every use sits beside a text label or inside a
+ * control that carries its own accessible name.
+ */
+const paths = {
+  arrowRight: 'M5 12h14 M13 6l6 6-6 6',
+  arrowUpRight: 'M7 17 17 7 M8 7h9v9',
+  chevronDown: 'm6 9 6 6 6-6',
+  languages: 'm5 8 6 6 M4 14l6-6 2-3 M2 5h12 M7 2h1 M22 22l-5-10-5 10 M14 18h6',
+  sun: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z M12 2v2 M12 20v2 M4.93 4.93l1.41 1.41 M17.66 17.66l1.41 1.41 M2 12h2 M20 12h2 M6.34 17.66l-1.41 1.41 M19.07 4.93l-1.41 1.41',
+  moon: 'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z',
+  monitor: 'M3 4h18v12H3z M8 21h8 M12 17v4',
+  menu: 'M4 6h16 M4 12h16 M4 18h16',
+  check: 'M20 6 9 17l-5-5',
+} as const;
+
+export type IconName = keyof typeof paths;
+
+interface Props {
+  name: IconName;
+  size?: number;
+  strokeWidth?: number;
+  class?: string;
+}
+
+const { name, size = 18, strokeWidth = 1.8, class: className = '' } = Astro.props;
+---
+
+<svg
+  class={`u-ico ${className}`}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width={strokeWidth}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"><path d={paths[name]}></path></svg>

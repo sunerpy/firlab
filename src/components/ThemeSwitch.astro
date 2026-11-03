@@ -1,126 +1,87 @@
 ---
+import Icon from './Icon.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 
 /**
- * Theme control — three states, not two.
+ * Theme control — three states, not two, in an icon menu whose icon shows the state the
+ * page is in.
  *
  * `system` is a real option and the default: the site has always honoured
- * `prefers-color-scheme`, and a two-state toggle would strand every visitor who
- * wants exactly that. Choosing `system` *removes* the stored preference rather
- * than storing a third value, which is why the CSS override is keyed on
- * `[data-theme="dark"]` / `[data-theme="light"]` and absence means "ask the OS".
+ * `prefers-color-scheme`, and a two-state toggle would strand every visitor who wants
+ * exactly that. Choosing `system` *removes* the stored preference rather than storing a
+ * third value, which is why the CSS override is keyed on `[data-theme="dark"]` /
+ * `[data-theme="light"]` and absence means "ask the OS". The summary's icon is chosen by
+ * the same attribute in CSS (`.u-ti`), so it is right from the first paint.
  *
- * Buttons rather than a radio group: `aria-pressed` on three buttons needs no
- * arrow-key handling to be correct, where `role="radio"` would oblige us to
- * reimplement roving focus. Each segment carries a visually hidden label, so the
- * icon is never the only name.
+ * Buttons with `aria-pressed` rather than a radio group: three buttons need no arrow-key
+ * handling to be correct, where `role="radio"` would oblige us to reimplement roving
+ * focus. Each button has its text label beside its icon.
  *
- * The control ships `display: none` and is revealed by `html[data-js]`, set by
- * the pre-paint script in Layout — the same rule the copy buttons follow: an
- * affordance that cannot work must not be drawn.
+ * The control ships `display: none` and is revealed by `html[data-js]`, set by the
+ * pre-paint script in Layout — the same rule the copy buttons follow: an affordance that
+ * cannot work must not be drawn.
  */
 interface Props {
   lang: Lang;
-  class?: string;
 }
 
-const { lang, class: className = '' } = Astro.props;
+const { lang } = Astro.props;
 const t = useTranslations(lang);
 
 const modes = [
-  { value: 'system', label: t('theme.system') },
-  { value: 'light', label: t('theme.light') },
-  { value: 'dark', label: t('theme.dark') },
+  { value: 'system', label: t('theme.system'), icon: 'monitor' },
+  { value: 'light', label: t('theme.light'), icon: 'sun' },
+  { value: 'dark', label: t('theme.dark'), icon: 'moon' },
 ] as const;
 ---
 
-<div class={`u-theme ${className}`} role="group" aria-label={t('theme.label')} data-theme-switch>
-  {
-    modes.map((mode) => (
-      <button
-        type="button"
-        class="u-theme-btn"
-        data-theme-set={mode.value}
-        aria-pressed={mode.value === 'system' ? 'true' : 'false'}
-      >
-        {mode.value === 'system' && (
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <rect x="2" y="3" width="20" height="14" rx="2" />
-            <path d="M8 21h8" />
-            <path d="M12 17v4" />
-          </svg>
-        )}
-        {mode.value === 'light' && (
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M19.07 4.93l-1.41 1.41M6.34 17.66l-1.41 1.41" />
-          </svg>
-        )}
-        {mode.value === 'dark' && (
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-          </svg>
-        )}
-        <span class="sr-only">{mode.label}</span>
-      </button>
-    ))
-  }
-</div>
+<details data-popover class="u-theme" data-theme-switch>
+  <summary class="u-icon-btn" aria-label={t('theme.label')} title={t('theme.label')}>
+    <span class="u-ti u-ti-system"><Icon name="monitor" /></span>
+    <span class="u-ti u-ti-light"><Icon name="sun" /></span>
+    <span class="u-ti u-ti-dark"><Icon name="moon" /></span>
+  </summary>
+  <div class="u-pop u-pop-end" role="group" aria-label={t('theme.label')}>
+    {
+      modes.map((mode) => (
+        <button
+          type="button"
+          class="u-pop-row"
+          data-theme-set={mode.value}
+          aria-pressed={mode.value === 'system' ? 'true' : 'false'}
+        >
+          <Icon name={mode.icon} size={16} />
+          {mode.label}
+          <Icon name="check" size={16} strokeWidth={2} class="u-pop-check" />
+        </button>
+      ))
+    }
+  </div>
+</details>
 
 {/*
-  Wiring, inline and colocated with the markup on purpose. Placed immediately
-  after the control so the parser runs it before the nav is painted: the served
-  HTML marks `system` as pressed, and a reader who pinned dark would otherwise
-  see the wrong segment highlighted for a frame. The pre-paint script in Layout
-  handles the *colours*; this handles the control's own state and the clicks.
+  Wiring, inline and colocated with the markup on purpose. Placed immediately after the
+  control so the parser runs it before the nav is painted: the served HTML marks `system`
+  as pressed, and a reader who pinned dark would otherwise see the wrong row checked for
+  a frame. The pre-paint script in Layout handles the *colours*; this handles the
+  control's own state and the clicks.
 
-  Reads and writes are wrapped in try/catch because `localStorage` throws
-  outright in a partitioned or storage-blocked context, and a theme control must
-  not take the page down with it.
+  Reads and writes are wrapped in try/catch because `localStorage` throws outright in a
+  partitioned or storage-blocked context, and a theme control must not take the page
+  down with it.
 */}
 <script is:inline>
   (function () {
-    var group = document.querySelector('[data-theme-switch]');
-    if (!group) return;
+    var menu = document.querySelector('[data-theme-switch]');
+    if (!menu) return;
 
-    var buttons = group.querySelectorAll('[data-theme-set]');
+    var buttons = menu.querySelectorAll('[data-theme-set]');
     var root = document.documentElement;
     var KEY = 'firlab-theme';
-    /* The desk tone (`--paper-1`), not the sheet — same pair Layout emits, and
-       byte-identical on purpose: browser chrome continues the colour at the
-       viewport's own edge, and that edge is the desk now that the page sits on
-       an inset stage. Diverging here would repaint the chrome on click. */
-    var GROUND = { light: '#f3f6fa', dark: '#0c0f13' };
+    /* The page ground (`--paper-0`) — the same pair Layout emits, and byte-identical on
+       purpose: browser chrome continues the colour at the viewport's own edge, so
+       diverging here would repaint the chrome on click. */
+    var GROUND = { light: '#fbfcfe', dark: '#101317' };
 
     function stored() {
       try {
@@ -132,9 +93,9 @@ const modes = [
       return 'system';
     }
 
-    /* The two `theme-color` metas in the document are media-scoped, so a
-       media-less one placed first wins over both. Removed again for `system`,
-       which is what hands the decision back to those two. */
+    /* The two `theme-color` metas in the document are media-scoped, so a media-less one
+       placed first wins over both. Removed again for `system`, which is what hands the
+       decision back to those two. */
     function ground(mode) {
       var meta = document.head.querySelector('meta[name="theme-color"]:not([media])');
       if (mode === 'system') {
@@ -175,6 +136,11 @@ const modes = [
           /* the choice still applies for this document, it just will not persist */
         }
         apply(mode);
+        /* Close the menu and hand focus back to its summary, so focus does not stay
+           on a button that has just been hidden. */
+        menu.open = false;
+        var summary = menu.querySelector('summary');
+        if (summary) summary.focus();
       });
     });
   })();

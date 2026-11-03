@@ -4,7 +4,7 @@ import AppIcon from './AppIcon.astro';
 import StatusTag from './StatusTag.astro';
 import SocialIcon from './SocialIcon.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
-import { releasesHref, sortedPlatforms, type Product } from '../i18n/products';
+import { productKind, releasesHref, sortedPlatforms, type Product } from '../i18n/products';
 
 /**
  * ProductHeader — the top of every in-site product page: breadcrumb, icon and
@@ -59,12 +59,12 @@ const rows = [
     <nav aria-label={t('nav.breadcrumb')}>
       <ol class="text-ink-mute flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
         <li>
-          <a href={home} class="text-ink-mute hover:text-accent inline-block py-1 no-underline">FirLab</a>
+          <a href={home} class="text-ink-mute hover:text-ink inline-block py-1 no-underline">FirLab</a>
         </li>
         <li aria-hidden="true">/</li>
         <li>
-          <a href={`${home}#apps`} class="text-ink-mute hover:text-accent inline-block py-1 no-underline">
-            {t('nav.apps')}
+          <a href={`${home}#projects`} class="text-ink-mute hover:text-ink inline-block py-1 no-underline">
+            {t('nav.projects')}
           </a>
         </li>
         <li aria-hidden="true">/</li>
@@ -87,7 +87,7 @@ const rows = [
           {product.name}
         </h1>
         <p class="text-ink-mute mt-1.5 text-sm">
-          {t(`category.${product.category}`)}
+          {t(productKind(product))}
           <span aria-hidden="true" class="mx-1.5">·</span>
           {platforms}
         </p>
@@ -105,7 +105,7 @@ const rows = [
     <div class="mt-8 flex flex-wrap items-center gap-3">
       {
         installId && (
-          <a href={`#${installId}`} class="u-btn u-btn-primary">
+          <a href={`#${installId}`} class="u-btn u-btn-ink">
             {t('product.install')}
           </a>
         )
@@ -114,7 +114,7 @@ const rows = [
         href={product.repo}
         target="_blank"
         rel="noopener noreferrer"
-        class={`u-btn ${installId ? 'u-btn-secondary' : 'u-btn-primary'}`}
+        class={`u-btn ${installId ? 'u-btn-line' : 'u-btn-ink'}`}
       >
         <SocialIcon id="github" size={18} />
         {t('product.repo')}

@@ -1,0 +1,68 @@
+---
+import AppIcon from './AppIcon.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+import { categories, products, productHref, type ProductId } from '../i18n/products';
+
+/**
+ * ProjectGroups — every project, a column per category, each with its icon, its name
+ * and its current version. The header's projects menu and its phone sheet both render
+ * this; they differ only in layout (`.u-mega` and `.u-sheet`).
+ *
+ * On a product page that product is marked `aria-current="page"` and is not a link to
+ * itself.
+ */
+interface Props {
+  lang: Lang;
+  currentId?: ProductId;
+  /** Prefix for the group headings' ids, unique per use on a page. */
+  idPrefix: string;
+}
+
+const { lang, currentId, idPrefix } = Astro.props;
+const t = useTranslations(lang);
+
+const groups = categories(products).map((category) => ({
+  category,
+  items: products.filter((product) => product.category === category),
+}));
+---
+
+<div class="u-groups">
+  {
+    groups.map((group) => (
+      <div class="u-group">
+        <p class="u-group-title" id={`${idPrefix}-${group.category}`}>
+          {t(`filter.${group.category}`)}
+        </p>
+        <ul aria-labelledby={`${idPrefix}-${group.category}`}>
+          {group.items.map((product) => (
+            <li>
+              {product.id === currentId ? (
+                <span class="u-group-item" aria-current="page">
+                  <AppIcon product={product.id} size={34} />
+                  <span class="u-group-text">
+                    <span class="u-group-name">{product.name}</span>
+                    {product.version && (
+                      <span class="u-group-ver">{[product.version, product.released].filter(Boolean).join(' · ')}</span>
+                    )}
+                  </span>
+                  <span class="sr-only"> — {t('nav.current')}</span>
+                </span>
+              ) : (
+                <a class="u-group-item" href={productHref(lang, product)}>
+                  <AppIcon product={product.id} size={34} />
+                  <span class="u-group-text">
+                    <span class="u-group-name">{product.name}</span>
+                    {product.version && (
+                      <span class="u-group-ver">{[product.version, product.released].filter(Boolean).join(' · ')}</span>
+                    )}
+                  </span>
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))
+  }
+</div>

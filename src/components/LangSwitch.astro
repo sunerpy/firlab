@@ -1,58 +1,56 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import { useTranslations, stripLocale, type Lang } from '../i18n/ui';
+import Icon from './Icon.astro';
+import { useTranslations, stripLocale, htmlLang, type Lang } from '../i18n/ui';
 
 /**
- * Language switch.
+ * Language switch, an icon menu.
  *
- * Both locales are always rendered — the current one as a non-link with
- * `aria-current`, so the control communicates state rather than only offering
- * an action. The target URL is built from the *current* page's slug with its
- * locale prefix stripped, so `/en/agentlens/` switches to `/agentlens/` rather
- * than dumping the visitor back on the home page.
+ * Both locales are always listed — the current one as a non-link with `aria-current`
+ * and a check, so the menu states where the reader is rather than only offering an
+ * action. Each language is named in itself. The target URL is built from the *current*
+ * page's slug with its locale prefix stripped, so `/en/agentlens/` switches to
+ * `/agentlens/` rather than dumping the visitor back on the home page.
  */
 interface Props {
   lang: Lang;
-  class?: string;
 }
 
-const { lang, class: className = '' } = Astro.props;
+const { lang } = Astro.props;
 const t = useTranslations(lang);
 
 const slug = stripLocale(Astro.url.pathname);
 
-const options = [
-  { code: 'zh-cn' as Lang, label: t('lang.zh'), name: '中文' },
-  { code: 'en' as Lang, label: t('lang.en'), name: 'English' },
+const options: { code: Lang; name: string }[] = [
+  { code: 'zh-cn', name: t('lang.zh') },
+  { code: 'en', name: t('lang.en') },
 ];
 ---
 
-<div
-  class={`border-rule flex items-center overflow-hidden rounded-[var(--radius-control)] border ${className}`}
-  role="group"
-  aria-label={t('lang.label')}
->
-  {
-    options.map((option, i) =>
-      option.code === lang ? (
-        <span
-          aria-current="true"
-          lang={option.code === 'zh-cn' ? 'zh-CN' : 'en'}
-          class={`bg-block text-ink u-meta u-lang-seg ${i > 0 ? 'border-rule border-l' : ''}`}
-        >
-          {option.label}
-        </span>
-      ) : (
-        <a
-          href={getRelativeLocaleUrl(option.code, slug)}
-          hreflang={option.code === 'zh-cn' ? 'zh-CN' : 'en'}
-          lang={option.code === 'zh-cn' ? 'zh-CN' : 'en'}
-          aria-label={`${t('lang.switchTo')}`}
-          class={`text-ink-mute hover:text-ink hover:bg-block u-meta u-lang-seg no-underline ${i > 0 ? 'border-rule border-l' : ''}`}
-        >
-          {option.label}
-        </a>
-      ),
-    )
-  }
-</div>
+<details data-popover class="u-lang">
+  <summary class="u-icon-btn" aria-label={t('lang.label')} title={t('lang.label')}>
+    <Icon name="languages" />
+    <Icon name="chevronDown" size={12} strokeWidth={2} />
+  </summary>
+  <div class="u-pop u-pop-end">
+    {
+      options.map((option) =>
+        option.code === lang ? (
+          <span class="u-pop-row" aria-current="true" lang={htmlLang[option.code]}>
+            {option.name}
+            <Icon name="check" size={16} strokeWidth={2} class="u-pop-check" />
+          </span>
+        ) : (
+          <a
+            class="u-pop-row"
+            href={getRelativeLocaleUrl(option.code, slug)}
+            hreflang={htmlLang[option.code]}
+            lang={htmlLang[option.code]}
+          >
+            {option.name}
+          </a>
+        ),
+      )
+    }
+  </div>
+</details>

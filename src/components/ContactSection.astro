@@ -1,20 +1,21 @@
 ---
-import SocialIcon from './SocialIcon.astro';
+import SocialIcon, { type SocialId } from './SocialIcon.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
 import type { HomeContent } from '../i18n/content';
 
 /**
- * ContactSection — where to report a problem, and the WeChat Official Account.
+ * ContactSection — the page's closing band: where to report a problem, and every place
+ * FirLab can be followed.
  *
- * Issues go to each product's own repository, so the feedback card points at the
- * GitHub profile, where every repository is one click away, rather than at one
- * product's tracker.
+ * Issues go to each project's own repository, so the button points at the GitHub
+ * profile, where every repository is one click away, rather than at one project's
+ * tracker.
  *
- * The Official Account's QR code is shown inline here rather than behind a
- * disclosure: this is the one place on the page whose whole job is to be
- * scanned. Its plate is white in both themes because a scanner needs a light
- * ground — a requirement, not a styling slip, and the same rule as the footer's
- * QR panels.
+ * The four profiles are links; the two WeChat entries have no URL, so they are
+ * disclosures that open the QR code. Their panels are placed against the tile grid, not
+ * against a tile, so on a 320px phone the middle column's panel does not run off the
+ * screen's left edge. The QR plate is white in both themes because a scanner needs a
+ * light ground — a requirement, not a styling slip.
  */
 interface Props {
   lang: Lang;
@@ -23,39 +24,83 @@ interface Props {
 
 const { lang, content } = Astro.props;
 const t = useTranslations(lang);
+
+const links: { id: Exclude<SocialId, 'wechat'>; href: string; label: string }[] = [
+  { id: 'github', href: 'https://github.com/sunerpy', label: t('social.github') },
+  { id: 'bilibili', href: 'https://space.bilibili.com/35507467', label: t('social.bilibili') },
+  { id: 'zhihu', href: 'https://www.zhihu.com/people/bluer-ain', label: t('social.zhihu') },
+  { id: 'x', href: 'https://x.com/sunerpy', label: t('social.x') },
+];
+
+const qrs = [
+  {
+    src: '/wechat-qr.jpg',
+    label: t('social.wechat'),
+    caption: t('social.wechat.caption'),
+    alt: t('social.wechat.alt'),
+  },
+  {
+    src: '/wechat-official-account.jpg',
+    label: t('social.wechatOa.short'),
+    caption: `${t('social.wechatOa.name')} · ${t('social.wechatOa.caption')}`,
+    alt: t('social.wechatOa.alt'),
+  },
+];
 ---
 
-<div class="u-reveal grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-  <section aria-labelledby="feedback-title" class="u-card flex flex-col p-6 sm:p-8">
-    <h2 id="feedback-title" class="u-display text-title-sm">{content.feedbackTitle}</h2>
-    <p class="text-ink-body u-measure mt-3">{content.feedbackBody}</p>
-    <div class="mt-auto pt-6">
-      <a
-        href="https://github.com/sunerpy"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="u-btn u-btn-secondary"
-      >
-        <SocialIcon id="github" size={18} />
-        {content.feedbackLink}
-      </a>
+<section id="feedback" aria-labelledby="feedback-title" class="u-section u-closer">
+  <div class="u-shell u-closer-grid">
+    <div class="u-closer-words">
+      <h2 id="feedback-title">{content.feedbackTitle}</h2>
+      <p>
+        {
+          content.feedbackBody.map((run, i) => (
+            <>
+              {i > 0 && lang === 'en' && ' '}
+              <span class="u-run">{run}</span>
+            </>
+          ))
+        }
+      </p>
+      <div class="u-actions">
+        <a class="u-btn u-btn-ink" href="https://github.com/sunerpy" target="_blank" rel="noopener noreferrer">
+          <SocialIcon id="github" size={18} />
+          {content.feedbackLink}
+        </a>
+      </div>
     </div>
-  </section>
 
-  <section aria-labelledby="follow-title" class="u-card flex items-center gap-5 p-6 sm:gap-7 sm:p-8">
-    <img
-      src="/wechat-official-account.jpg"
-      alt={t('social.wechatOa.alt')}
-      width="430"
-      height="430"
-      loading="lazy"
-      decoding="async"
-      class="border-rule size-28 shrink-0 rounded-[var(--radius-chip)] border bg-white p-1.5 sm:size-32"
-    />
-    <div class="min-w-0">
-      <h2 id="follow-title" class="u-display text-title-sm">{content.followTitle}</h2>
-      <p class="text-ink mt-2 text-lg font-semibold">{content.followBody}</p>
-      <p class="text-ink-mute mt-1 text-sm">{t('social.wechatOa.caption')}</p>
-    </div>
-  </section>
-</div>
+    <ul class="u-tiles" aria-label={t('social.label')}>
+      {
+        links.map((link) => (
+          <li>
+            <a class="u-tile" href={link.href} target="_blank" rel="noopener noreferrer">
+              <span class="u-tile-box">
+                <SocialIcon id={link.id} size={24} />
+              </span>
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+      {
+        qrs.map((qr) => (
+          <li>
+            <details data-popover>
+              <summary class="u-tile">
+                <span class="u-tile-box">
+                  <SocialIcon id="wechat" size={24} />
+                </span>
+                {qr.label}
+              </summary>
+              <div class="u-pop u-qr">
+                <img src={qr.src} width="430" height="430" alt={qr.alt} loading="lazy" decoding="async" />
+                <p>{qr.caption}</p>
+              </div>
+            </details>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

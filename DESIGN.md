@@ -1,9 +1,9 @@
 # FirLab — Design System
 
-Bilingual (Chinese-default) site for FirLab's open-source apps at firlab.app. Zero
-client-side framework, zero web fonts on the main site, static output. This file is the
-implementation contract: no component may introduce a colour, size, spacing step or
-motion rule that is not named here.
+Bilingual (Chinese-default) site for FirLab's open-source projects at firlab.app. Zero
+client-side framework, static output, and web fonts for Latin text only. This file is the
+implementation contract: no component may introduce a colour, size, spacing step or motion rule
+that is not named here.
 
 **Locales.** `zh-cn` owns the bare root (`/`); `en` lives at `/en/`. Chinese is the
 primary audience and the apex URL was already indexed, so `prefixDefaultLocale` is
@@ -13,31 +13,45 @@ a section added to Chinese cannot silently go missing from English.
 
 ## 0. Direction
 
-**The 2026-10-02 redesign is an app catalog.** The previous build was a technical-editorial
-index: a serif display face, a product index in a plate, and one hand-made band shape per
-product ("lead", "major", "standard", "pending", chosen by maturity). The owner rejected it on
-two counts: its copy read as AI-written ("五个工具，数据都留在你自己的机器上", "工程取向"), and
-it did not scale — the headline counted the products, the nav carried one link per product
-with widths re-measured at every breakpoint, and every new product needed a band designed for
-it. The owner then chose, from two directions, the app catalog over a registry-style list, and
-asked that the site speak as FirLab (firlab.app) rather than describe a person.
+**The 2026-11-03 redesign draws the site the way voltip.firlab.app draws the brand** (「墨白」,
+§10). The owner asked for the main site to be redesigned after the Voltip site, reviewed an HTML
+draft built from the site's own data (`firlab-design/site-redesign-2026-11-03/`, outside the
+repository), asked for a headline that no longer lists the categories and a more modern home
+page, and approved the second draft as it stood. What it changed:
 
-So the site is now built around one rule: **a new app is one entry in `src/i18n/products.ts`**
-(plus its icon and version constants, §4). The home page's grid, the release list, the header's
-app menu, the footer, the pager on a product page and the ItemList JSON-LD all render from that
-list, and no sentence anywhere names or counts the products.
+- **Ground and surfaces.** The page is the sheet tone `#FBFCFE`, cards and menus are white with a
+  hairline, and the desk tone `#F3F6FA` is the ground of capture wells and command blocks. The
+  previous build painted the page in the desk tone with white cards on it.
+- **Ink is the accent.** The primary action is an ink pill, links are body ink with a soft
+  underline, and the brand orange stays a mark (the wordmark's arm, status dots, the reading
+  progress and one claim rule). The previous build's text accent `#B03A09` is gone.
+- **Faces.** Instrument Sans and JetBrains Mono, the Voltip app's own, Latin subsets only; hanzi
+  stay on the system faces (§1 "Type").
+- **Shape.** Pill buttons, and corners of 4 / 8 / 12px (previously 6 / 10 / 16 with no pills).
+- **The home page as one editorial sheet.** A hero with the brand set at 148px; then bands, each
+  opening on a hairline, with the title in the wider left column and its words in the right; a
+  catalog whose cards show each project itself — a real capture, or the lines of a real session
+  for a project with no window; a release ledger; one closing band for feedback and every place
+  to follow FirLab; and a footer with a column per category.
+- **Words.** The headline says what FirLab makes without listing categories (「开源软件，从日常应用
+  到开发者工具」), the catalog is 「项目」 rather than 「应用」, and the categories are named 应用 /
+  开发者工具 / 服务与网关 (previously 桌面应用 / 命令行工具 / 自部署服务). The category ids did not
+  change.
 
-**Kept from the previous system,** because they were measured and are still right: the colour
-ramp read off the product marks (the pt-tools and Lockra documentation sites cite it), the
-per-script metrics, the dark-ramp corrections, the theme control, the version provenance check,
-the structured-data IRIs, and the CSS-only motion mechanics.
+**Kept from the 2026-10-02 build,** which made the site a catalog: the one rule that **a new
+project is one entry in `src/i18n/products.ts`** (§4) and every surface renders from that list;
+the brand ramp read off the product marks; the dark ramp and its corrections; the three-state
+theme control; the per-script metrics; version provenance; the structured-data IRIs; the
+CSS-only filter and motion mechanics; and the AgentLens page's structure. Before that build the
+site was a technical-editorial index with a serif face and one hand-made band per product, which
+the owner rejected because its copy read as written by AI and it did not scale.
 
-**Sources.** Palette: the shipped product marks — `#0B1220` ink, `#E7EDF5` pale slate,
-`#F97316` orange, `#14B8A6` teal, `#64748B` slate. App icons: the shipped icons' own geometry
-(`AppIcon.astro` names each source file). Layout reference: app directories, where each app is
-one card with its icon, one sentence, its platforms and its current version. Rejected: the
-maturity-shaped bands, the product-index plate, a principles/manifesto section, and any copy
-that counts the products.
+**Sources.** Palette: the shipped product marks — `#0B1220` ink, `#E7EDF5` pale slate, `#F97316`
+orange, `#14B8A6` teal, `#64748B` slate. Faces, shapes, the nav, the band rhythm and the footer:
+the Voltip site's theme (`voltip/src/.vitepress/theme/`, §10). App icons: the shipped icons' own
+geometry (`AppIcon.astro` names each source file). Captures and sessions: each project's own
+documentation site (`showcase.ts` names each source). Rejected: a hero visual of a drawn device or
+window, copy that counts the projects, and a separate card for the Official Account.
 
 ## 1. Design tokens
 
@@ -48,33 +62,39 @@ set serves both themes; the raw values swap for the dark theme.
 
 | Token | Light | Dark | Role |
 | --- | --- | --- | --- |
-| `--ink-900` | `#0B1220` | `#ECEFF3` | strongest text, primary button ground |
-| `--ink-700` | `#1E293B` | `#D4D8DD` | headings at the second step |
+| `--ink-900` | `#0B1220` | `#ECEFF3` | headings, strong text, the ink pill's ground |
+| `--ink-700` | `#1E293B` | `#D4D8DD` | menu rows, an early release's status, facts |
 | `--ink-500` | `#475569` | `#ABB0B7` | body |
-| `--ink-400` | `#5B6779` | `#9499A0` | meta, captions |
-| `--paper-0` | `#FBFCFE` | `#101317` | (kept for the sub-sites; the main site no longer paints it) |
-| `--paper-1` | `#F3F6FA` | `#0C0F13` | the page ground |
-| `--paper-2` | `#E7EDF5` | `#2A2F35` | code blocks, chips, hover fills |
+| `--ink-400` | `#5B6779` | `#9499A0` | meta, captions, dates |
+| `--paper-0` | `#FBFCFE` | `#101317` | the sheet: the page ground |
+| `--paper-1` | `#F3F6FA` | `#0C0F13` | the desk: capture wells, command blocks |
+| `--paper-soft` | `#EEF2F7` | `#181C21` | a hovered ledger row, chips |
+| `--paper-elv` | `#FFFFFF` | `#1F2329` | cards, menus, the ledger, a session's plate |
+| `--paper-2` | `#E7EDF5` | `#2A2F35` | kept for the sub-sites |
 | `--rule` | `#DCE4EE` | `#353B43` | hairline |
-| `--accent` | `#B03A09` | `#FB923C` | links, emphasis text |
-| `--accent-mark` | `#F97316` | `#F97316` | marks, dots, rules — never text on paper |
-| `--live` | `#0D6B64` | `#2DD4BF` | "actively maintained" status |
+| `--rule-strong` | `#CFD8E3` | `#4A515B` | an outlined pill, a hovered card, a version chip |
+| `--accent` | `= --ink-900` | `= --ink-900` | the ink pill, focus rings |
+| `--accent-ink` | `#FFFFFF` | `#0C0F13` | text on the ink pill |
+| `--fill` | ink at 6 % | ink at 9 % | hover and open fills of icon controls and menu rows |
+| `--link-line` | ink at 30 % | ink at 34 % | a link's underline; full ink on hover |
+| `--mark` | `#F97316` | `#F97316` | marks only — never text |
+| `--live` / `--live-mark` | `#0D6B64` / `#14B8A6` | `#2DD4BF` / `#2DD4BF` | "actively maintained": its text and its dot; a session's result line |
 
-`--accent` is deliberately *not* `#F97316` for text: orange-500 on paper is 2.9:1 and fails AA.
-The mark keeps the brand orange; text uses the darker/lighter step so both themes clear 4.5:1.
+`#F97316` measures 2.73:1 on the sheet, so it never carries text. The previous text accent
+`#B03A09` existed to make orange legible as text; with ink as the accent there is no orange text
+to make legible.
 
 ### Surfaces
 
 | Token | Light | Dark | Role |
 | --- | --- | --- | --- |
-| `--surface-page` | `--paper-1` | `--paper-1` | `html`, `body`, the header's ground (86% with blur) |
-| `--surface-card` | `#FFFFFF` | `#14181D` | cards, popovers, the footer |
 | `--tile` | `#0B1220` | `#0B1220` | an app icon's tile — the shipped icons' own navy, not themed |
 | `--tile-edge` | `rgb(255 255 255 / 0.04)` | `rgb(255 255 255 / 0.1)` | the tile's rim, so it keeps its silhouette on the dark page |
+| `--qr-plate` | `#FFFFFF` | `#FFFFFF` | a QR code's plate: a scanner needs a light ground |
 
-The page is the soft paper step and a card is a whiter sheet on it, so a card reads as an
-object without a heavy shadow. In the dark theme the card is lifted to `#14181D` (L ≈ 19.6,
-+2.9 over the page) and carried mostly by the lit `--rule`, which is the dark-ramp lesson below.
+A card is a white sheet with a hairline lying on the sheet tone, so it reads as an object
+without a heavy shadow; in the dark theme it is lifted to `#1F2329` and carried mostly by the lit
+rule.
 
 ### The dark ramp, measured in OKLCH
 
@@ -82,12 +102,14 @@ The dark ramp was rebuilt in an earlier pass after "the background and content a
 oppressive", and the fix still holds: low chroma on the ground (C ≈ 0.0095, rising up the ramp
 to 0.0162 at `--rule`, the way Radix slate does), ink chroma cut to ≈ 0.011 with lightness held,
 `--rule` lit to +16.5 L above the page's neighbour step, and near-white capped at L 95.1 to avoid
-halation. Elevation in dark mode is carried by light — a faint white top edge on cards and
-popovers — because a dark shadow has nothing left to darken.
+halation. `--paper-soft` and `--paper-elv` are the two steps the Voltip site added on the same
+curve (§10). Elevation in dark mode is carried by light — a faint white top edge on cards and
+menus — because a dark shadow has nothing left to darken.
 
 ### Theme selection — system is the default, not the only option
 
-Three states, exposed as a segmented control in the header: `system` · `light` · `dark`.
+Three states, in an icon menu in the bar whose icon shows the state the page is in:
+`system` (a monitor) · `light` (a sun) · `dark` (a moon).
 
 | State | `<html>` | Ramp source |
 | --- | --- | --- |
@@ -96,43 +118,65 @@ Three states, exposed as a segmented control in the header: `system` · `light` 
 | `dark` | `data-theme="dark"` | dark override |
 
 - Absence of `data-theme` is load-bearing: `system` removes the stored key rather than storing
-  a third value, so a visitor who never touches the control keeps tracking the OS.
+  a third value, so a visitor who never touches the control keeps tracking the OS. The summary's
+  icon is picked by the same attribute in CSS (`.u-ti`), so it is right from the first paint.
 - The dark ramp is written **twice** in `global.css` — under the media query and under
   `:root[data-theme="dark"]` — because CSS cannot OR a media query with a selector. One ramp:
   change both or neither.
 - `color-scheme` follows the pinned theme, so scrollbars and form controls match it.
-- `theme-color` is handled by inserting a media-less `<meta>` first in `<head>`.
+- `theme-color` is the page ground, `#FBFCFE` / `#101317`, written in three places that must
+  agree byte for byte: the two media-scoped metas in `Layout.astro`, the pre-paint script, and
+  `GROUND` in `ThemeSwitch.astro`. A pinned theme inserts a media-less `<meta>` first in `<head>`.
 - Persistence is `localStorage['firlab-theme']`, the only thing the site stores, wrapped in
   `try/catch`. A parser-blocking inline script applies it before first paint; the control ships
-  `display: none` and is revealed by `html[data-js]`.
+  `display: none` and is revealed by `html[data-js]`. Choosing a state closes the menu and returns
+  focus to its summary.
 
 ### Semantic aliases
 
 `--color-ink`, `--color-ink-soft`, `--color-ink-body`, `--color-ink-mute`, `--color-paper`
-(page), `--color-panel` (card), `--color-block`, `--color-rule`, `--color-accent`,
-`--color-mark`, `--color-live`, `--color-tile`. Components use only these.
+(page), `--color-desk`, `--color-panel` (card), `--color-block` (soft), `--color-rule`,
+`--color-rule-strong`, `--color-fill`, `--color-accent`, `--color-mark`, `--color-live`,
+`--color-tile`; `--font-sans` and `--font-mono` alias `--font-text` and `--font-code`. Utilities
+in components use only these.
 
 ### Type
 
 | Token | Stack |
 | --- | --- |
-| `--font-sans`, `--font-display` | `system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif` |
-| `--font-mono` | `ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono"`, then the same CJK tail |
+| `--font-text` | `"Instrument Sans Variable", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", "Noto Sans CJK SC", system-ui, -apple-system, "Segoe UI", sans-serif`; the Chinese page puts `"Punctuation SC"` first |
+| `--font-code` | `"JetBrains Mono Variable", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas`, then the CJK tail |
 
-No web fonts: a single CJK weight is 5 MB+ even subsetted well, which would spend the whole
-LCP budget on a typeface. Headings and body share the sans stack — hierarchy comes from weight
-(650 for display, 600 for labels) and size; mono is for versions, commands and metadata. The
-serif display of the previous build is gone: in Chinese it fell back to a heavy Song face that
-read as dated next to the app icons.
+**Latin from the web, hanzi from the system.** Instrument Sans and JetBrains Mono are the
+Voltip app's own faces, self-hosted from `@fontsource-variable` 5.3.0 (imported by
+`Layout.astro`, so nothing is fetched from a third party) and loaded by `unicode-range`: a page
+fetches the 30 KB Latin Instrument Sans file and, for its versions and dates, the 40 KB Latin
+JetBrains Mono file; the other subsets are emitted but only fetched for text that needs them.
+Instrument Sans's Latin file is preloaded, because it sets the brand line, the first thing
+painted. The reason the site had no web fonts still holds for CJK — one CJK weight is several
+megabytes even subset — and does not apply to Latin files of this size; matching the app's face
+is what makes the captures and the page read as one product (the Voltip site's argument, §10).
 
-| Token | Value | Use |
-| --- | --- | --- |
-| `--text-hero` | `clamp(3.25rem, 2rem + 5vw, 5.5rem)` | the home page's brand line, "FirLab" — the one word set larger than an h1 |
-| `--text-display` | `clamp(2.125rem, 1.55rem + 2.3vw, 3.25rem)` | a product page's h1 |
-| `--text-title` | `clamp(1.5rem, 1.3rem + 0.9vw, 2rem)` | section titles; the home h1's second line from `sm` |
-| `--text-title-sm` | `clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem)` | product-page sections, contact cards |
-| `--text-lede` | `clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem)` | ledes |
-| `--text-meta` | `0.75rem` | mono labels, counts |
+`Punctuation SC` is VitePress's trick, as the Voltip site uses it: quotes, dashes, the ellipsis
+and the middle dot come from the CJK face, so Chinese keeps full-width punctuation although the
+Latin face comes first. Only the Chinese page's stack carries it; on the English page those
+characters stay Latin.
+
+Weights: 700 for display, 650 for the wordmark and card names, 600 for labels and menu names,
+500 for links, buttons and tabs.
+
+| Size | Use |
+| --- | --- |
+| `clamp(72px, 11vw, 148px)`, line 0.92, −0.048em | the home page's brand line, "FirLab" |
+| `clamp(24px, 3.5vw, 42px)`, line 1.24 | the h1's second line, at most 13em wide |
+| `clamp(30px, 5.4vw, 46px)` | a band's title; `clamp(34px, 6vw, 56px)` for the closing band |
+| 17px, 18px from 640 / 768px | a hero or band lede |
+| 18px / 14.5px / 13px | a card's name / text / kind and platforms |
+| 12–12.5px mono | versions, dates, counts |
+| `--text-display` `clamp(2.125rem, 1.55rem + 2.3vw, 3.25rem)` | a product page's h1 |
+| `--text-title` / `--text-title-sm` | product-page sections |
+| `--text-lede` `clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem)` | a product page's lede |
+| `--text-meta` `0.75rem` | mono uppercase labels |
 
 ### Script-dependent metrics
 
@@ -141,132 +185,145 @@ Latin-tuned leading and tracking are wrong for hanzi, so the metrics are tokens 
 
 | Token | Latin | Chinese | Applies to |
 | --- | --- | --- | --- |
-| `--lh-prose` | `1.65` | `1.8` | `body`, running copy |
-| `--ls-prose` | `0em` | `0.012em` | ditto |
+| `--lh-prose` | `1.7` | `1.85` | `body`, running copy (the Voltip site's values) |
 | `--lh-display` | `1.12` | `1.3` | `.u-display` |
-| `--ls-display` | `-0.022em` | `0.01em` | ditto |
+| `--ls-display` | `-0.022em` | `0.006em` | headings |
 | `--lh-lede` | `1.6` | `1.85` | `.u-lede` |
 | `--measure-prose` | `36em` | `29em` | `.u-measure` (~66 Latin characters, ~29 hanzi) |
 | `--measure-lede` | `34em` | `32em` | `.u-lede` |
 
-- `.u-display-latin` re-tightens known-Latin display text (product names) on a Chinese page.
-- `code, kbd, samp, pre { letter-spacing: normal }` — inherited CJK tracking breaks command
-  columns.
-- `text-wrap: pretty` on `p, dd, li` removes single-character orphans.
+- Headings keep a CJK word whole (`word-break: keep-all`) and break a long Latin identifier
+  (`overflow-wrap: anywhere`).
+- `text-wrap: balance` on headings and on `p`, `li` and `dd`: `pretty` leaves one or two hanzi
+  alone on a last line in Chrome (measured on the Voltip site, §10). Product-page prose
+  (`.u-measure`, `.u-lede`) is the exception and stays `pretty`: balance narrowed a five-line
+  paragraph to an even block a third short of its column.
+- **Clauses that must not break inside are inline-block runs** (`.u-run`). The h1's second line
+  is written as phrases (`开源软件，` + `从日常应用到开发者工具`), the ledes as clauses; a run that
+  fits its line stays whole, one that does not still wraps inside its own box. English sets a
+  space between runs; Chinese sets none after `，` or `。`. Because headings keep CJK words whole,
+  the second phrase carries a zero-width space after 「应用」, its one break opportunity for a
+  line narrower than the phrase.
+- `code, kbd, samp, pre { letter-spacing: normal }` — inherited tracking breaks command columns.
 - Chinese display headings omit the trailing `。`.
-- **Phrases and sentences that must not break inside are inline-block runs.** Browsers break
-  hanzi anywhere, so the home h1's second line is written as phrases
-  (`开源的桌面应用、` + `命令行工具与自部署服务`) and the lede as sentences, each rendered as
-  `inline-block`: a run that fits its line stays whole, one that does not still wraps inside its
-  own box. Measured: the subtitle breaks after `、` at 375 and 414 px and sets on one line from
-  768 px; the lede breaks between its two sentences at every width from 414 px.
 
 ### Spacing
 
-8px base, Tailwind's default numeric scale. The one fluid value is the gutter (§2).
+8px base, Tailwind's default numeric scale on product pages. The gutter steps with the viewport:
+24px, 48px from 640px, 64px from 960px (`--gutter`), Voltip's values.
 
-### Radius — three steps and the icon
+### Radius — three steps, the pill and the icon
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--radius-chip` | `6px` | chips, code blocks, small rows |
-| `--radius-control` | `10px` | buttons, segmented controls, filter chips, menu rows |
-| `--radius-card` | `16px` | cards, popovers, figures |
+| `--radius-chip` | `4px` | version chips, QR images, small rows |
+| `--radius-control` | `8px` | icon controls, menu rows, a capture's plate |
+| `--radius-card` | `12px` | cards, menus, the ledger, figures, tiles |
+| `--radius-pill` | `999px` | buttons, and only buttons |
 | (icon) | 22% of its size | an app icon, as the shipped icons draw it |
-
-No pill buttons on the main site.
 
 ### Depth
 
-`--shadow-card` (resting card), `--shadow-lift` (hovered card), `--shadow-pop` (popovers) —
-a hairline plus one tightly spread shadow, mixed from `--shade`, which stays dark in both
-themes. Dark mode adds a white top edge instead (above).
+`--shadow-card` (resting card), `--shadow-lift` (hovered card, a capture's plate),
+`--shadow-pop` (menus) — a hairline plus one tightly spread shadow. Dark mode uses a white top
+edge instead (above).
 
 ## 2. Layout
 
 ### The column
 
 `.u-shell` is the only container: `max-width: calc(72rem + 2 × gutter)`, centred,
-`padding-inline: var(--gutter)` with `--gutter: clamp(1.25rem, 3.2vw + 0.35rem, 2.5rem)` —
-20px on a phone, 40px from ~1140px. The previous build's two nested boxes (a bordered sheet on
-an inset desk) and the nav scrim they required are gone: a catalog reads best on one full-bleed
-ground, and the floating pill they existed for is gone too.
+`padding-inline: var(--gutter)`. A band's hairline (`.u-section::before`) is the column's width,
+`calc(100% − 2 × gutter)` up to 72rem.
 
 ### Header
 
-`SiteHeader.astro`, sticky, 64px tall, the page ground at 86% with `backdrop-filter` blur as
-an enhancement (write the standard property only — Lightning CSS collapses a hand-written
-`-webkit-` twin into the prefixed form alone, which Chrome ignores), and a bottom hairline.
-Left to right: the wordmark (its letters drop below 420px, the glyph stays — measured, the
-English bar needs 355px of column with them shown), the **app menu**,
-then GitHub (from 640px), the theme control and the language switch.
+`SiteHeader.astro`, sticky, 64px, the page ground (no blur) and a bottom hairline. Left to
+right: the wordmark (the bracket glyph and "FirLab" in the text face, 19px / 650); the menu in
+plain words — **项目** (a disclosure), **最近发布**, **问题与建议** — where a hovered word gets a
+pale 2px line under it and the current one an ink line (on a product page, 项目); then the tools:
+the language and theme icon menus, the Official Account from 1024px and the ink GitHub pill from
+768px. Measured with both shown, the bar ran 19px into the gutter at 768px, so the Official
+Account waits for 1024px; it stays reachable from the hero and the footer. Below 768px the words
+give way to one menu button.
 
-The products are reached through one menu, never one link each, so the bar's width does not
-depend on how many products exist. The menu is a `<details data-popover>` disclosure — it works
-with scripting off and announces its state natively; the layout's script adds Escape (focus
-returns to the summary), outside-click and one-open-at-a-time. The `<details>` itself is not
-positioned: the panel is placed against the bar's column (`left: var(--gutter)`, width
-`min(22rem, 100% − 2 × gutter)`), so on a phone it uses the column instead of starting under the
-summary and running off the screen. On a product page that product's row is
-`aria-current="page"` and not a link.
+Every menu is a `<details data-popover>` disclosure — it works with scripting off and announces
+its state natively; the layout's script adds Escape (focus returns to the summary),
+outside-click, one-open-at-a-time, and closing a menu when one of its links is followed, which a
+link to a section of the same page would otherwise leave open over it.
+
+- **The projects menu** lists every project, a column per category, each with its icon, its name
+  and `version · date`, and links to the catalog and the releases. From 1024px it opens under its
+  word, 720px wide; between 768 and 1024px, where 720px from the word would run past the column,
+  it is placed against the bar's column instead.
+- **The phone sheet** holds the same columns and the three links (releases, feedback, GitHub). It
+  is placed against the bar's column, so it uses the whole width of a 320px screen, and scrolls
+  inside itself when the screen is shorter than the list.
+- The icon menus open 6px under the bar, level with the projects menu, not 6px under their 36px
+  control.
+- On a product page that project's row is `aria-current="page"` and not a link.
 
 ### Home page
 
-1. **Hero** — an h1 in two lines: the brand at `--text-hero`, then what FirLab offers at
-   `--text-title` (`1.375rem` below 640px); the lede; two buttons, GitHub (primary) and the
-   WeChat Official Account (a QR disclosure; anchored to the button row on phones, to its own
-   button from `sm`). No visual, no count, no tagline beyond the h1's second line.
-2. **Apps** — `AppCatalog`: the title, the category filter, and the grid:
-   `grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr))` — three columns at
-   1024px and up, two at 768, one on a phone, and a new app is one more card.
-3. **Latest releases** — `ReleaseList`: every released product, newest first, capped at six, each
-   row linking to that tag's release notes.
-4. **Bugs and requests / WeChat Official Account** — two cards, the second showing the QR inline.
+1. **Hero.** The h1 in two parts — "FirLab" at up to 148px, then what FirLab offers, at most
+   13em wide — on the left; from 960px the right column holds the lede, the actions (the GitHub
+   ink pill and 「关注公众号」, an outlined pill that opens the QR code) and three generated facts:
+   the platforms the catalog ships for, the newest release with a link to the ledger, and that the
+   site runs no analytics and sets no cookies. Below 640px the actions are full width.
+2. **Projects** (`#projects`). The band head (title left, its words right from 960px); a row of
+   underlined tabs — 全部 and a tab per category with its count; and the grid, one, two (640px) and
+   three (1100px) columns. Each card opens with a well (§3 `AppCard`).
+3. **Latest releases** (`#releases`). One ledger in a card: date, project, version chip, kind and
+   「发布说明 ↗」 per row, newest first, capped at six, the whole row the link. Below 768px a row
+   keeps the project with its date under it, the version and the arrow.
+4. **Bugs and requests** (`#feedback`). The closing band: the title, the words, a 「前往 GitHub」
+   ink pill, and six tiles — GitHub, Bilibili, Zhihu and X as links, the personal WeChat and the
+   Official Account as QR disclosures. The two QR panels are placed against the tile grid, so the
+   middle column's panel stays on a 320px screen.
 5. **Footer.**
-
-At 1440 × 900 the first row of cards starts inside the first viewport.
 
 ### Product pages
 
-`ProductHeader` (breadcrumb FirLab / 应用 / name; the 72px icon and the h1; category ·
-platforms; the mono role line; the lede; actions — Install when the page has an install section
-and the GitHub repository; and a fact card with status,
-version, release date, licence, extra facts, the releases link and the page's section index).
-Then the page's own sections, unchanged in structure, on the band rhythm: `.u-band-open` draws a
-rule and opens a movement (96px above from 768px), `.u-band-next` continues one (64px),
-`.u-band-tight` binds to the section above (32px). Then `NextProduct` and the footer.
+`ProductHeader` (breadcrumb FirLab / 项目 / name; the 72px icon and the h1; kind · platforms;
+the mono role line; the lede; actions — 安装, an ink pill, when the page has an install section,
+and the GitHub repository; and a fact card with status, version, release date, licence, extra
+facts, the releases link and the page's section index). Then the page's own sections, unchanged
+in structure, on the band rhythm: `.u-band-open` draws a rule and opens a movement (96px above
+from 768px), `.u-band-next` continues one (64px), `.u-band-tight` binds to the section above
+(32px). Then `NextProduct` and the footer.
 
 ### Footer
 
-One shape on every page: identity and a one-line blurb, the app list from the catalog, and every
-contact with its text label (GitHub, Bilibili, Zhihu, X, the personal WeChat QR, the Official
-Account QR). Three columns from 1024px; between 640 and 1023 the identity spans the top and the
-two lists sit side by side — at 768px a 3-of-12 column was 146px and "WeChat Official Account"
-wrapped inside its link.
+One shape on every page: the wordmark, a one-line blurb and the Official Account's QR code with
+its name; a column per category listing its projects, and the profiles with their text labels;
+then the line with the copyright, 「无统计代码，无 Cookie」 and the two languages. The four columns
+are one `<nav>`: two columns from 360px, four from 768px, and beside the identity from 1100px.
 
 ## 3. Components
 
 | Component | Contract |
 | --- | --- |
-| `SiteHeader` | §2. Wordmark · app menu · GitHub · theme · language. |
-| `AppIcon` | Each product's shipped icon on the 100-unit grid, tile included, inline SVG (no request). Decorative (`aria-hidden`) beside a visible name; pass `label` where it stands alone. Takes a `view-transition-name`. |
-| `AppCard` | One per product, identical for all: icon, name (the stretched link), category with a status badge for non-mature products only, tagline, platform chips, version · date, GitHub link above the stretch. Hover lifts 2px; focus rings the card. |
-| `AppCatalog` | Title, filter, grid. Radio inputs plus `:has()`, no script; the hiding rules are generated per category present; the filter is hidden without `:has()` support and absent with one category. Cards sit in `<li>`s and the stagger animates the `<li>` (see §6). |
+| `SiteHeader` | §2. Wordmark · menu · language · theme · Official Account · GitHub · phone menu. |
+| `ProjectGroups` | Every project, a column per category, icon, name and `version · date`; rendered in the projects menu and the phone sheet, with an id prefix per use. |
+| `AppIcon` | Each product's shipped icon on the 100-unit grid, tile included, inline SVG (no request). Decorative beside a visible name; pass `label` where it stands alone. Takes a `view-transition-name`. |
+| `AppCard` | One per project, identical for all: the well, then icon, name (the stretched link), kind and status, tagline, platforms, `version  date`, and the GitHub link and an arrow above the stretch. The status sits at the end of the title's row while both fit and wraps under the title when they do not. Hover lifts the card 2px and shifts its plate 4px toward its corner; focus rings the card. |
+| The well | `showcase.ts`: a capture in its light and dark take (per language where the project took one per language), set at 205% of the well's width from 20px inside its top-left corner, so it keeps one real corner and runs off the other two; or a session in mono on a white plate — commands after `$`, the result in `--live`, an MCP call's tool name in ink. The take not shown is `display: none`, which a lazy image is never fetched for. Decorative: the name and tagline say what it shows. |
+| `AppCatalog` | Band head, tabs, grid. Radio inputs plus `:has()`, no script; the hiding rules are generated per category present; the tabs are hidden without `:has()` support and absent with one category. The tabs' hairline is a background inside their scrollport, where the current tab's ink line can cover it. |
 | `ReleaseList` | §2. Built from `versions.ts` through the catalog. |
-| `ContactSection` | Feedback (GitHub) and the Official Account with its QR inline on a white plate. |
+| `ContactSection` | §2, the closing band. |
 | `ProductHeader` | §2. All facts from the catalog entry, so a page cannot disagree with its card. |
-| `NextProduct` | A card linking to the next product in catalog order; wraps and says so. A `<nav>` outside `<main>`. |
+| `NextProduct` | A card linking to the next project in catalog order; wraps and says so. A `<nav>` outside `<main>`. |
 | `SiteFooter` | §2. |
-| `SocialRow` | The real destinations with labels; WeChat entries are `<details>` QR panels (white plate in both themes — a scanner needs a light ground). |
-| `StatusTag` | Text plus a dot, never colour alone: `live` 持续更新, `early` 早期版本, `wip` 开发中. |
-| `ThemeSwitch`, `LangSwitch` | Segmented controls, 32px tall. The language switch keeps the current page's slug. |
+| `StatusTag` | Text plus a dot, never colour alone: `live` 持续更新 in `--live` with a teal dot, `early` 早期版本 in `--ink-700` with an orange dot, `wip` 开发中 in `--ink-400`. |
+| `ThemeSwitch`, `LangSwitch` | Icon menus, 36px. The theme menu's rows are buttons with `aria-pressed`; the language menu names each language in itself, marks the current one with `aria-current` and a check, and keeps the current page's slug. |
+| `Icon` | The chrome's line icons, Lucide-style 24-grid paths, always decorative. |
 | `InstallBlock` | Selectable commands; long commands wrap rather than scroll; the copy button appears only when `navigator.clipboard.writeText` exists. |
 | `SpecGrid`, `DetailSection`, `ScreenFigure` | Product-page primitives, restyled through the tokens. |
-| `Wordmark` | The bracket glyph plus FIRLAB in mono; `compact` drops the letters below 420px. |
+| `Wordmark` | The bracket glyph, its top arm orange, and "FirLab" in the text face. |
 
-Cards use the stretched-link pattern: the name's link carries `.u-stretch`, whose `::after`
-covers the card; secondary links carry `.u-above`. One anchor per destination, no link inside a
-link, and the accessible name is the product name.
+Cards use the stretched-link pattern: the name's link carries a `::after` that covers the card;
+secondary links sit above it. One anchor per destination, no link inside a link, and the
+accessible name is the project's name. A ledger row does the same with its release-notes link.
 
 ## 4. The catalog
 
@@ -274,33 +331,38 @@ link, and the accessible name is the product name.
 `cli` | `desktop`), `platforms`, `status`, `version` / `released` (imported from `versions.ts`),
 `license`, `repo`, `page` (`{ slug }` for an in-site page, `{ href }` per locale for a
 documentation site under firlab.app, `{ site }` per locale for a website on the product's own
-domain), and a one-sentence `tagline` per locale. Array order is display order.
+domain), and a one-sentence `tagline` per locale. Array order is the cards' order;
+`CATEGORY_ORDER` (`desktop`, `cli`, `service`) is the order of the tabs, the menu's columns and
+the footer's, everyday apps first as the headline reads. `productKind` names one project: its
+category, or 「桌面与手机应用」 for a desktop app that also ships for Android.
 
 **A product on its own domain is linked at that site's home page** — `/zh/` or `/` — from the
-card, the app menu, the footer, the pager and the ItemList JSON-LD alike (`productHref`), never at
-a page here, and it has no page here (2026-10-03: Voltip, `voltip.firlab.app`). Its former URLs
-stay in `redirects` in `astro.config.mjs`, pointing at the site's home page in one hop:
-`/voltip/` and `/en/voltip/`, and Voxera's `/voxera/` and `/en/voxera/`. The card keeps the same
-`→` and opens in the same tab, as for pt-tools and Lockra, whose sites live under firlab.app.
+card, the projects menu, the footer, the pager and the ItemList JSON-LD alike (`productHref`),
+never at a page here, and it has no page here (2026-10-03: Voltip, `voltip.firlab.app`). Its
+former URLs stay in `redirects` in `astro.config.mjs`, pointing at the site's home page in one
+hop: `/voltip/` and `/en/voltip/`, and Voxera's `/voxera/` and `/en/voxera/`.
 
-**Adding an app:**
+**Adding a project:**
 
 1. An entry in `products.ts`.
 2. Two constants in `src/i18n/versions.ts` (the tag and its UTC release date) and a row in
    `scripts/check-versions.mjs`.
-3. Its icon in `AppIcon.astro`, lifted from the app's shipped icon.
-4. Where its name leads: an in-site page under `src/pages/` (`page.slug`, built on
+3. Its icon in `AppIcon.astro`, lifted from the project's shipped icon.
+4. What its card shows, in `src/i18n/showcase.ts` — a capture copied from its documentation
+   site into `public/screens/` (light and dark, 1440 × 900), or the session from its
+   documentation home page. The `Record` type makes a missing entry a type error.
+5. Where its name leads: an in-site page under `src/pages/` (`page.slug`, built on
    `ProductHeader`), the paths of its documentation site (`page.href`), or the home page of its
    website on its own domain (`page.site`).
 
-Nothing else: the grid, filter counts, release list, header menu, footer, pager and JSON-LD
-follow. A new category needs its two labels in `ui.ts` (`category.*`, `filter.*`) and, if the
-home page's description names the categories, that sentence.
+Nothing else: the grid, tab counts, release list, projects menu, footer, pager and JSON-LD
+follow. A new category needs its labels in `ui.ts` (`category.*` for one project, `filter.*`
+for the group) and a place in `CATEGORY_ORDER`.
 
-**Taglines** state what the app does in one plain sentence. They inherit the factual constraints
-listed at the top of `products.ts` (pt-tools downloads free torrents unless a filter rule widens
-it; CodeGraph has no model; Voltip's cloud paths send audio or text out; Lockra goes online for
-updates and opt-in sync).
+**Taglines** state what the project does in one plain sentence. They inherit the factual
+constraints listed at the top of `products.ts` (pt-tools downloads free torrents unless a filter
+rule widens it; CodeGraph has no model; Voltip's cloud paths send audio or text out; Lockra goes
+online for updates and opt-in sync; and the rest listed there).
 
 ### Version provenance — one constant per fact, checked against the tag
 
@@ -318,7 +380,7 @@ left to a person. `sync-versions.yml` runs it every half hour, commits `versions
 site within the hour. A failed run is the alarm; nothing is committed then.
 
 This replaced a pull-request check and a daily drift issue (user decision 2026-10-07): every
-release of any of the eight products turned every open pull request red until someone opened a
+release of any of the products turned every open pull request red until someone opened a
 hand-made version pull request, fifteen of them in four days. The values the bot writes come
 straight from the release API and are validated (stable, not a draft, a tag of version
 characters), so there is nothing left for a reviewer to judge. Pull requests no longer run the
@@ -338,28 +400,38 @@ authoritative record). The social card is one image for the whole site, so every
 - **Speak as FirLab.** The site is firlab.app, not a personal homepage: no "sunerpy 的…" in
   headings, titles, descriptions or blurbs. The author still appears where it is a fact — the
   JSON-LD `Person`, the `author` meta, the copyright line and the GitHub account the links lead to.
-- **Name and count nothing in shared copy.** The hero, the description, the footer and the
-  section titles must survive a new app unchanged.
+- **Name and count nothing in shared prose.** The headline, the ledes, the description, the
+  footer and the band titles must survive a new project unchanged. The headline says what FirLab
+  makes without listing categories, because a list of categories goes stale the day a project
+  does not fit it — which is what the owner found wrong with 「开源的桌面应用、命令行工具与自部署服务」.
+  Counts and names that do appear (the tab counts, the newest release, the platform list) are
+  generated from the catalog.
+- **「项目」, not 「应用」, for what the catalog holds**: it holds developer tools and gateways as
+  well as apps. 「应用」 remains the name of the desktop category.
 - **Plain statements, no slogans or manifestos.** If a line would read as well on any other
-  site, cut it. Section headings say what the section holds (安装, 技术栈, 当前状态), not a
-  rhetorical promise.
+  site, cut it. Section headings say what the section holds (项目, 最近发布, 问题与建议, 安装,
+  技术栈).
 - **Facts come from the product's README and release tags**, with the constraints in
   `products.ts`. Unknown means "say nothing", never a guess.
 - Chinese copy quotes with 「」 and sets real spaces around Latin runs.
 
 ## 6. Motion
 
-CSS only, all of it inside `prefers-reduced-motion: no-preference` plus an `@supports` gate, so
-an unsupporting or motion-averse browser renders the final state.
+CSS only. The home page moves on hover alone; the product pages also reveal their bands on
+scroll. Every scroll and entrance animation is inside `prefers-reduced-motion: no-preference`
+plus an `@supports` gate, so an unsupporting or motion-averse browser renders the final state.
 
 | Mechanism | Where |
 | --- | --- |
-| `u-enter` — time-based, staggered by child | the home hero and a product header, which are on screen at first paint |
-| `u-reveal` — `animation-timeline: view()` | each home section, the pager |
-| `u-stagger` — `view()` with offset ranges per child | the card grid's `<li>`s, spec lists |
-| `u-progress` — `scroll(root)` | the 2px reading rule at the top edge |
-| Hover | cards lift 2px and gain `--shadow-lift`; arrows advance 0.3em |
+| Hover | a card lifts 2px and gains `--shadow-lift`, and its plate shifts 4px toward its corner over 400ms; a tile lifts 2px; the projects menu's chevron turns |
+| `u-enter` — time-based, staggered by child | a product page's header, which is on screen at first paint |
+| `u-reveal` — `animation-timeline: view()` | each product-page section, the pager |
+| `u-stagger` — `view()` with offset ranges per child | product-page spec lists |
+| `u-progress` — `scroll(root)` | the 2px orange reading rule at the top edge |
 | `@view-transition { navigation: auto }` | a card's icon and name morph into the product page header (`mark-<id>`, `title-<id>`) |
+
+Under `prefers-reduced-motion: reduce` transitions are neutralised and nothing lifts or shifts on
+hover.
 
 Two rules that are not style preferences:
 
@@ -367,93 +439,100 @@ Two rules that are not style preferences:
   next to `animation-timeline: view()`, Lightning CSS folds them into a shorthand Chrome
   rejects, and the animation silently never runs.
 - **A scroll-driven animation and a hover transform cannot share an element.** A finished
-  animation with `fill-mode: both` holds `transform: none` and overrides the hover lift, so the
-  stagger animates the `<li>` and the card inside it lifts.
+  animation with `fill-mode: both` holds `transform: none` and overrides a hover lift.
 
 ## 7. Accessibility
 
 Contrast, WCAG 2.x, every text pair on the surface it sits on:
 
-| Text | Light page / card / block | Dark page / card / block |
+| Text | Light page / card / desk / soft | Dark page / card / desk / soft |
 | --- | --- | --- |
-| `--ink-900` | 17.27 / 18.72 / 15.90 | 16.65 / 15.45 / 11.70 |
-| `--ink-700` | 13.50 / 14.63 / 12.42 | 13.41 / 12.45 / 9.42 |
-| `--ink-500` | 6.99 / 7.58 / 6.43 | 8.80 / 8.17 / 6.18 |
-| `--ink-400` | 5.29 / 5.74 / **4.87** | 6.70 / 6.22 / **4.71** |
-| `--accent` | 5.61 / 6.08 / 5.16 | 8.49 / 7.88 / 5.96 |
-| `--live` | 5.86 / 6.36 / 5.40 | 10.32 / 9.58 / 7.25 |
+| `--ink-900` | 18.24 / 18.72 / 17.27 / 16.65 | 16.15 / 13.68 / 16.65 / 14.84 |
+| `--ink-700` | 14.25 / 14.63 / 13.50 / 13.01 | 13.01 / 11.02 / 13.41 / 11.95 |
+| `--ink-500` | 7.38 / 7.58 / 6.99 / 6.74 | 8.54 / 7.23 / 8.80 / 7.85 |
+| `--ink-400` | 5.59 / 5.74 / 5.29 / **5.10** | 6.49 / **5.50** / 6.70 / 5.97 |
+| `--live` | 6.19 / 6.36 / 5.86 / 5.65 | 10.01 / 8.48 / 10.32 / 9.19 |
 
-The primary button and a checked filter chip (page colour on ink) are 17.27 light and 16.65
-dark. Nothing is below 4.5:1.
+The ink pill's text is 18.72:1 light and 16.65:1 dark (14.63 and 13.41 on hover). Nothing is
+below 4.5:1; `#F97316` (2.73:1) never carries text.
 
 - Landmarks: one `banner` (the header), `main`, `contentinfo`; navs are labelled (主导航,
-  页脚导航, the breadcrumb, the pager, the page index). Exactly one `h1` per page.
-- Every interactive element shows `:focus-visible` (2px accent ring); a card shows it on the
-  card. Buttons are 40px tall, header controls 32–36px, filter chips 36px. Below 420px the header's
-  home link is an 18px glyph, so a pseudo-element grows its hit area to 34 × 45px without widening
-  the bar. Links stacked in lists (breadcrumb, a product page's closing links) are at least 24px
-  apart, which meets WCAG 2.5.8 through its spacing exception.
+  页脚导航, the breadcrumb, the pager, the page index). Exactly one `h1` per page, and no id is
+  repeated (the menus' group headings carry a prefix per use).
+- Every interactive element shows `:focus-visible` (a 2px ink ring); a card and a ledger row show
+  it on themselves. Buttons are 48px tall (36px in the bar), icon controls 36px (32px in a card),
+  tabs 46px, tiles 64px. Links stacked in the footer's columns are 33px apart, which meets WCAG
+  2.5.8 through its spacing exception.
 - Status is text plus a dot, never colour alone. Icons beside a visible name are hidden from
-  assistive tech; the icon-only GitHub link carries a name and a title, and the footer repeats
-  every destination with a text label.
+  assistive tech; icon-only controls carry a name and a title, and the footer repeats every
+  profile with a text label. A card's well is hidden from assistive tech: the name and tagline
+  say what it shows.
 - The filter is a `fieldset` with a visually hidden legend and native radios: one tab stop,
-  arrow keys move, the checked state is announced. Each input covers its chip, so a click never
-  scrolls the page to a hidden control.
+  arrow keys move, the checked state is announced.
 - Disclosures are native `<details>`; Escape closes and returns focus to the summary.
 - The QR images carry descriptive `alt` text; the Official Account's name is also written out.
 - `overflow-x: clip` (never `hidden`) on `html` and `body`, which keeps `position: sticky`.
 
-## 8. Verified (2026-10-02)
+## 8. Verified (2026-11-03)
 
-Local build served statically, Chrome via CDP. The `/voltip/` pages measured here were removed
-on 2026-10-03 (§4), and the `/codegraph/` pages were replaced by CodeGraph's documentation site
-the same day (§13).
+Local build served by `astro preview`, the owner's Chrome over CDP.
 
-- `astro check`: 0 errors, 0 warnings. `astro build`: 8 pages; `dist/CNAME` is `firlab.app`.
-- 64 route × width combinations — `/`, `/en/`, `/codegraph/`, `/en/codegraph/`, `/agentlens/`,
-  `/en/agentlens/`, `/voltip/`, `/en/voltip/` at 320, 360, 375, 414, 768, 1024, 1280 and 1440px,
-  with every popover forced open: no horizontal overflow, no element past the viewport outside a
-  horizontal scroller, the header 64px on one line with nothing past the gutter, no clickable
-  text (buttons, header and footer links, breadcrumbs, filter chips, card names) on two lines,
-  no app-menu name wrapped, exactly one `h1`. Product-page h1s are one line at every width.
-- The filter shows 3 / 1 / 1 / 5 cards for desktop / CLI / service / all, without scrolling the
-  page. The app menu opens with every product, closes on Escape (focus back on the summary) and
-  on an outside click, and only one popover is open at a time. The theme control switches the
-  page ground and cards to the dark ramp and back to the system.
-- Light and dark at 1440 × 900 and 375 × 812 were checked by screenshot. Target sizes were
-  measured at 320, 360, 375, 399 and 414px: the only controls under 24px were the header's glyph
-  link, the footer's wordmark link (20px tall) and the breadcrumb links (18px tall); all three were
-  enlarged.
+- `astro check`: 0 errors, 0 warnings (its hints are all in an ignored `docs/dist`). `astro build`:
+  4 pages plus the redirect pages; `dist/CNAME` is `firlab.app`.
+- `/` and `/en/` at 320, 360, 375, 414, 640, 768, 960, 1024, 1100, 1280 and 1440px in frames of
+  that width with a classic scroll bar, and also in an emulated phone or window — the Chinese page
+  at 320, 375, 768, 1024 and 1440px, the English at 320, 768, 1024 and 1440px: no horizontal
+  overflow, no element past the viewport outside a horizontal scroller,
+  the bar's last control on the column's edge, no clickable text (buttons, menu words, tabs, card
+  names, ledger links, footer links) on two lines, and no line of one or two hanzi. `/agentlens/`
+  and `/en/agentlens/` at the same widths: no overflow; the release page's mono URL wraps at 320
+  and 360px, as it did before. Every page: one `h1`, no repeated id, every same-page anchor
+  present.
+- Screenshots: `/` 1440 light, `/en/` 1440 dark with the projects menu open, `/` 375 with the
+  phone sheet open, `/en/` 320, `/agentlens/` 1440 light and 375 dark.
+- The projects menu opens 720px wide under its word at 1440px and across the column at 800px;
+  the phone sheet spans the column at 375px, scrolls inside itself, closes when a link is followed
+  and lands the section 80px under the top. The theme menu pins dark (attribute, `theme-color`
+  meta, storage, the moon icon, focus back on the summary) and `system` clears all three. The
+  开发者工具 tab shows the two developer tools and 全部 all nine.
 
-Defects found by measuring in this pass, and fixed before the numbers above: the hero's QR panel
-ran 23px past the right edge at 375px (now anchored to the button row on phones); the English
-header pushed its controls into the gutter at 360–399px (the wordmark letters now drop below
-400px); a long mono URL on the AgentLens page overflowed at 320px (now `overflow-wrap: anywhere`);
-a card's status badge beside the name broke "AgentLens" mid-word at 320px (moved to the category
-line); the footer's social column wrapped "WeChat Official Account" at 768px (two columns below
-1024px); the Chinese subtitle broke inside 「命令行工具」 on phones (phrase runs, §1); and a
-36px home link widened the English header past its gutter at 320px, so the hit area now grows
-through a pseudo-element instead.
+Defects found by measuring in this pass, and fixed before the numbers above: the Chinese h1's
+second line left 「具」 alone at 320px (its smallest size is now 24px, and the zero-width space in
+§1 covers a 320px window with a scroll bar); the English status
+「Actively maintained」 ran into 「bedrock-gateway」 at 1440px (the status now wraps under the
+title); the icon menus opened 8px inside the bar (now level with the projects menu); balance
+narrowed the AgentLens page's paragraphs a third short of their measure (product-page prose is
+`pretty`); and `astro preview` refuses the `code-server` host name, so the pages were reviewed
+on the host's address.
 
 ## 9. Accepted debt
 
-- The Chinese h1 subtitle takes three lines at 320px (it breaks between words); the English
-  one takes four at 320–360px, and "self-hosted" may break at its hyphen.
-- Without `:has()` support the filter is hidden and every card shows.
-- Motion was not observed in this pass: the verifying browser had reduced motion on, so only the
-  static final state (which is what reduced motion gets) was checked. The timelines in §6 are the
-  previous build's mechanics with new ranges, and the stagger moved onto the grid's `<li>`s.
-- `public/og.png` is a 1200 × 630 browser render of `public/og.svg`; re-render it when the SVG
-  changes. It names no product, so a new app does not stale it.
+- The English h1's second line takes four lines at 320px ("Open-source" / "software," / …).
+- A long paragraph on the AgentLens page can still end on one or two hanzi (「趋势。」, 「全过。」):
+  Chrome's `pretty` does not prevent it for CJK, and `balance`, which does, narrowed the
+  paragraphs (§1). The live site had the same endings before this pass.
+- Without `:has()` support the tabs are hidden and every card shows.
+- Motion was not observed on scroll in this pass; the product page's timelines are the previous
+  build's mechanics, unchanged.
+- The home page repeats each app icon's inline SVG in the projects menu, the phone sheet, the
+  cards and the ledger: 90 KB of HTML, 14 KB gzipped.
+- AgentLens's card shows a different screen in each theme: its page has one dark capture (the
+  overview by model) and no light capture of that screen, so the light take is the usage
+  drill-down.
+- `public/og.png` is a 1200 × 630 browser render of `public/og.svg` (Chrome on Windows, the
+  owner's browser, 2026-11-03); re-render it when the SVG changes. It names no project, so a new
+  one does not stale it.
 - The `/voxera/` and `/en/pt-tools/` redirects stay: both URLs were indexed.
 
 ## 10. Product documentation sub-site: voltip.firlab.app
 
 `voltip/` is a VitePress 1.6.4 site: the default theme without its fonts
 (`vitepress/theme-without-fonts`) plus `voltip/src/.vitepress/theme/`. It inherits the §1
-ramp, the §1 per-script metrics and the §6 contrast floor. This section records what it adds
-and where it departs from the umbrella site, each with its reason; `voltip/README.md` covers
-ownership and deployment.
+ramp, the §1 per-script metrics and the §7 contrast floor. This section records what it adds
+and where it departed from the umbrella site, each with its reason; `voltip/README.md` covers
+ownership and deployment. Since 2026-11-03 the umbrella site itself is drawn this way (§0), so
+the departures below — pill buttons, ink links, the Latin faces — are now shared; they are kept
+as they were recorded.
 
 **Palette.** `theme/styles/tokens.css` maps the §1 ramp onto VitePress's `--vp-c-*`
 variables. Light: paper `#FBFCFE` / desk `#F3F6FA` / blocks `#E7EDF5`, ink `#0B1220` /

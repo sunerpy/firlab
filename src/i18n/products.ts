@@ -77,6 +77,13 @@ export type Status = 'live' | 'early' | 'wip';
 
 export type Category = 'service' | 'cli' | 'desktop';
 
+/**
+ * The order categories are listed in wherever they are grouped: the filter tabs, the
+ * projects menu and the footer's columns. Everyday apps first, as the home page's
+ * headline reads; the cards themselves keep the catalog order below.
+ */
+export const CATEGORY_ORDER: readonly Category[] = ['desktop', 'cli', 'service'];
+
 export type Platform = 'windows' | 'macos' | 'linux' | 'android' | 'docker';
 
 /** Canonical rendering order, whatever order an entry lists its platforms in. */
@@ -297,9 +304,21 @@ export function sortedPlatforms(product: Pick<Product, 'platforms'>): Platform[]
   return PLATFORM_ORDER.filter((platform) => product.platforms.includes(platform));
 }
 
-/** Categories in order of first appearance, so the filter follows the catalog. */
+/** The categories that have at least one product, in `CATEGORY_ORDER`. */
 export function categories(list: readonly Product[] = products): Category[] {
-  return [...new Set(list.map((product) => product.category))];
+  return CATEGORY_ORDER.filter((category) => list.some((product) => product.category === category));
+}
+
+/**
+ * What one product is, as a `ui.ts` key: its category, except that a desktop app which
+ * also ships for Android is a desktop and mobile app.
+ */
+export function productKind(
+  product: Pick<Product, 'category' | 'platforms'>,
+): `category.${Category}` | 'category.desktopMobile' {
+  return product.category === 'desktop' && product.platforms.includes('android')
+    ? 'category.desktopMobile'
+    : `category.${product.category}`;
 }
 
 /** Released products, newest first; ties keep catalog order. */

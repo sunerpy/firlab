@@ -1,5 +1,11 @@
 ---
 import { getAbsoluteLocaleUrl } from 'astro:i18n';
+// The Latin faces, self-hosted through fontsource so nothing is fetched from a third
+// party; hanzi stay on the system faces (DESIGN.md §1). Each file carries its
+// `unicode-range`, so a page downloads only the subsets its text uses.
+import '@fontsource-variable/instrument-sans/wght.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
+import instrumentLatin from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url';
 import '../styles/global.css';
 import {
   useTranslations,
@@ -154,10 +160,14 @@ const jsonLd = {
     <meta name="twitter:image:alt" content={ogImageAlt} />
 
     <meta name="author" content="sunerpy" />
-    {/* The page ground (`--paper-1`): browser chrome continues the colour at the
+    {/* The page ground (`--paper-0`): browser chrome continues the colour at the
         viewport's own edge. */}
-    <meta name="theme-color" content="#f3f6fa" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0c0f13" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#fbfcfe" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#101317" media="(prefers-color-scheme: dark)" />
+
+    {/* The text face's Latin subset sets the brand line, the first thing painted, so it
+        is fetched with the document rather than after the stylesheet is parsed. */}
+    <link rel="preload" href={instrumentLatin} as="font" type="font/woff2" crossorigin />
 
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
 
@@ -195,7 +205,7 @@ const jsonLd = {
 
         var meta = document.createElement('meta');
         meta.setAttribute('name', 'theme-color');
-        meta.setAttribute('content', mode === 'dark' ? '#0c0f13' : '#f3f6fa');
+        meta.setAttribute('content', mode === 'dark' ? '#101317' : '#fbfcfe');
         document.head.insertBefore(meta, document.head.firstChild);
       })();
     </script>
@@ -224,9 +234,11 @@ const jsonLd = {
       The only script on the site, and it does exactly two things the platform
       has no declarative equivalent for.
 
-      1. `<details>` already gives the app menu and the QR panels a working
+      1. `<details>` already gives the menus and the QR panels a working
          open/close and full keyboard support with scripting off; this adds
-         Escape-to-dismiss, click-outside-to-dismiss and one-open-at-a-time.
+         Escape-to-dismiss, click-outside-to-dismiss, one-open-at-a-time, and
+         closing a menu when one of its links is followed — a link to a section of
+         the same page would otherwise leave the menu open over it.
       2. The copy buttons in command blocks. They ship `display: none` and are
          only revealed once `navigator.clipboard.writeText` is confirmed to
          exist — an affordance that cannot work must never be drawn. The command
@@ -253,8 +265,10 @@ const jsonLd = {
         });
 
         document.addEventListener('click', function (event) {
+          var link = event.target.closest && event.target.closest('a[href]');
           panels.forEach(function (panel) {
-            if (panel.open && !panel.contains(event.target)) panel.open = false;
+            if (!panel.open) return;
+            if (!panel.contains(event.target) || (link && panel.contains(link))) panel.open = false;
           });
         });
 

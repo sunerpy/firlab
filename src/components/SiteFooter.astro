@@ -1,20 +1,18 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import Wordmark from './Wordmark.astro';
-import AppIcon from './AppIcon.astro';
-import SocialRow from './SocialRow.astro';
-import { useTranslations, type Lang } from '../i18n/ui';
-import { products, productHref, type ProductId } from '../i18n/products';
+import { useTranslations, stripLocale, htmlLang, type Lang } from '../i18n/ui';
+import { categories, products, productHref, type ProductId } from '../i18n/products';
 
 /**
- * SiteFooter — identity, the app list, and every contact with its text label.
+ * SiteFooter — identity with the Official Account's QR code, then every project in a
+ * column per category and the profiles with their text labels, then the line that says
+ * what the site does not collect.
  *
- * One shape on every page. The app list comes from the catalog, so a new product
- * appears here without an edit; on a product page that product is marked
- * `aria-current="page"` and is not a link to itself. The labelled social row is
- * also the accessible-name redundancy for the header's icon-only GitHub link.
- *
- * The QR panels open upward here because the footer sits at the document's end.
+ * One shape on every page. The project columns come from the catalog, so a new project
+ * appears here without an edit; on a product page that project is marked
+ * `aria-current="page"` and is not a link to itself. The labelled profile links are also
+ * the accessible-name redundancy for the header's icon-only controls.
  */
 interface Props {
   lang: Lang;
@@ -26,61 +24,113 @@ const t = useTranslations(lang);
 
 const year = new Date().getFullYear();
 const home = getRelativeLocaleUrl(lang, '');
+const slug = stripLocale(Astro.url.pathname);
+
+const groups = categories(products).map((category) => ({
+  category,
+  items: products.filter((product) => product.category === category),
+}));
+
+const profiles = [
+  { href: 'https://github.com/sunerpy', label: t('social.github') },
+  { href: 'https://space.bilibili.com/35507467', label: t('social.bilibili') },
+  { href: 'https://www.zhihu.com/people/bluer-ain', label: t('social.zhihu') },
+  { href: 'https://x.com/sunerpy', label: t('social.x') },
+];
+
+const languages: { code: Lang; name: string }[] = [
+  { code: 'zh-cn', name: t('lang.zh') },
+  { code: 'en', name: t('lang.en') },
+];
 ---
 
-<footer class="border-rule bg-panel border-t">
-  {/* Three columns only from `lg`: at 768px a 3-of-12 column is ~146px and
-      "WeChat Official Account" wrapped inside its link. Between `sm` and `lg` the
-      identity spans the top and the two lists sit side by side. */}
-  <div class="u-shell grid gap-x-10 gap-y-10 py-12 sm:grid-cols-2 md:py-16 lg:grid-cols-12">
-    <div class="sm:col-span-2 lg:col-span-5">
-      <a
-        href={home}
-        class="text-ink hover:text-ink inline-flex min-h-8 items-center no-underline"
-        aria-label={t('nav.home')}
-      >
-        <Wordmark />
-      </a>
-      <p class="text-ink-mute mt-4 max-w-[30rem] text-sm">{t('footer.blurb')}</p>
+<footer class="u-foot">
+  <div class="u-shell">
+    <div class="u-foot-grid">
+      <div class="u-foot-brand">
+        <a href={home} class="u-brand" aria-label={t('nav.home')}>
+          <Wordmark />
+        </a>
+        <p>{t('footer.blurb')}</p>
+        <div class="u-foot-qr">
+          {/* White plate in both themes: a scanner needs a light ground. */}
+          <img
+            src="/wechat-official-account.jpg"
+            width="430"
+            height="430"
+            alt={t('social.wechatOa.alt')}
+            loading="lazy"
+            decoding="async"
+          />
+          <span>
+            {t('social.wechatOa.name')}
+            <span>{t('social.wechatOa.caption')}</span>
+          </span>
+        </div>
+      </div>
+
+      <nav class="u-foot-nav" aria-label={t('footer.nav')}>
+        {
+          groups.map((group) => (
+            <div class="u-foot-col">
+              <h2 id={`foot-${group.category}`}>{t(`filter.${group.category}`)}</h2>
+              <ul aria-labelledby={`foot-${group.category}`}>
+                {group.items.map((product) => (
+                  <li>
+                    {product.id === currentId ? (
+                      <span aria-current="page">
+                        {product.name}
+                        <span class="sr-only"> — {t('nav.current')}</span>
+                      </span>
+                    ) : (
+                      <a href={productHref(lang, product)}>{product.name}</a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+        <div class="u-foot-col">
+          <h2 id="foot-profiles">{t('social.label')}</h2>
+          <ul aria-labelledby="foot-profiles">
+            {
+              profiles.map((profile) => (
+                <li>
+                  <a href={profile.href} target="_blank" rel="noopener noreferrer">
+                    {profile.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </nav>
     </div>
 
-    <nav aria-label={t('footer.nav')} class="lg:col-span-3">
-      <h2 class="u-label">{t('nav.apps')}</h2>
-      <ul class="mt-4 space-y-1">
+    <div class="u-foot-bottom">
+      <p>{t('footer.copyright', { year })} · {t('footer.privacy')}</p>
+      <p>
         {
-          products.map((product) => (
-            <li>
-              {product.id === currentId ? (
-                <span aria-current="page" class="text-ink inline-flex items-center gap-2.5 py-1 text-sm font-semibold">
-                  <AppIcon product={product.id} size={20} />
-                  {product.name}
-                  <span class="sr-only">— {t('nav.current')}</span>
+          languages.map((language, i) => (
+            <>
+              {i > 0 && ' · '}
+              {language.code === lang ? (
+                <span aria-current="true" lang={htmlLang[language.code]}>
+                  {language.name}
                 </span>
               ) : (
                 <a
-                  href={productHref(lang, product)}
-                  class="text-ink-body hover:text-accent inline-flex items-center gap-2.5 py-1 text-sm no-underline"
+                  href={getRelativeLocaleUrl(language.code, slug)}
+                  hreflang={htmlLang[language.code]}
+                  lang={htmlLang[language.code]}
                 >
-                  <AppIcon product={product.id} size={20} />
-                  {product.name}
+                  {language.name}
                 </a>
               )}
-            </li>
+            </>
           ))
         }
-      </ul>
-    </nav>
-
-    <div class="lg:col-span-3 lg:col-start-10">
-      <h2 class="u-label">{t('social.label')}</h2>
-      <SocialRow lang={lang} placement="above" class="mt-4" />
-    </div>
-
-    <div class="border-rule border-t pt-6 sm:col-span-2 lg:col-span-12">
-      <p class="text-ink-mute text-xs">
-        <span class="u-lat">{t('footer.copyright', { year })}</span>
-        <span aria-hidden="true" class="mx-1.5">·</span>
-        {t('footer.privacy')}
       </p>
     </div>
   </div>
