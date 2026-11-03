@@ -43,9 +43,11 @@ fi
 SYNCED_DIRS=(guide en)
 SYNCED_FILES=(index.md rating.md faq.md privacy.md)
 
-# Assets winer owns: the screenshots. Everything else under src/public/ belongs to this
-# repository.
+# Assets winer owns: the screenshots, and from winer 0.0.19 the QQ group's card (`community`),
+# which is copied when present so that a sync of an older winer still passes. Everything else
+# under src/public/ belongs to this repository.
 PUBLIC_DIRS=(screens)
+OPTIONAL_PUBLIC_DIRS=(community)
 # The mark itself: winer's generated master (scripts/brand/icons.py in winer).
 LOGO="$WINER_ROOT/app/src-tauri/app-icon.svg"
 
@@ -135,11 +137,11 @@ while IFS= read -r -d '' rel; do
     [ -n "$hit" ] && problem "docs/site/$rel:${hit%%:*} uses an internal or colloquial word: $(cut -d: -f2- <<<"$hit" | grep -oP "$pattern" | sort -u | paste -sd ' ')"
   done < <(grep -P "$pattern" <<<"$text" || true)
 
-  # Every screenshot a page names (the home frontmatter included) exists.
+  # Every screenshot or card a page names (the home frontmatter included) exists.
   while IFS= read -r shot; do
     [ -n "$shot" ] || continue
     [ -f "$SRC/public$shot" ] || problem "docs/site/$rel names $shot, which docs/site/public does not have"
-  done < <(grep -oP '/screens/[A-Za-z0-9._-]+' "$page" | sort -u)
+  done < <(grep -oP '/(screens|community)/[A-Za-z0-9._-]+' "$page" | sort -u)
 done < <(pages)
 
 [ "$fail" -eq 0 ] || exit 1
@@ -166,6 +168,14 @@ done
 mkdir -p "$DEST/public"
 for dir in "${PUBLIC_DIRS[@]}"; do
   rm -rf "${DEST:?}/public/$dir"
+  mkdir -p "$DEST/public/$dir"
+  cp -R "$SRC/public/$dir/." "$DEST/public/$dir/"
+  printf '  %-26s %s files\n' "public/$dir/" "$(find "$DEST/public/$dir" -type f | wc -l | tr -d ' ')"
+done
+for dir in "${OPTIONAL_PUBLIC_DIRS[@]}"; do
+  # Replaced wholesale as well, and removed when winer no longer has it.
+  rm -rf "${DEST:?}/public/$dir"
+  [ -d "$SRC/public/$dir" ] || continue
   mkdir -p "$DEST/public/$dir"
   cp -R "$SRC/public/$dir/." "$DEST/public/$dir/"
   printf '  %-26s %s files\n' "public/$dir/" "$(find "$DEST/public/$dir" -type f | wc -l | tr -d ' ')"
