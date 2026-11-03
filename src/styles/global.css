@@ -3,110 +3,174 @@
 /* ---------------------------------------------------------------------------
    FirLab design tokens. DESIGN.md is the contract for every value here.
 
-   Raw ramps live on :root and are swapped wholesale for the dark theme.
-   Semantic aliases are registered with `@theme inline` so Tailwind emits
-   utilities that *reference* the custom property instead of inlining its light
-   value — one set of component classes serves both themes, with no `dark:`
-   variants anywhere.
+   The site is drawn the way voltip.firlab.app draws the brand (「墨白」, DESIGN.md
+   §10): an ink-on-paper ramp, the page on the sheet tone, white cards and menus with
+   hairlines, pill buttons, and orange only on marks, never on text.
+
+   Raw ramps live on :root and are swapped wholesale for the dark theme. Semantic
+   aliases are registered with `@theme inline` so Tailwind emits utilities that
+   *reference* the custom property instead of inlining its light value — one set of
+   component classes serves both themes, with no `dark:` variants anywhere.
 --------------------------------------------------------------------------- */
+
+/* CJK quotes, dashes, the ellipsis and the middle dot come from the CJK face, so
+   Chinese text keeps full-width punctuation even though the Latin face comes first in
+   the stack — VitePress's trick, as the Voltip site uses it. Only the Chinese page puts
+   this face in its stack (`--font-text` below). */
+@font-face {
+  font-family: "Punctuation SC";
+  font-weight: 400;
+  src: local("PingFang SC Regular"), local("Noto Sans CJK SC"), local("Microsoft YaHei");
+  unicode-range: U+201C, U+201D, U+2018, U+2019, U+2E3A, U+2014, U+2013, U+2026, U+00B7, U+007E, U+002F;
+}
+
+@font-face {
+  font-family: "Punctuation SC";
+  font-weight: 500;
+  src: local("PingFang SC Medium"), local("Noto Sans CJK SC"), local("Microsoft YaHei");
+  unicode-range: U+201C, U+201D, U+2018, U+2019, U+2E3A, U+2014, U+2013, U+2026, U+00B7, U+007E, U+002F;
+}
+
+@font-face {
+  font-family: "Punctuation SC";
+  font-weight: 600;
+  src: local("PingFang SC Semibold"), local("Noto Sans CJK SC Bold"), local("Microsoft YaHei Bold");
+  unicode-range: U+201C, U+201D, U+2018, U+2019, U+2E3A, U+2014, U+2013, U+2026, U+00B7, U+007E, U+002F;
+}
+
+@font-face {
+  font-family: "Punctuation SC";
+  font-weight: 700;
+  src: local("PingFang SC Semibold"), local("Noto Sans CJK SC Bold"), local("Microsoft YaHei Bold");
+  unicode-range: U+201C, U+201D, U+2018, U+2019, U+2E3A, U+2014, U+2013, U+2026, U+00B7, U+007E, U+002F;
+}
 
 :root {
   color-scheme: light dark;
 
   /* The brand ramp, read off the shipped product marks (DESIGN.md §1). The
-     pt-tools and Lockra documentation sites cite these exact values, so a change
-     here is a change there too. */
+     documentation sites under firlab.app cite these exact values, so a change here is a
+     change there too. */
   --ink-900: #0b1220;
   --ink-700: #1e293b;
   --ink-500: #475569;
   --ink-400: #5b6779;
 
-  --paper-0: #fbfcfe;
-  --paper-1: #f3f6fa;
+  --paper-0: #fbfcfe; /* the sheet: the page ground */
+  --paper-1: #f3f6fa; /* the desk: capture wells, command blocks */
+  --paper-soft: #eef2f7; /* a hovered row, a chip */
+  --paper-elv: #ffffff; /* cards and menus, lying on the sheet */
   --paper-2: #e7edf5;
   --rule: #dce4ee;
+  --rule-strong: #cfd8e3;
 
-  /* `--accent` is a darker step than the brand orange because #F97316 on paper
-     is ~2.9:1 and fails AA for text. The brand orange stays on marks, dots and
-     rules, where it is decoration. Every text pair is measured in DESIGN.md §6. */
-  --accent: #b03a09;
-  --accent-mark: #f97316;
+  /* The accent is ink: an ink pill is the one primary action, and links are body ink
+     with a soft underline. The brand orange (`--mark`) is decoration only — #F97316 on
+     the sheet measures 2.7:1 and fails AA for text — so it stays on the wordmark's arm,
+     status dots, the reading progress and one claim rule. Every text pair is measured in
+     DESIGN.md §7. */
+  --accent: var(--ink-900);
+  --accent-hover: var(--ink-700);
+  --accent-ink: #ffffff;
+  --fill: rgb(11 18 32 / 0.06);
+  --link-line: rgb(11 18 32 / 0.3);
+  --mark: #f97316;
   --live: #0d6b64;
+  --live-mark: #14b8a6;
 
-  /* Catalog surfaces. The page is the soft paper step and a card is a whiter
-     sheet lying on it, so a card reads as an object without a heavy shadow. */
-  --surface-page: var(--paper-1);
-  --surface-card: #ffffff;
-
-  /* An app icon's tile is the shipped icons' own ground, and it does not follow
-     the theme: an app icon is the same object on a light page and a dark one.
-     Only its edge changes, because a navy tile on a near-black page needs a lit
-     rim to keep its silhouette. */
+  /* An app icon's tile is the shipped icons' own ground, and it does not follow the
+     theme: an app icon is the same object on a light page and a dark one. Only its
+     edge changes, because a navy tile on a near-black page needs a lit rim to keep its
+     silhouette. A QR code's plate is white in both themes because a scanner needs a
+     light ground. */
   --tile: #0b1220;
   --tile-edge: rgb(255 255 255 / 0.04);
+  --qr-plate: #ffffff;
 
-  /* Shadow ink. Separate from `--ink-900` on purpose: the ink ramp inverts in
-     dark mode, so a shadow mixed from it would turn into a white glow. */
-  --shade: #0b1220;
+  /* Depth is a hairline plus a tightly spread shadow. */
+  --shadow-card: 0 1px 2px 0 rgb(11 18 32 / 0.05), 0 1px 1px 0 rgb(11 18 32 / 0.02);
+  --shadow-lift: 0 1px 2px 0 rgb(11 18 32 / 0.05), 0 18px 40px -24px rgb(11 18 32 / 0.28);
+  --shadow-pop: 0 1px 2px 0 rgb(11 18 32 / 0.06), 0 16px 36px -12px rgb(11 18 32 / 0.22);
 
-  /* Depth is a hairline plus a tightly spread shadow. Consumed through `var()`
-     in this file only, which is why these sit on `:root` and not in `@theme`:
-     Tailwind prunes theme variables it sees no utility for. */
-  --shadow-card:
-    0 1px 2px color-mix(in oklab, var(--shade) 5%, transparent),
-    0 10px 28px -20px color-mix(in oklab, var(--shade) 30%, transparent);
-  --shadow-lift:
-    0 2px 4px color-mix(in oklab, var(--shade) 6%, transparent),
-    0 22px 44px -24px color-mix(in oklab, var(--shade) 42%, transparent);
-  --shadow-pop: 0 24px 56px -24px color-mix(in oklab, var(--shade) 48%, transparent);
+  /* Three steps and a pill. Every rounded corner on the site is one of them, except an
+     app icon, which is 22% of its own size like the shipped icons. */
+  --radius-chip: 4px;
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-pill: 999px;
 
-  /* One content column and one fluid gutter. The gutter is a frame rather than a
-     spacing step, so it scales with the viewport instead of jumping at a
-     breakpoint. */
+  /* One content column of 72rem and a gutter of 24, 48 and then 64px. */
   --shell-max: 72rem;
-  --gutter: clamp(1.25rem, 3.2vw + 0.35rem, 2.5rem);
+  --gutter: 24px;
+  --nav-h: 64px;
 
-  /* Script-dependent metrics. Latin defaults here; the Chinese block below
-     overrides them, and every prose and display rule reads these tokens, so
-     switching the locale switches the typographic system in one place. */
-  --lh-prose: 1.65;
-  --ls-prose: 0em;
+  /* Instrument Sans and JetBrains Mono are the Voltip app's own faces, Latin subsets
+     only (loaded by Layout); hanzi resolve from the system with an explicit CJK tail,
+     so the pairing is a decision rather than a UA default. */
+  --font-latin:
+    "Instrument Sans Variable", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI",
+    "Microsoft YaHei", "Noto Sans SC", "Noto Sans CJK SC", system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  --font-text: var(--font-latin);
+  --font-code:
+    "JetBrains Mono Variable", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas,
+    "PingFang SC", "Microsoft YaHei UI", "Noto Sans SC", monospace;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 200ms;
+
+  /* Script-dependent metrics. Latin defaults here; the Chinese block below overrides
+     them, and every prose and display rule reads these tokens, so switching the locale
+     switches the typographic system in one place. */
+  --lh-prose: 1.7;
   --lh-display: 1.12;
   --ls-display: -0.022em;
   --lh-lede: 1.6;
 
-  /* Measure is a token, in `em` so a lede and a paragraph land on the same
-     character count: ~66 Latin characters. */
+  /* Measure is a token, in `em` so a lede and a paragraph land on the same character
+     count: ~66 Latin characters. */
   --measure-prose: 36em;
   --measure-lede: 34em;
 }
 
-/* Hanzi are full-height square boxes with no ascender/descender rhythm, so Latin
-   leading reads cramped and the negative Latin tracking jams glyphs together.
-   29em is ~29 hanzi, inside the 24–30 band CJK running text needs.
+@media (min-width: 640px) {
+  :root {
+    --gutter: 48px;
+  }
+}
 
-   Unlayered, and it has to be: these override `@theme` variables, and an
-   unlayered declaration outranks every layered one. */
+@media (min-width: 960px) {
+  :root {
+    --gutter: 64px;
+  }
+}
+
+/* Hanzi are full-height square boxes with no ascender/descender rhythm, so Latin
+   leading reads cramped and the negative Latin tracking jams glyphs together. 29em is
+   ~29 hanzi, inside the 24–30 band CJK running text needs.
+
+   Unlayered, and it has to be: an unlayered declaration outranks every layered one. */
 html:lang(zh-CN),
 html:lang(zh) {
-  --lh-prose: 1.8;
-  --ls-prose: 0.012em;
+  --font-text: "Punctuation SC", var(--font-latin);
+  --lh-prose: 1.85;
   --lh-display: 1.3;
-  --ls-display: 0.01em;
+  --ls-display: 0.006em;
   --lh-lede: 1.85;
   --measure-prose: 29em;
   --measure-lede: 32em;
 }
 
 /* ---------------------------------------------------------------------------
-   Theme selection. The OS is the default; the dark ramp applies when the OS
-   asks for dark and the reader has not pinned light, or when the reader has
-   pinned dark. CSS cannot OR a media query with a selector, so the ramp is
-   written twice. THE TWO BLOCKS ARE ONE RAMP — change both or neither.
+   Theme selection. The OS is the default; the dark ramp applies when the OS asks for
+   dark and the reader has not pinned light, or when the reader has pinned dark. CSS
+   cannot OR a media query with a selector, so the ramp is written twice. THE TWO
+   BLOCKS ARE ONE RAMP — change both or neither.
 
-   The ink and paper values are the measured dark ramp from DESIGN.md §1: low
-   chroma on the ground (C≈0.0095, rising up the ramp) and a lit hairline at
-   +16.5 L, because structure is carried by the rule, not by surface steps.
+   The ink and paper values are the measured dark ramp from DESIGN.md §1: low chroma on
+   the ground and a lit hairline, because structure is carried by the rule, not by
+   surface steps. A dark contact shadow has nothing left to darken, so elevation is
+   carried by light instead: a faint white top edge.
 --------------------------------------------------------------------------- */
 
 @media (prefers-color-scheme: dark) {
@@ -118,32 +182,23 @@ html:lang(zh) {
 
     --paper-0: #101317;
     --paper-1: #0c0f13;
+    --paper-soft: #181c21;
+    --paper-elv: #1f2329;
     --paper-2: #2a2f35;
     --rule: #353b43;
+    --rule-strong: #4a515b;
 
-    --accent: #fb923c;
-    --accent-mark: #f97316;
+    --accent-ink: #0c0f13;
+    --fill: rgb(236 239 243 / 0.09);
+    --link-line: rgb(236 239 243 / 0.34);
     --live: #2dd4bf;
-
-    --surface-page: var(--paper-1);
-    --surface-card: #14181d;
+    --live-mark: #2dd4bf;
 
     --tile-edge: rgb(255 255 255 / 0.1);
 
-    --shade: #000000;
-
-    /* A dark contact shadow has nothing left to darken here, so elevation is
-       carried by light instead: a faint white top edge, as Material's dark
-       theme does for raised surfaces. */
-    --shadow-card:
-      inset 0 1px 0 rgb(255 255 255 / 0.035),
-      0 10px 28px -20px rgb(0 0 0 / 0.7);
-    --shadow-lift:
-      inset 0 1px 0 rgb(255 255 255 / 0.06),
-      0 22px 44px -24px rgb(0 0 0 / 0.8);
-    --shadow-pop:
-      inset 0 1px 0 rgb(255 255 255 / 0.06),
-      0 24px 56px -24px rgb(0 0 0 / 0.85);
+    --shadow-card: inset 0 1px 0 0 rgb(255 255 255 / 0.04);
+    --shadow-lift: inset 0 1px 0 0 rgb(255 255 255 / 0.06), 0 18px 40px -24px rgb(0 0 0 / 0.7);
+    --shadow-pop: inset 0 1px 0 0 rgb(255 255 255 / 0.06), 0 16px 36px -12px rgb(0 0 0 / 0.6);
   }
 }
 
@@ -157,29 +212,23 @@ html:lang(zh) {
 
   --paper-0: #101317;
   --paper-1: #0c0f13;
+  --paper-soft: #181c21;
+  --paper-elv: #1f2329;
   --paper-2: #2a2f35;
   --rule: #353b43;
+  --rule-strong: #4a515b;
 
-  --accent: #fb923c;
-  --accent-mark: #f97316;
+  --accent-ink: #0c0f13;
+  --fill: rgb(236 239 243 / 0.09);
+  --link-line: rgb(236 239 243 / 0.34);
   --live: #2dd4bf;
-
-  --surface-page: var(--paper-1);
-  --surface-card: #14181d;
+  --live-mark: #2dd4bf;
 
   --tile-edge: rgb(255 255 255 / 0.1);
 
-  --shade: #000000;
-
-  --shadow-card:
-    inset 0 1px 0 rgb(255 255 255 / 0.035),
-    0 10px 28px -20px rgb(0 0 0 / 0.7);
-  --shadow-lift:
-    inset 0 1px 0 rgb(255 255 255 / 0.06),
-    0 22px 44px -24px rgb(0 0 0 / 0.8);
-  --shadow-pop:
-    inset 0 1px 0 rgb(255 255 255 / 0.06),
-    0 24px 56px -24px rgb(0 0 0 / 0.85);
+  --shadow-card: inset 0 1px 0 0 rgb(255 255 255 / 0.04);
+  --shadow-lift: inset 0 1px 0 0 rgb(255 255 255 / 0.06), 0 18px 40px -24px rgb(0 0 0 / 0.7);
+  --shadow-pop: inset 0 1px 0 0 rgb(255 255 255 / 0.06), 0 16px 36px -12px rgb(0 0 0 / 0.6);
 }
 
 :root[data-theme="light"] {
@@ -187,115 +236,103 @@ html:lang(zh) {
 }
 
 @theme inline {
-  /* Semantic colour aliases — components use only these. */
+  /* Semantic aliases — utilities in components use only these. */
   --color-ink: var(--ink-900);
   --color-ink-soft: var(--ink-700);
   --color-ink-body: var(--ink-500);
   --color-ink-mute: var(--ink-400);
-  --color-paper: var(--surface-page);
-  --color-panel: var(--surface-card);
-  --color-block: var(--paper-2);
+  --color-paper: var(--paper-0);
+  --color-desk: var(--paper-1);
+  --color-panel: var(--paper-elv);
+  --color-block: var(--paper-soft);
   --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-fill: var(--fill);
   --color-accent: var(--accent);
-  --color-mark: var(--accent-mark);
+  --color-mark: var(--mark);
   --color-live: var(--live);
   --color-tile: var(--tile);
+
+  --font-sans: var(--font-text);
+  --font-mono: var(--font-code);
 }
 
 @theme {
-  /* No web fonts: a single CJK weight is 5 MB+ even subsetted well, which would
-     spend the whole LCP budget on a typeface. Both scripts resolve from the
-     system, Latin-first with an explicit CJK tail, so the pairing is a decision
-     rather than a UA default.
-
-     Headings and body share the sans stack; hierarchy comes from weight and
-     size. Mono is for versions, commands and metadata. */
-  --font-sans:
-    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC",
-    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  --font-display:
-    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC",
-    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  --font-mono:
-    ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono",
-    "PingFang SC", "Microsoft YaHei", "Noto Sans SC", monospace;
-
-  /* The home page's brand line: the one place a word is set larger than an h1. */
-  --text-hero: clamp(3.25rem, 2rem + 5vw, 5.5rem);
+  /* The type steps of the product pages; the home page sets its own in its classes. */
   --text-display: clamp(2.125rem, 1.55rem + 2.3vw, 3.25rem);
   --text-title: clamp(1.5rem, 1.3rem + 0.9vw, 2rem);
   --text-title-sm: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
   --text-lede: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
   --text-meta: 0.75rem;
-
-  --ease-brand: cubic-bezier(0.2, 0, 0, 1);
-
-  /* Three steps, and every rounded corner on the site is one of them, except an
-     app icon, which is 22% of its own size like the shipped icons. */
-  --radius-chip: 6px;
-  --radius-control: 10px;
-  --radius-card: 16px;
 }
 
 /* ---------------------------------------------------------------------------
-   Base. These MUST live inside `@layer base`: unlayered CSS outranks every
-   layered rule, so an element selector outside a layer would silently beat the
-   utilities meant to override it (`no-underline` would lose to the `a` rule).
+   Base. These MUST live inside `@layer base`: unlayered CSS outranks every layered
+   rule, so an element selector outside a layer would silently beat the utilities and
+   components meant to override it (`no-underline` would lose to the `a` rule).
 --------------------------------------------------------------------------- */
 
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
-    /* `clip`, never `hidden`: `hidden` on the root turns the document into a
-       scroll container and silently kills `position: sticky`. */
+    /* `clip`, never `hidden`: `hidden` on the root turns the document into a scroll
+       container and silently kills `position: sticky`. */
     overflow-x: clip;
-    background-color: var(--color-paper);
+    background-color: var(--paper-0);
+    /* Anchor targets clear the sticky bar with room to spare. */
+    scroll-padding-top: calc(var(--nav-h) + 16px);
   }
 
   body {
-    background-color: var(--color-paper);
-    color: var(--color-ink-body);
-    font-family: var(--font-sans);
+    background-color: var(--paper-0);
+    color: var(--ink-500);
+    font-family: var(--font-text);
     font-size: 1rem;
     line-height: var(--lh-prose);
-    letter-spacing: var(--ls-prose);
     overflow-x: clip;
     -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
   }
 
-  /* Tracking is a prose setting. Inherited into mono it breaks the column
-     alignment of a command block and double-spaces an already-tracked label. */
+  /* A heading keeps a CJK word whole (`keep-all`) and breaks a long Latin identifier
+     rather than pushing the line past the viewport. */
+  h1,
+  h2,
+  h3 {
+    min-width: 0;
+    color: var(--ink-900);
+    overflow-wrap: anywhere;
+    word-break: keep-all;
+    text-wrap: balance;
+  }
+
+  /* Every text block balances its lines: `pretty` leaves one or two hanzi alone on a
+     last line in Chrome (measured on voltip.firlab.app, DESIGN.md §10). */
+  p,
+  li,
+  dd {
+    text-wrap: balance;
+  }
+
+  /* Tracking is a prose setting. Inherited into mono it breaks the column alignment of
+     a command block and double-spaces an already-tracked label. */
   code,
   kbd,
   samp,
   pre {
+    font-family: var(--font-code);
     letter-spacing: normal;
-  }
-
-  /* `pretty` removes single-word (in Chinese, single-character) orphans. */
-  p,
-  dd,
-  li {
-    text-wrap: pretty;
-  }
-
-  /* Anchor targets clear the sticky header (64px) with room to spare. */
-  :target,
-  [id] {
-    scroll-margin-top: 6rem;
   }
 
   /* Links are underlined by default: colour alone must never carry meaning. */
   a {
-    color: var(--color-accent);
+    color: var(--ink-900);
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.22em;
-    text-decoration-color: color-mix(in oklab, var(--color-accent) 40%, transparent);
+    text-decoration-color: var(--link-line);
     transition:
-      color 160ms var(--ease-brand),
-      text-decoration-color 160ms var(--ease-brand);
+      color var(--dur),
+      text-decoration-color var(--dur);
   }
 
   a:hover {
@@ -303,14 +340,13 @@ html:lang(zh) {
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 3px;
-    border-radius: 2px;
+    outline: 2px solid var(--ink-900);
+    outline-offset: 2px;
   }
 
   ::selection {
-    background-color: color-mix(in oklab, var(--color-accent) 24%, transparent);
-    color: var(--color-ink);
+    background-color: color-mix(in oklab, var(--mark) 24%, transparent);
+    color: var(--ink-900);
   }
 
   /* The disclosure marker is replaced by the icon inside each summary. */
@@ -337,113 +373,1545 @@ html:lang(zh) {
     padding-inline: var(--gutter);
   }
 
-  /* ---- Type ------------------------------------------------------------ */
-  .u-display {
-    font-family: var(--font-display);
-    color: var(--color-ink);
+  .u-ico {
+    display: inline-block;
+    flex: none;
+    vertical-align: middle;
+  }
+
+  /* A clause of a lede or a heading is one run where the line allows it, so the text
+     breaks between clauses, not inside a word. */
+  .u-run {
+    display: inline-block;
+  }
+
+  /* A link in running text: body ink, a soft underline that darkens on hover. */
+  .u-link {
+    color: var(--ink-900);
+    font-weight: 500;
+    text-decoration-line: underline;
+    text-decoration-color: var(--link-line);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+
+  .u-link:hover {
+    text-decoration-color: currentcolor;
+  }
+
+  /* Captures come in a light and a dark take; the page shows the one that matches. */
+  .u-on-dark {
+    display: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .u-on-light {
+      display: none;
+    }
+
+    :root:not([data-theme="light"]) .u-on-dark {
+      display: block;
+    }
+  }
+
+  :root[data-theme="dark"] .u-on-light {
+    display: none;
+  }
+
+  :root[data-theme="dark"] .u-on-dark {
+    display: block;
+  }
+
+  /* ---- Buttons: pills, ink or outlined. 48px, and 36px in the bar. ------- */
+  .u-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 48px;
+    padding: 0 24px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    font: inherit;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color var(--dur),
+      border-color var(--dur);
+  }
+
+  .u-btn:active {
+    transform: translateY(1px);
+  }
+
+  .u-btn-ink {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  .u-btn-ink:hover {
+    background: var(--accent-hover);
+  }
+
+  .u-btn-line {
+    border-color: var(--rule-strong);
+    color: var(--ink-900);
+  }
+
+  .u-btn-line:hover {
+    border-color: var(--ink-400);
+    background: var(--fill);
+  }
+
+  .u-btn-sm {
+    height: 36px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+
+  /* An icon control: 36px, a soft fill on hover and while its menu is open. */
+  .u-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 8px;
+    border-radius: var(--radius-control);
+    color: var(--ink-500);
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      color var(--dur),
+      background-color var(--dur);
+  }
+
+  button.u-icon-btn {
+    border: 0;
+    background: none;
+    font: inherit;
+  }
+
+  .u-icon-btn:hover,
+  details[open] > .u-icon-btn {
+    background: var(--fill);
+    color: var(--ink-900);
+  }
+
+  /* ---- The bar ------------------------------------------------------------ */
+  .u-nav {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-0);
+  }
+
+  .u-nav-in {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    height: var(--nav-h);
+  }
+
+  .u-brand {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink-900);
+    font-size: 19px;
     font-weight: 650;
+    letter-spacing: -0.012em;
+    line-height: 1;
+    text-decoration: none;
+  }
+
+  .u-glyph {
+    flex: none;
+  }
+
+  /* The menu: plain words; the one being hovered gets a pale line under it and the
+     current one an ink line, Voltip's rule. */
+  .u-menu {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .u-menu {
+      display: flex;
+      align-items: stretch;
+      margin-left: 24px;
+    }
+  }
+
+  .u-menu > a,
+  .u-menu > details > summary {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+    padding: 0 13px;
+    color: var(--ink-500);
+    font-size: 14.5px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color var(--dur);
+  }
+
+  .u-menu > a::after,
+  .u-menu > details > summary::after {
+    content: "";
+    position: absolute;
+    right: 13px;
+    bottom: -1px;
+    left: 13px;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    background: transparent;
+    transition: background-color var(--dur);
+  }
+
+  .u-menu > a:hover,
+  .u-menu > details > summary:hover,
+  .u-menu > details[open] > summary {
+    color: var(--ink-900);
+  }
+
+  .u-menu > a:hover::after,
+  .u-menu > details > summary:hover::after,
+  .u-menu > details[open] > summary::after {
+    background: var(--rule-strong);
+  }
+
+  .u-menu > [aria-current="page"],
+  .u-menu > details.is-current > summary {
+    color: var(--ink-900);
+  }
+
+  .u-menu > [aria-current="page"]::after,
+  .u-menu > details.is-current > summary::after {
+    background: var(--ink-900);
+  }
+
+  .u-menu summary .u-ico {
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .u-menu details[open] summary .u-ico {
+    transform: rotate(180deg);
+  }
+
+  .u-tools {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: auto;
+  }
+
+  .u-tools > details {
+    position: relative;
+  }
+
+  /* A 36px control sits 14px below the bar's top edge, so its panel opens 6px under
+     the bar — level with the projects menu — rather than 6px under the control. */
+  .u-tools > details:not(.u-burger) > .u-pop {
+    top: calc(100% + 20px);
+  }
+
+  .u-nav-sep {
+    width: 1px;
+    height: 20px;
+    margin: 0 10px;
+    background: var(--rule);
+  }
+
+  .u-nav-strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 36px;
+    padding: 0 10px;
+    color: var(--ink-900);
+    font-size: 14.5px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .u-tools .u-btn-sm {
+    margin-left: 6px;
+  }
+
+  /* The theme control shows the state it is in: the system, light or dark. It ships
+     hidden and is revealed once the pre-paint script has run, because it cannot work
+     without it. */
+  .u-theme {
+    display: none;
+  }
+
+  html[data-js] .u-theme {
+    display: block;
+  }
+
+  .u-ti {
+    display: none;
+  }
+
+  :root:not([data-theme]) .u-ti-system,
+  :root[data-theme="light"] .u-ti-light,
+  :root[data-theme="dark"] .u-ti-dark {
+    display: inline-flex;
+  }
+
+  /* From 768px the bar has room for the GitHub pill, from 1024px for the Official
+     Account beside it (measured: at 768px the tools ran 19px into the gutter with
+     both). Below 768px the menu button stands in for the words. */
+  .u-only-wide,
+  .u-only-xl {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .u-only-wide {
+      display: inline-flex;
+    }
+
+    .u-only-narrow {
+      display: none;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .u-only-xl {
+      display: inline-flex;
+    }
+  }
+
+  /* ---- Menus: the projects, the phone sheet, language, theme, QR codes ----- */
+  .u-pop {
+    position: absolute;
+    top: calc(100% + 6px);
+    z-index: 50;
+    padding: 8px;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-card);
+    background: var(--paper-elv);
+    box-shadow: var(--shadow-pop);
+  }
+
+  .u-pop-end {
+    right: 0;
+  }
+
+  .u-pop-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-width: 168px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: none;
+    color: var(--ink-700);
+    font: inherit;
+    font-size: 14px;
+    text-align: left;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .u-pop-row:hover {
+    background: var(--fill);
+    color: var(--ink-900);
+  }
+
+  .u-pop-row[aria-current="true"],
+  .u-pop-row[aria-pressed="true"] {
+    color: var(--ink-900);
+    font-weight: 600;
+    cursor: default;
+  }
+
+  .u-pop-row[aria-pressed="true"] {
+    cursor: pointer;
+  }
+
+  .u-pop-check {
+    margin-left: auto;
+    visibility: hidden;
+  }
+
+  [aria-current="true"] > .u-pop-check,
+  [aria-pressed="true"] > .u-pop-check {
+    visibility: visible;
+  }
+
+  /* The projects menu: one panel, a column per category. From 1024px it opens under
+     its own word; between 768 and 1024px, where 720px from the word would run past
+     the column, it is placed against the bar's content column instead. */
+  .u-menu-projects {
+    position: static;
+  }
+
+  .u-mega {
+    right: var(--gutter);
+    left: var(--gutter);
+    padding: 12px;
+  }
+
+  @media (min-width: 1024px) {
+    .u-menu-projects {
+      position: relative;
+    }
+
+    .u-mega {
+      right: auto;
+      left: 3px;
+      width: 720px;
+    }
+  }
+
+  .u-mega .u-groups {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 8px;
+  }
+
+  .u-group-title {
+    padding: 6px 10px 8px;
+    color: var(--ink-400);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+  }
+
+  .u-group-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px;
+    border-radius: var(--radius-control);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  a.u-group-item:hover,
+  .u-group-item[aria-current="page"] {
+    background: var(--fill);
+  }
+
+  .u-group-text {
+    min-width: 0;
+  }
+
+  .u-group-name {
+    display: block;
+    color: var(--ink-900);
+    font-size: 14.5px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .u-group-ver {
+    display: block;
+    color: var(--ink-400);
+    font-family: var(--font-code);
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+
+  .u-mega-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 8px;
+    padding: 10px 10px 2px;
+    border-top: 1px solid var(--rule);
+    font-size: 13.5px;
+  }
+
+  /* The phone sheet, against the bar's content column, scrolling inside itself when
+     the screen is shorter than the list. */
+  .u-tools > .u-burger {
+    position: static;
+  }
+
+  .u-sheet {
+    right: var(--gutter);
+    left: var(--gutter);
+    max-height: calc(100dvh - var(--nav-h) - 24px);
+    padding: 8px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .u-sheet .u-groups {
+    display: grid;
+    gap: 4px;
+  }
+
+  .u-sheet .u-group ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
+  }
+
+  .u-sheet-links {
+    display: grid;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .u-sheet-links a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 10px;
+    border-radius: var(--radius-control);
+    color: var(--ink-900);
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .u-sheet-links a:hover {
+    background: var(--fill);
+  }
+
+  .u-qr {
+    width: 200px;
+    padding: 12px;
+  }
+
+  .u-qr img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-chip);
+    background: var(--qr-plate);
+  }
+
+  .u-qr p {
+    margin-top: 8px;
+    color: var(--ink-400);
+    font-size: 12.5px;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  /* ---- Bands: a hairline the width of the column, then the band ---------- */
+  .u-section {
+    padding: 0 0 80px;
+  }
+
+  .u-section::before {
+    content: "";
+    display: block;
+    width: calc(100% - 2 * var(--gutter));
+    max-width: var(--shell-max);
+    height: 1px;
+    margin: 0 auto 56px;
+    background: var(--rule);
+  }
+
+  @media (min-width: 768px) {
+    .u-section {
+      padding-bottom: 112px;
+    }
+
+    .u-section::before {
+      margin-bottom: 80px;
+    }
+  }
+
+  /* A band's head: the title, then its words; from 960px the title takes the wider
+     left column and the words the right, set against the title's last line. */
+  .u-head {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+
+  @media (min-width: 960px) {
+    .u-head {
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      align-items: end;
+      gap: 0 64px;
+      margin-bottom: 48px;
+    }
+  }
+
+  .u-head h2 {
+    font-size: clamp(30px, 5.4vw, 46px);
+    font-weight: 700;
+    line-height: 1.16;
+    letter-spacing: var(--ls-display);
+  }
+
+  :root:lang(zh-CN) .u-head h2 {
+    line-height: 1.3;
+  }
+
+  .u-head p {
+    color: var(--ink-500);
+    font-size: 17px;
+    line-height: var(--lh-prose);
+  }
+
+  @media (min-width: 768px) {
+    .u-head p {
+      font-size: 18px;
+    }
+  }
+
+  /* ---- Hero ------------------------------------------------------------------- */
+  .u-hero {
+    padding: 56px 0 72px;
+  }
+
+  @media (min-width: 768px) {
+    .u-hero {
+      padding: 88px 0 64px;
+    }
+  }
+
+  .u-hero-grid {
+    display: grid;
+    gap: 32px;
+  }
+
+  @media (min-width: 960px) {
+    .u-hero-grid {
+      grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+      align-items: end;
+      gap: 0 64px;
+    }
+  }
+
+  .u-hero h1 {
+    display: grid;
+    gap: 20px;
+  }
+
+  .u-hero-name {
+    font-size: clamp(72px, 11vw, 148px);
+    font-weight: 700;
+    line-height: 0.92;
+    letter-spacing: -0.048em;
+    word-break: normal;
+  }
+
+  /* 24px at the smallest, so 「从日常应用到开发者工具」 still sets on one line across a
+     320px phone. */
+  .u-hero-line {
+    max-width: 13em;
+    font-size: clamp(24px, 3.5vw, 42px);
+    font-weight: 700;
+    line-height: 1.24;
+    letter-spacing: var(--ls-display);
+  }
+
+  .u-hero-side > p {
+    max-width: 30em;
+    color: var(--ink-500);
+    font-size: 17px;
+    line-height: 1.8;
+  }
+
+  @media (min-width: 640px) {
+    .u-hero-side > p {
+      font-size: 18px;
+    }
+  }
+
+  .u-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .u-actions details {
+    position: relative;
+  }
+
+  @media (max-width: 639px) {
+    .u-actions > * {
+      flex: 1 1 100%;
+    }
+
+    .u-actions .u-btn {
+      width: 100%;
+    }
+  }
+
+  .u-facts {
+    display: grid;
+    gap: 6px;
+    margin-top: 28px;
+  }
+
+  .u-facts li {
+    display: grid;
+    grid-template-columns: 14px minmax(0, 1fr);
+    gap: 10px;
+    color: var(--ink-700);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .u-facts li::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    margin-top: 10px;
+    border-radius: 50%;
+    background: var(--ink-400);
+  }
+
+  .u-facts a {
+    white-space: nowrap;
+  }
+
+  /* ---- Projects: the tabs and the cards --------------------------------------- */
+  @media (min-width: 768px) {
+    .u-projects::before {
+      margin-bottom: 56px;
+    }
+
+    .u-projects .u-head {
+      margin-bottom: 28px;
+    }
+  }
+
+  /* The row scrolls sideways on a narrow screen, so its hairline is a background
+     inside the scrollport, where the current tab's ink line can cover it; a border
+     would sit outside it and clip the line. */
+  .u-tabs {
+    position: relative;
+    display: flex;
+    gap: 4px;
+    min-width: 0;
+    margin: 0 0 24px;
+    padding: 0;
+    overflow-x: auto;
+    border: 0;
+    background: linear-gradient(var(--rule), var(--rule)) left bottom / 100% 1px no-repeat;
+    scrollbar-width: none;
+  }
+
+  .u-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .u-tabs input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .u-tab {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    height: 46px;
+    padding: 0 14px;
+    color: var(--ink-500);
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color var(--dur);
+  }
+
+  .u-tab:first-of-type {
+    margin-left: -14px;
+  }
+
+  .u-tab b {
+    color: var(--ink-400);
+    font-family: var(--font-code);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .u-tab::after {
+    content: "";
+    position: absolute;
+    right: 14px;
+    bottom: 0;
+    left: 14px;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    background: transparent;
+    transition: background-color var(--dur);
+  }
+
+  .u-tab:hover {
+    color: var(--ink-900);
+  }
+
+  .u-tab:hover::after {
+    background: var(--rule-strong);
+  }
+
+  .u-tabs input:checked + .u-tab {
+    color: var(--ink-900);
+  }
+
+  .u-tabs input:checked + .u-tab::after {
+    background: var(--ink-900);
+  }
+
+  .u-tabs input:focus-visible + .u-tab {
+    border-radius: var(--radius-control);
+    outline: 2px solid var(--ink-900);
+    outline-offset: -4px;
+  }
+
+  .u-cards {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  @media (min-width: 640px) {
+    .u-cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .u-cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .u-cards > li {
+    display: flex;
+    min-width: 0;
+  }
+
+  .u-app {
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-card);
+    background: var(--paper-elv);
+    box-shadow: var(--shadow-card);
+    transition:
+      transform var(--dur) var(--ease-out),
+      box-shadow var(--dur) var(--ease-out),
+      border-color var(--dur);
+  }
+
+  .u-app:hover {
+    border-color: var(--rule-strong);
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-2px);
+  }
+
+  .u-app:has(.u-app-name a:focus-visible) {
+    outline: 2px solid var(--ink-900);
+    outline-offset: 2px;
+  }
+
+  /* The well at the top of a card: a real capture enlarged around one corner, or the
+     lines of a real session. The plate starts 20px in from the top-left corner and
+     runs off the other two edges. */
+  .u-app-well {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-1);
+  }
+
+  .u-app-well img,
+  .u-session {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-control);
+    box-shadow: var(--shadow-lift);
+    transition: transform 400ms var(--ease-out);
+  }
+
+  .u-app-well img {
+    width: 205%;
+    max-width: none;
+    height: auto;
+  }
+
+  .u-app:hover .u-app-well img,
+  .u-app:hover .u-session {
+    transform: translate(-4px, -4px);
+  }
+
+  .u-session {
+    right: -1px;
+    bottom: -1px;
+    margin: 0;
+    padding: 16px 18px;
+    overflow: hidden;
+    border-right: 0;
+    border-bottom: 0;
+    border-radius: var(--radius-control) 0 0 0;
+    background: var(--paper-elv);
+    color: var(--ink-700);
+    font-size: 11.5px;
+    line-height: 1.7;
+    white-space: pre;
+  }
+
+  .u-session-prompt,
+  .u-session-arg {
+    color: var(--ink-400);
+  }
+
+  .u-session-call {
+    color: var(--ink-900);
+    font-weight: 650;
+  }
+
+  .u-session-out {
+    color: var(--live);
+    font-weight: 650;
+  }
+
+  .u-app-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 22px 18px;
+  }
+
+  .u-app-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .u-app-headtext {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2px 12px;
+    min-width: 0;
+  }
+
+  .u-app-title {
+    min-width: 0;
+  }
+
+  .u-app-name {
+    color: var(--ink-900);
+    font-size: 18px;
+    font-weight: 650;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  .u-app-name a {
+    color: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .u-app-name a:focus-visible {
+    outline: none;
+  }
+
+  .u-app-name a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .u-app-kind {
+    color: var(--ink-400);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .u-app-text {
+    color: var(--ink-500);
+    font-size: 14.5px;
+    line-height: 1.75;
+  }
+
+  .u-app-plat {
+    color: var(--ink-400);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .u-app-foot {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-code);
+    font-size: 12.5px;
+  }
+
+  .u-app-foot p {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 12px;
+    min-width: 0;
+  }
+
+  .u-app-ver {
+    color: var(--ink-900);
+    font-weight: 500;
+  }
+
+  .u-app-date {
+    color: var(--ink-400);
+  }
+
+  .u-app-links {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    gap: 2px;
+    margin-left: auto;
+    font-family: var(--font-text);
+  }
+
+  .u-app-links .u-icon-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 6px;
+  }
+
+  /* The arrow says the card is a link; the click falls through it to the card's own
+     stretched link. */
+  .u-app-go {
+    pointer-events: none;
+  }
+
+  .u-app:hover .u-app-go {
+    color: var(--ink-900);
+  }
+
+  /* ---- Status: a dot and its word ---------------------------------------------- */
+  .u-status {
+    display: inline-flex;
+    flex: none;
+    align-self: flex-start;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+
+  .u-status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .u-status-live {
+    color: var(--live);
+  }
+
+  .u-status-live::before {
+    background: var(--live-mark);
+  }
+
+  .u-status-early {
+    color: var(--ink-700);
+  }
+
+  .u-status-early::before {
+    background: var(--mark);
+  }
+
+  .u-status-wip {
+    color: var(--ink-400);
+  }
+
+  .u-status-wip::before {
+    background: var(--ink-400);
+  }
+
+  /* ---- Releases: one ledger ------------------------------------------------------ */
+  .u-ledger {
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-card);
+    background: var(--paper-elv);
+    box-shadow: var(--shadow-card);
+  }
+
+  .u-ledger-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 4px 12px;
+    padding: 16px 16px 16px 20px;
+  }
+
+  .u-ledger-row + .u-ledger-row {
+    border-top: 1px solid var(--rule);
+  }
+
+  .u-ledger-row:first-child {
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+  }
+
+  .u-ledger-row:last-child {
+    border-radius: 0 0 var(--radius-card) var(--radius-card);
+  }
+
+  .u-ledger-row:only-child {
+    border-radius: var(--radius-card);
+  }
+
+  .u-ledger-row:hover {
+    background: var(--paper-soft);
+  }
+
+  .u-ledger-row:has(.u-ledger-link:focus-visible) {
+    outline: 2px solid var(--ink-900);
+    outline-offset: -2px;
+  }
+
+  .u-ledger-date {
+    color: var(--ink-400);
+    font-family: var(--font-code);
+    font-size: 13px;
+  }
+
+  .u-ledger-app {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    color: var(--ink-900);
+    font-size: 15.5px;
+    font-weight: 650;
+  }
+
+  .u-ledger-ver {
+    display: inline-flex;
+    justify-self: start;
+    align-items: center;
+    height: 26px;
+    padding: 0 8px;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-chip);
+    color: var(--ink-700);
+    font-family: var(--font-code);
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+
+  .u-ledger-kind {
+    color: var(--ink-500);
+    font-size: 14px;
+  }
+
+  .u-ledger-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ink-700);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .u-ledger-link:focus-visible {
+    outline: none;
+  }
+
+  .u-ledger-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  .u-ledger-row:hover .u-ledger-link {
+    color: var(--ink-900);
+  }
+
+  /* Below 768px: the project and its date in one column, the version and the arrow
+     beside them. The link keeps its stretch and its name; only its word is hidden. */
+  @media (max-width: 767px) {
+    .u-ledger-app {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .u-ledger-date {
+      grid-column: 1;
+      grid-row: 2;
+      padding-left: 40px;
+      font-size: 12.5px;
+    }
+
+    .u-ledger-ver {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+
+    .u-ledger-link {
+      grid-column: 3;
+      grid-row: 1 / span 2;
+      padding: 0 4px;
+    }
+
+    .u-ledger-kind,
+    .u-ledger-label {
+      display: none;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .u-ledger-row {
+      grid-template-columns: 120px minmax(0, 1.3fr) 128px minmax(0, 1fr) auto;
+      gap: 24px;
+      padding: 16px 24px;
+    }
+  }
+
+  /* ---- The closing band ----------------------------------------------------------- */
+  .u-closer-grid {
+    display: grid;
+    align-items: center;
+    gap: 40px;
+  }
+
+  @media (min-width: 960px) {
+    .u-closer-grid {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 64px;
+    }
+  }
+
+  .u-closer h2 {
+    font-size: clamp(34px, 6vw, 56px);
+    font-weight: 700;
+    line-height: 1.16;
+    letter-spacing: var(--ls-display);
+  }
+
+  :root:lang(zh-CN) .u-closer h2 {
+    line-height: 1.26;
+  }
+
+  .u-closer-words > p {
+    max-width: 30em;
+    margin-top: 16px;
+    color: var(--ink-500);
+    font-size: 17px;
+    line-height: 1.75;
+  }
+
+  @media (min-width: 768px) {
+    .u-closer-words > p {
+      font-size: 19px;
+    }
+  }
+
+  .u-closer-words .u-actions {
+    margin-top: 32px;
+  }
+
+  /* The tiles are the QR panels' positioning box: a panel placed against the middle
+     column's tile would run off a 320px screen. */
+  .u-tiles {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px 16px;
+  }
+
+  @media (min-width: 640px) {
+    .u-tiles {
+      grid-template-columns: repeat(3, minmax(0, 88px));
+    }
+  }
+
+  .u-tiles .u-qr {
+    right: 0;
+  }
+
+  .u-tile {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    color: var(--ink-500);
+    font-size: 13.5px;
+    line-height: 1.4;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .u-tile-box {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-card);
+    background: var(--paper-elv);
+    box-shadow: var(--shadow-card);
+    color: var(--ink-900);
+    transition:
+      border-color var(--dur),
+      transform var(--dur) var(--ease-out);
+  }
+
+  .u-tile:hover {
+    color: var(--ink-900);
+  }
+
+  .u-tile:hover .u-tile-box,
+  details[open] > .u-tile .u-tile-box {
+    border-color: var(--rule-strong);
+    transform: translateY(-2px);
+  }
+
+  /* ---- Footer ----------------------------------------------------------------------- */
+  .u-foot {
+    padding: 64px 0 32px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .u-foot-grid {
+    display: grid;
+    gap: 40px 32px;
+    padding-bottom: 48px;
+  }
+
+  @media (min-width: 1100px) {
+    .u-foot-grid {
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 4fr);
+    }
+  }
+
+  .u-foot-nav {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px 24px;
+  }
+
+  @media (min-width: 360px) {
+    .u-foot-nav {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 768px) {
+    .u-foot-nav {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 40px 32px;
+    }
+  }
+
+  .u-foot-brand > p {
+    max-width: 22em;
+    margin-top: 12px;
+    color: var(--ink-500);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .u-foot-qr {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 24px;
+    color: var(--ink-500);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .u-foot-qr img {
+    flex: none;
+    width: 84px;
+    height: 84px;
+    padding: 4px;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-control);
+    background: var(--qr-plate);
+  }
+
+  .u-foot-qr > span {
+    display: grid;
+    gap: 2px;
+    word-break: keep-all;
+  }
+
+  .u-foot-col h2 {
+    margin: 0 0 16px;
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.4;
+  }
+
+  .u-foot-col ul {
+    display: grid;
+    gap: 12px;
+  }
+
+  .u-foot-col li {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .u-foot a {
+    color: var(--ink-500);
+    text-decoration: none;
+    transition: color var(--dur);
+  }
+
+  .u-foot a:hover {
+    color: var(--ink-900);
+  }
+
+  .u-foot [aria-current] {
+    color: var(--ink-900);
+    font-weight: 600;
+  }
+
+  .u-foot .u-brand {
+    color: var(--ink-900);
+  }
+
+  .u-foot-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-400);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* ---- Product pages ------------------------------------------------------------------ */
+  .u-display {
+    color: var(--ink-900);
+    font-weight: 700;
     line-height: var(--lh-display);
     letter-spacing: var(--ls-display);
     text-wrap: balance;
-    /* Long Latin identifiers in a heading break rather than push the line past
-       the viewport. */
     overflow-wrap: anywhere;
     min-width: 0;
   }
 
-  /* Known-Latin display text (product names) keeps Latin metrics on a Chinese
-     page, where the display tokens have opened up for hanzi. */
+  /* Known-Latin display text (product names) keeps Latin metrics on a Chinese page,
+     where the display tokens have opened up for hanzi. */
   .u-display-latin {
     line-height: 1.12;
     letter-spacing: -0.022em;
   }
 
-  /* Mono uppercase metadata. `uppercase` is a no-op on hanzi, so one class serves
-     both scripts. */
+  /* Mono uppercase metadata. `uppercase` is a no-op on hanzi, so one class serves both
+     scripts. */
   .u-meta {
-    font-family: var(--font-mono);
+    font-family: var(--font-code);
     font-size: var(--text-meta);
     letter-spacing: 0.06em;
     text-transform: uppercase;
     line-height: 1.5;
   }
 
-  /* A small sans label: section kickers, card categories, field names. */
+  /* A small sans label: section kickers, field names. */
   .u-label {
     font-size: 0.8125rem;
     font-weight: 600;
     line-height: 1.4;
-    color: var(--color-ink-soft);
+    color: var(--ink-700);
   }
 
-  /* Inline Latin or numerals butting against hanzi where a real space would be
-     wrong (next to full-width punctuation). */
+  /* Inline Latin or numerals butting against hanzi where a real space would be wrong
+     (next to full-width punctuation). */
   .u-lat {
     margin-inline: 0.14em;
     letter-spacing: normal;
   }
 
+  /* Long-form prose fills its measure: `balance` narrowed a five-line paragraph to an
+     even, ragged block a third short of the column. `pretty` still keeps a lone word
+     off the last line. */
   .u-measure {
     max-width: var(--measure-prose);
+    text-wrap: pretty;
   }
 
   .u-lede {
     font-size: var(--text-lede);
     line-height: var(--lh-lede);
     max-width: var(--measure-lede);
+    text-wrap: pretty;
   }
 
-  /* ---- Header ------------------------------------------------------------
-     A full-width sticky bar. The ground is 86% opaque on its own, so the bar is
-     legible over scrolled content with no blur at all; the blur is an
-     enhancement. Write `backdrop-filter` ONLY — Lightning CSS collapses a
-     hand-written `-webkit-` twin into the prefixed form alone, which Chrome
-     ignores. */
-  .u-header {
-    position: sticky;
-    top: 0;
-    z-index: 40;
-    background-color: color-mix(in oklab, var(--color-paper) 86%, transparent);
-    backdrop-filter: saturate(160%) blur(14px);
-    border-bottom: 1px solid var(--color-rule);
-  }
-
-  @media (prefers-reduced-transparency: reduce) {
-    .u-header {
-      background-color: var(--color-paper);
-      backdrop-filter: none;
-    }
-  }
-
-  /* ---- Cards ---------------------------------------------------------------
-     `.u-card` is the surface; `.u-card-link` makes the whole card one target
-     through a stretched link (`.u-stretch`), so the markup stays one anchor per
-     destination and secondary links inside the card (`.u-above`) still work. */
+  /* `.u-card` is the surface; `.u-card-link` makes the whole card one target through a
+     stretched link (`.u-stretch`), so the markup stays one anchor per destination and
+     secondary links inside the card (`.u-above`) still work. */
   .u-card {
     position: relative;
-    background-color: var(--color-panel);
-    border: 1px solid var(--color-rule);
+    background-color: var(--paper-elv);
+    border: 1px solid var(--rule);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-card);
   }
 
   .u-card-link {
     transition:
-      transform 220ms var(--ease-brand),
-      box-shadow 220ms var(--ease-brand),
-      border-color 220ms var(--ease-brand);
+      transform var(--dur) var(--ease-out),
+      box-shadow var(--dur) var(--ease-out),
+      border-color var(--dur);
   }
 
   .u-card-link:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lift);
-    border-color: color-mix(in oklab, var(--color-accent) 30%, var(--color-rule));
+    border-color: var(--rule-strong);
   }
 
   /* The focus ring belongs to the card, which is the visible target. */
   .u-card-link:has(.u-stretch:focus-visible) {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 3px;
+    outline: 2px solid var(--ink-900);
+    outline-offset: 2px;
   }
 
   .u-stretch {
@@ -468,174 +1936,45 @@ html:lang(zh) {
     z-index: 1;
   }
 
-  /* Unreleased work: dashed on all four sides, no ground, no shadow. */
+  /* Unreleased or unverified work: dashed on all four sides, no ground, no shadow. */
   .u-card-draft {
-    border: 1px dashed var(--color-rule);
+    border: 1px dashed var(--rule-strong);
     border-radius: var(--radius-card);
   }
 
   /* A statement the page leans on: the brand orange as a rule, never as text. */
   .u-callout {
-    border-left: 3px solid var(--color-mark);
+    border-left: 3px solid var(--mark);
   }
 
-  /* ---- Buttons -------------------------------------------------------------
-     Primary is ink on paper, inverted in the dark theme; secondary is the card
-     surface with a hairline. Both are 40px tall, above the 24×24 target floor. */
-  .u-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    min-height: 2.5rem;
-    padding-inline: 1rem;
-    border: 1px solid transparent;
-    border-radius: var(--radius-control);
-    font-size: 0.9375rem;
-    font-weight: 600;
-    line-height: 1.2;
-    white-space: nowrap;
-    text-decoration-line: none;
-    cursor: pointer;
-    transition:
-      background-color 160ms var(--ease-brand),
-      border-color 160ms var(--ease-brand),
-      color 160ms var(--ease-brand),
-      transform 120ms var(--ease-brand);
-  }
-
-  .u-btn:active {
-    transform: translateY(1px);
-  }
-
-  .u-btn-primary {
-    background-color: var(--color-ink);
-    color: var(--color-paper);
-  }
-
-  .u-btn-primary:hover {
-    background-color: color-mix(in oklab, var(--color-ink) 86%, var(--color-paper));
-    color: var(--color-paper);
-  }
-
-  .u-btn-secondary {
-    background-color: var(--color-panel);
-    border-color: var(--color-rule);
-    color: var(--color-ink);
-  }
-
-  .u-btn-secondary:hover {
-    background-color: var(--color-block);
-    color: var(--color-ink);
-  }
-
-  /* An icon-only control in the header: 36px square. */
-  .u-icon-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: var(--radius-control);
-    color: var(--color-ink-mute);
-    text-decoration-line: none;
-    transition:
-      color 160ms var(--ease-brand),
-      background-color 160ms var(--ease-brand);
-  }
-
-  .u-icon-btn:hover {
-    color: var(--color-ink);
-    background-color: var(--color-block);
-  }
-
-  /* ---- Chips ---------------------------------------------------------------- */
   .u-chip {
     display: inline-flex;
     align-items: center;
     min-height: 1.5rem;
     padding-inline: 0.5rem;
     border-radius: var(--radius-chip);
-    background-color: var(--color-block);
-    color: var(--color-ink-soft);
+    background-color: var(--paper-soft);
+    color: var(--ink-700);
     font-size: 0.75rem;
     line-height: 1.2;
     white-space: nowrap;
   }
 
-  /* ---- Category filter ------------------------------------------------------
-     Radio inputs, so it works with scripting off and keeps radio semantics: one
-     group, arrow keys move between options. Each input covers its own chip, so a
-     click lands on the input directly and the page never scrolls to a hidden
-     control. Which cards hide is written per category by `AppCatalog.astro`. */
-  .u-filter-chip {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    min-height: 2.25rem;
-    padding-inline: 0.875rem;
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-control);
-    background-color: var(--color-panel);
-    color: var(--color-ink-soft);
-    font-size: 0.875rem;
-    line-height: 1.2;
-    white-space: nowrap;
-    cursor: pointer;
-    transition:
-      background-color 160ms var(--ease-brand),
-      border-color 160ms var(--ease-brand),
-      color 160ms var(--ease-brand);
-  }
-
-  .u-filter-chip input {
-    position: absolute;
-    inset: 0;
-    margin: 0;
-    opacity: 0;
-    cursor: pointer;
-  }
-
-  .u-filter-chip:hover {
-    border-color: color-mix(in oklab, var(--color-ink) 30%, var(--color-rule));
-    color: var(--color-ink);
-  }
-
-  .u-filter-chip:has(input:checked) {
-    background-color: var(--color-ink);
-    border-color: var(--color-ink);
-    color: var(--color-paper);
-  }
-
-  .u-filter-chip:has(input:focus-visible) {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-  }
-
-  /* The count inside a chip is quieter than its label in both states. */
-  .u-filter-count {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    opacity: 0.7;
-  }
-
-  /* ---- Rows ----------------------------------------------------------------
-     A full-row link has to show its hit area; a colour change on the text alone
+  /* A full-row link has to show its hit area; a colour change on the text alone
      under-reports how much of the row is clickable. */
   .u-row {
-    transition: background-color 200ms var(--ease-brand);
+    transition: background-color var(--dur);
   }
 
   .u-row:hover,
   .u-row:focus-visible,
   .u-row:has(.u-stretch:focus-visible) {
-    background-color: var(--color-block);
+    background-color: var(--fill);
   }
 
-  /* ---- Trailing arrow: advances when its host is hovered or focused ---------- */
+  /* A trailing arrow advances when its host is hovered or focused. */
   .u-arrow {
-    transition: transform 240ms var(--ease-brand);
+    transition: transform 240ms var(--ease-out);
   }
 
   .u-arrow-host:hover .u-arrow,
@@ -644,47 +1983,16 @@ html:lang(zh) {
     transform: translateX(0.3em);
   }
 
-  /* ---- Underline that draws in, for links in a row of identifiers ---------- */
-  .u-link-draw {
-    position: relative;
-    text-decoration-line: none;
-  }
-
-  .u-link-draw::after {
-    content: "";
-    position: absolute;
-    inset-inline: 0;
-    inset-block-end: -0.24em;
-    height: 1px;
-    background-color: currentcolor;
-    transform: scaleX(0);
-    transform-origin: 0 50%;
-    transition: transform 220ms var(--ease-brand);
-  }
-
-  .u-link-draw:hover::after,
-  .u-link-draw:focus-visible::after {
-    transform: scaleX(1);
-  }
-
-  /* ---- Popover panels (app menu, QR codes) ---------------------------------- */
-  .u-popover {
-    background-color: var(--color-panel);
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-pop);
-  }
-
-  /* ---- Band rhythm on product pages -------------------------------------------
-     A rule marks a movement, not a section: `open` starts one and is the only
-     variant that draws a line; `next` and `tight` are separated by space. */
+  /* Band rhythm on product pages. A rule marks a movement, not a section: `open`
+     starts one and is the only variant that draws a line; `next` and `tight` are
+     separated by space. */
   .u-band {
     padding-block: 2.5rem 0.5rem;
   }
 
   .u-band-open {
     margin-block-start: 4rem;
-    border-block-start: 1px solid var(--color-rule);
+    border-block-start: 1px solid var(--rule);
   }
 
   .u-band-next {
@@ -713,46 +2021,43 @@ html:lang(zh) {
     }
   }
 
-  /* ---- Reading progress -------------------------------------------------------
-     A 2px rule at the top edge, driven by `scroll(root)`. It starts at
-     `scaleX(0)` and only the scroll timeline ever scales it, so a browser
-     without scroll-driven animations, or a reader who asked for reduced motion,
-     sees nothing rather than a permanently full bar. */
+  /* Reading progress: a 2px orange rule at the top edge, driven by `scroll(root)`. It
+     starts at `scaleX(0)` and only the scroll timeline ever scales it, so a browser
+     without scroll-driven animations, or a reader who asked for reduced motion, sees
+     nothing rather than a permanently full bar. */
   .u-progress {
     position: fixed;
     inset-block-start: 0;
     inset-inline: 0;
     z-index: 45;
     height: 2px;
-    background-color: var(--color-mark);
+    background-color: var(--mark);
     transform: scaleX(0);
     transform-origin: 0 50%;
     pointer-events: none;
   }
 
-  /* ---- Copy affordance ----------------------------------------------------------
-     Hidden until the layout's script confirms `navigator.clipboard.writeText`:
-     an affordance that cannot work must not be drawn. Outcome states come from
-     `data-state`, set by the same script. */
+  /* The copy affordance. Hidden until the layout's script confirms
+     `navigator.clipboard.writeText`: an affordance that cannot work must not be drawn.
+     Outcome states come from `data-state`, set by the same script. */
   .u-copy {
     display: none;
     align-items: center;
     gap: 0.4em;
     padding: 0.25rem 0.5rem;
-    border: 1px solid var(--color-rule);
+    border: 1px solid var(--rule);
     border-radius: var(--radius-chip);
-    background-color: var(--color-panel);
-    color: var(--color-ink-mute);
-    font-family: var(--font-mono);
+    background-color: var(--paper-elv);
+    color: var(--ink-400);
+    font-family: var(--font-code);
     font-size: 0.6875rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     line-height: 1.4;
     cursor: pointer;
     transition:
-      color 160ms var(--ease-brand),
-      border-color 160ms var(--ease-brand),
-      transform 120ms var(--ease-brand);
+      color var(--dur),
+      border-color var(--dur);
   }
 
   .u-copy[data-ready] {
@@ -760,8 +2065,8 @@ html:lang(zh) {
   }
 
   .u-copy:hover:not([disabled]) {
-    color: var(--color-accent);
-    border-color: color-mix(in oklab, var(--accent) 45%, var(--color-rule));
+    color: var(--ink-900);
+    border-color: var(--rule-strong);
   }
 
   .u-copy:active:not([disabled]) {
@@ -774,117 +2079,28 @@ html:lang(zh) {
   }
 
   .u-copy[data-state="done"] {
-    color: var(--color-live);
-    border-color: color-mix(in oklab, var(--live) 45%, var(--color-rule));
+    color: var(--live);
+    border-color: color-mix(in oklab, var(--live) 45%, var(--rule));
   }
 
   .u-copy[data-state="failed"] {
-    color: var(--color-accent);
-    border-color: color-mix(in oklab, var(--accent) 55%, var(--color-rule));
-  }
-
-  /* ---- Theme control ------------------------------------------------------------
-     Same shape as the language switch, because both answer "which of these am I
-     in". Every rule lives here rather than as utilities on the element: `@layer
-     utilities` outranks `@layer components`, so a `flex` utility would beat the
-     `display: none` below and the control would be drawn on a client that can
-     never make it work. */
-  .u-theme {
-    display: none;
-    align-items: center;
-    overflow: hidden;
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-control);
-  }
-
-  /* Revealed once the pre-paint script has run. */
-  html[data-js] .u-theme {
-    display: flex;
-  }
-
-  .u-lang-seg {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2rem;
-    padding-inline: 0.625rem;
-  }
-
-  .u-theme-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 2rem;
-    padding: 0 0.5rem;
-    background-color: transparent;
-    color: var(--color-ink-mute);
-    cursor: pointer;
-    transition:
-      color 160ms var(--ease-brand),
-      background-color 160ms var(--ease-brand);
-  }
-
-  .u-theme-btn + .u-theme-btn {
-    border-left: 1px solid var(--color-rule);
-  }
-
-  .u-theme-btn:hover {
-    color: var(--color-ink);
-    background-color: var(--color-block);
-  }
-
-  /* Never colour alone: `aria-pressed` is the state, and each segment has its own
-     icon and its own visually hidden label. */
-  .u-theme-btn[aria-pressed="true"] {
-    color: var(--color-ink);
-    background-color: var(--color-block);
-  }
-
-  .u-theme-btn svg {
-    display: block;
-  }
-
-  /* AFTER the base rules, because they set padding through the shorthand and an
-     equally specific override written earlier would lose on source order. At
-     320px the header has the least room; every segment stays above 24×24. */
-  @media (max-width: 374px) {
-    .u-theme-btn {
-      padding-inline: 0.3125rem;
-    }
-
-    .u-lang-seg {
-      padding-inline: 0.5rem;
-    }
+    color: var(--ink-900);
+    border-color: var(--ink-400);
   }
 }
 
 /* ---------------------------------------------------------------------------
-   Utility-layer overrides. `@layer utilities`, not `components`: layer order
-   beats specificity, so a `.u-x ul` rule in `components` would lose to a plain
-   `flex-col` utility on the element.
---------------------------------------------------------------------------- */
+   Motion. CSS only. The home page moves on hover alone: a card lifts and its capture
+   shifts toward its corner. The product pages also reveal their bands on scroll, all
+   of it inside `prefers-reduced-motion: no-preference` plus an `@supports` gate, so an
+   unsupporting or motion-averse browser renders the final state rather than an
+   unrevealed page.
 
-@layer utilities {
-  /* The labelled social row stacks in the home footer's column; in the slim
-     product-page footer it lays out in a line. */
-  .u-social-inline ul {
-    flex-direction: row;
-    flex-wrap: wrap;
-    column-gap: 1.5rem;
-    row-gap: 0.25rem;
-  }
-}
-
-/* ---------------------------------------------------------------------------
-   Motion. CSS only, and all of it inside `prefers-reduced-motion:
-   no-preference` plus an `@supports` gate, so an unsupporting or motion-averse
-   browser renders the final state rather than an unrevealed page.
-
-   EVERY timeline is assigned through `var(--u-timeline)`, never as a literal.
-   Given `animation: X linear both` next to `animation-timeline: view()`,
-   Lightning CSS folds the pair into one shorthand that Chrome rejects outright —
-   the animation silently never runs. A longhand whose value is a `var()` cannot
-   be folded, so the indirection keeps the declaration intact. Do not "simplify"
-   these back to literals.
+   EVERY timeline is assigned through `var(--u-timeline)`, never as a literal. Given
+   `animation: X linear both` next to `animation-timeline: view()`, Lightning CSS folds
+   the pair into one shorthand that Chrome rejects outright — the animation silently
+   never runs. A longhand whose value is a `var()` cannot be folded, so the indirection
+   keeps the declaration intact. Do not "simplify" these back to literals.
 --------------------------------------------------------------------------- */
 
 @keyframes u-reveal {
@@ -921,9 +2137,9 @@ html:lang(zh) {
   }
 }
 
-/* The one time-driven animation. The first viewport is on screen when the
-   document paints, and a `view()` timeline there resolves as "already entered",
-   so the hero would otherwise arrive flat. */
+/* The one time-driven animation. The first viewport is on screen when the document
+   paints, and a `view()` timeline there resolves as "already entered", so a product
+   page's header would otherwise arrive flat. */
 @keyframes u-enter {
   from {
     opacity: 0;
@@ -940,7 +2156,7 @@ html:lang(zh) {
   /* Under `reduce` these rules do not exist, so nothing is ever left holding
      `opacity: 0`. The order is the reading order. */
   .u-enter > * {
-    animation: u-enter 520ms var(--ease-brand) both;
+    animation: u-enter 520ms var(--ease-out) both;
   }
 
   .u-enter > *:nth-child(1) {
@@ -968,9 +2184,9 @@ html:lang(zh) {
     }
 
     /* A view() timeline measures each child's own progress, so a vertical list
-       staggers by itself, but a row of cards arrives as one block. Offsetting
-       `animation-range` per child separates them; scroll-driven animations
-       ignore `animation-delay`. Past the fourth, the cascade reads as lag. */
+       staggers by itself, but a row arrives as one block. Offsetting `animation-range`
+       per child separates them; scroll-driven animations ignore `animation-delay`.
+       Past the fourth, the cascade reads as lag. */
     .u-stagger > * {
       --u-timeline: view();
       animation: u-rise linear both;
@@ -999,14 +2215,15 @@ html:lang(zh) {
     }
   }
 
-  /* Cross-document view transitions: an app card's icon and name morph into the
-     product page's header. */
+  /* Cross-document view transitions: a card's icon and name morph into the product
+     page's header. */
   @view-transition {
     navigation: auto;
   }
 }
 
-/* Transitions and animations are neutralised rather than shortened. */
+/* Transitions and animations are neutralised rather than shortened, and nothing lifts
+   or shifts on hover. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -1015,5 +2232,14 @@ html:lang(zh) {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
+  }
+
+  .u-app:hover,
+  .u-app:hover .u-app-well img,
+  .u-app:hover .u-session,
+  .u-card-link:hover,
+  .u-tile:hover .u-tile-box,
+  details[open] > .u-tile .u-tile-box {
+    transform: none;
   }
 }

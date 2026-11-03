@@ -2,7 +2,7 @@
 import AppIcon from './AppIcon.astro';
 import { useWayfinding } from '../i18n/wayfinding';
 import { useTranslations, type Lang } from '../i18n/ui';
-import { products, productHref, type ProductId } from '../i18n/products';
+import { products, productHref, productKind, type ProductId } from '../i18n/products';
 
 /**
  * NextProduct — the pager that ends a product page with one obvious next move,
@@ -47,17 +47,17 @@ const wrapped = at !== -1 && nextIndex < at;
             )}
           </p>
           <p class="u-display u-display-latin text-title-sm mt-1">
-            <a href={productHref(lang, next)} class="u-stretch group-hover:text-accent">
+            <a href={productHref(lang, next)} class="u-stretch">
               {next.name}
             </a>
           </p>
           <p class="text-ink-body mt-1.5 text-sm">
-            <span class="sr-only">{t(`category.${next.category}`)} — </span>
+            <span class="sr-only">{t(productKind(next))} — </span>
             {next.tagline[lang]}
           </p>
         </div>
 
-        <span aria-hidden="true" class="u-arrow text-ink-mute group-hover:text-accent shrink-0 text-2xl leading-none">
+        <span aria-hidden="true" class="u-arrow text-ink-mute group-hover:text-ink shrink-0 text-2xl leading-none">
           →
         </span>
       </article>

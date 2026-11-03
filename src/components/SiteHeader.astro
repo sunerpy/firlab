@@ -1,31 +1,32 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import Wordmark from './Wordmark.astro';
-import AppIcon from './AppIcon.astro';
+import Icon from './Icon.astro';
 import SocialIcon from './SocialIcon.astro';
 import ThemeSwitch from './ThemeSwitch.astro';
 import LangSwitch from './LangSwitch.astro';
+import ProjectGroups from './ProjectGroups.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
-import { products, productHref, type ProductId } from '../i18n/products';
+import type { ProductId } from '../i18n/products';
 
 /**
- * SiteHeader — the sticky bar on every page: wordmark, the app menu, GitHub, theme
- * and language.
+ * SiteHeader — the sticky bar on every page: the wordmark, the menu in plain words, and
+ * the tools at the end of the bar.
  *
- * Products are reached through ONE menu rather than one link each, so the bar's
- * width does not depend on how many products exist. A link per product needed
- * its widths re-measured at every breakpoint whenever one was added; the menu
- * holds any number, in catalog order, with each product's icon and category.
+ * The menu's first item opens every project at once, a column per category with each
+ * project's icon and current version, so the bar's width does not depend on how many
+ * projects exist. The other two items lead to the home page's sections. The current
+ * section carries a 2px ink line under its word, Voltip's rule: on a product page that is
+ * "Projects".
  *
- * The menu is a `<details>` disclosure, so it opens and closes with scripting off
- * and announces its expanded state natively; the layout's script adds Escape,
- * outside-click and one-open-at-a-time. The `<details>` itself is NOT positioned:
- * the panel is placed against the bar's content column instead, so on a 320px
- * phone it can use the full column rather than starting under the summary and
- * running off the right edge.
+ * Every menu is a `<details>` disclosure, so it opens and closes with scripting off and
+ * announces its expanded state natively; the layout's script adds Escape, outside-click
+ * and one-open-at-a-time. Below 768px the words give way to one menu button whose sheet
+ * holds the same projects and links.
  *
- * On a product page that product's entry is marked `aria-current="page"` and is
- * not a link to itself.
+ * The tools: language and theme as icon menus, then the Official Account from 1024px
+ * and the ink GitHub pill from 768px. Measured with both shown, the bar ran 19px into the
+ * gutter at 768px; the Official Account stays reachable from the hero and the footer.
  */
 interface Props {
   lang: Lang;
@@ -39,106 +40,84 @@ const t = useTranslations(lang);
 const home = getRelativeLocaleUrl(lang, '');
 ---
 
-<header class="u-header">
-  <div class="u-shell relative flex h-16 items-center gap-2 sm:gap-3">
-    {/* Below 420px only the 18px glyph shows. A pseudo-element grows the hit area
-        8px on every side (34 × 45px) without widening the bar, which at 320px has
-        no width to give. */}
-    <a
-      href={home}
-      class="text-ink hover:text-ink relative inline-flex shrink-0 items-center no-underline before:absolute before:-inset-2"
-      aria-label={t('nav.home')}
-    >
-      <Wordmark compact />
+<header class="u-nav">
+  <div class="u-shell u-nav-in">
+    <a href={home} class="u-brand" aria-label={t('nav.home')}>
+      <Wordmark />
     </a>
 
-    <nav aria-label={t('nav.label')} class="ml-1 sm:ml-4">
-      <details data-popover class="group">
-        <summary
-          class="text-ink-soft hover:text-ink hover:bg-block group-open:bg-block group-open:text-ink inline-flex h-9 items-center gap-1.5 rounded-[var(--radius-control)] px-3 text-sm font-medium"
-        >
-          {t('nav.apps')}
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 12 12"
-            fill="none"
-            aria-hidden="true"
-            class="transition-transform duration-200 group-open:rotate-180"
-          >
-            <path
-              d="M2.5 4.5 L6 8 L9.5 4.5"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-              stroke-linejoin="round"></path>
-          </svg>
+    <nav class="u-menu" aria-label={t('nav.label')}>
+      <details data-popover class:list={['u-menu-projects', currentId && 'is-current']}>
+        <summary>
+          {t('nav.projects')}
+          <Icon name="chevronDown" size={14} strokeWidth={2} />
         </summary>
-
-        <div
-          class="u-popover absolute top-[calc(100%_+_0.25rem)] left-[var(--gutter)] z-50 w-[min(22rem,calc(100%_-_2*var(--gutter)))] p-2"
-        >
-          <p class="u-meta text-ink-mute px-2.5 pt-1.5 pb-2">{t('nav.appsList')}</p>
-          <ul>
-            {
-              products.map((product) => (
-                <li>
-                  {product.id === currentId ? (
-                    <span
-                      aria-current="page"
-                      class="bg-block flex items-center gap-3 rounded-[var(--radius-control)] px-2.5 py-2"
-                    >
-                      <AppIcon product={product.id} size={36} />
-                      <span class="min-w-0">
-                        <span class="text-ink block text-sm font-semibold">{product.name}</span>
-                        <span class="text-ink-mute block text-xs">
-                          {t(`category.${product.category}`)}
-                          <span class="sr-only"> — {t('nav.current')}</span>
-                        </span>
-                      </span>
-                    </span>
-                  ) : (
-                    <a
-                      href={productHref(lang, product)}
-                      class="u-row flex items-center gap-3 rounded-[var(--radius-control)] px-2.5 py-2 no-underline"
-                    >
-                      <AppIcon product={product.id} size={36} />
-                      <span class="min-w-0">
-                        <span class="text-ink block text-sm font-semibold">{product.name}</span>
-                        <span class="text-ink-mute block text-xs">{t(`category.${product.category}`)}</span>
-                      </span>
-                    </a>
-                  )}
-                </li>
-              ))
-            }
-          </ul>
-          <div class="border-rule mt-1.5 border-t pt-1.5">
-            <a
-              href={`${home}#apps`}
-              class="u-row u-arrow-host text-ink-soft flex items-center justify-between rounded-[var(--radius-control)] px-2.5 py-2 text-sm no-underline"
-            >
-              {t('nav.allApps')}
-              <span aria-hidden="true" class="u-arrow text-ink-mute">→</span>
-            </a>
+        <div class="u-pop u-mega">
+          <ProjectGroups lang={lang} currentId={currentId} idPrefix="mega" />
+          <div class="u-mega-foot">
+            <a class="u-link" href={`${home}#projects`}>{t('nav.allProjects')}</a>
+            <a class="u-link" href={`${home}#releases`}>{t('nav.releases')}</a>
           </div>
         </div>
       </details>
+      <a href={`${home}#releases`}>{t('nav.releases')}</a>
+      <a href={`${home}#feedback`}>{t('nav.feedback')}</a>
     </nav>
 
-    <div class="ml-auto flex shrink-0 items-center gap-2">
+    <div class="u-tools">
+      <LangSwitch lang={lang} />
+      <ThemeSwitch lang={lang} />
+
+      <span class="u-nav-sep u-only-xl" aria-hidden="true"></span>
+      <details data-popover class="u-only-xl">
+        <summary class="u-nav-strong">
+          <SocialIcon id="wechat" size={17} />
+          {t('nav.wechatOa')}
+        </summary>
+        <div class="u-pop u-pop-end u-qr">
+          {/* White plate in both themes: a scanner needs a light ground. */}
+          <img
+            src="/wechat-official-account.jpg"
+            width="430"
+            height="430"
+            alt={t('social.wechatOa.alt')}
+            loading="lazy"
+            decoding="async"
+          />
+          <p>{t('social.wechatOa.name')} · {t('social.wechatOa.caption')}</p>
+        </div>
+      </details>
+
       <a
+        class="u-btn u-btn-ink u-btn-sm u-only-wide"
         href="https://github.com/sunerpy"
         target="_blank"
         rel="noopener noreferrer"
-        class="u-icon-btn hidden sm:inline-flex"
-        aria-label={t('social.github')}
-        title={t('social.github')}
       >
-        <SocialIcon id="github" />
+        <SocialIcon id="github" size={16} />
+        GitHub
       </a>
-      <ThemeSwitch lang={lang} />
-      <LangSwitch lang={lang} />
+
+      {/* The phone menu. Not positioned itself, so its sheet is placed against the bar's
+          content column and can use the whole width of a 320px screen. */}
+      <details data-popover class="u-burger u-only-narrow">
+        <summary class="u-icon-btn" aria-label={t('nav.menu')} title={t('nav.menu')}>
+          <Icon name="menu" size={20} />
+        </summary>
+        <div class="u-pop u-sheet">
+          <ProjectGroups lang={lang} currentId={currentId} idPrefix="sheet" />
+          <ul class="u-sheet-links">
+            <li><a href={`${home}#releases`}>{t('nav.releases')}</a></li>
+            <li><a href={`${home}#feedback`}>{t('nav.feedback')}</a></li>
+            <li>
+              <a href="https://github.com/sunerpy" target="_blank" rel="noopener noreferrer">
+                <SocialIcon id="github" size={16} />
+                GitHub
+              </a>
+            </li>
+          </ul>
+        </div>
+      </details>
     </div>
   </div>
 </header>

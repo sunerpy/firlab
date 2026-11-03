@@ -3,10 +3,10 @@ import { useTranslations, type Lang } from '../i18n/ui';
 import type { Status } from '../i18n/products';
 
 /**
- * StatusTag — maturity, stated as text. Colour reinforces it and never carries it
- * alone (WCAG 1.4.1). The dot may use the brand orange, which is decoration; the
- * label may not, since orange-500 on paper measures 2.7:1, so labels use the
- * AA-safe accent and live steps.
+ * StatusTag — maturity, stated as text. Colour reinforces it and never carries it alone
+ * (WCAG 1.4.1). The dot may use the brand orange, which is decoration; the label may not,
+ * since orange-500 on the sheet measures 2.7:1, so an early release's label is ink and only
+ * its dot is orange.
  */
 interface Props {
   lang: Lang;
@@ -16,22 +16,6 @@ interface Props {
 
 const { lang, state, class: className = '' } = Astro.props;
 const t = useTranslations(lang);
-
-const copy = {
-  live: t('status.live'),
-  early: t('status.early'),
-  wip: t('status.wip'),
-}[state];
-
-const tone = {
-  live: 'text-live before:bg-live',
-  early: 'text-accent before:bg-mark',
-  wip: 'text-ink-mute before:bg-ink-mute',
-}[state];
 ---
 
-<span
-  class={`inline-flex items-center gap-1.5 text-xs leading-none font-medium whitespace-nowrap before:block before:size-1.5 before:shrink-0 before:rounded-full ${tone} ${className}`}
->
-  {copy}
-</span>
+<span class={`u-status u-status-${state} ${className}`}>{t(`status.${state}`)}</span>

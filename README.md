@@ -1,8 +1,8 @@
 # firlab
 
 Source for [firlab.app](https://firlab.app) — the catalog of FirLab's open-source
-apps: desktop apps, command-line tools and self-hosted services, each with its
-overview, documentation and downloads.
+projects, from everyday desktop and mobile apps to developer tools, services and
+gateways, each with its overview, documentation and downloads.
 
 ## Stack
 
@@ -26,13 +26,15 @@ pnpm build       # production build into ./dist
 pnpm preview     # serve ./dist locally to verify the build
 ```
 
-## Adding an app
+## Adding a project
 
-The home page, the header's app menu, the footer and the release list all render
-from one list, `src/i18n/products.ts`. A new app is an entry there, two version
-constants in `src/i18n/versions.ts` plus a row in `scripts/check-versions.mjs`,
-and its icon in `src/components/AppIcon.astro`. [DESIGN.md §4](DESIGN.md#4-the-catalog)
-has the checklist and the rules for its one-line description.
+The home page, the header's projects menu, the footer and the release list all
+render from one list, `src/i18n/products.ts`. A new project is an entry there, two
+version constants in `src/i18n/versions.ts` plus a row in
+`scripts/check-versions.mjs`, its icon in `src/components/AppIcon.astro`, and what
+its card shows — a capture copied into `public/screens/` or a session — in
+`src/i18n/showcase.ts`. [DESIGN.md §4](DESIGN.md#4-the-catalog) has the checklist
+and the rules for its one-line description.
 
 ## Deployment
 

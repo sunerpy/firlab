@@ -36,10 +36,10 @@ const gap = {
   class={`u-reveal u-band grid gap-y-6 lg:grid-cols-12 lg:gap-x-10 ${gap}`}
 >
   <div class="flex items-baseline gap-4 lg:col-span-3 lg:flex-col lg:gap-2 lg:pt-1.5">
-    {/* `text-accent`, not the brand orange: this is text, and #F97316 measures
-        2.7:1 on paper. The orange is reserved for marks, dots and the one
-        left rule that means "this is the claim". */}
-    <span class="u-meta text-accent tabular-nums">{section.num}</span>
+    {/* Ink, not the brand orange: this is text, and #F97316 fails AA on paper. The
+        orange is reserved for marks, dots and the one left rule that means "this is
+        the claim". */}
+    <span class="u-meta text-ink tabular-nums">{section.num}</span>
     <span class="u-meta text-ink-mute">{section.label}</span>
   </div>
 

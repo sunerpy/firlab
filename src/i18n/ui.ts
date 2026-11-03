@@ -42,9 +42,9 @@ const zh = {
   'nav.breadcrumb': '面包屑导航',
 
   'lang.label': '语言',
-  'lang.zh': '中',
-  'lang.en': 'EN',
-  'lang.switchTo': '切换到 English',
+  /** Each language is named in itself, in both dictionaries. */
+  'lang.zh': '简体中文',
+  'lang.en': 'English',
 
   /**
    * Theme control. `theme.system` is a real third state, not a reset button:
@@ -67,21 +67,34 @@ const zh = {
   'social.wechatOa': '公众号',
   'social.wechatOa.caption': '微信扫码关注',
   'social.wechatOa.alt': '微信公众号「六月水蓝」的二维码',
+  'social.wechatOa.name': '公众号「六月水蓝」',
+  /** Under a tile, where the full name would wrap three times in English. */
+  'social.wechatOa.short': '公众号',
 
-  'nav.apps': '应用',
-  'nav.appsList': '应用列表',
-  'nav.allApps': '查看全部应用',
+  'nav.projects': '项目',
+  'nav.allProjects': '查看全部项目',
+  'nav.releases': '最近发布',
+  'nav.feedback': '问题与建议',
+  /** The nav's short label for the Official Account; its panel names it in full. */
+  'nav.wechatOa': '公众号',
+  'nav.menu': '菜单',
   'nav.current': '当前页面',
 
-  'category.service': '自部署服务',
-  'category.cli': '命令行工具',
+  /**
+   * What one project is, on its card, in the menus and on its page. A desktop app that
+   * also ships for Android says so (`productKind` in products.ts picks the key).
+   */
+  'category.service': '服务与网关',
+  'category.cli': '开发者工具',
   'category.desktop': '桌面应用',
+  'category.desktopMobile': '桌面与手机应用',
 
+  /** A category as a group: the filter tabs, the menus' and the footer's columns. */
   'filter.label': '按类别查看',
   'filter.all': '全部',
-  'filter.service': '自部署服务',
-  'filter.cli': '命令行工具',
-  'filter.desktop': '桌面应用',
+  'filter.service': '服务与网关',
+  'filter.cli': '开发者工具',
+  'filter.desktop': '应用',
 
   'platform.label': '支持平台',
   'platform.windows': 'Windows',
@@ -104,7 +117,7 @@ const zh = {
   'status.early': '早期版本',
   'status.wip': '开发中',
 
-  'footer.blurb': 'FirLab 的所有应用都在 GitHub 上开源。问题和建议请提交到对应项目的 Issues。',
+  'footer.blurb': 'FirLab 的所有项目都在 GitHub 上开源。问题和建议请提交到对应项目的 Issues。',
   'footer.copyright': '© {year} sunerpy',
   'footer.privacy': '无统计代码，无 Cookie',
   'footer.nav': '页脚导航',
@@ -117,9 +130,8 @@ const en: Record<keyof typeof zh, string> = {
   'nav.breadcrumb': 'Breadcrumb',
 
   'lang.label': 'Language',
-  'lang.zh': '中',
-  'lang.en': 'EN',
-  'lang.switchTo': 'Switch to 中文',
+  'lang.zh': '简体中文',
+  'lang.en': 'English',
 
   'theme.label': 'Theme',
   'theme.system': 'Follow system',
@@ -137,21 +149,27 @@ const en: Record<keyof typeof zh, string> = {
   'social.wechatOa': 'WeChat Official Account',
   'social.wechatOa.caption': 'Scan with WeChat to follow',
   'social.wechatOa.alt': 'QR code of the WeChat Official Account 六月水蓝',
+  'social.wechatOa.name': 'Official Account 六月水蓝',
+  'social.wechatOa.short': 'Official Account',
 
-  'nav.apps': 'Apps',
-  'nav.appsList': 'App list',
-  'nav.allApps': 'See all apps',
+  'nav.projects': 'Projects',
+  'nav.allProjects': 'See all projects',
+  'nav.releases': 'Releases',
+  'nav.feedback': 'Feedback',
+  'nav.wechatOa': 'WeChat',
+  'nav.menu': 'Menu',
   'nav.current': 'Current page',
 
   'category.service': 'Self-hosted service',
-  'category.cli': 'Command-line tool',
+  'category.cli': 'Developer tool',
   'category.desktop': 'Desktop app',
+  'category.desktopMobile': 'Desktop and mobile app',
 
   'filter.label': 'Show by category',
   'filter.all': 'All',
-  'filter.service': 'Self-hosted services',
-  'filter.cli': 'Command-line tools',
-  'filter.desktop': 'Desktop apps',
+  'filter.service': 'Services and gateways',
+  'filter.cli': 'Developer tools',
+  'filter.desktop': 'Apps',
 
   'platform.label': 'Platforms',
   'platform.windows': 'Windows',
@@ -174,7 +192,7 @@ const en: Record<keyof typeof zh, string> = {
   'status.early': 'Early release',
   'status.wip': 'In development',
 
-  'footer.blurb': "Every FirLab app is open source on GitHub. Report problems and suggestions in the project's issues.",
+  'footer.blurb': "Every FirLab project is open source on GitHub. Report problems and suggestions in the project's issues.",
   'footer.copyright': '© {year} sunerpy',
   'footer.privacy': 'No analytics, no cookies',
   'footer.nav': 'Footer navigation',

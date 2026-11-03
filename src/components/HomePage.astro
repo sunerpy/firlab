@@ -7,18 +7,18 @@ import ContactSection from './ContactSection.astro';
 import SiteFooter from './SiteFooter.astro';
 import SocialIcon from './SocialIcon.astro';
 import { useTranslations, type Lang } from '../i18n/ui';
-import { getHomeContent } from '../i18n/content';
-import { products, productHref } from '../i18n/products';
+import { getHomeContent, listJoin } from '../i18n/content';
+import { latestReleases, products, productHref, PLATFORM_ORDER } from '../i18n/products';
 import { PERSON_ID, FREE_OFFER } from '../i18n/schema';
 
 /**
- * The home page: a short introduction, the app catalog, the latest releases, and
- * where to report problems or follow along. Assembled once and rendered per
- * locale, so the two languages stay structurally identical.
+ * The home page: a short introduction, the project catalog, the latest releases, and
+ * where to report problems or follow along. Assembled once and rendered per locale, so
+ * the two languages stay structurally identical.
  *
- * The introduction names no product and counts none. The catalog below it is the
- * list, and it is generated, so the page is the same page with five products or
- * fifteen.
+ * The introduction's prose names no product and counts none. Its facts are generated —
+ * the platforms are the union of what the catalog ships for, the latest release is the
+ * newest in `versions.ts` — so the page is the same page with five projects or fifteen.
  */
 interface Props {
   lang: Lang;
@@ -28,6 +28,17 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 const c = getHomeContent(lang);
 const site = Astro.site!;
+
+const platforms = listJoin(
+  lang,
+  PLATFORM_ORDER.filter((platform) => products.some((product) => product.platforms.includes(platform))).map(
+    (platform) => t(`platform.${platform}`),
+  ),
+);
+const newest = latestReleases()[0];
+
+/** A lede of runs: English needs a space between them; Chinese sets none after 。 or ，. */
+const gap = lang === 'en' ? ' ' : '';
 
 // One SoftwareApplication node per product, inside an ItemList.
 //
@@ -43,7 +54,7 @@ const site = Astro.site!;
 const structuredData = [
   {
     '@type': 'ItemList',
-    name: c.appsTitle,
+    name: c.projectsTitle,
     itemListOrder: 'https://schema.org/ItemListUnordered',
     numberOfItems: products.length,
     itemListElement: products.map((product, i) => ({
@@ -78,83 +89,91 @@ const structuredData = [
 >
   <SiteHeader lang={lang} />
 
-  <main id="main" class="u-shell">
-    <section class="u-enter pt-14 pb-14 md:pt-24 md:pb-20">
-      {/* Two lines, one heading: the brand at hero size, then what it offers. The
-          accessible name reads as one sentence, "FirLab 开源的…". */}
-      <h1 class="u-display">
-        <span class="u-display-latin text-hero block">{c.heroTitle}</span>
-        <span class="text-ink-soft mt-3 block max-w-[24em] text-[1.375rem] font-semibold sm:text-title md:mt-4">
-          {
-            c.heroSubtitle.map((phrase, i) => (
-              <>
-                {i > 0 && lang === 'en' && ' '}
-                <span class="inline-block">{phrase}</span>
-              </>
-            ))
-          }
-        </span>
-      </h1>
+  <main id="main">
+    <section class="u-hero">
+      <div class="u-shell u-hero-grid">
+        {/* Two lines, one heading: the brand at hero size, then what it offers. The
+            accessible name reads as one sentence, "FirLab 开源软件…". */}
+        <h1>
+          <span class="u-hero-name">{c.heroTitle}</span>{' '}
+          <span class="u-hero-line">
+            {
+              c.heroLine.map((run, i) => (
+                <>
+                  {i > 0 && gap}
+                  <span class="u-run">{run}</span>
+                </>
+              ))
+            }
+          </span>
+        </h1>
 
-      {/* Sentences are inline-blocks: one that fits the line stays whole, so the
-          lede breaks between sentences rather than mid-word. A sentence longer than
-          the line still wraps inside its own box. English needs the space between
-          them; Chinese sets none after 。. */}
-      <p class="u-lede text-ink-body mt-6 md:mt-7">
-        {
-          c.heroLede.map((sentence, i) => (
-            <>
-              {i > 0 && lang === 'en' && ' '}
-              <span class="inline-block">{sentence}</span>
-            </>
-          ))
-        }
-      </p>
+        <div class="u-hero-side">
+          {/* Clauses are inline-blocks: one that fits the line stays whole, so the lede
+              breaks between clauses rather than mid-word. A clause longer than the line
+              still wraps inside its own box. */}
+          <p>
+            {
+              c.heroLede.map((run, i) => (
+                <>
+                  {i > 0 && gap}
+                  <span class="u-run">{run}</span>
+                </>
+              ))
+            }
+          </p>
 
-      {/* The QR panel is placed against this row on phones and against its own
-          button from `sm` up: under the second button of a 375px row, a panel
-          anchored to the button would run past the screen's right edge. */}
-      <div class="relative mt-8 flex flex-wrap items-center gap-3">
-        <a
-          href="https://github.com/sunerpy"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="u-btn u-btn-primary"
-        >
-          <SocialIcon id="github" size={18} />
-          {c.heroGithub}
-        </a>
-
-        <details data-popover class="sm:relative">
-          <summary class="u-btn u-btn-secondary">
-            <SocialIcon id="wechat" size={18} />
-            {c.heroFollow}
-          </summary>
-          <div class="u-popover absolute top-[calc(100%_+_0.5rem)] left-0 z-30 w-[13.5rem] p-3">
-            {/* White plate in both themes: a scanner needs a light ground. */}
-            <img
-              src="/wechat-official-account.jpg"
-              alt={t('social.wechatOa.alt')}
-              width="430"
-              height="430"
-              decoding="async"
-              class="block w-full rounded-[var(--radius-chip)] bg-white"
-            />
-            <p class="text-ink-mute mt-2.5 text-center text-xs">{t('social.wechatOa.caption')}</p>
+          <div class="u-actions">
+            <a class="u-btn u-btn-ink" href="https://github.com/sunerpy" target="_blank" rel="noopener noreferrer">
+              <SocialIcon id="github" size={18} />
+              {c.heroGithub}
+            </a>
+            <details data-popover>
+              <summary class="u-btn u-btn-line">
+                <SocialIcon id="wechat" size={18} />
+                {c.heroFollow}
+              </summary>
+              <div class="u-pop u-qr">
+                {/* White plate in both themes: a scanner needs a light ground. */}
+                <img
+                  src="/wechat-official-account.jpg"
+                  width="430"
+                  height="430"
+                  alt={t('social.wechatOa.alt')}
+                  decoding="async"
+                />
+                <p>{t('social.wechatOa.name')} · {t('social.wechatOa.caption')}</p>
+              </div>
+            </details>
           </div>
-        </details>
+
+          <ul class="u-facts">
+            <li>{c.factPlatforms.replace('{list}', platforms)}</li>
+            {
+              newest && (
+                <li>
+                  <span>
+                    {c.factLatest}
+                    <a class="u-link" href="#releases">
+                      {newest.name} {newest.version}
+                    </a>
+                    {c.factLatestSep}
+                    {newest.released}
+                  </span>
+                </li>
+              )
+            }
+            <li>{c.factPrivacy}</li>
+          </ul>
+        </div>
       </div>
     </section>
 
-    <AppCatalog lang={lang} title={c.appsTitle} />
+    <AppCatalog lang={lang} title={c.projectsTitle} words={c.projectsWords} />
 
-    <div class="mt-20 md:mt-28">
-      <ReleaseList lang={lang} title={c.releasesTitle} note={c.releasesNote} />
-    </div>
+    <ReleaseList lang={lang} title={c.releasesTitle} note={c.releasesNote} linkLabel={c.releaseNotes} />
 
-    <div class="mt-20 mb-24 md:mt-28 md:mb-32">
-      <ContactSection lang={lang} content={c} />
-    </div>
+    <ContactSection lang={lang} content={c} />
   </main>
 
   <SiteFooter lang={lang} />
