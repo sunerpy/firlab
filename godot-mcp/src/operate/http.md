@@ -75,7 +75,7 @@ present `Authorization: Bearer <token>`, and one without it is answered HTTP 401
 carries an `Origin` header, which a web page in a browser does, is answered HTTP 403 unless that
 origin is configured. The token travels in clear over HTTP, so it keeps out the other devices on
 the network, not someone who can watch its traffic. The
-[`open` reference](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/http-open.md) has the configuration file, the `Host` and
+[`open` reference](../reference/http-open.md) has the configuration file, the `Host` and
 `Origin` keys and every refusal.
 
 ## `proxied_oidc`

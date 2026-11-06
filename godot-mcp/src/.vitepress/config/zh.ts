@@ -19,6 +19,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
   {
     text: '使用',
     items: [
+      { text: '覆盖范围', link: '/zh/guide/capabilities' },
       { text: '静态分析', link: '/zh/guide/analysis' },
       { text: '修改项目', link: '/zh/guide/editing' },
       { text: '运行引擎', link: '/zh/guide/engine' },
@@ -45,11 +46,13 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: '托管会话', link: '/zh/reference/managed-sessions' },
       { text: '导出', link: '/zh/reference/exports' },
       { text: '编辑器桥接', link: '/zh/reference/editor-bridge' },
+      { text: '配方', link: '/zh/reference/recipes' },
       { text: '产物', link: '/zh/reference/artifacts' },
       { text: '进程边界', link: '/zh/reference/process-boundaries' },
       { text: '恢复详解', link: '/zh/reference/recovery' },
       { text: 'HTTP：trusted_local', link: '/zh/reference/http-trusted-local' },
       { text: 'HTTP：proxied_oidc', link: '/zh/reference/http-proxied-oidc' },
+      { text: 'HTTP：open', link: '/zh/reference/http-open' },
       { text: '威胁模型', link: '/zh/reference/threat-model' },
       { text: '能力实操与验证复现', link: '/zh/reference/usage' },
     ],

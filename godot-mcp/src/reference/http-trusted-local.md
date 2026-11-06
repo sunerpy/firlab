@@ -12,7 +12,7 @@ socket.
 
 * The listener binds a loopback address. A non-loopback bind is rejected by
   `check-config`, so no `trusted_local` configuration is reachable from another host.
-  To serve another machine of a development network, the [`open`](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/http-open.md) mode
+  To serve another machine of a development network, the [`open`](http-open.md) mode
   binds any address.
 * Every request carries a **per-launch secret** scoped to the user who started the
   server. A new launch means a new secret; a secret from a previous launch is not
@@ -138,4 +138,4 @@ If the client cannot run on this host, do not widen this mode. Put a same-host
 reverse proxy in front and switch to
 [`proxied_oidc`](http-proxied-oidc.md), which is the authenticated way to serve a
 request that originates off-host. On a development network whose machines are yours,
-[`open`](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/http-open.md) serves the other machine directly instead.
+[`open`](http-open.md) serves the other machine directly instead.

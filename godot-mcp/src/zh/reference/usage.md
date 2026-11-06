@@ -91,9 +91,9 @@ godot-mcp serve: startup failed: project ownership could not be established: no 
 
 资源的两列相加，等于 [工具与资源清单](../../reference/tools.md) 里生成的 Resources 列（`core` 为 4，其余三个为 5）：生成清单把资源模板计入总数，而 `resources/list` 不返回模板。那一个模板是 `godot-mcp://artifacts/{artifact_id}`，导出产物与截图都从这里读，见 [Artifacts](../../reference/artifacts.md)。一个 artifact 只对产生它的那个调用方列出、可读，过期后从列表和读取里一起消失。
 
-每个 profile 都有 `godot-mcp.profile-guide` 这一个 prompt；`editor` 与 `full` 另有 11 个配方 prompt，名字是 `godot-mcp.recipe.<配方名>`，正文给出参数表、调用模板和配方展开成的操作，见 [配方](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/recipes.md)。prompt 不占工具名额。
+每个 profile 都有 `godot-mcp.profile-guide` 这一个 prompt；`editor` 与 `full` 另有 11 个配方 prompt，名字是 `godot-mcp.recipe.<配方名>`，正文给出参数表、调用模板和配方展开成的操作，见 [配方](../../reference/recipes.md)。prompt 不占工具名额。
 
-**下面四节是 0.1.0 上的一次普查。** 那时 `full` 有 73 个工具（0.1.1、0.1.2 不变，`core`、`editor`、`runtime` 分别为 15、48、44），之后的版本新增的 57 个工具没有用这个方法重测，它们的调用方法见 [编辑器桥](../../reference/editor-bridge.md)、[托管会话](../../reference/managed-sessions.md)、[配方](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/recipes.md) 与 [Profiles and tool outcomes](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/profiles-and-outcomes.md)。在一台配了真实 Godot 4.7.1、supervisor 就位的主机上，把 0.1.0 的 `full` 的 73 个工具按名字顺序、逐个只带内核自己拥有的 `idempotencyId` 串行调一遍（`limits.deadline_ms` 为 30000），实测 20 个给出答案，37 个因为缺参数被拒，15 个拒绝执行，1 个撞上执行超时。顺序有影响：排在前面的调用会改变后面调用看到的状态，下面会点出来。
+**下面四节是 0.1.0 上的一次普查。** 那时 `full` 有 73 个工具（0.1.1、0.1.2 不变，`core`、`editor`、`runtime` 分别为 15、48、44），之后的版本新增的 57 个工具没有用这个方法重测，它们的调用方法见 [编辑器桥](../../reference/editor-bridge.md)、[托管会话](../../reference/managed-sessions.md)、[配方](../../reference/recipes.md) 与 [Profiles and tool outcomes](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/profiles-and-outcomes.md)。在一台配了真实 Godot 4.7.1、supervisor 就位的主机上，把 0.1.0 的 `full` 的 73 个工具按名字顺序、逐个只带内核自己拥有的 `idempotencyId` 串行调一遍（`limits.deadline_ms` 为 30000），实测 20 个给出答案，37 个因为缺参数被拒，15 个拒绝执行，1 个撞上执行超时。顺序有影响：排在前面的调用会改变后面调用看到的状态，下面会点出来。
 
 ## 20 个无需参数就给出答案的调用
 
@@ -309,7 +309,7 @@ tests/fixtures/godot-releases.lock.json
 * `project.test` 只运行项目已经提交的 GUT 或 gdUnit4，不安装测试框架；GUT 的版本要与 Godot 的小版本匹配。没有框架或同时存在两套框架时返回 `unsupported`，零退出但没有可解析汇总时返回 `inconclusive`。
 * `script.validate` 是静态分析而非引擎背书，响应自带 `engine_validation_not_performed`；需要真实编译检查时使用 `script.check`。
 * 引擎版本与能力探测按设计不在健康路径上报：健康路径不启动 Godot，所以 version 为 `null`、capabilities_probed 为 `false`。
-* stdio 通道上 HTTP 就绪状态是 disabled，codes 里对应 `http_disabled`。需要第二个本地进程接同一个服务器时考虑 [HTTP: `trusted_local`](../../reference/http-trusted-local.md)；要从开发网络里的另一台机器连进来，用 [HTTP: `open`](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/http-open.md)。
+* stdio 通道上 HTTP 就绪状态是 disabled，codes 里对应 `http_disabled`。需要第二个本地进程接同一个服务器时考虑 [HTTP: `trusted_local`](../../reference/http-trusted-local.md)；要从开发网络里的另一台机器连进来，用 [HTTP: `open`](../../reference/http-open.md)。
 * 可选的 gdext 原生后端不存在：ADR 0010 的 spike 没有满足激活门槛，见 [ADR 0010](https://github.com/sunerpy/godot-mcp/blob/main/docs/contributor/adr/0010-complete-development-bridge-strategy.md)。
 
 ## 参见

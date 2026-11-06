@@ -59,7 +59,7 @@ godot-mcp serve --project /path/to/my-game --profile full --http 0.0.0.0:8765
 
 在另一台机器上，把服务器输出中 `other hosts` 那一行的 URL 填进 `url`。
 
-`--http-token-env <VAR>` 指定一个保存令牌的环境变量：此后每个请求都要带上 `Authorization: Bearer <token>`，不带的请求答复 HTTP 401。带 `Origin` 头的请求（浏览器里的网页会带上它）答复 HTTP 403，除非配置了这个来源。令牌通过 HTTP 明文传输：它可以阻止网络里的其他设备访问，但无法防范能监听网络流量的人。配置文件写法、`Host` 与 `Origin` 两个键以及每一种拒绝，见 [`open` 参考](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/http-open.md)。
+`--http-token-env <VAR>` 指定一个保存令牌的环境变量：此后每个请求都要带上 `Authorization: Bearer <token>`，不带的请求答复 HTTP 401。带 `Origin` 头的请求（浏览器里的网页会带上它）答复 HTTP 403，除非配置了这个来源。令牌通过 HTTP 明文传输：它可以阻止网络里的其他设备访问，但无法防范能监听网络流量的人。配置文件写法、`Host` 与 `Origin` 两个键以及每一种拒绝，见 [`open` 参考](../../reference/http-open.md)。
 
 ## `proxied_oidc`
 

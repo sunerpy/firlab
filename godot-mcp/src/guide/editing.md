@@ -67,7 +67,7 @@ presets, navigation, a sound, a shader material, a HUD, a grid map, an on-screen
 into a scene by name with `scene.recipe.apply`, with their parameters: the server turns the
 recipe into one batch like the ones above, or, for a scene your editor holds, into one undoable
 action, and answers every value it used. A theme recipe goes to `resource.create`. The
-[recipes reference](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/recipes.md) shows each recipe's call and the operations it
+[recipes reference](../reference/recipes.md) shows each recipe's call and the operations it
 becomes, and [What it covers](capabilities.md) lists the tools for each part of a project.
 
 ## Settings and assets

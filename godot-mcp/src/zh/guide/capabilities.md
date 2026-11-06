@@ -38,7 +38,7 @@ description: godot-mcp 用哪些工具处理动画、AnimationTree、物理、3D
 }
 ```
 
-Agent 不看本页也能找到这些配方：每个配方同时也是一个 MCP prompt，名为 `godot-mcp.recipe.<名字>`，在 `editor` 和 `full` profile 里，正文给出配方的参数、一次调用和它展开成的操作。prompt 不占用工具名额。[配方参考](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/recipes.md)给出每个配方的调用、操作和参数。
+Agent 不看本页也能找到这些配方：每个配方同时也是一个 MCP prompt，名为 `godot-mcp.recipe.<名字>`，在 `editor` 和 `full` profile 里，正文给出配方的参数、一次调用和它展开成的操作。prompt 不占用工具名额。[配方参考](../../reference/recipes.md)给出每个配方的调用、操作和参数。
 
 ## 其他部分
 

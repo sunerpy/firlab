@@ -63,11 +63,13 @@ ENGLISH_ONLY=(
   reference/managed-sessions=operator/managed-sessions
   reference/exports=operator/exports
   reference/editor-bridge=operator/editor-bridge
+  reference/recipes=operator/recipes
   reference/artifacts=operator/artifacts
   reference/process-boundaries=operator/process-boundaries
   reference/recovery=operator/recovery
   reference/http-trusted-local=operator/http-trusted-local
   reference/http-proxied-oidc=operator/http-proxied-oidc
+  reference/http-open=operator/http-open
   reference/threat-model=security/threat-model
 )
 zh_title() {
@@ -79,11 +81,13 @@ zh_title() {
     operator/managed-sessions) echo "托管会话" ;;
     operator/exports) echo "导出" ;;
     operator/editor-bridge) echo "编辑器桥接" ;;
+    operator/recipes) echo "配方" ;;
     operator/artifacts) echo "产物" ;;
     operator/process-boundaries) echo "进程边界" ;;
     operator/recovery) echo "恢复详解" ;;
     operator/http-trusted-local) echo "HTTP：trusted_local" ;;
     operator/http-proxied-oidc) echo "HTTP：proxied_oidc" ;;
+    operator/http-open) echo "HTTP：open" ;;
     security/threat-model) echo "威胁模型" ;;
     *) echo "$1" ;;
   esac

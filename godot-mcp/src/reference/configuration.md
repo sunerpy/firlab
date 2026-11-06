@@ -27,7 +27,7 @@ the sanitized reason and its error code to `stderr`.
 `serve --config <path>` loads the same strict contract and selects its transport.
 Without `--config`, `serve` preserves the local stdio default, starts no listener
 and creates no HTTP credential, unless `--http <ADDR>` asks for the `open` HTTP mode
-on that address ([HTTP: `open`](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/http-open.md)); `--http` cannot be combined with
+on that address ([HTTP: `open`](http-open.md)); `--http` cannot be combined with
 `--config`. `--project` and `--profile` remain explicit CLI
 authority and override those two fields from the file. `--workspace <dir>` replaces
 `--project` to start in bootstrap state over a workspace directory; it is
@@ -185,7 +185,7 @@ subject = "operator@example.invalid"
 
 Present only when the final transport is `http`. See
 [HTTP: `trusted_local`](http-trusted-local.md),
-[HTTP: `proxied_oidc`](http-proxied-oidc.md) and [HTTP: `open`](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/http-open.md).
+[HTTP: `proxied_oidc`](http-proxied-oidc.md) and [HTTP: `open`](http-open.md).
 
 The `open` shape needs only a bind address and the mode; `host`, `origin` and `token` are
 optional:
@@ -527,7 +527,7 @@ These are not defaults you can relax; configuration has no key that would let yo
   non-loopback `http.bind` is rejected with a permission-denied error, and checked again
   before the socket is bound: external reachability for those modes is a reverse proxy's
   job. Only `open`, which the operator chooses by name, binds another address
-  ([HTTP: `open`](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/http-open.md)).
+  ([HTTP: `open`](http-open.md)).
 * **The bridge endpoint is loopback**, in every HTTP mode, `open` included: the editor
   add-on and the game's probe connect from this machine only. Validation is all it
   does today: no listener is started from it — see [`[bridge]`](#bridge).
