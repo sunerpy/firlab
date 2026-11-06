@@ -101,13 +101,20 @@ en_title() {
   esac
 }
 
-# Assets godot-mcp owns. Everything else under src/public/ belongs to this repository.
+# Assets godot-mcp owns. Everything else under src/public/ belongs to this repository, but for
+# src/public/screens/, which is godot-mcp's docs/site/public/screens/ (the screenshots the pages
+# show) and is replaced on every sync.
 PUBLIC_FILES=(godot-mcp-logo.svg)
 
 # Components a page may use: the ones src/.vitepress/theme/index.ts registers, plus
 # VitePress's own Badge. An unknown tag would render as an empty custom element with only a
 # console warning, so it fails the sync instead.
-ALLOWED_COMPONENTS=(Badge HomeIndex HomeSteps SplitBlock HomePlatforms HomePrivacy HomeScope StatusTag)
+ALLOWED_COMPONENTS=(
+  Badge
+  HomeBuilt HomeCapabilities HomeShowcases HomeClients HomeEngine HomeFaq HomeCloser ScreenFigure
+  SplitBlock HomePrivacy
+  HomeIndex HomeSteps HomePlatforms HomeScope StatusTag
+)
 
 # Every list above may be empty (REFERENCES is); `${list[@]+"${list[@]}"}` expands an empty list
 # to nothing instead of tripping `set -u` on an older bash.
@@ -143,6 +150,20 @@ done
 for file in ${PUBLIC_FILES[@]+"${PUBLIC_FILES[@]}"}; do
   [ -f "$SRC/public/$file" ] || problem "expected file docs/site/public/$file is missing"
 done
+
+# The screenshots: regular files named <name>.webp in lower-case letters, digits and hyphens, the
+# only names the home page's schema accepts (theme/data/home-schema.ts).
+SCREENS="$SRC/public/screens"
+if [ -e "$SCREENS" ]; then
+  while IFS= read -r -d '' entry; do
+    name="${entry#"$SCREENS"/}"
+    if [ ! -f "$entry" ] || [ -L "$entry" ]; then
+      problem "docs/site/public/screens/$name is not a regular file"
+    elif ! grep -qxE '[a-z0-9-]+\.webp' <<<"$name"; then
+      problem "docs/site/public/screens/$name is not named <name>.webp in lower-case letters, digits and hyphens"
+    fi
+  done < <(find "$SCREENS" -mindepth 1 -print0 | sort -z)
+fi
 [ "$fail" -eq 0 ] || exit 1
 
 # The pages of the site, relative to docs/site/: every Markdown file except this directory's
@@ -219,6 +240,15 @@ while IFS= read -r -d '' rel; do
   while IFS= read -r hit; do
     [ -n "$hit" ] && problem "docs/site/$rel:${hit%%:*} uses an internal or colloquial word: $(cut -d: -f2- <<<"$hit" | grep -oP "$pattern" | sort -u | paste -sd ' ')"
   done < <(prose "$page" | grep -P "$pattern" || true)
+done < <(pages)
+
+# Every screenshot a page names, in its frontmatter or in a ScreenFigure, is a file of
+# public/screens/.
+while IFS= read -r -d '' rel; do
+  while IFS= read -r shot; do
+    [ -n "$shot" ] || continue
+    [ -f "$SRC/public$shot" ] || problem "docs/site/$rel names $shot, which docs/site/public/screens/ does not hold"
+  done < <(grep -oP '/screens/[^"'"'"'\s)]+' "$SRC/$rel" | sort -u || true)
 done < <(pages)
 
 for entry in ${REFERENCES[@]+"${REFERENCES[@]}"}; do
@@ -412,6 +442,14 @@ for file in ${PUBLIC_FILES[@]+"${PUBLIC_FILES[@]}"}; do
   cp "$SRC/public/$file" "$DEST/public/$file"
   printf '  %-28s ok\n' "public/$file"
 done
+
+# The screenshots, replaced wholesale, so one removed upstream disappears here too.
+rm -rf "$DEST/public/screens"
+if [ -d "$SCREENS" ]; then
+  mkdir -p "$DEST/public/screens"
+  find "$SCREENS" -mindepth 1 -maxdepth 1 -name '*.webp' -type f -exec cp {} "$DEST/public/screens/" \;
+fi
+printf '  %-28s %s files\n' "public/screens/" "$(find "$DEST/public/screens" -name '*.webp' 2>/dev/null | wc -l | tr -d ' ')"
 
 # A stamp so a stale sync is visible on the site (the footer shows the commit).
 # Recorded as data, not prose. A second run from the same commit keeps the old time,

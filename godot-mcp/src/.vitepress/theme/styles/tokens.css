@@ -2,22 +2,22 @@
  * godot-mcp documentation palette.
  *
  * FirLab's ramp (firlab/DESIGN.md §1, §10 and §11), which is itself read off the product marks:
- * ink #0B1220, pale #E7EDF5 and orange #F97316, the Voltip icon's own three values. godot-mcp's
- * mark is drawn in them (navy tile, a pale scene tree of three nodes, the link to the client in
- * orange), so the Voltip site's palette applies as it is and the orange keeps its role there: the
- * logo, the dots and tints, never text. Teal is the text colour of a capability that needs no
- * engine. Nothing on this site is purple: VitePress's indigo (its default brand), purple
+ * ink #0B1220 and pale #E7EDF5. godot-mcp's mark (2026-11) is a pale d-pad between two green
+ * braces on the navy tile, `{+}`, and its green #34D399 takes the role the Voltip site gives its
+ * orange: the logo, the dots and tints, never text. On paper the mark's dot is the deeper
+ * #059669, so it keeps 3:1 against the page. Teal is the text colour of a capability that needs
+ * no engine; warning blocks keep a warm tint of their own, so they never look like tips. Nothing on this site is purple: VitePress's indigo (its default brand), purple
  * ("important" blocks), sponsor pink and hero gradient are all remapped below.
  *
  * Buttons and links follow the Voltip site (§10, after OpenAI's developer docs): the
- * primary button is ink on paper, inverted in the dark theme; secondary buttons are a
- * translucent ink fill; links are body-coloured text with a soft underline. There is no
- * coloured link or button text anywhere.
+ * primary button is ink on paper, inverted in the dark theme; secondary buttons are outlined
+ * pills (design A, §18; a translucent ink fill before); links are body-coloured text with a
+ * soft underline. There is no coloured link or button text anywhere.
  *
  * Contrast, measured (WCAG 2.x): every text colour here is at least 4.5:1 on the
  * surfaces it is used on — the lowest is light --gm-ink-400 on --gm-paper-2, 4.87:1.
- * The mark orange #F97316 measures 2.73:1 on paper, so it only ever marks (the logo, dots,
- * tints), never text.
+ * The mark green measures 3.67:1 on paper as #059669 and 9.69:1 on the dark sheet as #34D399;
+ * it only ever marks (the logo, dots, tints), never text.
  *
  * Dark ramp: FirLab's measured OKLCH steps (sheet L 18.5, desk 16.7, block 30.3,
  * rule 35.0), plus two surfaces VitePress needs that FirLab has no name for —
@@ -45,8 +45,9 @@
   --gm-link-line: rgb(11 18 32 / 0.3); /* a link's underline at rest */
   --gm-fill: rgb(11 18 32 / 0.06); /* secondary buttons, the active sidebar row */
   --gm-fill-hover: rgb(11 18 32 / 0.1);
-  --gm-mark: #f97316; /* marks only, never text */
-  --gm-mark-soft: rgb(249 115 22 / 0.12);
+  --gm-mark: #059669; /* marks only, never text */
+  --gm-mark-soft: rgb(16 185 129 / 0.14);
+  --gm-warn-soft: rgb(249 115 22 / 0.12); /* warning blocks, not the mark */
   --gm-live: #0d6b64; /* "no engine" */
   --gm-live-mark: #14b8a6;
   --gm-live-soft: rgb(20 184 166 / 0.12);
@@ -60,6 +61,12 @@
   --gm-shadow-plate: 0 1px 2px 0 rgb(11 18 32 / 0.05), 0 18px 40px -24px rgb(11 18 32 / 0.28);
   --gm-shadow-pill: 0 1px 2px 0 rgb(0 0 0 / 0.12), 0 10px 28px -8px rgb(11 18 32 / 0.3);
   --gm-pill-drop: drop-shadow(0 10px 22px rgb(11 18 32 / 0.22));
+
+  /* The home page's design A (DESIGN.md §18, after the Voltip site's §10). */
+  --gm-rule-strong: #cfd8e3; /* outlined buttons, connector lines, the nav's hover line */
+  --gm-band: var(--gm-paper-1); /* a code group's tab row inside a card */
+  --gm-shadow-card: 0 1px 2px 0 rgb(11 18 32 / 0.05), 0 1px 1px 0 rgb(11 18 32 / 0.02);
+  --gm-scene-plate: var(--gm-paper-soft); /* the plate behind the hero's two stages */
 
   /* System faces only (fonts.css): godot-mcp has no interface whose face the page should
      match, so no text face is downloaded, FirLab's default (§1 "Type", §15, §17). Code is
@@ -106,7 +113,9 @@
   --gm-link-line: rgb(236 239 243 / 0.34);
   --gm-fill: rgb(236 239 243 / 0.09);
   --gm-fill-hover: rgb(236 239 243 / 0.14);
-  --gm-mark-soft: rgb(249 115 22 / 0.16);
+  --gm-mark: #34d399;
+  --gm-mark-soft: rgb(52 211 153 / 0.16);
+  --gm-warn-soft: rgb(249 115 22 / 0.16);
   --gm-live: #2dd4bf;
   --gm-live-mark: #2dd4bf;
   --gm-live-soft: rgb(45 212 191 / 0.12);
@@ -116,6 +125,9 @@
   --gm-shadow-plate: inset 0 1px 0 0 rgb(255 255 255 / 0.06), 0 18px 40px -24px rgb(0 0 0 / 0.7);
   --gm-shadow-pill: inset 0 1px 0 0 rgb(255 255 255 / 0.06), 0 10px 28px -8px rgb(0 0 0 / 0.6);
   --gm-pill-drop: drop-shadow(0 10px 22px rgb(0 0 0 / 0.5));
+
+  --gm-rule-strong: #4a515b;
+  --gm-shadow-card: inset 0 1px 0 0 rgb(255 255 255 / 0.04);
 }
 
 /* ---- VitePress variables ------------------------------------------------ */
@@ -174,7 +186,7 @@
   --vp-c-warning-1: var(--gm-accent);
   --vp-c-warning-2: var(--gm-accent-hover);
   --vp-c-warning-3: var(--gm-accent);
-  --vp-c-warning-soft: var(--gm-mark-soft);
+  --vp-c-warning-soft: var(--gm-warn-soft);
   --vp-c-sponsor: var(--gm-accent);
 
   --vp-font-family-base: var(--gm-font-sans);
@@ -189,13 +201,14 @@
   --vp-button-brand-active-border: transparent;
   --vp-button-brand-active-text: var(--gm-accent-ink);
   --vp-button-brand-active-bg: var(--gm-accent-hover);
-  --vp-button-alt-border: transparent;
+  /* Secondary buttons are outlined pills (design A, §18); until then a translucent fill. */
+  --vp-button-alt-border: var(--gm-rule-strong);
   --vp-button-alt-text: var(--gm-ink-900);
-  --vp-button-alt-bg: var(--gm-fill);
-  --vp-button-alt-hover-border: transparent;
+  --vp-button-alt-bg: transparent;
+  --vp-button-alt-hover-border: var(--gm-ink-400);
   --vp-button-alt-hover-text: var(--gm-ink-900);
-  --vp-button-alt-hover-bg: var(--gm-fill-hover);
-  --vp-button-alt-active-border: transparent;
+  --vp-button-alt-hover-bg: var(--gm-fill);
+  --vp-button-alt-active-border: var(--gm-ink-400);
   --vp-button-alt-active-text: var(--gm-ink-900);
   --vp-button-alt-active-bg: var(--gm-fill-hover);
 

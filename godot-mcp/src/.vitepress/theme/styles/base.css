@@ -29,11 +29,32 @@ body {
   text-wrap: pretty;
 }
 
+/* A heading balances its lines, so it never ends on one word: at 375 px "Editing the scene the
+   editor holds" left "holds" alone. */
 .vp-doc h1,
 .vp-doc h2,
 .vp-doc h3 {
   letter-spacing: var(--gm-ls-display);
   font-weight: 650;
+  text-wrap: balance;
+}
+
+/* Text that keeps to one line: a short code span (theme/components/inline.ts) and the footer's
+   commit link, which broke after the hyphen of "godot-mcp" at 320 and 375 px. */
+.gm-nowrap {
+  white-space: nowrap;
+}
+
+/* In a heading a code span breaks where it has to, as the heading's words do (below): at 18 px
+   `runtime.properties.batch.get` is 314 px, wider than the 272 px column at 320 px. */
+:is(h1, h2, h3, h4) code.gm-nowrap {
+  white-space: normal;
+}
+
+/* The footer's words balance their lines, as the home page's do: at 320 and 375 px the commit
+   link, which keeps to one line, was left alone on the last. */
+.VPFooter .message {
+  text-wrap: balance;
 }
 
 .vp-doc h1 {
@@ -138,22 +159,116 @@ html .VPButton.VPButton.big {
   text-decoration-color: currentColor;
 }
 
-/* The nav's text links: the page you are in sits in a soft pill. */
-html .VPNavBarMenuLink.VPNavBarMenuLink {
-  align-self: center;
-  height: 32px;
-  margin: 0;
-  line-height: 32px;
-  border-radius: var(--gm-radius-pill);
-  transition:
-    color 0.2s,
-    background-color 0.2s;
+/* The nav bar's words, as on the Voltip site (design A, DESIGN.md §18): plain words in the
+   secondary ink, the one you hover over the strong rule, and the section you are in in ink with a
+   2 px ink line along the bar's lower edge. The "More" menu's button follows the same rule. */
+@media (min-width: 768px) {
+  html .VPNavBarMenu.VPNavBarMenu {
+    align-self: stretch;
+    align-items: stretch;
+    gap: 0;
+    margin-left: 12px;
+  }
+
+  html .VPNavBarMenu .VPNavBarMenuLink.VPNavBarMenuLink,
+  html .VPNavBarMenu .VPFlyout.VPNavBarMenuGroup > .button {
+    position: relative;
+    align-self: stretch;
+    height: auto;
+    margin: 0;
+    padding: 0 10px;
+    border-radius: 0;
+    background: none;
+    color: var(--gm-ink-500);
+    line-height: var(--vp-nav-height);
+    transition: color 0.2s;
+  }
+
+  html .VPNavBarMenu .VPFlyout.VPNavBarMenuGroup {
+    height: 100%;
+  }
+
+  html .VPNavBarMenu .VPFlyout.VPNavBarMenuGroup > .button {
+    padding: 0 8px 0 10px;
+  }
+
+  html .VPNavBarMenu .VPFlyout.VPNavBarMenuGroup > .button .text {
+    color: inherit;
+  }
+
+  html .VPNavBarMenu .VPNavBarMenuLink.VPNavBarMenuLink::after,
+  html .VPNavBarMenu .VPFlyout.VPNavBarMenuGroup > .button::after {
+    content: '';
+    position: absolute;
+    right: 10px;
+    bottom: -1px;
+    left: 10px;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    background: transparent;
+    transition: background-color 0.2s;
+  }
+
+  html .VPNavBarMenu .VPNavBarMenuLink.VPNavBarMenuLink:hover,
+  html .VPNavBarMenu .VPFlyout.VPNavBarMenuGroup:hover > .button,
+  html .VPNavBarMenu .VPFlyout.VPNavBarMenuGroup > .button[aria-expanded='true'] {
+    color: var(--gm-ink-900);
+    background: none;
+  }
+
+  html .VPNavBarMenu .VPNavBarMenuLink.VPNavBarMenuLink:hover::after,
+  html .VPNavBarMenu .VPFlyout.VPNavBarMenuGroup:hover > .button::after,
+  html .VPNavBarMenu .VPFlyout.VPNavBarMenuGroup > .button[aria-expanded='true']::after {
+    background: var(--gm-rule-strong);
+  }
+
+  html .VPNavBarMenu .VPNavBarMenuLink.VPNavBarMenuLink.active,
+  html .VPNavBarMenu .VPFlyout.VPNavBarMenuGroup.active > .button {
+    color: var(--gm-ink-900);
+    background: none;
+  }
+
+  html .VPNavBarMenu .VPNavBarMenuLink.VPNavBarMenuLink.active::after,
+  html .VPNavBarMenu .VPFlyout.VPNavBarMenuGroup.active > .button::after {
+    background: var(--gm-ink-900);
+  }
 }
 
-html .VPNavBarMenuLink.VPNavBarMenuLink:hover,
-html .VPNavBarMenuLink.VPNavBarMenuLink.active {
-  color: var(--gm-ink-900);
-  background: var(--gm-fill);
+/* With room to spare, the words breathe. */
+@media (min-width: 1100px) {
+  html .VPNavBarMenu.VPNavBarMenu {
+    margin-left: 20px;
+  }
+
+  html .VPNavBarMenu .VPNavBarMenuLink.VPNavBarMenuLink {
+    padding: 0 13px;
+  }
+
+  html .VPNavBarMenu .VPFlyout.VPNavBarMenuGroup > .button {
+    padding: 0 9px 0 13px;
+  }
+
+  html .VPNavBarMenu .VPNavBarMenuLink.VPNavBarMenuLink::after,
+  html .VPNavBarMenu .VPFlyout.VPNavBarMenuGroup > .button::after {
+    right: 13px;
+    left: 13px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 959px) {
+  html .VPNavBarMenu .VPNavBarMenuLink.VPNavBarMenuLink {
+    padding: 0 8px;
+  }
+
+  html .VPNavBarMenu .VPFlyout.VPNavBarMenuGroup > .button {
+    padding: 0 6px 0 8px;
+  }
+
+  html .VPNavBarMenu .VPNavBarMenuLink.VPNavBarMenuLink::after,
+  html .VPNavBarMenu .VPFlyout.VPNavBarMenuGroup > .button::after {
+    right: 8px;
+    left: 8px;
+  }
 }
 
 /* The sidebar: the current page sits in a soft fill. */
@@ -304,6 +419,23 @@ html .VPNavBarMenuLink.VPNavBarMenuLink.active {
   .VPNavBar.has-sidebar .DocSearch-Button .DocSearch-Search-Icon {
     margin-right: 0;
   }
+}
+
+/* ---- Screenshots in the site's theme ------------------------------------------
+   A screenshot taken in both themes shows only the one matching the site (ScreenFigure.vue,
+   GmImg.vue). Both images are loading="lazy", and a lazy image that is display:none is never
+   fetched, so switching costs one download, not two on every page view. */
+
+.gm-only-dark {
+  display: none !important;
+}
+
+.dark .gm-only-light {
+  display: none !important;
+}
+
+.dark .gm-only-dark {
+  display: block !important;
 }
 
 /* The search shortcut's letter, drawn as generated content like VitePress's own modifier key, so

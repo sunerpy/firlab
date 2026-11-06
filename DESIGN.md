@@ -1326,6 +1326,17 @@ affiliated with the Godot Engine project, and the footer says so in both languag
 logo (`godot-mcp-logo.svg`, owned by godot-mcp) and the catalog's `AppIcon`; `og.svg` carries it with the headline and
 the first call of the hero's session, and `og.png` is rendered from it in Chrome.
 
+**Mark, redrawn (2026-11-06).** The owner found the tree unrecognisable and asked for no orange. Of two rounds of
+candidates they chose `{+}`: two braces around a d-pad, code pressing a game's buttons. On the navy tile the braces
+are green `#34D399` (9.74:1 on the tile) and the d-pad pale; with the colour on the braces the mark keeps its hue at
+16 px, where the d-pad is two pixels wide. The glyph is drawn on the 64 grid at 72 % (strokes of 7 units, 1.26 px at
+16 px). The green takes orange's place across the site: the newest build's dot and the selection and search tints use
+`--gm-mark`, `#059669` on paper (3.67:1, where the orange dot was 2.73:1) and `#34D399` in the dark theme, and
+`og.svg`'s top hairline is `#059669`. Warning blocks keep their warm tint as `--gm-warn-soft`, so they do not look like
+the teal tips. `og.svg` now shows the first two calls of the design-A hero's exchange with the demo game; the old one
+showed a scene tree from a project the site no longer uses. No catalog entry was green before; the teal of
+kiro-provider and bedrock-gateway is the nearest.
+
 **Checked so far (2026-10-12, local preview, Chrome).** On a build from the pages as they stand that day, all 60 pages
 (30 in each language) at 375, 768 and 1280 px: no page scrolls sideways, nothing reaches past the viewport outside a
 scroll box, and every box that scrolls sideways is focusable. On both home pages from 960 to 1440 px every evidence
@@ -1333,3 +1344,59 @@ table ends inside its plate and none of them scrolls. The Install button ends ab
 1280 × 800 (and of 900 at 1440 × 900) and 725 px of 812 at 375 × 812 in English, 650 px at 1280 × 800 and 375 × 812
 in Chinese. Not yet checked: Lighthouse and a colour-contrast sweep; the dark theme was looked at only on the Chinese
 home page at 375 px.
+
+**Design A (2026-11-06): the Voltip site's layout, with pictures.** The owner asked for the site to look like
+voltip.firlab.app (§10) and to show screenshots, icons and pictures instead of lists. The home page uses the second
+frontmatter layout, told apart by its `built` key (`theme/data/home-schema.ts`); a checkout with the old layout still
+builds. Under a stacked hero sit ruled bands: how godot-mcp is built (the client, the server's parts and what it
+reaches, one line), what an agent can do (cells of two widths, each with a line of a real answer or the tools it
+calls, and a "No engine" / 「无需引擎」 or "Needs Godot" / 「需要 Godot」 tag), two showcases with screenshots, a row per
+MCP client, the profiles beside their table, the locked Godot builds and the platforms over the install card, a
+ledger of where each kind of traffic goes, the questions, and a closing band. `buildEnd` (`config/shared.ts`) fails
+the build when a link or an anchor in the home frontmatter leads nowhere.
+
+The pictures are real. Six captures in `public/screens/`, owned by godot-mcp and taken by its
+`scripts/site/capture_screens.py`: the editor with the add-on's panel in each language and theme, and the demo game
+before and after a test scenario. The demo project (`examples/site-demo` in godot-mcp) draws with images generated
+for it with Z-Image Turbo (Apache-2.0) and cut out with BiRefNet (MIT); its `art/README.md` records each prompt and
+seed. Icons are Lucide 1.70.0 (ISC; `arrow-right` and `download` come from Feather, MIT), one library only. Client
+marks are Simple Icons 16.35.0 (CC0) and Lobe Icons at `7d7d037` (MIT), drawn in the text colour; Claude Code has no
+mark here and is named in words.
+
+Where it departs from §10, each with its reason:
+
+- The hero's demo is VitePress's `home-hero-image` slot, so the hero keeps VitePress's `has-image` layout.
+- Install sits in the band with the locked Godot builds, and feedback (GitHub Issues) in the closing band.
+- A line of code wraps only at its spaces (`codeTokens`), and a code span of 28 characters or fewer keeps to one
+  line outside headings: Chrome breaks after a hyphen, so `--allow-scripts` split after its `--`.
+- Chinese headings break at punctuation (`word-break: keep-all`) and inside a run only when it is wider than the
+  column (`overflow-wrap: anywhere`).
+- Install's tabs take less padding below 640 and 360 px: at 320 px they needed 288 px of a 270 px card, now 256.
+- Text on the home page, headings, figure captions and the footer balance their lines. Chromium balances up to six
+  lines, so the profiles paragraph is two paragraphs.
+- The hero's facts are one line each. Voltip's four meta lines take 101 px; three facts of two or three lines took
+  264 px and started the demo at 674 px of an 800 px window, showing 28 % of it. Now it starts at 558 px.
+
+**Hallmark slop test, 2026-11-06 (home page, both languages).** Pre-emit critique P4 H4 E4 S5 R4 V4, stamped at the
+top of `theme/styles/bands.css`. Fixed in this pass: the facts above (gate 44), a note under the parts diagram that
+ran 80 characters a line (25, now capped at 72ch), and a guide link whose arrow slid 2 px while its underline
+darkened (13; the slide is gone, as on the Voltip site). Passes by justification: 7, pure white only on raised
+surfaces; 42, VitePress's docs bar restyled; 8, the structure is the Voltip site's because the owner asked for it.
+Left as they are: 33 of the 151 spacing values in `bands.css` and the components are off the 4 px scale (1 px
+insets, 2 px steps such as 6, 10, 14 and 18 px that follow VitePress's own metrics, and a 9 px offset that centres a
+list dot on its line), and the cells of the three-column grid are 40 characters wide, a card's measure rather than
+prose. Every other gate passes or does not apply: no gradient, no drawn chrome, no invented number (the figures are
+from recorded sessions, the image sizes and the release lock), two families, no italic heading, a token for every
+colour, and the accent covers at most 0.63 % of a 1280 × 800 window.
+
+**Checked (2026-11-06, local preview, Chrome).** All 60 pages at 320, 375, 414, 768, 1280 and 1920 px: no page
+scrolls sideways, nothing reaches past the window outside a scroll box, and every box that scrolls sideways is
+focusable. Both home pages in both themes at 320, 375, 414, 768, 960, 1280, 1440 and 1920 px: no clickable text on
+two lines, no text block ending on one word or one or two Chinese characters, the nav bar fits, every image loads, and
+all text is at least 4.5:1 against its background (3:1 for large text). The lowest are 5.10:1 in the light theme and
+5.50:1 in the dark one, 5.00:1 and 4.80:1 in highlighted code, and 6.99:1 and 8.54:1 on the guide pages. At
+1280 × 800 the hero's buttons end at 354 px in English and 321 px in Chinese, and the demo shows 59 % and 67 % of
+itself (83 % and 90 % at 1440 × 900); on a phone it starts below the first screen. Clicking an install tab moves the
+page 0 px. Left as they are: on the two guide pages with screenshots, 33 blocks of body text (31 Chinese, 2 English)
+end with one word or one or two characters at some width, and 4 links inside running text wrap with the words around
+them; both predate the redesign. Not checked: Lighthouse, the live site, and text over images.

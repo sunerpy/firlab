@@ -1,0 +1,1446 @@
+/* Hallmark · macrostructure: stacked hero over its demo → ruled bands · genre: technical editorial
+ * theme: FirLab tokens (theme/styles/tokens.css) · display + body: system sans + system CJK ·
+ * mono: JetBrains Mono Variable (transcripts, commands, versions)
+ * nav: VitePress docs bar, plain words with an ink line under the current one · footer: Ft2 single line
+ * motion: no entrance; colour and underline fades of 0.2 s and a 1 px press, as on the Voltip
+ *   site; the buttons' fade is off under prefers-reduced-motion · results in DESIGN.md §18
+ */
+/*
+ * The home page in the 2026-11 layout (design A, after the Voltip site's "墨白", DESIGN.md §10
+ * and §18): every band sits on the sheet and opens with a hairline, every head puts its title on
+ * the left and its words on the right; under the hero one real exchange with the demo game beside
+ * the screenshot it answered; then how godot-mcp is built as one line of parts, what an agent can
+ * do as cells of two widths, two showcases with real screenshots, a row per MCP client, the
+ * profiles beside their table, the locked Godot builds and platforms as strips over the install
+ * card, a ledger of where each kind of traffic goes, the questions as an open list, and a closing
+ * band. Brand colours live only inside the marks. The page sets `markdownStyles: false`, so these
+ * sections are not inside `.vp-doc` and need no resets; the page's own Markdown gets `.vp-doc`
+ * back inside HomeEngine (the install commands), and the profile table inside SplitBlock.
+ */
+
+/* ---- The page ------------------------------------------------------------------- */
+
+/* The hero's own column: VPHero pads 24 / 48 / 64 px and caps its container at 1152 px. */
+.gm-wrap {
+  box-sizing: content-box;
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+@media (min-width: 640px) {
+  .gm-wrap {
+    padding: 0 48px;
+  }
+}
+
+@media (min-width: 960px) {
+  .gm-wrap {
+    padding: 0 64px;
+  }
+}
+
+/* Every band sits on the sheet; a hairline as wide as the column opens it. */
+.gm-v2-band {
+  padding: 0 0 80px;
+}
+
+.gm-v2-band::before {
+  content: '';
+  display: block;
+  width: calc(100% - 48px);
+  max-width: 1152px;
+  height: 1px;
+  margin: 0 auto 64px;
+  background: var(--gm-rule);
+}
+
+@media (min-width: 640px) {
+  .gm-v2-band::before {
+    width: calc(100% - 96px);
+  }
+}
+
+@media (min-width: 768px) {
+  .gm-v2-band {
+    padding-bottom: 112px;
+  }
+
+  .gm-v2-band::before {
+    margin-bottom: 88px;
+  }
+}
+
+@media (min-width: 960px) {
+  .gm-v2-band::before {
+    width: calc(100% - 128px);
+  }
+}
+
+/* Zero specificity, so every rule below can set its own margins. */
+:where(.gm-v2-band) :where(h2, h3, p, ul, ol, figure, pre) {
+  margin: 0;
+  min-width: 0;
+}
+
+:where(.gm-v2-band) :where(h2, h3, p) {
+  overflow-wrap: anywhere;
+}
+
+:where(.gm-v2-band) :where(ul, ol) {
+  padding: 0;
+  list-style: none;
+}
+
+/* No text block on the home page ends on one word, or on one or two Chinese characters: every
+   block balances its lines, as on the Voltip site (§10: `pretty` left single words alone there,
+   `balance` none). Chromium balances up to six lines and wraps longer text as usual. */
+:where(.VPHome.gm-home-v2) :where(p, dd, li, figcaption, h3) {
+  text-wrap: balance;
+}
+
+/* The hero's tagline and the page's own Markdown (the profile table's caption, the install card)
+   carry more specific `pretty` rules (home.css, base.css); at 960 px `pretty` left 「辑器。」 alone
+   at the end of the Chinese tagline. */
+.VPHome.gm-home-v2 .VPHero .tagline,
+.VPHome.gm-home-v2 .vp-doc :is(p, li, dd) {
+  text-wrap: balance;
+}
+
+.gm-v2-band :is(h2, h3) {
+  color: var(--gm-ink-900);
+  font-style: normal;
+  letter-spacing: var(--gm-ls-display);
+  /* Chinese breaks at punctuation, so a heading never leaves one character on a line, and the
+     lines of a heading are balanced, so it never leaves one word either. A run between two
+     punctuation marks wider than the column still breaks: at 320 px 「在你的编辑器里修改，」 is
+     302 px of a 272 px column, and would push its band past the screen's edge. */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+/* Inline code in the bands' words: the page's own inline code, as in a guide page. A code block
+   (a `pre`) keeps its own face, even inside a list item such as a bento cell or a client row. */
+.gm-v2-band :is(p, li, h3) code:not(pre code) {
+  padding: 0.1em 0.38em;
+  border-radius: var(--gm-radius-chip);
+  background: var(--gm-paper-2);
+  color: var(--gm-ink-700);
+  font-family: var(--gm-font-mono);
+  font-size: 0.86em;
+  overflow-wrap: anywhere;
+}
+
+.gm-v2-band strong {
+  color: var(--gm-ink-900);
+  font-weight: 600;
+}
+
+/* A band's head: the title, then its words; from 960 px the title takes the wider left column and
+   the words the right, set against the title's last line. */
+.gm-sec-head {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+@media (min-width: 960px) {
+  .gm-sec-head {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: end;
+    gap: 0 64px;
+    margin-bottom: 56px;
+  }
+
+  .gm-sec-head > h2 {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+  }
+
+  .gm-sec-head > :not(h2) {
+    grid-column: 2;
+  }
+
+  .gm-sec-head > :not(h2) + :not(h2) {
+    margin-top: 0;
+    padding-top: 16px;
+  }
+}
+
+.gm-sec-head h2,
+.gm-showcase-words h2 {
+  font-size: clamp(30px, 5.4vw, 46px);
+  font-weight: 700;
+  line-height: 1.16;
+}
+
+:root:lang(zh-CN) :is(.gm-sec-head h2, .gm-showcase-words h2) {
+  line-height: 1.3;
+}
+
+.gm-sec-head > p {
+  color: var(--gm-ink-500);
+  font-size: 17px;
+  line-height: var(--gm-lh-prose);
+}
+
+@media (min-width: 768px) {
+  .gm-sec-head > p {
+    font-size: 18px;
+  }
+}
+
+/* Text on the left and the evidence on the right, one column below 960 px. The head inside it
+   stays one column. */
+.gm-split-v2 {
+  display: grid;
+  gap: 40px;
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .gm-split-v2 {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 64px;
+    align-items: center;
+  }
+
+  .gm-split-v2 .gm-sec-head {
+    display: block;
+    margin-bottom: 0;
+  }
+
+  .gm-split-v2 .gm-sec-head > p {
+    margin-top: 16px;
+  }
+}
+
+/* The page's own Markdown in a split's head: its heading needs no permalink here, and its links
+   sit on a line of their own. */
+.gm-split-words .header-anchor {
+  display: none;
+}
+
+.gm-split-words > p + p {
+  font-size: 16px;
+}
+
+.gm-list {
+  display: grid;
+  gap: 8px;
+}
+
+.gm-list li {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  gap: 8px;
+  color: var(--gm-ink-700);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+
+.gm-list-dot {
+  width: 6px;
+  height: 6px;
+  margin-top: 9px;
+  border-radius: 50%;
+  background: var(--gm-ink-400);
+}
+
+/* A note under a band's evidence keeps a prose measure, though the column is 1152 px wide: at
+   1280 px the note under the parts diagram ran 80 characters a line. */
+.gm-footnote {
+  max-width: 72ch;
+  margin-top: 20px;
+  color: var(--gm-ink-400);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* A plain card on the sheet. */
+.gm-card {
+  border: 1px solid var(--gm-rule);
+  border-radius: var(--gm-radius-plate);
+  background: var(--gm-paper-elv);
+  box-shadow: var(--gm-shadow-card);
+}
+
+/* A short label above a value. */
+.gm-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gm-ink-400);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+
+/* The line that leads to a guide page: the words, then an arrow. */
+.gm-guide {
+  margin-top: 16px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.gm-v2-band .gm-guide a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Links in the bands: body-coloured words with a soft underline that darkens on hover. */
+.gm-v2-band a:not(.gm-btn) {
+  color: var(--gm-ink-900);
+  font-weight: 500;
+  text-decoration-line: underline;
+  text-decoration-color: var(--gm-link-line);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: text-decoration-color 0.2s;
+}
+
+.gm-v2-band a:not(.gm-btn):hover {
+  text-decoration-color: currentColor;
+}
+
+/* A heading that is a link reads as a heading: the underline comes with the hover. */
+.gm-v2-band h3 > a:not(.gm-btn) {
+  font-weight: inherit;
+  text-decoration-color: transparent;
+}
+
+.gm-v2-band h3 > a:not(.gm-btn):hover {
+  text-decoration-color: currentColor;
+}
+
+/* ---- Buttons of the bands (the hero's are VitePress's VPButton) --------------------- */
+
+.gm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 24px;
+  border: 1px solid transparent;
+  border-radius: var(--gm-radius-pill);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.gm-btn:active {
+  transform: translateY(1px);
+}
+
+.gm-btn-brand {
+  background: var(--gm-accent);
+  color: var(--gm-accent-ink);
+}
+
+.gm-btn-brand:hover {
+  background: var(--gm-accent-hover);
+}
+
+.gm-btn-alt {
+  border-color: var(--gm-rule-strong);
+  color: var(--gm-ink-900);
+}
+
+.gm-btn-alt:hover {
+  border-color: var(--gm-ink-400);
+  background: var(--gm-fill);
+}
+
+/* ---- The hero ------------------------------------------------------------------- */
+
+.gm-home-v2 .VPHero .name {
+  /* The product name is the nav bar's; the heading here is the claim. */
+  display: none;
+}
+
+.VPHome.gm-home-v2 .VPHero .text {
+  color: var(--gm-ink-900);
+  font-size: clamp(40px, 7.4vw, 64px);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.024em;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+:root:lang(zh-CN) .VPHome.gm-home-v2 .VPHero .text {
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.VPHome.gm-home-v2 .VPHero .tagline {
+  max-width: 34em;
+  padding-top: 24px;
+  color: var(--gm-ink-500);
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+@media (min-width: 640px) {
+  .VPHome.gm-home-v2 .VPHero .tagline {
+    font-size: 19px;
+    line-height: 1.8;
+  }
+}
+
+/* From 960 px the claim takes the left of the column in large type, the tagline, the buttons and
+   the facts stand on the right against its last line, and the two stages run across the whole
+   column below them. */
+@media (min-width: 960px) {
+  .VPHome.gm-home-v2 .VPHero .container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .VPHome.gm-home-v2 .VPHero.has-image .main {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: end;
+    gap: 0 64px;
+    width: 100%;
+    max-width: none;
+  }
+
+  .VPHome.gm-home-v2 .VPHero .heading {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+  }
+
+  .VPHome.gm-home-v2 .VPHero .main > :not(.heading) {
+    grid-column: 2;
+  }
+
+  /* home.css sizes the 2026-09 hero at :root:lang() specificity, so these match it. */
+  :root .VPHome.gm-home-v2 .VPHero .text,
+  :root:lang(zh-CN) .VPHome.gm-home-v2 .VPHero .text {
+    max-width: none;
+    font-size: clamp(56px, 6.2vw, 84px);
+    line-height: 1.1;
+  }
+
+  :root:lang(zh-CN) .VPHome.gm-home-v2 .VPHero .text {
+    line-height: 1.16;
+  }
+
+  .VPHome.gm-home-v2 .VPHero .tagline {
+    padding-top: 0;
+    font-size: 18px;
+    line-height: 1.8;
+  }
+
+  .VPHome.gm-home-v2 .VPHero .actions {
+    padding-top: 28px;
+  }
+
+  .VPHome.gm-home-v2 .VPHero .image {
+    order: 2;
+    margin: 56px 0 0;
+  }
+}
+
+.VPHome.gm-home-v2 .VPHero .actions {
+  padding-top: 40px;
+}
+
+html .gm-home-v2 .VPHero .VPButton.VPButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+  font-size: 16px;
+  line-height: 48px;
+}
+
+/* Install carries its icon before the words, Quick start an arrow after them, each drawn in the
+   button's own text colour (Lucide 1.70.0's download and arrow-right, data/icons.ts). */
+.gm-home-v2 .VPHero .VPButton[href$='/guide/install']::before,
+.gm-home-v2 .VPHero .VPButton[href$='/guide/quick-start']::after {
+  content: '';
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  -webkit-mask: var(--gm-hero-icon) center / contain no-repeat;
+  mask: var(--gm-hero-icon) center / contain no-repeat;
+}
+
+.gm-home-v2 .VPHero .VPButton[href$='/guide/install'] {
+  --gm-hero-icon: var(--gm-download);
+}
+
+.gm-home-v2 .VPHero .VPButton[href$='/guide/quick-start'] {
+  --gm-hero-icon: var(--gm-arrow-right);
+}
+
+:root {
+  --gm-download: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 15V3'/%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+  --gm-arrow-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='m12 5 7 7-7 7'/%3E%3C/svg%3E");
+}
+
+@media (max-width: 639px) {
+  .gm-home-v2 .VPHero .actions .action {
+    flex: 1 1 auto;
+  }
+
+  html .gm-home-v2 .VPHero .VPButton.VPButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* The facts under the buttons: a term in the code face beside its words, one fact under another.
+   Each is one short line, as on the Voltip site, so the demo under the hero starts on the first
+   screen: with three facts of two or three lines it started at 674 px of an 800 px window. */
+.VPHome.gm-home-v2 .gm-facts.gm-facts-actions {
+  gap: 16px;
+  max-width: none;
+  margin: 32px 0 0;
+  padding: 20px 0 0;
+}
+
+.VPHome.gm-home-v2 .gm-facts.gm-facts-actions .gm-fact {
+  grid-template-columns: minmax(0, 7.5em) minmax(0, 1fr);
+}
+
+.VPHome.gm-home-v2 .gm-facts.gm-facts-actions .gm-fact dd {
+  color: var(--gm-ink-500);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+@media (max-width: 959px) {
+  .VPHome.gm-home-v2 .gm-facts.gm-facts-actions {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+/* ---- Under the hero: what the agent sent, and what it got back --------------------------- */
+
+.gm-stages {
+  width: 100%;
+  margin: 0;
+}
+
+.gm-stages-plate {
+  display: grid;
+  gap: 28px;
+  padding: 24px 16px;
+  border: 1px solid var(--gm-rule);
+  border-radius: var(--gm-radius-plate);
+  background: var(--gm-scene-plate);
+}
+
+@media (min-width: 640px) {
+  .gm-stages-plate {
+    padding: 32px;
+  }
+}
+
+.gm-stage {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  min-width: 0;
+}
+
+.gm-stages-to {
+  display: none;
+}
+
+@media (min-width: 960px) {
+  .gm-stages-plate {
+    grid-template-columns: minmax(0, 0.92fr) 40px minmax(0, 1.08fr);
+    align-items: center;
+    gap: 0 16px;
+    padding: 36px 40px 40px;
+  }
+
+  .gm-stages-to {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin-top: 32px;
+    border: 1px solid var(--gm-rule);
+    border-radius: 50%;
+    background: var(--gm-paper-elv);
+    color: var(--gm-ink-500);
+  }
+}
+
+/* Between 960 and 1099 px the exchange's column is at its narrowest; 28 px at the plate's sides
+   keeps its longest line from scrolling. */
+@media (min-width: 960px) and (max-width: 1099px) {
+  .gm-stages-plate {
+    padding-inline: 28px;
+  }
+}
+
+.gm-stage-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--gm-ink-400);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.gm-stage-num {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--gm-rule-strong);
+  border-radius: 50%;
+  background: var(--gm-paper-elv);
+  color: var(--gm-ink-700);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+/* A screenshot in a hairline frame, never redrawn window chrome. */
+.gm-shot-frame {
+  overflow: hidden;
+  border: 1px solid var(--gm-rule);
+  border-radius: var(--gm-radius-plate);
+  background: var(--gm-paper-1);
+  box-shadow: var(--gm-shadow-plate);
+}
+
+.gm-shot-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.gm-stages-caption {
+  margin-top: 16px;
+  color: var(--gm-ink-400);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ---- Transcripts: calls, their arguments and the answer, in the code face ----------------- */
+
+.gm-transcript {
+  margin: 0;
+  /* 16 px at the sides: at 960 px the hero exchange's longest line needs 309 px of a 303 px
+     column with 20 px, and would scroll. */
+  padding: 18px 16px;
+  overflow-x: auto;
+  border: 1px solid var(--gm-rule);
+  border-radius: var(--gm-radius-plate);
+  background: var(--gm-paper-elv);
+  box-shadow: var(--gm-shadow-card);
+  color: var(--gm-ink-700);
+  font-family: var(--gm-font-mono);
+  font-size: 13px;
+  font-variant-ligatures: none;
+  line-height: 1.7;
+  white-space: pre;
+  text-wrap: nowrap;
+}
+
+.gm-transcript code {
+  padding: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+.gm-transcript-line {
+  display: block;
+}
+
+.gm-transcript-line.is-call {
+  color: var(--gm-ink-900);
+  font-weight: 600;
+}
+
+.gm-transcript-line.is-argument {
+  /* A call's further arguments line up under its text, past the prompt. */
+  padding-left: 2ch;
+  color: var(--gm-ink-900);
+}
+
+.gm-transcript-line.is-answer {
+  color: var(--gm-ink-500);
+}
+
+/* Space between one call's answer and the next call. */
+.gm-transcript-line.is-answer + .gm-transcript-line.is-call {
+  margin-top: 12px;
+}
+
+.gm-transcript-prompt {
+  color: var(--gm-ink-400);
+  font-weight: 400;
+  user-select: none;
+}
+
+@media (max-width: 479px) {
+  .gm-transcript {
+    padding: 14px 16px;
+    font-size: 12px;
+  }
+}
+
+/* ---- How it is built: one line of parts ------------------------------------------------ */
+
+.gm-arch {
+  display: grid;
+  justify-items: stretch;
+  gap: 12px;
+}
+
+.gm-arch-node,
+.gm-arch-targets {
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid var(--gm-rule);
+  border-radius: var(--gm-radius-plate);
+  background: var(--gm-paper-elv);
+  box-shadow: var(--gm-shadow-card);
+}
+
+.gm-arch-node {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.gm-arch-node h3 {
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.gm-arch-node > p {
+  color: var(--gm-ink-500);
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+/* The server is lifted by a line of ink across its head. */
+.gm-arch-server {
+  box-shadow:
+    inset 0 3px 0 0 var(--gm-ink-900),
+    var(--gm-shadow-card);
+}
+
+.gm-arch-server .gm-list {
+  margin-top: 6px;
+}
+
+.gm-arch-logo {
+  display: block;
+  width: 44px;
+  height: 44px;
+}
+
+.gm-arch-to {
+  display: grid;
+  place-items: center;
+  justify-self: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--gm-rule);
+  border-radius: 50%;
+  background: var(--gm-paper-0);
+  color: var(--gm-ink-500);
+  transform: rotate(90deg);
+}
+
+.gm-arch-targets {
+  display: grid;
+  padding: 0;
+}
+
+.gm-arch-target {
+  display: grid;
+  gap: 6px;
+  padding: 18px 24px;
+}
+
+.gm-arch-target + .gm-arch-target {
+  border-top: 1px solid var(--gm-rule);
+}
+
+.gm-arch-target-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.gm-arch-target h3 {
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.gm-arch-target p {
+  color: var(--gm-ink-500);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+@media (min-width: 1100px) {
+  .gm-arch {
+    grid-template-columns: minmax(0, 0.82fr) 40px minmax(0, 1.08fr) 40px minmax(0, 1.3fr);
+    align-items: center;
+    gap: 0 12px;
+  }
+
+  .gm-arch-to {
+    width: 40px;
+    height: 40px;
+    transform: none;
+  }
+}
+
+/* ---- Tiles: an icon or a mark on a square ------------------------------------------------ */
+
+.gm-tile {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--gm-rule);
+  border-radius: var(--gm-radius-plate);
+  background: var(--gm-paper-soft);
+  color: var(--gm-ink-900);
+}
+
+.gm-tile-sm {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--gm-radius-control);
+  background: var(--gm-paper-1);
+  color: var(--gm-ink-700);
+}
+
+/* ---- What an agent can do: cells of two widths ----------------------------------------- */
+
+.gm-bento {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .gm-bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .gm-bento {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .gm-bento-wide {
+    grid-column: span 2;
+  }
+}
+
+.gm-bento-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid var(--gm-rule);
+  border-radius: var(--gm-radius-plate);
+  background: var(--gm-paper-elv);
+  box-shadow: var(--gm-shadow-card);
+}
+
+@media (min-width: 768px) {
+  .gm-bento-cell {
+    padding: 28px;
+  }
+}
+
+.gm-bento-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.gm-bento-cell h3 {
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.gm-bento-body {
+  color: var(--gm-ink-500);
+  font-size: 14.5px;
+  line-height: 1.75;
+}
+
+/* The evidence sits at the foot of the cell, so the cells of one row line their evidence up. */
+.gm-bento-proof {
+  margin-top: auto;
+  padding-top: 14px;
+}
+
+.gm-code-line {
+  margin: 0;
+  padding: 10px 14px;
+  overflow-x: auto;
+  border: 1px solid var(--gm-rule);
+  border-radius: var(--gm-radius-control);
+  background: var(--gm-paper-1);
+  color: var(--gm-ink-700);
+  font-family: var(--gm-font-mono);
+  font-size: 13px;
+  font-variant-ligatures: none;
+  line-height: 1.6;
+  /* A line longer than its card wraps instead of scrolling behind a scroll bar: the cards are
+     about 310 px wide at 1280 px, and an answer such as `running, probe connected` would hide.
+     It wraps only at its spaces (codeTokens, components/inline.ts); a single token wider than
+     the card scrolls. */
+  white-space: pre-wrap;
+}
+
+.gm-code-line .gm-token {
+  white-space: nowrap;
+}
+
+.gm-code-line code {
+  padding: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+.gm-code-line:focus-visible,
+.gm-transcript:focus-visible {
+  outline: 2px solid var(--gm-accent);
+  outline-offset: 2px;
+}
+
+.gm-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.gm-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--gm-rule);
+  border-radius: var(--gm-radius-chip);
+  background: var(--gm-paper-1);
+  color: var(--gm-ink-700);
+  font-family: var(--gm-font-mono);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+/* ---- Showcases: words beside a real screenshot ------------------------------------------- */
+
+.gm-showcase {
+  display: grid;
+  gap: 40px;
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .gm-showcase {
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    gap: 64px;
+  }
+
+  .gm-showcase-flip {
+    grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
+  }
+
+  .gm-showcase-flip .gm-showcase-words {
+    order: 2;
+  }
+}
+
+.gm-showcase-intro {
+  margin-top: 16px;
+  color: var(--gm-ink-500);
+  font-size: 17px;
+  line-height: var(--gm-lh-prose);
+}
+
+@media (min-width: 768px) {
+  .gm-showcase-intro {
+    font-size: 18px;
+  }
+}
+
+.gm-points {
+  display: grid;
+  margin-top: 28px;
+  border-top: 1px solid var(--gm-rule);
+}
+
+.gm-points li {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--gm-rule);
+}
+
+.gm-points h3 {
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.gm-points p {
+  margin-top: 4px;
+  color: var(--gm-ink-500);
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+.gm-showcase-words .gm-guide {
+  margin-top: 20px;
+}
+
+.gm-showcase-media {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.gm-showcase-media figcaption {
+  color: var(--gm-ink-400);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ---- MCP clients: a row per client --------------------------------------------------------- */
+
+.gm-clients {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--gm-rule);
+  border-radius: var(--gm-radius-plate);
+  background: var(--gm-paper-elv);
+  box-shadow: var(--gm-shadow-card);
+}
+
+.gm-client {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px 16px;
+  padding: 20px;
+}
+
+.gm-client + .gm-client {
+  border-top: 1px solid var(--gm-rule);
+}
+
+.gm-client-name {
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.gm-client-command,
+.gm-client-note {
+  grid-column: 1 / -1;
+}
+
+.gm-client-note {
+  color: var(--gm-ink-500);
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+@media (min-width: 768px) {
+  .gm-client {
+    grid-template-columns: 48px minmax(0, 9.5em) minmax(0, 1fr);
+    gap: 0 20px;
+    padding: 20px 28px;
+  }
+
+  .gm-client-command,
+  .gm-client-note {
+    grid-column: auto;
+  }
+}
+
+.gm-clients + .gm-footnote {
+  margin-top: 20px;
+}
+
+.gm-footnote + .gm-guide {
+  margin-top: 8px;
+}
+
+/* ---- The engine: versions and platforms as strips over the install card -------------------- */
+
+.gm-versions,
+.gm-platforms {
+  display: grid;
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--gm-rule);
+  border-radius: var(--gm-radius-plate);
+  background: var(--gm-rule);
+  box-shadow: var(--gm-shadow-card);
+}
+
+.gm-platforms {
+  margin-top: 16px;
+}
+
+@media (min-width: 640px) {
+  .gm-versions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .gm-versions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .gm-platforms {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.gm-version,
+.gm-platform {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 24px;
+  background: var(--gm-paper-elv);
+}
+
+.gm-version-number {
+  color: var(--gm-ink-900);
+  font-family: var(--gm-font-mono);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+/* The newest build, the one every release smoke-tests on each platform, carries the mark's dot. */
+.gm-version:first-child .gm-version-number::after {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: 10px;
+  border-radius: 50%;
+  background: var(--gm-mark);
+  vertical-align: 0.35em;
+}
+
+.gm-version p,
+.gm-platform p {
+  color: var(--gm-ink-500);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.gm-platform h3 {
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.gm-archive {
+  justify-self: start;
+  max-width: 100%;
+  padding: 2px 8px;
+  border-radius: var(--gm-radius-chip);
+  background: var(--gm-paper-2);
+  color: var(--gm-ink-700);
+  font-family: var(--gm-font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.gm-install {
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+/* The page's code group, inside the card: the card is the frame, so the group loses its own. */
+.gm-install .vp-doc .vp-code-group {
+  margin: 0;
+}
+
+.gm-install .vp-doc .vp-code-group .tabs {
+  margin: 0;
+  padding: 0 16px;
+  border-radius: 0;
+  border-bottom: 1px solid var(--gm-rule);
+  background: var(--gm-band);
+}
+
+/* Under 640 px the three tabs ("Linux and macOS", "Windows", "Source") need 316 px of a 310 px
+   card when the page shows a scroll bar; tighter tabs keep them on the card without scrolling. */
+@media (max-width: 639px) {
+  .gm-install .vp-doc .vp-code-group .tabs {
+    padding: 0 8px;
+  }
+
+  .gm-install .vp-doc .vp-code-group .tabs label {
+    padding: 0 10px;
+  }
+}
+
+/* At 320 px the card is 270 px and those tabs still need 288 px; 6 px label padding brings them
+   to 256 px. The active tab's underline keeps reaching 2 px past its text. */
+@media (max-width: 359px) {
+  .gm-install .vp-doc .vp-code-group .tabs {
+    padding: 0 4px;
+  }
+
+  .gm-install .vp-doc .vp-code-group .tabs label {
+    padding: 0 6px;
+  }
+
+  .gm-install .vp-doc .vp-code-group .tabs label::after {
+    left: 4px;
+    right: 4px;
+  }
+}
+
+.gm-install .vp-doc div[class*='language-'] {
+  margin: 0;
+  border-radius: 0;
+  background: var(--gm-paper-elv);
+}
+
+.gm-install-note {
+  padding: 16px 24px 20px;
+  border-top: 1px solid var(--gm-rule);
+  color: var(--gm-ink-400);
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.gm-install-note .gm-guide {
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+/* ---- Where the data goes: one ledger --------------------------------------------------------- */
+
+.gm-ledger {
+  border: 1px solid var(--gm-rule);
+  border-radius: var(--gm-radius-plate);
+  background: var(--gm-paper-elv);
+  box-shadow: var(--gm-shadow-card);
+}
+
+.gm-ledger-row {
+  display: grid;
+  gap: 12px;
+  padding: 24px 20px;
+}
+
+.gm-ledger-row + .gm-ledger-row {
+  border-top: 1px solid var(--gm-rule);
+}
+
+@media (min-width: 768px) {
+  .gm-ledger-row {
+    grid-template-columns: minmax(0, 0.7fr) 40px minmax(0, 1.3fr);
+    align-items: center;
+    gap: 0 24px;
+    padding: 24px 32px;
+  }
+}
+
+.gm-ledger-name {
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.gm-ledger-arrow {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--gm-rule);
+  border-radius: 50%;
+  background: var(--gm-paper-0);
+  color: var(--gm-ink-500);
+  transform: rotate(90deg);
+}
+
+@media (min-width: 768px) {
+  .gm-ledger-arrow {
+    width: 40px;
+    height: 40px;
+    transform: none;
+  }
+}
+
+.gm-ledger-result {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.gm-ledger-sends {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.gm-ledger-value {
+  color: var(--gm-ink-900);
+  font-family: var(--gm-font-mono);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.gm-ledger-detail {
+  color: var(--gm-ink-500);
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+/* ---- Questions: every answer open, two columns ------------------------------------------- */
+
+.gm-qa {
+  display: grid;
+  gap: 0 48px;
+}
+
+@media (min-width: 960px) {
+  .gm-qa {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.gm-qa-item {
+  padding: 24px 0 28px;
+  border-top: 1px solid var(--gm-rule);
+}
+
+.gm-qa-item h3 {
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.gm-qa-item p {
+  margin-top: 8px;
+  color: var(--gm-ink-500);
+  font-size: 15px;
+  line-height: var(--gm-lh-prose);
+}
+
+.gm-qa-item .gm-guide {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+/* ---- Closer ------------------------------------------------------------------------- */
+
+.gm-closer-grid {
+  display: grid;
+  gap: 40px;
+  align-items: center;
+}
+
+@media (min-width: 960px) {
+  .gm-closer-grid {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 64px;
+  }
+}
+
+.gm-closer h2 {
+  font-size: clamp(34px, 6vw, 56px);
+  font-weight: 700;
+  line-height: 1.16;
+}
+
+:root:lang(zh-CN) .gm-closer h2 {
+  line-height: 1.26;
+}
+
+.gm-closer-words > p {
+  max-width: 40em;
+  margin-top: 16px;
+  color: var(--gm-ink-500);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+@media (min-width: 768px) {
+  .gm-closer-words > p {
+    font-size: 19px;
+  }
+}
+
+.gm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+@media (max-width: 639px) {
+  .gm-actions .gm-btn {
+    flex: 1 1 auto;
+  }
+}
+
+/* godot-mcp's mark closes the page on the right, as the shortcut's key caps close Voltip's. */
+.gm-closer-mark {
+  display: none;
+}
+
+@media (min-width: 960px) {
+  .gm-closer-mark {
+    display: block;
+    width: 128px;
+    height: 128px;
+    border-radius: 28px;
+    box-shadow: var(--gm-shadow-plate);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gm-btn {
+    transition: none;
+  }
+}

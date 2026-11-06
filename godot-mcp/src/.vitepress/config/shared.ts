@@ -1,7 +1,38 @@
 /** Locale-independent build, metadata, search and theme settings. */
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig, type HeadConfig } from 'vitepress';
+import { codeClass } from '../theme/components/inline';
 import { validateHome } from '../theme/data/home-schema';
+
+/**
+ * Every `link` field of the home pages' `hero:` and `home:`, by page. They are data, not Markdown
+ * links, so VitePress's dead-link check does not see them; buildEnd checks each site path and its
+ * anchor against the pages the build emitted.
+ */
+const frontmatterLinks = new Map<string, string[]>();
+
+function collectLinks(value: unknown, into: string[] = []): string[] {
+  if (Array.isArray(value)) value.forEach((item) => collectLinks(item, into));
+  else if (typeof value === 'object' && value !== null) {
+    for (const [key, item] of Object.entries(value)) {
+      if (key === 'link' && typeof item === 'string') into.push(item);
+      else collectLinks(item, into);
+    }
+  }
+  return into;
+}
+
+/** The HTML file the build emitted for a site path: `/guide/x` → guide/x.html, `/zh/` → zh/index.html. */
+function emittedPage(outDir: string, path: string): string | undefined {
+  const rel = decodeURI(path).replace(/^\//, '');
+  const candidates = rel === '' || rel.endsWith('/') ? [`${rel}index.html`] : [`${rel}.html`, `${rel}/index.html`];
+  return candidates.map((candidate) => join(outDir, candidate)).find((file) => existsSync(file));
+}
+
+const escapeAttribute = (text: string) =>
+  text.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 /** Where the site is served inside firlab.app. Pages link without it; VitePress adds it. */
 const BASE = '/godot-mcp/';
@@ -198,6 +229,15 @@ export const shared = defineConfig({
       md.renderer.rules.table_close = (tokens, idx, options, env, self) =>
         `${tableClose ? tableClose(tokens, idx, options, env, self) : self.renderToken(tokens, idx, options)}</div>\n`;
 
+      // A short code span keeps to one line, so `--allow-scripts` never ends a line with `--`
+      // (theme/components/inline.ts has the length and the home page's words use it too).
+      const codeInline = md.renderer.rules.code_inline;
+      md.renderer.rules.code_inline = (tokens, idx, options, env, self) => {
+        const cls = codeClass(tokens[idx].content);
+        if (cls) tokens[idx].attrJoin('class', cls);
+        return codeInline ? codeInline(tokens, idx, options, env, self) : self.renderToken(tokens, idx, options);
+      };
+
       const render = md.renderer.rules.github_alert_open;
       if (!render) return;
       md.renderer.rules.github_alert_open = (tokens, idx, options, env, self) => {
@@ -229,7 +269,29 @@ export const shared = defineConfig({
   transformPageData(pageData) {
     if (pageData.relativePath === 'index.md' || pageData.relativePath === 'zh/index.md') {
       validateHome(pageData.relativePath, pageData.frontmatter);
+      frontmatterLinks.set(pageData.relativePath, collectLinks([pageData.frontmatter.hero, pageData.frontmatter.home]));
     }
+  },
+
+  // A link field names a page and, after `#`, one of its heading ids, made the GitHub way
+  // (githubSlug below): both must exist in what the build emitted.
+  buildEnd(siteConfig) {
+    const dead: string[] = [];
+    for (const [page, links] of frontmatterLinks) {
+      for (const link of links) {
+        if (!link.startsWith('/')) continue;
+        const hash = link.indexOf('#');
+        const path = hash < 0 ? link : link.slice(0, hash);
+        const anchor = hash < 0 ? '' : decodeURIComponent(link.slice(hash + 1));
+        const file = emittedPage(siteConfig.outDir, path);
+        if (!file) {
+          dead.push(`${page}: ${link} (no such page)`);
+        } else if (anchor && !readFileSync(file, 'utf8').includes(` id="${escapeAttribute(anchor)}"`)) {
+          dead.push(`${page}: ${link} (that page has no heading #${anchor})`);
+        }
+      }
+    }
+    if (dead.length > 0) throw new Error(`dead links in the home frontmatter:\n  ${dead.join('\n  ')}`);
   },
 
   // One canonical URL per page, and hreflang pairs between the two languages, with the
