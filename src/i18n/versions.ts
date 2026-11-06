@@ -39,8 +39,8 @@ export const kiroproviderReleased = '2026-10-31';
 export const bedrockgatewayVersion = 'v0.18.2';
 export const bedrockgatewayReleased = '2026-10-10';
 
-export const godotmcpVersion = 'v0.3.0';
-export const godotmcpReleased = '2026-11-05';
+export const godotmcpVersion = 'v0.4.0';
+export const godotmcpReleased = '2026-11-06';
 
 export const AGENTLENS_VERSION = 'v0.0.7';
 export const AGENTLENS_RELEASED = '2026-08-13';
