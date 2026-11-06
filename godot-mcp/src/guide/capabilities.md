@@ -55,7 +55,7 @@ goes to `resource.create`.
 An agent finds the recipes without this page: each one is also an MCP prompt,
 `godot-mcp.recipe.<name>`, in the `editor` and `full` profiles, with the recipe's parameters, a
 call and the operations it becomes. A prompt takes no tool slot. The
-[recipes reference](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/recipes.md) shows every recipe's call, its operations and its
+[recipes reference](../reference/recipes.md) shows every recipe's call, its operations and its
 parameters.
 
 ## Everything else

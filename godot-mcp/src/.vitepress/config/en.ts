@@ -19,6 +19,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
   {
     text: 'Use',
     items: [
+      { text: 'What it covers', link: '/guide/capabilities' },
       { text: 'Analysis', link: '/guide/analysis' },
       { text: 'Editing the project', link: '/guide/editing' },
       { text: 'Running the engine', link: '/guide/engine' },
@@ -45,11 +46,13 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: 'Managed sessions', link: '/reference/managed-sessions' },
       { text: 'Exports', link: '/reference/exports' },
       { text: 'Editor bridge', link: '/reference/editor-bridge' },
+      { text: 'Recipes', link: '/reference/recipes' },
       { text: 'Artifacts', link: '/reference/artifacts' },
       { text: 'Process boundaries', link: '/reference/process-boundaries' },
       { text: 'Recovery in depth', link: '/reference/recovery' },
       { text: 'HTTP: trusted_local', link: '/reference/http-trusted-local' },
       { text: 'HTTP: proxied_oidc', link: '/reference/http-proxied-oidc' },
+      { text: 'HTTP: open', link: '/reference/http-open' },
       { text: 'Threat model', link: '/reference/threat-model' },
       { text: 'Usage and verification', link: '/reference/usage' },
     ],

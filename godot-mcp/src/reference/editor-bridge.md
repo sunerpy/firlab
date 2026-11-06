@@ -281,7 +281,7 @@ animation, as one instance of the imported scene. A model that has not been impo
 refused as `scene_not_loadable`; import it first with `project.import.run` or
 `editor.filesystem.scan`.
 
-[Recipes](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/recipes.md) has common setups — physics bodies, lights and a sky, particles,
+[Recipes](recipes.md) has common setups — physics bodies, lights and a sky, particles,
 navigation, a sound, a theme, a HUD, a grid map — written as these operations.
 
 ## Editing calls

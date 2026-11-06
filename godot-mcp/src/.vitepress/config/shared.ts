@@ -49,7 +49,7 @@ const HOST = 'https://firlab.app/godot-mcp';
  * sitemap filter and the sidebars in config/{en,zh}.ts in step.
  */
 const ENGLISH_ONLY =
-  /^reference\/(configuration|tools|outcomes|godot-versions|managed-sessions|exports|editor-bridge|process-boundaries|recovery|http-trusted-local|http-proxied-oidc|artifacts|threat-model)\.md$/;
+  /^reference\/(configuration|tools|outcomes|godot-versions|managed-sessions|exports|editor-bridge|recipes|process-boundaries|recovery|http-trusted-local|http-proxied-oidc|http-open|artifacts|threat-model)\.md$/;
 const CHINESE_ONLY = /^reference\/usage\.md$/;
 
 /**
@@ -83,10 +83,12 @@ export function editLinkPattern({ filePath }: { filePath: string }): string {
     'reference/managed-sessions': 'operator/managed-sessions',
     'reference/exports': 'operator/exports',
     'reference/editor-bridge': 'operator/editor-bridge',
+    'reference/recipes': 'operator/recipes',
     'reference/process-boundaries': 'operator/process-boundaries',
     'reference/recovery': 'operator/recovery',
     'reference/http-trusted-local': 'operator/http-trusted-local',
     'reference/http-proxied-oidc': 'operator/http-proxied-oidc',
+    'reference/http-open': 'operator/http-open',
     'reference/artifacts': 'operator/artifacts',
     'reference/threat-model': 'security/threat-model',
   };
