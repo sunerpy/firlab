@@ -94,7 +94,8 @@ which extends `astro/tsconfigs/strict`, a package this sub-site does not install
 - the hero shows an MCP exchange (tool calls and fields of their answers) instead of a terminal session;
 - each capability on the home page says what it needs, `no-engine` or `engine`, instead of a release state;
 - the three splits show the profiles, the managed sessions and the locked Godot builds;
-- the mark is a scene tree of three nodes with the link to the client in orange, the Voltip site's palette as it is.
+- the mark is `{+}`, a pale d-pad between two green braces on the navy tile, and its green takes the place the
+  Voltip site gives its orange: the logo, the dots and tints.
 
 `src/public/og.svg` is the source of `og.png` (1200 × 630). To render it, inline the SVG into a page of the built
 site (so the JetBrains Mono face is loaded), open it in Chrome at a 1200 × 630 viewport and take a screenshot.

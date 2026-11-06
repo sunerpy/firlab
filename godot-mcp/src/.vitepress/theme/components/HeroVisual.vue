@@ -8,10 +8,11 @@
  */
 import { computed } from 'vue';
 import { useData } from 'vitepress';
-import type { Home } from '../data/home-schema';
+import { isV2, type Home } from '../data/home-schema';
 
 const { frontmatter } = useData();
-const visual = computed(() => (frontmatter.value.home as Home | undefined)?.visual);
+// The 2026-09 layout only; the 2026-11 one draws HeroStages in the same slot.
+const visual = computed(() => (isV2(frontmatter.value.home) ? undefined : (frontmatter.value.home as Home | undefined)?.visual));
 </script>
 
 <template>

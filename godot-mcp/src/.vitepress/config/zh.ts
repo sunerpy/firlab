@@ -108,7 +108,7 @@ export const zh = defineConfig({
     },
 
     footer: {
-      message: `godot-mcp 基于 MIT 许可证发布，是 <a href="https://firlab.app">FirLab</a> 的项目之一，与 Godot Engine 项目没有隶属关系。内容来自 <a href="${REPO}/commit/${synced.commit}">godot-mcp@${synced.shortCommit}</a>。`,
+      message: `godot-mcp 基于 MIT 许可证发布，是 <a href="https://firlab.app">FirLab</a> 的项目之一，与 Godot Engine 项目没有隶属关系。内容来自 <a class="gm-nowrap" href="${REPO}/commit/${synced.commit}">godot-mcp@${synced.shortCommit}</a>。`,
       copyright: 'Copyright © 2026 sunerpy',
     },
   },

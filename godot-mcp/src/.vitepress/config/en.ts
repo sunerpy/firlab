@@ -94,7 +94,7 @@ export const en = defineConfig({
     outline: { level: [2, 3] },
 
     footer: {
-      message: `godot-mcp is released under the MIT License and is one of the <a href="https://firlab.app/en/">FirLab</a> projects. It is not affiliated with the Godot Engine project. Content from <a href="${REPO}/commit/${synced.commit}">godot-mcp@${synced.shortCommit}</a>.`,
+      message: `godot-mcp is released under the MIT License and is one of the <a href="https://firlab.app/en/">FirLab</a> projects. It is not affiliated with the Godot Engine project. Content from <a class="gm-nowrap" href="${REPO}/commit/${synced.commit}">godot-mcp@${synced.shortCommit}</a>.`,
       copyright: 'Copyright © 2026 sunerpy',
     },
   },
