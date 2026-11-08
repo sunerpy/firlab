@@ -64,6 +64,7 @@ ENGLISH_ONLY=(
   reference/exports=operator/exports
   reference/editor-bridge=operator/editor-bridge
   reference/recipes=operator/recipes
+  reference/project-commands=operator/project-commands
   reference/artifacts=operator/artifacts
   reference/process-boundaries=operator/process-boundaries
   reference/recovery=operator/recovery
@@ -82,6 +83,7 @@ zh_title() {
     operator/exports) echo "导出" ;;
     operator/editor-bridge) echo "编辑器桥接" ;;
     operator/recipes) echo "配方" ;;
+    operator/project-commands) echo "项目命令" ;;
     operator/artifacts) echo "产物" ;;
     operator/process-boundaries) echo "进程边界" ;;
     operator/recovery) echo "恢复详解" ;;

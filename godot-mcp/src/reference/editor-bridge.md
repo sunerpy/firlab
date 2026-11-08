@@ -713,7 +713,7 @@ checks before it compiles anything.
 ## Calling a project command
 
 `editor.commands.call` calls a command the project declares in `godot_mcp_commands.json`
-([Project commands](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/project-commands.md), [ADR 0016](https://github.com/sunerpy/godot-mcp/blob/main/docs/contributor/adr/0016-project-commands.md)).
+([Project commands](project-commands.md), [ADR 0016](https://github.com/sunerpy/godot-mcp/blob/main/docs/contributor/adr/0016-project-commands.md)).
 The server checks the call against the declaration and the arguments against the command's
 schema, and sends the add-on the provider's `res://` script and the arguments as tagged values.
 `editor.commands.list` shows what can be called; it reads the file and needs no editor.
@@ -979,7 +979,7 @@ Each of these has another way to it, or is left to you on purpose.
 | Discarding a scene's unsaved changes | Undo them with `editor.undo`, then close the scene; a close never discards. |
 | More than one editor | One editor connects to a server; run one server for each project. |
 | Running a script while the operator has not allowed scripts | Start the server with `--allow-scripts`; see [Running a script in the editor](#running-a-script-in-the-editor). |
-| Calling project code the project does not declare, or any while project commands are off | Declare the command in `godot_mcp_commands.json`, and leave `project_commands` on; see [Project commands](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/project-commands.md). |
+| Calling project code the project does not declare, or any while project commands are off | Declare the command in `godot_mcp_commands.json`, and leave `project_commands` on; see [Project commands](project-commands.md). |
 
 ## Verified on
 

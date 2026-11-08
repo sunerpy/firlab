@@ -40,7 +40,7 @@ warning, since only this machine reaches it. With `--allow-scripts`, and no toke
 warning says that anyone who can reach the port can also run GDScript with your privileges.
 The `editor` and `full` profiles call the commands a project declares unless
 `project_commands = false` turns them off, and the last warning says so
-([Project commands](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/project-commands.md)).
+([Project commands](project-commands.md)).
 
 ## Require a token
 

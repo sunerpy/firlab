@@ -186,7 +186,7 @@ subject = "operator@example.invalid"
 ### Project commands
 
 `project_commands` decides whether `editor.commands.call` calls the commands a project declares
-in `godot_mcp_commands.json` ([Project commands](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/project-commands.md)). Unset, it follows the
+in `godot_mcp_commands.json` ([Project commands](project-commands.md)). Unset, it follows the
 transport: on for stdio, `trusted_local` and `open`, and off for `proxied_oidc`, so a caller the
 server only knows through a proxy reaches the project's code only when the operator says so.
 `project_commands = false` turns them off for any transport, and `GODOT_MCP_PROJECT_COMMANDS`

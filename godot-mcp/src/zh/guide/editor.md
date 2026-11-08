@@ -166,7 +166,7 @@ Godot 无法让脚本中途停下。服务器等待 `deadline_ms`，再多等两
 
 `editor.commands.list` 列出文件声明了什么、哪些命令可以调用、某个命令为什么不能调用，它不运行任何代码。`editor.commands.call` 先按命令的 schema 检查参数，再让编辑器运行这个命令，答复里给出它返回了什么、编辑器记录了什么日志，以及调用前后内容不同的每个项目文件。它做的事都不会撤销；到期限仍未答复的调用结果是 `uncertain`，在它的答复到来或事务被解决之前会阻止后续改动，这一点和脚本相同。
 
-项目命令默认开启，因为运行的是项目自己的代码；在代理后面默认关闭，要在配置里打开；`project_commands = false` 在任何情况下都会关闭它们。文件格式、参数规则、一个完整的命令脚本和答复的各个字段，见[项目命令参考](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/project-commands.md)。godot-mcp 0.5.0 及更早的版本没有项目命令；早于 0.5.0 的插件会答复 `unsupported`，用 `editor.addon.update` 更新后才能使用。
+项目命令默认开启，因为运行的是项目自己的代码；在代理后面默认关闭，要在配置里打开；`project_commands = false` 在任何情况下都会关闭它们。文件格式、参数规则、一个完整的命令脚本和答复的各个字段，见[项目命令参考](../../reference/project-commands.md)。godot-mcp 0.5.0 及更早的版本没有项目命令；早于 0.5.0 的插件会答复 `unsupported`，用 `editor.addon.update` 更新后才能使用。
 
 ## 答复丢失时
 
