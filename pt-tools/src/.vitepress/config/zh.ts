@@ -14,6 +14,8 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: '1.0 预览版新功能', link: '/guide/whats-new-1.0' },
       { text: '安装', link: '/guide/install' },
       { text: '快速开始', link: '/guide/quick-start' },
+      { text: '首页与系统体检', link: '/guide/home-and-health' },
+      { text: 'NAS 监控', link: '/guide/nas-monitor' },
       { text: '配置说明', link: '/configuration' },
       { text: '升级与备份', link: '/guide/upgrade' },
     ],
@@ -32,6 +34,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
   {
     text: 'RSS 与下载',
     items: [
+      { text: '种子搜索', link: '/guide/torrent-search' },
       { text: 'RSS 订阅', link: '/guide/rss-subscription' },
       { text: '过滤规则与追剧', link: '/guide/filter-rules-tv-series' },
       { text: '自动删种与磁盘保护', link: '/guide/auto-cleanup' },
@@ -46,6 +49,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
     text: '媒体',
     items: [
       { text: '订阅', link: '/guide/media-subscribe' },
+      { text: '条目详情与订阅日历', link: '/guide/media-detail' },
       { text: '整理入库', link: '/guide/media-library' },
       { text: '媒体识别', link: '/guide/media-recognize' },
     ],
@@ -70,6 +74,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: 'API 令牌', link: '/guide/api-tokens' },
       { text: 'App API', link: '/reference/app-api' },
       { text: 'qB 兼容入口', link: '/guide/qbit-compat' },
+      { text: 'Servarr 兼容入口', link: '/guide/servarr' },
     ],
   },
   {
@@ -103,7 +108,8 @@ export const zh = defineConfig({
       {
         text: '指南',
         link: '/guide/what-is-pt-tools',
-        activeMatch: '^/(guide/(what-is-pt-tools|whats-new-1.0|install|quick-start|upgrade)|configuration)',
+        activeMatch:
+          '^/(guide/(what-is-pt-tools|whats-new-1.0|install|quick-start|home-and-health|nas-monitor|upgrade)|configuration)',
       },
       {
         text: '站点',
@@ -114,14 +120,14 @@ export const zh = defineConfig({
         text: 'RSS 与下载',
         link: '/guide/rss-subscription',
         activeMatch:
-          '^/guide/(rss-subscription|filter-rules-tv-series|auto-cleanup|brush|user-stats|downloader-assistant|torrent-transfer|reseed)',
+          '^/guide/(torrent-search|rss-subscription|filter-rules-tv-series|auto-cleanup|brush|user-stats|downloader-assistant|torrent-transfer|reseed)',
       },
       { text: '媒体', link: '/guide/media-library', activeMatch: '^/guide/media-' },
       { text: 'ChatOps', link: '/guide/chatops-quickstart', activeMatch: '^/guide/(chatops-|notify-channels)' },
       {
         text: 'App 与接口',
         link: '/guide/mobile-app',
-        activeMatch: '^/(guide/(mobile-app|remote-access|assistant|mcp|api-tokens|qbit-compat)|reference/app-api)',
+        activeMatch: '^/(guide/(mobile-app|remote-access|assistant|mcp|api-tokens|qbit-compat|servarr)|reference/app-api)',
       },
       {
         text: '参考',
