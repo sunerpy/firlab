@@ -15,6 +15,8 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: "What's new in the 1.0 preview", link: '/en/guide/whats-new-1.0' },
       { text: 'Install', link: '/en/guide/install' },
       { text: 'Quick start', link: '/en/guide/quick-start' },
+      { text: 'Home page and system check', link: '/en/guide/home-and-health' },
+      { text: 'NAS monitoring', link: '/en/guide/nas-monitor' },
       { text: 'Configuration', link: '/en/configuration' },
       { text: 'Upgrades and backups', link: '/en/guide/upgrade' },
     ],
@@ -33,6 +35,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
   {
     text: 'RSS and downloads',
     items: [
+      { text: 'Torrent search', link: '/en/guide/torrent-search' },
       { text: 'RSS subscriptions', link: '/en/guide/rss-subscription' },
       { text: 'Filter rules and TV series', link: '/en/guide/filter-rules-tv-series' },
       { text: 'Auto-delete and disk protection', link: '/en/guide/auto-cleanup' },
@@ -47,6 +50,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
     text: 'Media',
     items: [
       { text: 'Subscriptions', link: '/en/guide/media-subscribe' },
+      { text: 'Title details and subscription calendar', link: '/en/guide/media-detail' },
       { text: 'Media library organising', link: '/en/guide/media-library' },
       { text: 'Media recognition', link: '/en/guide/media-recognize' },
     ],
@@ -71,6 +75,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: 'API tokens', link: '/en/guide/api-tokens' },
       { text: 'App API', link: '/en/reference/app-api' },
       { text: 'qB-compatible entrance', link: '/en/guide/qbit-compat' },
+      { text: 'Servarr-compatible entrance', link: '/en/guide/servarr' },
     ],
   },
   {
@@ -104,7 +109,8 @@ export const en = defineConfig({
       {
         text: 'Guide',
         link: '/en/guide/what-is-pt-tools',
-        activeMatch: '^/en/(guide/(what-is-pt-tools|whats-new-1.0|install|quick-start|upgrade)|configuration)',
+        activeMatch:
+          '^/en/(guide/(what-is-pt-tools|whats-new-1.0|install|quick-start|home-and-health|nas-monitor|upgrade)|configuration)',
       },
       {
         text: 'Sites',
@@ -115,14 +121,14 @@ export const en = defineConfig({
         text: 'RSS and downloads',
         link: '/en/guide/rss-subscription',
         activeMatch:
-          '^/en/guide/(rss-subscription|filter-rules-tv-series|auto-cleanup|brush|user-stats|downloader-assistant|torrent-transfer|reseed)',
+          '^/en/guide/(torrent-search|rss-subscription|filter-rules-tv-series|auto-cleanup|brush|user-stats|downloader-assistant|torrent-transfer|reseed)',
       },
       { text: 'Media', link: '/en/guide/media-library', activeMatch: '^/en/guide/media-' },
       { text: 'ChatOps', link: '/en/guide/chatops-quickstart', activeMatch: '^/en/guide/(chatops-|notify-channels)' },
       {
         text: 'App and APIs',
         link: '/en/guide/mobile-app',
-        activeMatch: '^/en/(guide/(mobile-app|remote-access|assistant|mcp|api-tokens|qbit-compat)|reference/app-api)',
+        activeMatch: '^/en/(guide/(mobile-app|remote-access|assistant|mcp|api-tokens|qbit-compat|servarr)|reference/app-api)',
       },
       {
         text: 'Reference',
