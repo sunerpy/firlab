@@ -17,7 +17,7 @@
 
 「消息通知」页的「最近投递统计」按通道写近 7 天的「已发出 / 总条数」：RSS 通知和保号提醒、签到、每日战报、失效种子、订阅与入库、远程访问这些后台通知都算，通道测试和命令回复不算。每个通道下面的小字写各来源的条数，以及没发出的是失败、等待发送（安静时段挂起或等重试）、取消或被取代（在 RSS 通知日志里取消的，或被同一种子后来的通知取代的），还是超出 RSS 的每小时上限。RSS 通知实时发不出去时会转入重发队列，这些也算已发出，小字另写转入重发的条数，以及其中多少已补发、多少还在重试、多少已放弃。
 
-同一页的「最近的通知」列出最近 8 条，RSS 通知和后台通知都在里面：每条写通道、来源、通知的标题（RSS 通知是种子名，前面加站点）、结果与尝试次数。这里的标题是内置的：配了消息模板时，实际收到的标题按模板；几条 RSS 通知合并成一条发出时，这里仍逐条列出。RSS 通知的完整清单、重试与取消在「RSS 通知日志」里；后台通知发送失败会在 1、5、30 分钟后各重试一次。
+同一页的「最近的通知」列出最近 8 条，RSS 通知和后台通知都在里面：每条写通道、来源、通知的标题（RSS 通知是种子名，前面加站点）、结果与尝试次数。这里的标题是内置的：配了消息模板时，实际收到的标题按模板；几条 RSS 通知合并成一条发出时，这里仍逐条列出。RSS 通知的完整清单、重试与取消在「RSS 通知日志」里；后台通知发送失败会在 1 分钟、5 分钟、30 分钟、2 小时、6 小时后各重试一次。
 
 ## 企业微信群机器人
 
@@ -104,8 +104,10 @@ Server 酱的标题最多 32 个字，超出时截短，完整标题放在正文
 | `media.followshow.found` 追剧更新                   | `subscription`、`season`、`episodes`、`torrent_title`、`site`、`quality`、`version`、`poster`                                                                   |
 | `media.followshow.waiting` 追剧等版本               | `subscription`、`subscription_id`、`season`、`episodes`、`version`、`days`                                                                                      |
 | `media.followshow.failed` 追剧出错                  | `subscription`、`season`、`fails`、`error`                                                                                                                      |
+| `media.calendar.today` 今日更新                     | `day`、`count`（几项）、`in_library`（其中已入库的），`items`（每项 `title`、`media_type`、`season`、`episode`、`name`、`air_time`、`state`、`state_label`）    |
 | `subscribe.douban_failed` 豆瓣想看拉取失败          | `source`、`fails`、`error`                                                                                                                                      |
 | `media.organized` 入库                              | `name`、`media_type`、`episodes`、`files`、`quality`、`library`、`torrent`、`poster`                                                                            |
+| `media.playback` 媒体服务器播放                     | `server`、`user`、`action`（`start`、`stop`）、`action_label`、`name`（片名，剧集带季集与集名）、`media_type`、`season`、`episode`、`device`、`client`          |
 | `site.login_expiring` 站点即将被封号                | `site`、`tier`、`days_remaining`、`last_active`、`days_since_active`、`access_stale`                                                                            |
 | `site.probe_failed` 站点探测失败                    | `site`、`status`、`status_label`、`since`、`advice`、`diagnosis`                                                                                                |
 | `site.probe_recovered` 站点探测恢复                 | `site`、`probed_at`                                                                                                                                             |
@@ -114,11 +116,15 @@ Server 酱的标题最多 32 个字，超出时截短，完整标题放在正文
 | `report.daily` 每日战报                             | `day`（统计的日期）、`scope`（统计范围：`previous_day` 或 `today`）、`uploaded`、`downloaded`、`uploaded_bytes`、`downloaded_bytes`、`bonus`，`items`（各站点） |
 | `downloader.dead_torrents` 失效种子                 | `downloader`、`count`、`size`、`size_bytes`，`items`（每项 `name`、`size`、`size_bytes`）                                                                       |
 | `downloader.free_end_pause_failed` 免费结束暂停失败 | `site`、`torrent_title`、`downloader`、`free_end`、`failures`、`error`                                                                                          |
+| `torrent.free_watch.pushed` 等到免费                | `site`、`torrent_title`、`torrent_id`、`downloader`、`size`、`free_end`、`free_remaining`（长期免费时后两个为空）                                               |
+| `torrent.free_watch.expired` 等免费到期             | `site`、`torrent_title`、`torrent_id`、`days`（等了几天）                                                                                                       |
+| `torrent.free_watch.failed` 等免费不再等            | `site`、`torrent_title`、`torrent_id`、`fails`、`error`（最近一次的原因）                                                                                       |
 | `reseed.round` 辅种结果                             | `run_id`、`trigger`、`status`、`status_label`、`hashes`、`candidates`、`created`、`failed`、`gone`、`skipped`、`iyuu_calls`、`duration`、`stopped`、`summary`   |
 | `remote.paired` 新设备配对                          | `device`、`permission`                                                                                                                                          |
+| `system.backup_failed` 备份失败                     | `dir`、`error`、`last_ok`（上一次成功的时间，从没成功过时为空）                                                                                                 |
 | `test` 通道测试                                     | `channel`                                                                                                                                                       |
 
-每日战报的变量只有合计与各站点；登录异常、签到、刷流、辅种几段在 `text` 里。辅种结果见 [IYUU 辅种的通知](reseed.md#通知)。列表最多 100 项，省略的条数在 `items_more` 里。
+每日战报的变量只有合计与各站点；登录异常、签到、刷流、辅种、追剧几段在 `text` 里。辅种结果见 [IYUU 辅种的通知](reseed.md#通知)。列表最多 100 项，省略的条数在 `items_more` 里。
 
 能用的函数：比较 `eq`、`ne`、`lt`、`le`、`gt`、`ge`（整数与小数可以直接比），`default`（为空时用默认值），`truncate`（按字符截断，截掉了补「…」），`contains`、`hasPrefix`、`hasSuffix`，`replace`、`upper`、`lower`、`trim`，`bytes`（字节数写成 `15.00 GB`），`date`（按 Go 的版式写时间），`printf`，`json`（写成 JSON 字面量）。写法举例：
 
@@ -151,6 +157,7 @@ Telegram 按纯文本发，模板里写的 HTML、Markdown 标记会原样显示
 | `reply.version` 版本       | `/version`                                                               | `version`、`build`、`commit`、`update_checked`、`has_update`、`latest`                                                                  |
 | `reply.help` 命令列表      | `/help`                                                                  | `items`（`name`、`description`、`admin`）                                                                                               |
 | `reply.subs` 订阅列表      | `/subs`                                                                  | `count`，`items`（最多 20 个：`id`、`title`、`status`、`progress`、`next_search`），`items_more`                                        |
+| `reply.today` 今日更新     | `/today`                                                                 | `day`、`count`、`in_library`，`items`（同 `media.calendar.today`，回复的文字最多列 30 项）                                              |
 | `reply.other` 其他回复     | 其余的回复：别的命令的结果、命令出错，没绑定、权限不够、命令不认识的提示 | `command`（命令名，不带 `/`）、`ok`（做成了没有）                                                                                       |
 | `assistant.reply` AI 助手  | AI 助手发的消息                                                          | `kind`（`answer` 回答、`notice` 提示、`confirm` 要确认的操作、`timeout` 确认超时、`status` 收到消息时的即时答复）、`summary`、`expires` |
 
