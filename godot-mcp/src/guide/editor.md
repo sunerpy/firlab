@@ -294,7 +294,7 @@ is resolved, as a script does.
 
 Project commands are on, because the code is your project's own; behind a proxy they are off
 until the configuration turns them on, and `project_commands = false` turns them off anywhere.
-The [project commands reference](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/project-commands.md) has the file format, the
+The [project commands reference](../reference/project-commands.md) has the file format, the
 argument rules, a complete provider and the answer. godot-mcp 0.5.0 and earlier have no project
 commands, and an add-on earlier than 0.5.0 answers `unsupported` until `editor.addon.update`
 replaces it.

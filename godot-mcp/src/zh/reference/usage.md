@@ -93,7 +93,7 @@ godot-mcp serve: startup failed: project ownership could not be established: no 
 
 每个 profile 都有 `godot-mcp.profile-guide` 这一个 prompt；`editor` 与 `full` 另有 11 个配方 prompt，名字是 `godot-mcp.recipe.<配方名>`，正文给出参数表、调用模板和配方展开成的操作，见 [配方](../../reference/recipes.md)。prompt 不占工具名额。
 
-**下面四节是 0.1.0 上的一次普查。** 那时 `full` 有 73 个工具（0.1.1、0.1.2 不变，`core`、`editor`、`runtime` 分别为 15、48、44），之后的版本新增的 59 个工具没有用这个方法重测，它们的调用方法见 [编辑器桥](../../reference/editor-bridge.md)、[托管会话](../../reference/managed-sessions.md)、[配方](../../reference/recipes.md)、[项目命令](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/project-commands.md) 与 [Profiles and tool outcomes](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/profiles-and-outcomes.md)。在一台配了真实 Godot 4.7.1、supervisor 就位的主机上，把 0.1.0 的 `full` 的 73 个工具按名字顺序、逐个只带内核自己拥有的 `idempotencyId` 串行调一遍（`limits.deadline_ms` 为 30000），实测 20 个给出答案，37 个因为缺参数被拒，15 个拒绝执行，1 个撞上执行超时。顺序有影响：排在前面的调用会改变后面调用看到的状态，下面会点出来。
+**下面四节是 0.1.0 上的一次普查。** 那时 `full` 有 73 个工具（0.1.1、0.1.2 不变，`core`、`editor`、`runtime` 分别为 15、48、44），之后的版本新增的 59 个工具没有用这个方法重测，它们的调用方法见 [编辑器桥](../../reference/editor-bridge.md)、[托管会话](../../reference/managed-sessions.md)、[配方](../../reference/recipes.md)、[项目命令](../../reference/project-commands.md) 与 [Profiles and tool outcomes](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/profiles-and-outcomes.md)。在一台配了真实 Godot 4.7.1、supervisor 就位的主机上，把 0.1.0 的 `full` 的 73 个工具按名字顺序、逐个只带内核自己拥有的 `idempotencyId` 串行调一遍（`limits.deadline_ms` 为 30000），实测 20 个给出答案，37 个因为缺参数被拒，15 个拒绝执行，1 个撞上执行超时。顺序有影响：排在前面的调用会改变后面调用看到的状态，下面会点出来。
 
 ## 20 个无需参数就给出答案的调用
 

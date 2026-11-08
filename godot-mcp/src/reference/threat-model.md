@@ -288,7 +288,7 @@ leave it off for a project or a client you do not trust.
 A project may declare commands in `godot_mcp_commands.json`, each implemented by a `@tool`
 GDScript of the project's; `editor.commands.list` lists them and `editor.commands.call` has the
 connected editor run one ([ADR 0016](https://github.com/sunerpy/godot-mcp/blob/main/docs/contributor/adr/0016-project-commands.md),
-[Project commands](https://github.com/sunerpy/godot-mcp/blob/main/docs/operator/project-commands.md)).
+[Project commands](project-commands.md)).
 
 **Enforces.** A listing reads the declaration and the provider scripts as files and runs
 nothing. A call runs only a command the declaration names, through the provider script it names,
