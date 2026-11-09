@@ -51,6 +51,17 @@ body {
   display: none;
 }
 
+/* The footer's commit link keeps to one line (it broke after the hyphen of "pt-tools" at 320 to
+   414 px), and the footer's words balance their lines so the link is not left alone on the last,
+   as on the godot-mcp site. */
+.VPFooter .pt-nowrap {
+  white-space: nowrap;
+}
+
+.VPFooter .message {
+  text-wrap: balance;
+}
+
 /* A long word in a heading breaks instead of pushing the page wider. */
 .vp-doc :is(h1, h2, h3),
 .VPHero :is(.name, .text) {

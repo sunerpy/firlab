@@ -1,0 +1,1191 @@
+/* Hallmark · macrostructure: stacked hero over its two stages → ruled bands · genre: technical
+ *   editorial · theme: FirLab tokens (theme/styles/tokens.css) · display + body: system sans +
+ *   system CJK, the pt-tools web UI's own stack · mono: JetBrains Mono Variable (evidence lines)
+ * nav: VitePress docs bar · footer: Ft2 single line
+ * motion: no entrance; colour and underline fades of 0.2 s and a 1 px press, as on the Voltip and
+ *   godot-mcp sites; the buttons' fade is off under prefers-reduced-motion · results in DESIGN.md §12
+ * pre-emit critique: P4 H4 E4 S5 R4 V3 (V3: the godot-mcp site's band order, at the owner's request)
+ */
+/*
+ * The home page in the 2026-11 layout (design A, after the Voltip site's "墨白" and godot-mcp's
+ * site, DESIGN.md §10, §18 and §12): every band sits on the sheet and opens with a hairline, every
+ * head puts its title on the left and its words on the right. Under the hero, one thing pt-tools
+ * does on its own as two real screenshots (a show followed, its new episode organized into the
+ * library); then what it does as cells of two widths, three showcases with real screenshots (one
+ * of them the phone App), the ways to run it over the install card, a ledger of what leaves the
+ * server, the questions as an open list, and a closing band with where to talk about it. Brand
+ * colours live only inside the marks. The page sets `markdownStyles: false`, so these sections are
+ * not inside `.vp-doc` and need no resets; the page's own Markdown gets `.vp-doc` back inside
+ * HomeDeploy (the install commands) and HomeCloser (the community links and the QR code).
+ */
+
+/* ---- The page ------------------------------------------------------------------- */
+
+/* The hero's own column: VPHero pads 24 / 48 / 64 px and caps its container at 1152 px. */
+.pt-wrap {
+  box-sizing: content-box;
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+@media (min-width: 640px) {
+  .pt-wrap {
+    padding: 0 48px;
+  }
+}
+
+@media (min-width: 960px) {
+  .pt-wrap {
+    padding: 0 64px;
+  }
+}
+
+/* Every band sits on the sheet; a hairline as wide as the column opens it. */
+.pt-v2-band {
+  padding: 0 0 80px;
+}
+
+.pt-v2-band::before {
+  content: '';
+  display: block;
+  width: calc(100% - 48px);
+  max-width: 1152px;
+  height: 1px;
+  margin: 0 auto 64px;
+  background: var(--pt-rule);
+}
+
+@media (min-width: 640px) {
+  .pt-v2-band::before {
+    width: calc(100% - 96px);
+  }
+}
+
+@media (min-width: 768px) {
+  .pt-v2-band {
+    padding-bottom: 112px;
+  }
+
+  .pt-v2-band::before {
+    margin-bottom: 88px;
+  }
+}
+
+@media (min-width: 960px) {
+  .pt-v2-band::before {
+    width: calc(100% - 128px);
+  }
+}
+
+/* Zero specificity, so every rule below can set its own margins. */
+:where(.pt-v2-band) :where(h2, h3, p, ul, ol, dl, dd, figure, pre) {
+  margin: 0;
+  min-width: 0;
+}
+
+:where(.pt-v2-band) :where(h2, h3, p) {
+  overflow-wrap: anywhere;
+}
+
+:where(.pt-v2-band) :where(ul, ol) {
+  padding: 0;
+  list-style: none;
+}
+
+/* No text block on the home page ends on one word, or on one or two Chinese characters: every
+   block balances its lines, as on the Voltip and godot-mcp sites. Chromium balances up to six
+   lines and wraps longer text as usual. */
+:where(.VPHome.pt-home-v2) :where(p, dd, li, figcaption, h3) {
+  text-wrap: balance;
+}
+
+/* The hero's tagline and the page's own Markdown carry more specific `pretty` rules (home.css,
+   base.css). */
+.VPHome.pt-home-v2 .VPHero .tagline,
+.VPHome.pt-home-v2 .vp-doc :is(p, li, dd) {
+  text-wrap: balance;
+}
+
+.pt-v2-band :is(h2, h3) {
+  color: var(--pt-ink-900);
+  font-style: normal;
+  letter-spacing: var(--pt-ls-display);
+  /* Chinese breaks at punctuation, so a heading never leaves one character on a line, and the
+     lines of a heading are balanced, so it never leaves one word either. A run between two
+     punctuation marks wider than the column still breaks, so no band is pushed past the screen's
+     edge at 320 px. */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+/* Inline code in the bands' words: the page's own inline code, as in a guide page. A code block
+   (a `pre`) keeps its own face, even inside a list item such as a bento cell. */
+.pt-v2-band :is(p, li, h3, dd) code:not(pre code) {
+  padding: 0.1em 0.38em;
+  border-radius: var(--pt-radius-chip);
+  background: var(--pt-paper-2);
+  color: var(--pt-ink-700);
+  font-family: var(--pt-font-mono);
+  font-size: 0.86em;
+  overflow-wrap: anywhere;
+}
+
+/* A short code span keeps to one line (components/inline.ts, SHORT_CODE). */
+.pt-v2-band code.pt-nowrap {
+  white-space: nowrap;
+}
+
+.pt-v2-band strong {
+  color: var(--pt-ink-900);
+  font-weight: 600;
+}
+
+/* A band's head: the title, then its words; from 960 px the title takes the wider left column and
+   the words the right, set against the title's last line. */
+.pt-sec-head {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+@media (min-width: 960px) {
+  .pt-sec-head {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: end;
+    gap: 0 64px;
+    margin-bottom: 56px;
+  }
+
+  .pt-sec-head > h2 {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+  }
+
+  .pt-sec-head > :not(h2) {
+    grid-column: 2;
+  }
+
+  .pt-sec-head > :not(h2) + :not(h2) {
+    margin-top: 0;
+    padding-top: 16px;
+  }
+}
+
+.pt-sec-head h2,
+.pt-showcase-words h2 {
+  font-size: clamp(30px, 5.4vw, 46px);
+  font-weight: 700;
+  line-height: 1.16;
+}
+
+:root:lang(zh-CN) :is(.pt-sec-head h2, .pt-showcase-words h2) {
+  line-height: 1.3;
+}
+
+.pt-sec-head > p {
+  color: var(--pt-ink-500);
+  font-size: 17px;
+  line-height: var(--pt-lh-prose);
+}
+
+@media (min-width: 768px) {
+  .pt-sec-head > p {
+    font-size: 18px;
+  }
+}
+
+/* A note under a band's evidence keeps a prose measure, though the column is 1152 px wide. */
+.pt-footnote {
+  max-width: 72ch;
+  margin-top: 20px;
+  color: var(--pt-ink-400);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* A plain card on the sheet. */
+.pt-card {
+  border: 1px solid var(--pt-rule);
+  border-radius: var(--pt-radius-plate);
+  background: var(--pt-paper-elv);
+  box-shadow: var(--pt-shadow-card);
+}
+
+/* A short label above or before a value. */
+.pt-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--pt-ink-400);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+
+/* The line that leads to a guide page: the words, then an arrow. */
+.pt-guide {
+  margin-top: 16px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.pt-v2-band .pt-guide a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Links in the bands: body-coloured words with a soft underline that darkens on hover. The page's
+   own Markdown (`.vp-doc`) keeps the guide pages' link style (base.css). */
+.pt-v2-band a:not(.pt-btn, .vp-doc a) {
+  color: var(--pt-ink-900);
+  font-weight: 500;
+  text-decoration-line: underline;
+  text-decoration-color: var(--pt-link-line);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: text-decoration-color 0.2s;
+}
+
+.pt-v2-band a:not(.pt-btn, .vp-doc a):hover {
+  text-decoration-color: currentColor;
+}
+
+/* A heading that is a link reads as a heading: the underline comes with the hover. */
+.pt-v2-band h3 > a:not(.pt-btn) {
+  font-weight: inherit;
+  text-decoration-color: transparent;
+}
+
+.pt-v2-band h3 > a:not(.pt-btn):hover {
+  text-decoration-color: currentColor;
+}
+
+/* ---- Buttons of the bands (the hero's are VitePress's VPButton) --------------------- */
+
+.pt-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 24px;
+  border: 1px solid transparent;
+  border-radius: var(--pt-radius-pill);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.pt-btn:active {
+  transform: translateY(1px);
+}
+
+.pt-btn-brand {
+  background: var(--pt-accent);
+  color: var(--pt-accent-ink);
+}
+
+.pt-btn-brand:hover {
+  background: var(--pt-accent-hover);
+}
+
+/* The secondary button is the hero's: a translucent ink fill (tokens.css, after the Voltip site). */
+.pt-btn-alt {
+  background: var(--pt-fill);
+  color: var(--pt-ink-900);
+}
+
+.pt-btn-alt:hover {
+  background: var(--pt-fill-hover);
+}
+
+.pt-btn:focus-visible {
+  outline: 2px solid var(--pt-accent);
+  outline-offset: 2px;
+}
+
+/* ---- The hero ------------------------------------------------------------------- */
+
+.pt-home-v2 .VPHero .name {
+  /* The product name is the nav bar's; the heading here is the claim. */
+  display: none;
+}
+
+.VPHome.pt-home-v2 .VPHero .text {
+  color: var(--pt-ink-900);
+  font-size: clamp(40px, 7.4vw, 64px);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.024em;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+:root:lang(zh-CN) .VPHome.pt-home-v2 .VPHero .text {
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.VPHome.pt-home-v2 .VPHero .tagline {
+  max-width: 34em;
+  padding-top: 24px;
+  color: var(--pt-ink-500);
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+@media (min-width: 640px) {
+  .VPHome.pt-home-v2 .VPHero .tagline {
+    font-size: 19px;
+    line-height: 1.8;
+  }
+}
+
+/* From 960 px the claim takes the left of the column in large type, the tagline, the buttons and
+   the facts stand on the right against its last line, and the two stages run across the whole
+   column below them. */
+@media (min-width: 960px) {
+  .VPHome.pt-home-v2 .VPHero .container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .VPHome.pt-home-v2 .VPHero.has-image .main {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: end;
+    gap: 0 64px;
+    width: 100%;
+    max-width: none;
+  }
+
+  .VPHome.pt-home-v2 .VPHero .heading {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+  }
+
+  .VPHome.pt-home-v2 .VPHero .main > :not(.heading) {
+    grid-column: 2;
+  }
+
+  /* home.css sizes the 2026-09 hero at :root:lang() specificity, so these match it. */
+  :root .VPHome.pt-home-v2 .VPHero .text,
+  :root:lang(zh-CN) .VPHome.pt-home-v2 .VPHero .text {
+    max-width: none;
+    font-size: clamp(56px, 6.2vw, 84px);
+    line-height: 1.1;
+  }
+
+  :root:lang(zh-CN) .VPHome.pt-home-v2 .VPHero .text {
+    line-height: 1.16;
+  }
+
+  .VPHome.pt-home-v2 .VPHero .tagline {
+    padding-top: 0;
+    font-size: 18px;
+    line-height: 1.8;
+  }
+
+  .VPHome.pt-home-v2 .VPHero .actions {
+    padding-top: 28px;
+  }
+
+  .VPHome.pt-home-v2 .VPHero .image {
+    order: 2;
+    flex: none;
+    margin: 56px 0 0;
+  }
+}
+
+.VPHome.pt-home-v2 .VPHero .actions {
+  padding-top: 40px;
+}
+
+html .pt-home-v2 .VPHero .VPButton.VPButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+  font-size: 16px;
+  line-height: 48px;
+}
+
+/* Install carries its icon before the words, Quick start an arrow after them, each drawn in the
+   button's own text colour (Lucide's download and arrow-right, data/icons.ts). */
+.pt-home-v2 .VPHero .VPButton[href$='/guide/install']::before,
+.pt-home-v2 .VPHero .VPButton[href$='/guide/quick-start']::after {
+  content: '';
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  -webkit-mask: var(--pt-hero-icon) center / contain no-repeat;
+  mask: var(--pt-hero-icon) center / contain no-repeat;
+}
+
+.pt-home-v2 .VPHero .VPButton[href$='/guide/install'] {
+  --pt-hero-icon: var(--pt-download);
+}
+
+.pt-home-v2 .VPHero .VPButton[href$='/guide/quick-start'] {
+  --pt-hero-icon: var(--pt-arrow-right);
+}
+
+:root {
+  --pt-download: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 15V3'/%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+  --pt-arrow-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='m12 5 7 7-7 7'/%3E%3C/svg%3E");
+}
+
+@media (max-width: 639px) {
+  .pt-home-v2 .VPHero .actions .action {
+    flex: 1 1 auto;
+  }
+
+  html .pt-home-v2 .VPHero .VPButton.VPButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* The facts under the buttons: a term in the code face beside its words, one fact under another,
+   each one short line, so the two stages under the hero start on the first screen. */
+.VPHome.pt-home-v2 .pt-facts.pt-facts-actions {
+  gap: 16px;
+  max-width: none;
+  margin: 32px 0 0;
+  padding: 20px 0 0;
+}
+
+.VPHome.pt-home-v2 .pt-facts.pt-facts-actions .pt-fact {
+  grid-template-columns: minmax(0, 7.5em) minmax(0, 1fr);
+}
+
+.VPHome.pt-home-v2 .pt-facts.pt-facts-actions .pt-fact dd {
+  color: var(--pt-ink-500);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+@media (max-width: 959px) {
+  .VPHome.pt-home-v2 .pt-facts.pt-facts-actions {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 479px) {
+  .VPHome.pt-home-v2 .pt-facts.pt-facts-actions .pt-fact {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---- Under the hero: a show followed, then its new episode in the library ------------------ */
+
+.pt-stages {
+  width: 100%;
+  margin: 0;
+}
+
+.pt-stages-plate {
+  display: grid;
+  gap: 28px;
+  padding: 24px 16px;
+  border: 1px solid var(--pt-rule);
+  border-radius: var(--pt-radius-plate);
+  background: var(--pt-scene-plate);
+}
+
+@media (min-width: 640px) {
+  .pt-stages-plate {
+    padding: 32px;
+  }
+}
+
+.pt-stage {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  min-width: 0;
+}
+
+.pt-stages-to {
+  display: none;
+}
+
+@media (min-width: 960px) {
+  .pt-stages-plate {
+    grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr);
+    align-items: center;
+    gap: 0 16px;
+    padding: 36px 40px 40px;
+  }
+
+  .pt-stages-to {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin-top: 32px;
+    border: 1px solid var(--pt-rule);
+    border-radius: 50%;
+    background: var(--pt-paper-elv);
+    color: var(--pt-ink-500);
+  }
+}
+
+.pt-stage-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--pt-ink-500);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.pt-stage-num {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--pt-rule-strong);
+  border-radius: 50%;
+  background: var(--pt-paper-elv);
+  color: var(--pt-ink-700);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+/* A screenshot in a hairline frame, never redrawn window chrome. */
+.pt-shot-frame {
+  overflow: hidden;
+  border: 1px solid var(--pt-rule);
+  border-radius: var(--pt-radius-plate);
+  background: var(--pt-paper-1);
+  box-shadow: var(--pt-shadow-plate);
+}
+
+.pt-shot-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.pt-stages-caption {
+  margin-top: 16px;
+  color: var(--pt-ink-400);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ---- Tiles: an icon on a square ------------------------------------------------------------ */
+
+.pt-tile {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--pt-rule);
+  border-radius: var(--pt-radius-plate);
+  background: var(--pt-paper-soft);
+  color: var(--pt-ink-900);
+}
+
+.pt-tile-sm {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--pt-radius-control);
+  background: var(--pt-paper-1);
+  color: var(--pt-ink-700);
+}
+
+/* ---- What pt-tools does: cells of two widths ----------------------------------------------- */
+
+.pt-bento {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .pt-bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .pt-bento {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .pt-bento-wide {
+    grid-column: span 2;
+  }
+}
+
+.pt-bento-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid var(--pt-rule);
+  border-radius: var(--pt-radius-plate);
+  background: var(--pt-paper-elv);
+  box-shadow: var(--pt-shadow-card);
+}
+
+@media (min-width: 768px) {
+  .pt-bento-cell {
+    padding: 28px;
+  }
+}
+
+.pt-bento-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.pt-bento-cell h3 {
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.pt-bento-body {
+  color: var(--pt-ink-500);
+  font-size: 14.5px;
+  line-height: 1.75;
+}
+
+/* The evidence sits at the foot of the cell, so the cells of one row line their evidence up. */
+.pt-bento-proof {
+  margin-top: auto;
+  padding-top: 14px;
+}
+
+.pt-code-line {
+  margin: 0;
+  padding: 10px 14px;
+  overflow-x: auto;
+  border: 1px solid var(--pt-rule);
+  border-radius: var(--pt-radius-control);
+  background: var(--pt-paper-1);
+  color: var(--pt-ink-700);
+  font-family: var(--pt-font-mono);
+  font-size: 13px;
+  font-variant-ligatures: none;
+  line-height: 1.6;
+  /* A line longer than its card wraps instead of scrolling behind a scroll bar. It wraps only at
+     its spaces (codeTokens, components/inline.ts); a single token wider than the card scrolls. */
+  white-space: pre-wrap;
+}
+
+.pt-code-line .pt-token {
+  white-space: nowrap;
+}
+
+.pt-code-line code {
+  padding: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+.pt-code-line:focus-visible {
+  outline: 2px solid var(--pt-accent);
+  outline-offset: 2px;
+}
+
+.pt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pt-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--pt-rule);
+  border-radius: var(--pt-radius-chip);
+  background: var(--pt-paper-1);
+  color: var(--pt-ink-700);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+/* ---- Showcases: words beside a real screenshot ------------------------------------------- */
+
+.pt-showcase {
+  display: grid;
+  gap: 40px;
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .pt-showcase {
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    gap: 64px;
+  }
+
+  .pt-showcase-flip {
+    grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
+  }
+
+  .pt-showcase-flip .pt-showcase-words {
+    order: 2;
+  }
+
+  /* The phone App's screenshot keeps a phone's width, so its column is narrow and centred, and
+     the words take the rest. */
+  .pt-showcase.pt-showcase-phone {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+    align-items: center;
+  }
+
+  .pt-showcase-flip.pt-showcase-phone {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+  }
+}
+
+.pt-showcase-intro {
+  margin-top: 16px;
+  color: var(--pt-ink-500);
+  font-size: 17px;
+  line-height: var(--pt-lh-prose);
+}
+
+@media (min-width: 768px) {
+  .pt-showcase-intro {
+    font-size: 18px;
+  }
+}
+
+.pt-points {
+  display: grid;
+  margin-top: 28px;
+  border-top: 1px solid var(--pt-rule);
+}
+
+.pt-points li {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--pt-rule);
+}
+
+.pt-points h3 {
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.pt-points p {
+  margin-top: 4px;
+  color: var(--pt-ink-500);
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+.pt-showcase-words .pt-guide {
+  margin-top: 20px;
+}
+
+.pt-showcase-media {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.pt-showcase-media figcaption {
+  color: var(--pt-ink-400);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* A phone screenshot: a phone's width and corners, centred in its column. */
+.pt-shot-frame.pt-shot-phone {
+  justify-self: center;
+  width: 100%;
+  max-width: 320px;
+  border-radius: 28px;
+}
+
+.pt-shot-phone + figcaption {
+  justify-self: center;
+  max-width: 320px;
+  text-align: center;
+}
+
+/* ---- Ways to run it: one strip over the install card ------------------------------------ */
+
+.pt-ways {
+  display: grid;
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--pt-rule);
+  border-radius: var(--pt-radius-plate);
+  background: var(--pt-rule);
+  box-shadow: var(--pt-shadow-card);
+}
+
+@media (min-width: 960px) {
+  .pt-ways {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.pt-way {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  padding: 24px;
+  background: var(--pt-paper-elv);
+}
+
+.pt-way-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.pt-way h3 {
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.pt-way-facts {
+  display: grid;
+  gap: 12px;
+}
+
+.pt-way-facts dt {
+  display: block;
+}
+
+.pt-way-facts dd {
+  margin-top: 2px;
+  color: var(--pt-ink-700);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.pt-install {
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+/* The page's own Markdown in the card: the card is the frame, so the code group loses its own. */
+.pt-install .vp-doc > p {
+  margin: 0;
+  padding: 20px 24px;
+  color: var(--pt-ink-500);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.pt-install .vp-doc > p + .vp-code-group {
+  border-top: 1px solid var(--pt-rule);
+}
+
+.pt-install .vp-doc .vp-code-group {
+  margin: 0;
+}
+
+.pt-install .vp-doc .vp-code-group .tabs {
+  margin: 0;
+  padding: 0 16px;
+  border-radius: 0;
+  border-bottom: 1px solid var(--pt-rule);
+  background: var(--pt-band);
+}
+
+/* Under 360 px three tabs ("Docker Compose", "Linux", "Windows") need tighter labels to stay on
+   the card without scrolling. */
+@media (max-width: 639px) {
+  .pt-install .vp-doc .vp-code-group .tabs {
+    padding: 0 8px;
+  }
+
+  .pt-install .vp-doc .vp-code-group .tabs label {
+    padding: 0 10px;
+  }
+}
+
+@media (max-width: 359px) {
+  .pt-install .vp-doc .vp-code-group .tabs {
+    padding: 0 4px;
+  }
+
+  .pt-install .vp-doc .vp-code-group .tabs label {
+    padding: 0 6px;
+  }
+
+  .pt-install .vp-doc .vp-code-group .tabs label::after {
+    left: 4px;
+    right: 4px;
+  }
+}
+
+.pt-install .vp-doc div[class*='language-'] {
+  margin: 0;
+  border-radius: 0;
+  background: var(--pt-paper-elv);
+}
+
+/* The page's words after the commands (the checksums, the preview release), under a hairline. */
+.pt-install .vp-doc .vp-code-group + p {
+  border-top: 1px solid var(--pt-rule);
+}
+
+.pt-install .vp-doc .vp-code-group + p,
+.pt-install .vp-doc .vp-code-group + p ~ p {
+  padding: 16px 24px 0;
+  color: var(--pt-ink-500);
+  font-size: 14px;
+}
+
+.pt-install .vp-doc .vp-code-group ~ p:last-child {
+  padding-bottom: 20px;
+}
+
+.pt-install-note {
+  padding: 16px 24px 20px;
+  border-top: 1px solid var(--pt-rule);
+  color: var(--pt-ink-400);
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.pt-install-note .pt-guide {
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+/* ---- What leaves the server: one ledger ------------------------------------------------------ */
+
+.pt-ledger {
+  border: 1px solid var(--pt-rule);
+  border-radius: var(--pt-radius-plate);
+  background: var(--pt-paper-elv);
+  box-shadow: var(--pt-shadow-card);
+}
+
+.pt-ledger-row {
+  display: grid;
+  gap: 12px;
+  padding: 24px 20px;
+}
+
+.pt-ledger-row + .pt-ledger-row {
+  border-top: 1px solid var(--pt-rule);
+}
+
+@media (min-width: 768px) {
+  .pt-ledger-row {
+    grid-template-columns: minmax(0, 0.7fr) 40px minmax(0, 1.3fr);
+    align-items: center;
+    gap: 0 24px;
+    padding: 24px 32px;
+  }
+}
+
+.pt-ledger-name {
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.pt-ledger-arrow {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--pt-rule);
+  border-radius: 50%;
+  background: var(--pt-paper-0);
+  color: var(--pt-ink-500);
+  transform: rotate(90deg);
+}
+
+@media (min-width: 768px) {
+  .pt-ledger-arrow {
+    width: 40px;
+    height: 40px;
+    transform: none;
+  }
+}
+
+.pt-ledger-result {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.pt-ledger-sends {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+}
+
+.pt-ledger-value {
+  color: var(--pt-ink-900);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.pt-ledger-detail {
+  color: var(--pt-ink-500);
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+/* ---- Questions: every answer open, two columns ------------------------------------------- */
+
+.pt-qa {
+  display: grid;
+  gap: 0 48px;
+}
+
+@media (min-width: 960px) {
+  .pt-qa {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.pt-qa-item {
+  padding: 24px 0 28px;
+  border-top: 1px solid var(--pt-rule);
+}
+
+.pt-qa-item h3 {
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.pt-qa-item p {
+  margin-top: 8px;
+  color: var(--pt-ink-500);
+  font-size: 15px;
+  line-height: var(--pt-lh-prose);
+}
+
+.pt-qa-item .pt-guide {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+/* ---- Closer ------------------------------------------------------------------------- */
+
+.pt-closer-grid {
+  display: grid;
+  gap: 40px;
+  align-items: center;
+}
+
+@media (min-width: 960px) {
+  .pt-closer-grid.pt-closer-with-aside {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
+    gap: 64px;
+  }
+}
+
+.pt-closer h2 {
+  font-size: clamp(34px, 6vw, 56px);
+  font-weight: 700;
+  line-height: 1.16;
+}
+
+:root:lang(zh-CN) .pt-closer h2 {
+  line-height: 1.26;
+}
+
+.pt-closer-words > p {
+  max-width: 40em;
+  margin-top: 16px;
+  color: var(--pt-ink-500);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+@media (min-width: 768px) {
+  .pt-closer-words > p {
+    font-size: 19px;
+  }
+}
+
+.pt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+@media (max-width: 639px) {
+  .pt-actions .pt-btn {
+    flex: 1 1 auto;
+  }
+}
+
+/* The page's own Markdown on the right: where to talk about pt-tools, and the QR code. */
+.pt-closer-aside {
+  padding: 24px;
+  border: 1px solid var(--pt-rule);
+  border-radius: var(--pt-radius-plate);
+  background: var(--pt-paper-elv);
+  box-shadow: var(--pt-shadow-card);
+}
+
+.pt-closer-aside.vp-doc > :first-child {
+  margin-top: 0;
+}
+
+.pt-closer-aside.vp-doc > :last-child {
+  margin-bottom: 0;
+}
+
+.pt-closer-aside.vp-doc ul {
+  margin: 0;
+  padding-left: 1.1em;
+  color: var(--pt-ink-700);
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+/* A link that wraps reads as two links; these names are short enough to move to the next line whole. */
+.pt-closer-aside.vp-doc li a {
+  white-space: nowrap;
+}
+
+.pt-closer-aside.vp-doc li + li {
+  margin-top: 6px;
+}
+
+.pt-closer-aside.vp-doc .pt-qr {
+  margin: 20px 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pt-btn,
+  .pt-v2-band a {
+    transition: none;
+  }
+}
