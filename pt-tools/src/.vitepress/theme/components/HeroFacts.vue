@@ -1,15 +1,24 @@
 <script setup lang="ts">
-/** Two short facts between the tagline and the buttons: where pt-tools runs, and where the data goes. */
+/**
+ * Short facts: where pt-tools runs, where the data goes, which version the site describes. The
+ * 2026-09 layout puts them between the tagline and the buttons (`place="info"`); the 2026-11 one
+ * under the buttons (`place="actions"`), one under another (styles/bands.css).
+ */
 import { computed } from 'vue';
 import { useData } from 'vitepress';
-import type { Home } from '../data/home-schema';
+import { isV2, type Fact } from '../data/home-schema';
 
+const props = defineProps<{ place: 'info' | 'actions' }>();
 const { frontmatter } = useData();
-const facts = computed(() => (frontmatter.value.home as Home | undefined)?.facts ?? []);
+const facts = computed<Fact[]>(() => {
+  const home = frontmatter.value.home as { facts?: Fact[] } | undefined;
+  const wanted = isV2(home) ? 'actions' : 'info';
+  return props.place === wanted ? (home?.facts ?? []) : [];
+});
 </script>
 
 <template>
-  <dl v-if="facts.length" class="pt-facts">
+  <dl v-if="facts.length" class="pt-facts" :class="`pt-facts-${place}`">
     <div v-for="fact in facts" :key="fact.term" class="pt-fact">
       <dt>{{ fact.term }}</dt>
       <dd>{{ fact.text }}</dd>

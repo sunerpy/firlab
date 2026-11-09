@@ -972,6 +972,91 @@ practices 78 only for HTTPS, which the local server does not serve. The one fail
 rule, `label-content-name-mismatch`, is VitePress's own search button, shared with the Voltip
 site; it is fixed on every documentation site since 2026-10-04 (§14).
 
+**Design A (2026-11-09): the godot-mcp site's layout.** Preparing 1.0.0, the owner asked for the
+site to follow the godot-mcp and Voltip sites. The home page moves to the second frontmatter
+layout (`theme/data/home-schema.ts`, §18), told apart by its `stages` key; a checkout with the
+old frontmatter still builds the first layout, which the "Hero" and "Splits" paragraphs above
+describe. Under a stacked hero sit ruled bands: two stages that show one thing pt-tools does on
+its own (a show followed with its release locked, the new episode organised into the library),
+what pt-tools does (cells of two widths, each with a line of the app's own output or its chips
+and a status tag), three showcases with screenshots (brush tasks, the mobile app, the AI
+assistant), the ways to deploy over the install card, a ledger of where each kind of data goes,
+the questions, and a closing band with the community links and the WeChat QR code. `buildEnd`
+fails the build when a link or an anchor in the home frontmatter leads nowhere.
+
+Where it departs from §18, each with its reason:
+
+- Status says which release has a feature. The 1.0 features are in the preview releases
+  (v1.0.0-rc.N) and not in 0.48.0, the stable release, so `preview` joins `StatusTag`'s values
+  («预览版» / "Preview", the green of available as a ring instead of a dot). The tag is text, and
+  the cells' intro and a question explain it. The wording changes on the day 1.0.0 ships.
+- The stages are crops, not screens. A 1440-wide capture at the 500–640 px a stage gets cannot be
+  read, so each stage is the web UI's narrow layout at 640 px, captured at twice the pixels and
+  cut to the part that tells its step: the title page from its header to the row under the
+  version lock, and the organise history. Both are 1280 × 1060. The brush page is 1440 wide without the nav column and
+  the status bar (1764 × 980 at 1.5×), the assistant only its conversation (1152 × 822), the app
+  its overview page (780 × 1688). pt-tools owns them: `web/frontend/scripts/docs-screens.mjs`
+  takes them on the board fixtures.
+- The show is made up and the caption says so. «长夜将尽» (The Long Night) has a poster and a
+  backdrop generated for it with Z-Image Turbo (Apache-2.0), kept in
+  `web/frontend/scripts/docs-media/` in pt-tools; every figure caption starts «演示数据» / "Demo
+  data". The web UI has no English, so its screenshots are Chinese on the English page too. The
+  app has an English locale, so the English page shows its English overview
+  (`app-overview-en-*`), rendered with Roboto like the app on a phone.
+- The hero's title breaks where the words do. VPHero renders `.text` as HTML under `keep-all`,
+  so the Chinese title carries `<wbr>` and reads «PT 站点的 | 自动化管理工具» (three lines at
+  320 px); without it the line broke inside 管理.
+- No GitHub button in the hero. As a fourth button it pushed the row onto two lines; GitHub stays
+  in the nav bar and the closing band.
+- The hero's words are short. The tagline is four lines at 1280 px in both languages and each
+  fact is one line; with longer ones the stages started lower. They start at 558 px, as on §18,
+  but the stage band is 581 px tall (602 in English), so less of it shows (below).
+- The closing band's community links and the footer's commit link keep to one line, and the
+  footer balances its lines (`base.css`): the commit link broke after the hyphen of "pt-tools"
+  from 320 to 414 px. The footer rule applies on every page of the site.
+
+**Hallmark slop test, 2026-11-09 (home page, both languages).** Pre-emit critique P4 H4 E4 S5 R4
+V3, stamped at the top of `theme/styles/bands.css`; V3 because the band order is §18's, which the
+owner asked for (gate 8 passes by that justification). Fixed in this pass: the hero's title broke
+inside a word (51) and its words pushed the stages down (44); the community links and the
+footer's commit link wrapped (49). Also by justification: 7, pure white only on raised surfaces;
+42, VitePress's docs bar restyled; 44 (a), the hero's bottom padding is 88 px against 128 px at
+the top because the hero continues into its own stage band, which closes on a rule. Left as they
+are: 19 of the 118 pixel spacing values in `bands.css` and the home components are off the 4 px
+scale (2 px steps of 6, 10 and 14 px that follow VitePress's metrics, the 1 px gap that draws the
+hairlines between the ways to run it, and a 2 px step under their labels), as on §18. Every other gate passes or does not apply: no gradient, no drawn chrome (the app
+screenshot has no phone frame), two families, no italic heading, a token for every colour, one
+icon library (Lucide), and the ink fill of the Install button covers 0.45 % of a 1280 × 800 window
+and the orange mark 0.004 %. No number is invented: 67 is the count in `site/v2/definitions` and
+on the sites page, the code lines are the app's own formats (`runMessage` in
+`web/frontend/src/utils/brush.ts`, the organise path template) or real commands
+(`pt-tools relay serve`, `pt-tools db backup`), and the values on the screenshots are demo data.
+
+**Checked (2026-11-09, local preview, Chrome).** Both home pages, in the light theme at 15 widths
+from 320 to 1920 px and in the dark one at 375, 1280 and 1440 px: no page scrolls sideways and
+every image loads. At 320, 375, 414, 768,
+960, 1100, 1280 and 1440 px no clickable text is on two lines. All text is at least 4.5:1 against
+its background (3:1 for large text); the lowest is 5.59:1 in the light theme and 6.49:1 in the
+dark one. At 1280 × 800 and 1440 × 900 the hero's buttons end at 354 px in both languages and the
+stages start at 558 px, showing 42 % and 59 % of themselves in Chinese and 40 % and 57 % in
+English; on a phone they start below the first screen. `make docs-check` in pt-tools passes (134
+Markdown files, 1,153 local references), and so do the sync's wording check and
+`scripts/check-dist.sh`.
+
+**Navigation (2026-11-10).** The nav bar has five sections and «更多» / "More": 指南 (Guide), 站点与下载
+(Sites and downloads), 媒体 (Media), 通知与 AI (Notifications and AI) and App 与接口 (App and APIs).
+«参考» / "Reference" is the first group in «更多», above the links to releases, the changelog,
+issues, discussions and FirLab. The sidebar follows it: «站点与认证» and «RSS 与下载» are nested
+under «站点与下载», and the AI assistant moved from «App 与接口» to «通知与 AI». Each nav item's
+`activeMatch` covers every page of its sidebar group; the development and design pages are in no
+dropdown, so «更多» matches them too. Page addresses did not change.
+
+**Checked (2026-11-10, local preview, Chrome).** All 98 pages at 375, 768 and 1280 px: none scrolls
+sideways; at 1280 px every page but the two home pages has exactly one nav item active, and each
+page's language link opens the same page in the other language. The local search finds results in
+both languages. `make docs-check` in pt-tools passes (135 Markdown files, 1,187 local references).
+Not checked: Lighthouse and the live site.
+
 ## 13. Product documentation inside firlab.app: firlab.app/codegraph
 
 `codegraph/` is the §10 site for a fourth product, published like pt-tools' (§12) under a path of

@@ -22,28 +22,33 @@ const sidebar: DefaultTheme.SidebarItem[] = [
     ],
   },
   {
-    text: 'Sites and sign-in',
+    text: 'Sites and downloads',
     items: [
-      { text: 'Supported sites', link: '/en/sites' },
-      { text: 'Cookies and API keys', link: '/en/guide/get-cookie-apikey' },
-      { text: 'Browser extension', link: '/en/guide/browser-extension' },
-      { text: 'Login status and key backup', link: '/en/guide/site-login-monitoring' },
-      { text: 'CookieCloud import', link: '/en/guide/cookiecloud' },
-      { text: 'Request a new site', link: '/en/guide/request-new-site' },
-    ],
-  },
-  {
-    text: 'RSS and downloads',
-    items: [
-      { text: 'Torrent search', link: '/en/guide/torrent-search' },
-      { text: 'RSS subscriptions', link: '/en/guide/rss-subscription' },
-      { text: 'Filter rules and TV series', link: '/en/guide/filter-rules-tv-series' },
-      { text: 'Auto-delete and disk protection', link: '/en/guide/auto-cleanup' },
-      { text: 'Seed boosting', link: '/en/guide/brush' },
-      { text: 'Statistics and daily report', link: '/en/guide/user-stats' },
-      { text: 'Downloader assistant', link: '/en/guide/downloader-assistant' },
-      { text: 'Torrent transfer', link: '/en/guide/torrent-transfer' },
-      { text: 'IYUU cross-seeding', link: '/en/guide/reseed' },
+      {
+        text: 'Sites and sign-in',
+        items: [
+          { text: 'Supported sites', link: '/en/sites' },
+          { text: 'Cookies and API keys', link: '/en/guide/get-cookie-apikey' },
+          { text: 'Browser extension', link: '/en/guide/browser-extension' },
+          { text: 'Login status and key backup', link: '/en/guide/site-login-monitoring' },
+          { text: 'CookieCloud import', link: '/en/guide/cookiecloud' },
+          { text: 'Request a new site', link: '/en/guide/request-new-site' },
+        ],
+      },
+      {
+        text: 'RSS and downloads',
+        items: [
+          { text: 'Torrent search', link: '/en/guide/torrent-search' },
+          { text: 'RSS subscriptions', link: '/en/guide/rss-subscription' },
+          { text: 'Filter rules and TV series', link: '/en/guide/filter-rules-tv-series' },
+          { text: 'Auto-delete and disk protection', link: '/en/guide/auto-cleanup' },
+          { text: 'Seed boosting', link: '/en/guide/brush' },
+          { text: 'Statistics and daily report', link: '/en/guide/user-stats' },
+          { text: 'Downloader assistant', link: '/en/guide/downloader-assistant' },
+          { text: 'Torrent transfer', link: '/en/guide/torrent-transfer' },
+          { text: 'IYUU cross-seeding', link: '/en/guide/reseed' },
+        ],
+      },
     ],
   },
   {
@@ -56,13 +61,14 @@ const sidebar: DefaultTheme.SidebarItem[] = [
     ],
   },
   {
-    text: 'ChatOps and notifications',
+    text: 'Notifications and AI',
     items: [
       { text: 'ChatOps quick start', link: '/en/guide/chatops-quickstart' },
       { text: 'QQ through OneBot (NapCat)', link: '/en/guide/chatops-qq-napcat' },
       { text: 'Telegram bot', link: '/en/guide/chatops-telegram' },
       { text: 'New-torrent notifications', link: '/en/guide/chatops-rss-notify' },
       { text: 'More notification channels', link: '/en/guide/notify-channels' },
+      { text: 'AI assistant', link: '/en/guide/assistant' },
     ],
   },
   {
@@ -70,7 +76,6 @@ const sidebar: DefaultTheme.SidebarItem[] = [
     items: [
       { text: 'Mobile app', link: '/en/guide/mobile-app' },
       { text: 'Remote access', link: '/en/guide/remote-access' },
-      { text: 'AI assistant', link: '/en/guide/assistant' },
       { text: 'MCP', link: '/en/guide/mcp' },
       { text: 'API tokens', link: '/en/guide/api-tokens' },
       { text: 'App API', link: '/en/reference/app-api' },
@@ -113,36 +118,46 @@ export const en = defineConfig({
           '^/en/(guide/(what-is-pt-tools|whats-new-1.0|install|quick-start|home-and-health|nas-monitor|upgrade)|configuration)',
       },
       {
-        text: 'Sites',
+        text: 'Sites and downloads',
         link: '/en/sites',
-        activeMatch: '^/en/(sites|guide/(get-cookie-apikey|browser-extension|site-login-monitoring|cookiecloud|request-new-site))',
-      },
-      {
-        text: 'RSS and downloads',
-        link: '/en/guide/rss-subscription',
         activeMatch:
-          '^/en/guide/(torrent-search|rss-subscription|filter-rules-tv-series|auto-cleanup|brush|user-stats|downloader-assistant|torrent-transfer|reseed)',
+          '^/en/(sites|guide/(get-cookie-apikey|browser-extension|site-login-monitoring|cookiecloud|request-new-site|torrent-search|rss-subscription|filter-rules-tv-series|auto-cleanup|brush|user-stats|downloader-assistant|torrent-transfer|reseed))',
       },
-      { text: 'Media', link: '/en/guide/media-library', activeMatch: '^/en/guide/media-' },
-      { text: 'ChatOps', link: '/en/guide/chatops-quickstart', activeMatch: '^/en/guide/(chatops-|notify-channels)' },
+      { text: 'Media', link: '/en/guide/media-subscribe', activeMatch: '^/en/guide/media-' },
+      {
+        text: 'Notifications and AI',
+        link: '/en/guide/chatops-quickstart',
+        activeMatch: '^/en/guide/(chatops-|notify-channels|assistant)',
+      },
       {
         text: 'App and APIs',
         link: '/en/guide/mobile-app',
-        activeMatch: '^/en/(guide/(mobile-app|remote-access|assistant|mcp|api-tokens|qbit-compat|servarr)|reference/app-api)',
+        activeMatch: '^/en/(guide/(mobile-app|remote-access|mcp|api-tokens|qbit-compat|servarr)|reference/app-api)',
       },
       {
-        text: 'Reference',
-        link: '/en/faq',
-        activeMatch: '^/en/(faq|reference/(cli|security|developers)|development|design/)',
-      },
-      {
+        // Reference sits under More: the development and design pages are not in the menu, so
+        // activeMatch is what highlights More on them (zh.ts too).
         text: 'More',
+        activeMatch: '^/en/(faq|reference/(cli|security|developers)|development|design/)',
         items: [
-          { text: 'Downloads and releases', link: `${REPO}/releases` },
-          { text: 'Changelog', link: `${REPO}/blob/${DOCS_BRANCH}/CHANGELOG.md` },
-          { text: 'Report a problem', link: `${REPO}/issues` },
-          { text: 'Discussions', link: `${REPO}/discussions` },
-          { text: 'FirLab', link: 'https://firlab.app/en/' },
+          {
+            text: 'Reference',
+            items: [
+              { text: 'Questions and troubleshooting', link: '/en/faq' },
+              { text: 'Command line', link: '/en/reference/cli' },
+              { text: 'Data and security', link: '/en/reference/security' },
+              { text: 'Contributing', link: '/en/reference/developers' },
+            ],
+          },
+          {
+            items: [
+              { text: 'Downloads and releases', link: `${REPO}/releases` },
+              { text: 'Changelog', link: `${REPO}/blob/${DOCS_BRANCH}/CHANGELOG.md` },
+              { text: 'Report a problem', link: `${REPO}/issues` },
+              { text: 'Discussions', link: `${REPO}/discussions` },
+              { text: 'FirLab', link: 'https://firlab.app/en/' },
+            ],
+          },
         ],
       },
     ],
@@ -159,7 +174,7 @@ export const en = defineConfig({
     outline: { level: [2, 3] },
 
     footer: {
-      message: `pt-tools is released under the MIT License and is one of the <a href="https://firlab.app/en/">FirLab</a> projects. Content from <a href="${REPO}/commit/${synced.commit}">pt-tools@${synced.shortCommit}</a>.`,
+      message: `pt-tools is released under the MIT License and is one of the <a href="https://firlab.app/en/">FirLab</a> projects. Content from <a class="pt-nowrap" href="${REPO}/commit/${synced.commit}">pt-tools@${synced.shortCommit}</a>.`,
       copyright: 'Copyright © 2024–2026 sunerpy',
     },
   },
