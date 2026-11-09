@@ -30,6 +30,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
     items: [
       { text: 'Local recognition', link: '/recognition/local' },
       { text: 'Cloud services', link: '/recognition/cloud' },
+      { text: 'Provider setup', link: '/recognition/providers' },
       { text: 'Self-hosted recognition', link: '/recognition/self-host' },
       { text: 'AI polish and presets', link: '/recognition/polish' },
       { text: 'Scenes', link: '/recognition/scenes' },
@@ -170,6 +171,7 @@ export const en = defineConfigWithTheme<VoltipThemeConfig>({
           items: [
             { text: 'Local recognition', link: '/recognition/local' },
             { text: 'Cloud services', link: '/recognition/cloud' },
+            { text: 'Provider setup', link: '/recognition/providers' },
             { text: 'Self-hosted recognition', link: '/recognition/self-host' },
             { text: 'AI polish', link: '/recognition/polish' },
             { text: 'Scenes', link: '/recognition/scenes' },
