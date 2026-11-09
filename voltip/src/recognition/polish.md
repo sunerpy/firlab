@@ -10,7 +10,7 @@ Turn it on or off with the **AI Polish** switch at the top right of the window. 
 
 ## Services
 
-AI polish uses the service and model chosen on the **AI models** page, or from the model menu next to the **AI Polish** switch: the built-in service, OpenAI, Groq, Google AI Studio, SiliconFlow, Alibaba Cloud Model Studio, DeepSeek, Kimi, Zhipu GLM, Volcengine Ark, Tencent Hunyuan, Xiaomi MiMo, OpenRouter, a local Ollama, or any OpenAI-compatible endpoint. The same menu is on the home page; it lists the models of the built-in service and of each provider that is set up. See [Cloud services](/recognition/cloud) for setting one up.
+AI polish uses the service and model chosen on the **AI models** page, or from the model menu next to the **AI Polish** switch: the built-in service, OpenAI, Groq, Google AI Studio, SiliconFlow, Alibaba Cloud Model Studio, DeepSeek, Kimi, Zhipu GLM, Volcengine Ark, Tencent Hunyuan, Xiaomi MiMo, OpenRouter, a local Ollama, or any OpenAI-compatible endpoint. The same menu is on the home page; it lists the models of the built-in service and of each provider that is set up. See [Cloud services](/recognition/cloud) and [Provider setup](/recognition/providers) for setting one up.
 
 If the service does not answer, is busy, or its answer is cut off at the length limit, the recognised text is inserted without polish, and the dictation is not lost; once it is in, the overlay says it was not polished and why, for example **service busy**. The history's details say why too, including what the service answered, and let you [polish it again](/dictation/history#recognise-or-polish-again). For the notice the built-in service shows when it is busy, see [The built-in service](/recognition/cloud#the-built-in-service). When the selected model's quota is used up, AI polish can move on to other models in order: see **When a model's quota runs out** in [Cloud services](/recognition/cloud).
 
@@ -20,14 +20,14 @@ A preset tells AI polish what to do with the recognised text. Choose the one in 
 
 | Preset | What it does |
 | --- | --- |
-| **Proofread** (default) | Fixes typos, homophones and punctuation, splits paragraphs, removes filler words and stutters. When you correct yourself ("no, I mean…"), only the corrected wording is kept |
-| **Prompt optimizer** | Rewrites a spoken request into a clear prompt for another AI: one precise instruction for a simple request, a numbered list when there are several points. A question is rewritten, never answered; a statement is only proofread; English stays English |
-| **Clarify intent** | Keeps the corrections, removes repetition and turns several points into a list |
-| **Casual chat** | Short, conversational sentences without a closing full stop |
-| **Chinese ⇄ English** | Fixes recognition errors, then translates between Chinese and English |
-| **Key points** | Key points and to-dos as two lists, without adding facts |
+| **Proofread** (default) | Fixes typos, homophones and punctuation, splits paragraphs, removes filler words and stutters. When you correct yourself ("no, I mean…"), only the corrected wording is kept. Symbols you say in file names, paths and commands are written as symbols, for example "dash dash" as "--" |
+| **Prompt optimizer** | Rewrites a spoken request into a clear prompt for another AI: one precise instruction for a simple request, a numbered list when there are several points, with the background, requirements, conditions, limits and exceptions all included. A question stays a question and is rewritten, never answered; a statement is only proofread; English stays English |
+| **Clarify intent** | Keeps the corrections, removes repetition and turns several points into a list; the conditions and exceptions of each point stay |
+| **Casual chat** | Short, conversational sentences without a closing full stop; every time, number and name you mention stays |
+| **Chinese ⇄ English** | Fixes recognition errors and keeps only the corrected wording, then translates between Chinese and English, leaving nothing out |
+| **Key points** | Key points and to-dos as two lists, without adding facts; no owner is named unless you named one, and numbers are written as you said them |
 | **Punctuation only** | Adds punctuation and sentence breaks and changes no words |
-| **Formal** | Rewrites spoken phrasing into complete, formal written language |
+| **Formal** | Rewrites spoken phrasing into complete, formal written language, keeping every listed item, condition and exception |
 
 <ScreenFigure src="/screens/ai-en-light.webp" width="1440" height="900"
   alt="The AI models page: AI polish is on, and below it the eight built-in presets with Proofread in use, then the custom presets."

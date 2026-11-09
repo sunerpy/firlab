@@ -20,20 +20,26 @@ crates/voltip-core       应用外观层：把 identity + pairing + transport + 
 crates/voltip-tauri-bridge  UiCommand / UiEvent / UiState：webview 看到的唯一契约；Bridge::publish 让 shell 自己产生的状态（热键注册结果）并入同一状态流
 crates/voltip-audio      麦克风枚举与输入电平（cpal：WASAPI / CoreAudio / ALSA / Android AAudio），纯 DSP 可脱离硬件测试
 crates/voltip-reply      服务拒绝请求时说了什么（docs/dictation.md §3.12）：各服务商错误体的代码与消息，合并空白、遮住密钥与账号后显示在悬浮窗、历史和测试连接里
+crates/voltip-access     设备票据（docs/pairing.md「设备票据」）：CI 编入的构建密钥，向 voltip-auth 证明版本、续 1 小时的票据；传输层把它给构建自带的中继，计量把它给内置服务
 crates/voltip-net        网络代理（docs/dictation.md §24）：跟随系统 / 不使用 / 手动的代理计划，reqwest 客户端每个请求都按它走，WebSocket 连接经它打开 TCP 流（HTTP CONNECT、SOCKS5）
 crates/voltip-cloud      云端识别与润色（voltip-asr、voltip-refine 的客户端；阿里云百炼的实时模型经 WebSocket 推流）作为核心的 Transcriber / Refiner / StreamingTranscriber 端口，桌面与手机共用
 crates/voltip-serve      本机语音服务的 HTTP 层（axum）：OpenAI 兼容的 /v1/audio/transcriptions、令牌、准入、边收边解码的 WAV 上传；处理在 voltip-core 的 serve 模块（docs/dictation.md §23）
+crates/voltip-focus      插入确认的焦点控件读取（docs/dictation.md §28）：Windows UI Automation、macOS 辅助功能接口、Linux AT-SPI，各在自己的工作线程上、有读取期限；判定规则在 voltip-platform 的 insert_check::rules（核心重导出）。与 voltip-hooks 一样单独成 crate，CI 不构建整个应用也能在真实桌面上跑它的测试
+crates/voltip-overlay    悬浮窗的层级（docs/dictation.md §32）：每次显示和每个阶段把悬浮窗放回最上层而不激活它，Windows 用 SetWindowPos(HWND_TOPMOST) 并在显示期间用 WinEvent 钩子再抬起，macOS 用状态栏级别，X11 用叠放顺序。与 voltip-focus 一样单独成 crate，CI 不构建整个应用也能在真实桌面上跑它的测试
+crates/voltip-media      导入的音视频文件（docs/dictation.md §31）：Symphonia 读容器并解码（Opus 用 opus-rs），逐块混成单声道、重采样到 16 kHz，写成长录音的录音格式；作为核心的 MediaDecoder 端口，桌面壳与 --transcribe-file 共用
+crates/voltip-refine-eval  AI 润色提示词评测的请求与摘要（docs/refine-eval.md）：按应用的做法组装每条样例的润色请求，计算每个预设和场景的摘要；测试在提示词与上次评测的记录不符时失败。评测本身（Bedrock、判定、报告）只手动运行（`make refine-eval`）
 apps/desktop/src-tauri   桌面 shell：全局热键（tauri-plugin-global-shortcut）、悬浮胶囊窗口（预热、事件驱动）、无边框主窗口、音频电平 Channel；设置里打开本机服务时经 voltip-serve 监听 127.0.0.1
 apps/server              无头服务端 voltip-server（Linux x64 tar.gz）：命令行、只读地读 App 的数据目录与系统钥匙串，没有 GUI 和音频依赖
 ```
 
-依赖方向只允许向下：`apps → core → {pairing, transport, identity} → {crypto, protocol}`；`voltip-net` 在最底层，`transport`、`asr`、`refine`、`asr-local`、`cloud` 和 `core` 都依赖它，它不依赖任何 Voltip crate；`voltip-reply` 同样在最底层，只有 `asr` 和 `refine` 依赖它；`relay` 只依赖 `protocol`，不依赖 `crypto`（它拿不到、也不需要会话密钥）。`voltip-serve` 是 `voltip-core` 之上的适配层（实现核心的 `ServeHost` 端口，调用 `SpeechService`），只有桌面壳和 `apps/server` 依赖它。
+依赖方向只允许向下：`apps → core → {pairing, transport, identity} → {crypto, protocol}`；`voltip-net` 在最底层，`transport`、`asr`、`refine`、`asr-local`、`cloud` 和 `core` 都依赖它，它不依赖任何 Voltip crate；`voltip-reply` 同样在最底层，只有 `asr` 和 `refine` 依赖它；`voltip-access` 也在最底层（HTTP 客户端由壳注入），`transport`、`core`、`cloud` 和 `apps/server` 依赖它；`relay` 只依赖 `protocol`，不依赖 `crypto`（它拿不到、也不需要会话密钥）。`voltip-serve` 是 `voltip-core` 之上的适配层（实现核心的 `ServeHost` 端口，调用 `SpeechService`），只有桌面壳和 `apps/server` 依赖它。`voltip-media` 同样在 `voltip-core` 之上（实现 `MediaDecoder` 端口，借用 `voltip-serve` 的重采样器），只有桌面壳依赖它。`voltip-focus` 只依赖 `voltip-platform`，桌面壳把它包成核心的 `FocusReader` 端口。`voltip-overlay` 不依赖任何 Voltip crate，只有桌面壳依赖它。
 
 ## 1.1 原生优先（硬约束）
 
 - **凡是系统能力都在 Rust 里做**：全局热键、音频设备与电平、文本注入、窗口管理、剪贴板、文件。webview 只渲染与收集输入；浏览器 API（`getUserMedia`、`navigator.keyboard`…）不作为正式实现，只能是浏览器预览的降级。
 - **Rust → webview 的通道按语义选**：离散状态变化（设置、设备列表、配对、热键注册结果）走 `voltip://event` 事件总线并折叠进 `UiState`；**连续流**（电平帧、进度、识别流）走 `tauri::ipc::Channel`，由发起该流的 command 返还，随 command 生命周期结束；一次性查询走 command 返回值。事件总线不承载 30 Hz 以上的数据。
 - **shell 自己产生的状态**（热键注册 / 按下 / 录制态）经 `Bridge::publish` 并入 `UiState`，`core_state` 与事件流始终一致；webview 不维护第二份真相。
+- **窗口的状态不丢变化**（docs/dictation.md §33）：窗口先让事件监听生效再取 `core_state`，回答之前到达的事件按到达顺序折叠到回答上；核心的事件与 `Bridge::publish` 的事件都在状态锁里折叠并广播，窗口收到的顺序与缓存一致；转发落后或某个事件没能送到窗口时，`Bridge::forward` 紧接着发整个状态。
 - **录制快捷键时挂起自己的热键**（`hotkey_capture`）：`RegisterHotKey` 会吞掉已注册的组合键，不挂起就永远录不到同一个键。
 - **悬浮胶囊窗口**启动即预热（隐藏，`state=blank`），之后只 show / hide；状态经窗口事件 `voltip://overlay` 下发而非导航；隐藏前先画空一帧。窗口不取焦点，因此取消键只能是「监听期间临时注册」的热键（尚未实现）。
 - 客户端禁用浏览器右键菜单（可编辑控件除外），主窗口无原生装饰，40 px 标题栏即工具栏。
@@ -62,6 +68,6 @@ apps/server              无头服务端 voltip-server（Linux x64 tar.gz）：�
 
 ## 4. 构建与配置
 
-- Rust 1.98 stable（`rust-toolchain.toml`），Tauri 2.11，React 19，Vite 7，Tailwind 4，Vitest 3。
+- Rust 1.98 stable（`rust-toolchain.toml`），Tauri 2.12，React 19，Vite 8，Tailwind 4，Vitest 5。
 - 环境：debug 构建默认 `ws://127.0.0.1:47830/ws`；发行构建的 `wss://…/ws` 只在 GitHub secret `VOLTIP_RELAY_URL`（本机 `.env.build`）里，构建期注入，源码只有 dev 默认值与"未配置 = 关闭 Relay"。
 - 覆盖率门：Rust `cargo llvm-cov` 过滤行覆盖 ≥ 90%（排除 `main.rs`、平台 keychain 胶水、Tauri app crate）；TS `vitest --coverage` 行/分支/函数/语句 ≥ 90%（排除 `bootstrap.tsx`、`vite-env.d.ts`）；React Native 手机端 `jest --coverage` 同样四项 ≥ 90%（排除启动原生外壳的 `Root.tsx`）。

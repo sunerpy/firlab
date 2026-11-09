@@ -43,10 +43,28 @@ Voltip 在各个桌面系统上是同一个应用。本页列出各平台之间�
 | 桌面环境 | 工具 |
 | --- | --- |
 | KDE Plasma | `wtype`、`dotool`、`ydotool`、`kwtype` |
-| GNOME | `dotool`、`ydotool` |
+| GNOME | `dotool`、`ydotool`；都不可用时，使用 GNOME 的[远程交互授权](#gnome-的远程交互授权) |
 | Sway、Hyprland 等 wlroots 桌面 | `wtype`、`dotool`、`ydotool` |
 
-从发行版的软件源安装其中一个即可。`dotool` 和 `ydotool` 需要访问 `/dev/uinput`，请参阅它们的文档。没有可用的工具时，文字会留在剪贴板中。
+从发行版的软件源安装其中一个即可；在 GNOME 上无需安装，见下一节。`dotool` 和 `ydotool` 需要访问 `/dev/uinput`，请参阅它们的文档。没有可用的工具时，文字会留在剪贴板中。
+
+### GNOME 的远程交互授权
+
+GNOME 不允许应用直接模拟按键。在 GNOME 上（包括通过 XWayland 运行 Voltip 时），如果 `dotool` 和 `ydotool` 都不可用，Voltip 会请求 GNOME 的「远程交互」授权来按下粘贴键。Voltip 只请求键盘，不请求屏幕和鼠标；只在第一次需要粘贴时请求，启动时不会请求。
+
+第一次粘贴时，GNOME 显示「远程桌面」窗口：
+
+1. 打开「允许远程交互」。
+2. 保持勾选「记住该选择」。
+3. 点按「分享」。
+
+此后的粘贴，以及重新打开 Voltip 之后，都不会再询问。如果取消勾选「记住该选择」，下次粘贴时会再次询问。如果点按「取消」，这次的文字留在剪贴板中，悬浮窗显示「未获准远程交互，文字已复制」，下次粘贴时会再次询问。
+
+如果 GNOME 没有响应或出错，文字同样留在剪贴板中，悬浮窗显示「远程交互不可用，文字已复制」，下次粘贴时会再试一次。如果一直如此，请注销后重新登录。
+
+- **不使用这项授权**：把「设置 → 听写」中的「插入方式」改为「仅复制到剪贴板」。Voltip 不再按粘贴键，也不会请求授权，文字由你自己粘贴。
+- **撤销授权**：GNOME 的设置中没有管理这项授权的页面。请打开「密码和密钥」，搜索 `voltip.paste.remote-desktop` 并删除这一项，下次粘贴时 GNOME 会再次询问。
+- GNOME 按打开方式区分应用：例如一次从应用列表、一次从终端打开 Voltip 时，GNOME 会分别询问一次。
 
 ### 纯 Wayland 会话
 
@@ -57,6 +75,13 @@ Voltip 在各个桌面系统上是同一个应用。本页列出各平台之间�
 - 无法检测前台应用，因此[场景](/zh/recognition/scenes)不生效。
 
 在通过 XWayland 运行 X11 应用的会话中，组合键只在 X11 窗口获得焦点时有效。
+
+### Wayland 与 NVIDIA 显卡
+
+在 Wayland 会话中，如果电脑装有 NVIDIA 显卡，无论使用 NVIDIA 驱动还是开源的 nouveau 驱动，负责绘制 Voltip 窗口的 WebKitGTK 都可能使 Voltip 在启动后随即退出，终端中显示 `Error 71 (Protocol error) dispatching to Wayland display`。因此，Voltip 在 Wayland 会话中发现 NVIDIA 显卡时，会在打开窗口前关闭 WebKitGTK 的 DMA-BUF 渲染。X11 会话和没有 NVIDIA 显卡的电脑不受影响。
+
+- 如需保留 DMA-BUF 渲染，请用 `WEBKIT_DISABLE_DMABUF_RENDERER=0` 启动 Voltip，例如 `WEBKIT_DISABLE_DMABUF_RENDERER=0 voltip-desktop`。你自己设置的值，Voltip 不会更改。
+- 如果 Voltip 仍在启动后随即退出，请改为通过 XWayland 运行：`GDK_BACKEND=x11 voltip-desktop`。此时 Voltip 作为 X11 应用运行，快捷键在 X11 窗口获得焦点时有效。
 
 ## Android
 

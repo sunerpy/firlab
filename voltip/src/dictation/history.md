@@ -1,10 +1,10 @@
 ---
-description: The dictation history on your computer, what each entry shows, recognising or polishing again, how much is kept, the statistics on the home page, and backing up and moving to another computer.
+description: The dictation history on your computer, what each entry shows, importing audio or video files and exporting their subtitles, recognising or polishing again, how much is kept, the statistics on the home page, and backing up and moving to another computer.
 ---
 
 # History
 
-Every dictation, voice edit and text sent from a paired phone, and every copy a phone uploads of what it transcribed on its own, is listed on the **History** page. The history is stored on your computer; paired phones can read it, see [The computer's history and settings](/phone/#the-computer-s-history-and-settings).
+Every dictation, voice edit and text sent from a paired phone, every copy a phone uploads of what it transcribed on its own, and every [audio or video file imported](#import-audio-or-video) on the computer, is listed on the **History** page. The history is stored on your computer; paired phones can read it, see [The computer's history and settings](/phone/#the-computer-s-history-and-settings).
 
 The latest results are also listed on the home page: four, or more when the window is taller, up to 30. While there are recordings not recognised, the newest three are listed above the latest results, to recognise again or clear from there, see [Recognise or polish again](#recognise-or-polish-again).
 
@@ -13,8 +13,8 @@ The latest results are also listed on the home page: four, or more when the wind
 - The text that was inserted and the text that was recognised, with a view of what changed between them.
 - Which dictionary corrections and replacement rules applied, and the app and [scene](/recognition/scenes) the dictation was for.
 - The [AI preset](/recognition/polish#presets) that AI polish used, when it ran.
-- The models used and how long each step took.
-- Where the text went: pasted at the cursor, or left on the clipboard, with the reason.
+- The models used and how long each step took; when a local model was moved to the processor because the graphics card failed, **Recognised on** says so. On the computer the entry also names the provider of the recognition and of the polish; when a fallback model did the work, it says whether the selected model's quota was used up or the model failed (see [When a model's quota runs out](/recognition/cloud#when-a-model-s-quota-runs-out)).
+- Where the text went: pasted at the cursor, or left on the clipboard, with the reason. A paste that Voltip found did not arrive is marked **Not written**; when Voltip could not tell, the technical details say **Not confirmed as written** (see [Checking that the text arrived](/dictation/output#checking-that-the-text-arrived)).
 
 From an entry you can:
 
@@ -24,16 +24,37 @@ From an entry you can:
 - recognise it again while its recording is still kept, or polish it again when AI polish failed, see [Recognise or polish again](#recognise-or-polish-again);
 - delete it.
 
-The search box finds text, apps, scenes and models, and works together with the filters, which narrow the list to today, this week or this month, to starred entries, or to entries whose text was not inserted. After a search or a filter the list starts again at its first page, and the foot of the list shows how many entries were found.
+The search box finds text, apps, scenes, models and the names of imported files, and works together with the filters, which narrow the list to today, this week or this month, to starred entries, or to entries whose text was not inserted, pastes marked **Not written** included. After a search or a filter the list starts again at its first page, and the foot of the list shows how many entries were found.
 
 On the computer the list is shown in pages. Choose 10, 20, 50, 100 or 200 entries per page at the foot of the list (10 at first; the page remembers your choice) and move between pages with the buttons beside it. A new dictation does not change the page you are on. The list and the details of the selected entry fill the window's height side by side, and each scrolls on its own when it holds more; another page starts at the top of the list. On a phone the list shows 100 entries at a time; scroll to the end, or tap **Load more**, to see the next ones.
 
 ## Long recordings
 
-An entry recorded for longer than 2 minutes, or with more than 2,000 characters, has two more tools in its detail:
+An entry recorded for longer than 2 minutes or with more than 2,000 characters, and an [imported audio or video file](#import-audio-or-video), has two more tools in its detail:
 
 - **Process with an AI preset**: choose a preset and select **Process**. The text is processed in parts of up to 1,500 characters, cut at sentence ends; the progress is shown and you can cancel. The result is saved as a processed text beside the original, which stays as it is, and appears under **Processed**. With Key points, the points of all parts are summarised once more when they fit one request; with Chinese ⇄ English, you get a translation. The built-in AI service runs on a free quota, so long texts take a while.
 - **Export subtitles (SRT)** and **Export text (TXT)**: choose where to save the file. Subtitles follow the segments of the recording, with at most 20 Chinese or 42 Latin characters per line. The text export uses the processed text when there is one.
+
+## Import audio or video
+
+On the computer you can import audio and video files into the history, such as a meeting recording, a lecture video or an interview. Voltip recognises the sound in the file (of a video, its audio track only) and saves each file as one entry, which you can export as subtitles (SRT) and text (TXT). The original files are only read, never changed or deleted.
+
+1. On the **History** page, select **Import audio or video** and choose one or more files, or drop the files on the **History** page.
+2. In the dialog, choose the speech model and the language. For AI polish, turn on **AI polish** and choose the polish model.
+3. Select **Import**.
+
+<ScreenFigure src="/screens/history-import-en-light.webp" width="1440" height="900"
+  alt="The Import audio or video dialog on the History page: two files, team-sync.mp4 and interview.m4a; the speech model Groq · whisper-large-v3-turbo, the language Auto-detect, AI polish on with the polish model Groq · qwen3.8-27b, and the note that imports use only local models and services you set up yourself."
+  caption="The lists hold the local models you have downloaded, the cloud providers you entered your own key for, and Ollama or a custom endpoint you set up." />
+
+- **Formats**: WAV, MP3, AAC, M4A, FLAC, Ogg (Vorbis, Opus), MP4, MOV, MKV and WebM. Of a file with several audio tracks, the default track is recognised. AC-3, DTS and some other codecs are not supported; Voltip names the codec the file uses.
+- **Models**: an import uses only a local model you have downloaded, a cloud provider with your own API key, or a service you set up yourself, with or without a key: Ollama, or a custom endpoint such as a vLLM server on your network. It never uses the built-in service, so it does not count toward the built-in service's usage. The models you choose are used for that import only; the settings stay as they are. When there is no model to use, the dialog offers **Manage speech models** or **Manage AI models**.
+- **Recognition and polish**: the file is recognised in segments of 3 to 15 seconds cut at pauses, and a segment that fails is tried once more. With AI polish on, each segment is polished once the file is recognised; a segment whose polish fails keeps its recognised text.
+- **The import list**: files are imported one after another, and the top of the **History** page lists each one with where it is and its progress. A file waiting or being imported can be cancelled with **Cancel**, and then nothing is saved; a file that failed can be retried with **Retry**, which goes on from the first unfinished segment when recognition stopped half-way; a finished file has **View entry**. Closing Voltip clears the import list; the original files are not affected.
+- **Dictation comes first**: you can dictate while files are imported. The import pauses during the dictation and goes on after it.
+- An imported entry carries an **Imported** mark and the file's name, and does not count in the statistics on the home page. Importing needs the history turned on.
+
+When you export an imported entry, the file name offered is the original file's. When its segments were polished, **Subtitle text** chooses **Polished** (the default) or **Recognised** for the subtitles. Both have exactly the same times, in step with the original file.
 
 ## Recognise or polish again
 
@@ -72,7 +93,7 @@ The home page adds up the dictations in the history for today, this week, this m
 
 Time saved is speaking time × 1.9. The factor comes from Ruan et al., 2016 (arXiv:1608.07323): in their experiments, speaking was about 2.9 times as fast as typing on a phone, in English (153 against 52 words per minute) and in Chinese (123 against 43 characters per minute). Typing the same text takes about 2.9 times as long as saying it, which saves 1.9 times the speaking time. **Basis**, next to **Time saved** on the home page, shows the same explanation.
 
-Only dictations kept in the history count. Voice edits, and text or clipboard content sent from the phone, do not; a recording made on the phone and recognised on this computer does, and so does a copy a phone uploads of what it transcribed on its own.
+Only dictations kept in the history count. Voice edits, text or clipboard content sent from the phone, and imported audio or video files do not; a recording made on the phone and recognised on this computer does, and so does a copy a phone uploads of what it transcribed on its own.
 
 ## Backup and moving to another computer
 
@@ -97,7 +118,7 @@ The backup file is not encrypted and its dictations can be read as they are: kee
 1. On the other computer, install Voltip, open **Settings → Privacy and history**, select **Import…** under **Backup and migration** and choose the backup file.
 2. Voltip shows the device the backup comes from, when it was made and how many items each part holds; nothing has changed yet. Choose the parts to import and how:
    - **Merge** keeps what is on this computer and adds what is new in the backup. Entries already here, dictionary entries with the same spelling, and rules, scenes and presets with a name already in use are skipped, as is anything past a limit (500 dictionary entries, 200 rules, 50 scenes, 30 AI presets). Built-in scenes keep this computer's settings.
-   - **Replace** deletes what this computer has in the chosen parts and puts the backup's content in its place.
+   - **Replace** deletes what this computer has in the chosen parts and puts the backup's content in its place. Before replacing, Voltip makes an automatic backup of what is here; see [Automatic backups](#automatic-backups).
 3. Select **Import** (**Replace** when replacing). Voltip then lists, part by part, how many items it imported, and how many it skipped and why.
 
 The history keeps as many entries as **Keep the latest** allows; the older ones beyond that are not kept. To import the whole history, set **Keep the latest** high enough first.
@@ -105,3 +126,21 @@ The history keeps as many entries as **Keep the latest** allows; the older ones 
 Between operating systems the same app has a different identifier, so choose the apps of your own scenes again; the default apps of the built-in scenes switch to the new system's.
 
 When the chosen file is not a Voltip backup, is damaged, was made by a newer version of Voltip or is larger than 512 MB, Voltip says why and imports nothing.
+
+### Automatic backups
+
+Voltip also backs up the same content on its own, at three moments:
+
+- **Every week**: one backup every 7 days. To stop it, turn off **Back up every week** under **Settings → Privacy and history → Automatic backups**.
+- **Before an update installs**: when this backup cannot be written, the update goes ahead anyway, and the home page says so after the next start.
+- **Before an import replaces data**: when this backup cannot be written, nothing is replaced. An import cannot replace data while a dictation is running; try again when it has ended.
+
+The backups before an update and before a replacing import cannot be turned off. The first update to a version with automatic backups makes no backup before it installs, because the version being replaced does not have them; with weekly backups on, the new version makes one about a minute after it starts.
+
+Automatic backups are saved in the `backups` folder of Voltip's data folder ([where that is](/guide/updates#where-your-data-is-kept)). To save them elsewhere, select **Change…** under **Automatic backup location**; Voltip first checks that it can write to the chosen folder. Backups already in the previous folder stay where they are. **Open folder** shows the backup files, and **Restore default location** goes back to the `backups` folder.
+
+In a synced folder, the backups are kept even if this computer breaks, is lost or is reinstalled. Voltip does not sync data between computers: to move to another computer, import a backup there (see [Backup and moving to another computer](#backup-and-moving-to-another-computer)). Several computers can use the same folder. The name of each automatic backup ends with the tag of the computer that made it, and each computer manages only its own: it keeps its own latest 5 and leaves the other computers' backups as they are. This computer's tag is shown under **Automatic backup location**.
+
+Each computer keeps only its own latest 5 automatic backups and deletes its older ones. Backups you export yourself are never deleted, even in the same folder. **Latest automatic backup** shows when this computer's newest one was made and why.
+
+An automatic backup is the same kind of file as an exported one. To restore from it, select **Import…** and choose it; the file dialog opens in the automatic backup folder. After a replacing import, Voltip shows where the backup made before it was saved. Backup files are not encrypted: in a synced folder, they are uploaded with it.

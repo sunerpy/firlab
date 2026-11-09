@@ -16,6 +16,15 @@ Check the overlay and the latest entry in the history; they say what happened.
 - **"No speech detected"**: the recording was silent or shorter than about a third of a second. Press **Test microphone** on the home page and watch the ring around **Start dictation** move with your voice, and check the input device: click the microphone name on the home page, or open **Settings → Recording source**.
 - **An error**: the recognition service could not be reached, or a key or model is missing. The home page shows which service is in use and what it needs.
 
+### The overlay shows no text while I speak {#no-live-text}
+
+With a provider that recognises while you speak, the overlay shows the words that service returns, with a tag naming where they come from, such as **Preview · Doubao Speech**. If none appear, first check that the model selected on the Speech models page is marked **realtime** and that **Provider's live text** is on under **Live preview** on the Recognition tab; with it off, a realtime model still recognises while you speak, and the overlay only shows no words. When the tag reads **Preview · Local model**, the words come from the live transcription model on this computer, not from the provider.
+
+Then open the entry's details in the history. If they say "Live transcription stopped; the whole recording was transcribed instead", the connection to the service dropped while you spoke, or the service returned no text; Voltip recognised the whole recording instead, so no words are lost. The reason after it names how often the service answered, how long the audio sent was and its loudest level (this part is in Chinese):
+
+- If it says the audio was nearly silent or silent (「几乎没有声音」, 「均为静音」), or the loudest level is very low, check the microphone and the recording source: press **Test microphone** on the home page.
+- If the level is normal and the service returned no text, check in the provider's console that the selected model is activated and that the credentials match the model; see [Provider setup](/recognition/providers). Volcengine Doubao Speech also gives a log ID (日志 ID); give it to Volcengine's support when you contact them.
+
 ### The shortcut does nothing
 
 Another app may hold the same key combination; **Settings → Shortcuts** shows whether it is registered. On a pure Wayland session, apps cannot register global shortcuts: bind a system shortcut to `voltip-desktop --toggle`.
@@ -67,6 +76,14 @@ The packages are not code-signed yet. Choose **More info**, then **Run anyway**.
 ### macOS blocks Voltip or asks for permissions again
 
 The first start of an app that is not notarized needs one confirmation; see [Install](/guide/install#macos). Updating from version 0.0.6 or earlier asks for the permissions once more. Releases share one signing certificate, so updates keep the microphone and Accessibility permissions. The keychain asks whenever one version reads entries that another version created. The post-install hand-over attempted by 0.0.15 and 0.0.16 did not work because the updater had already removed the old bundle. The first release with the fix may therefore ask one last time when installed by 0.0.16. In-app updates between two fixed releases avoid the prompt; installing by hand still asks once for each entry.
+
+### Voltip says it needs the system keychain
+
+Voltip keeps your keys and this device's identity in the system keychain and does not start without it; it does not fall back to a file. On Linux the keychain is the Secret Service: start GNOME Keyring or KWallet and unlock it. When the keychain asks for its password as Voltip starts, enter it; if that prompt is closed instead, Voltip shows this notice and quits. On a Mac, unlock the keychain and allow Voltip to use it when macOS asks. On Windows, make sure the Credential Manager service is running. Then open Voltip again.
+
+### On Linux, Voltip quits right after it starts
+
+If a terminal shows `Error 71 (Protocol error) dispatching to Wayland display` and the computer has an NVIDIA graphics card, the cause is WebKitGTK's DMA-BUF rendering. From version 0.3.0, Voltip turns it off by itself on Wayland sessions, unless you have set `WEBKIT_DISABLE_DMABUF_RENDERER` yourself. Earlier versions need to be started with `WEBKIT_DISABLE_DMABUF_RENDERER=1 voltip-desktop`. If Voltip still quits, start it with `GDK_BACKEND=x11 voltip-desktop`; see [Platform notes](/reference/platforms#nvidia-graphics-cards-on-wayland).
 
 ### Where are my files, and how do I remove Voltip?
 
