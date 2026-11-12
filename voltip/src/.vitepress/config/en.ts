@@ -10,6 +10,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
     text: 'Getting started',
     items: [
       { text: 'What is Voltip', link: '/guide/what-is-voltip' },
+      { text: 'Compared with other apps', link: '/guide/compare' },
       { text: 'Try it online', link: '/guide/try' },
       { text: 'Install', link: '/guide/install' },
       { text: 'Quick start', link: '/guide/quick-start' },
@@ -74,7 +75,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
 export const en = defineConfigWithTheme<VoltipThemeConfig>({
   lang: 'en-US',
   description:
-    'Voltip is a dictation app for Windows, macOS and Linux: hold a shortcut, speak, and the text appears at your cursor. Recognition on your computer or with a cloud service you choose.',
+    'Voltip is an open-source voice typing app for Windows, macOS, Linux and Android: hold a shortcut, speak, and the text appears at your cursor. Recognition offline on your computer or with a cloud service you choose.',
 
   themeConfig: {
     nav: [
@@ -150,6 +151,7 @@ export const en = defineConfigWithTheme<VoltipThemeConfig>({
           title: 'Getting started',
           items: [
             { text: 'What is Voltip', link: '/guide/what-is-voltip' },
+            { text: 'Compared with other apps', link: '/guide/compare' },
             { text: 'Install', link: '/guide/install' },
             { text: 'Try it online', link: '/guide/try' },
             { text: 'Quick start', link: '/guide/quick-start' },

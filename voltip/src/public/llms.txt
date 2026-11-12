@@ -1,0 +1,61 @@
+# Voltip
+
+> Voltip is an open-source voice typing and dictation app for Windows, macOS, Linux and Android. Hold a shortcut, speak and release: the speech-to-text result is inserted at the cursor in any app. Recognition runs offline on the computer with a local model (Qwen3-ASR, SenseVoice, Paraformer), or with the free built-in service or a cloud provider the user chooses; optional AI polish tidies the wording. Licensed under AGPL-3.0-or-later.
+
+- Source code: https://github.com/sunerpy/voltip
+- Releases and downloads: https://github.com/sunerpy/voltip/releases
+- The website is in English at https://voltip.firlab.app/ and in Simplified Chinese at https://voltip.firlab.app/zh/
+
+## Getting started
+
+- [What is Voltip](https://voltip.firlab.app/guide/what-is-voltip): how a dictation works, from the shortcut to the cursor
+- [Compared with other apps](https://voltip.firlab.app/guide/compare): Voltip, Wispr Flow, Superwhisper, Typeless, Handy, OpenWhispr and VoiceInk on platforms, on-device recognition, source code and price
+- [Install](https://voltip.firlab.app/guide/install): packages and one-line installers for each system
+- [Quick start](https://voltip.firlab.app/guide/quick-start): the first dictation
+- [Try it online](https://voltip.firlab.app/guide/try): recognition and AI polish in the browser
+
+## Dictation
+
+- [Shortcuts and recording modes](https://voltip.firlab.app/dictation/shortcuts)
+- [Where the text goes](https://voltip.firlab.app/dictation/output)
+- [Voice edit](https://voltip.firlab.app/dictation/voice-edit): rewrite selected text by voice
+- [History](https://voltip.firlab.app/dictation/history)
+
+## Recognition and AI
+
+- [Local recognition](https://voltip.firlab.app/recognition/local): offline speech to text on the computer
+- [Cloud services](https://voltip.firlab.app/recognition/cloud): the built-in service and your own providers
+- [Provider setup](https://voltip.firlab.app/recognition/providers)
+- [AI polish and presets](https://voltip.firlab.app/recognition/polish)
+- [Scenes](https://voltip.firlab.app/recognition/scenes)
+- [Dictionary and rules](https://voltip.firlab.app/recognition/dictionary)
+
+## Phone
+
+- [Your phone as a microphone and keyboard](https://voltip.firlab.app/phone/): the Android app, on its own or paired with a computer
+
+## Reference
+
+- [Privacy](https://voltip.firlab.app/privacy)
+- [Questions and troubleshooting](https://voltip.firlab.app/reference/faq)
+- [Platform notes](https://voltip.firlab.app/reference/platforms)
+- [Command line](https://voltip.firlab.app/reference/cli)
+- [Roadmap](https://voltip.firlab.app/roadmap)
+
+## 简体中文
+
+- [Voltip 是什么](https://voltip.firlab.app/zh/guide/what-is-voltip)
+- [与其他工具对比](https://voltip.firlab.app/zh/guide/compare)
+- [安装](https://voltip.firlab.app/zh/guide/install)
+- [快速开始](https://voltip.firlab.app/zh/guide/quick-start)
+- [在线体验](https://voltip.firlab.app/zh/guide/try)
+- [本地识别](https://voltip.firlab.app/zh/recognition/local)
+- [云端服务](https://voltip.firlab.app/zh/recognition/cloud)
+- [手机](https://voltip.firlab.app/zh/phone/)
+- [隐私](https://voltip.firlab.app/zh/privacy)
+- [常见问题](https://voltip.firlab.app/zh/reference/faq)
+
+## Optional
+
+- [Developers](https://voltip.firlab.app/developers): building from source and contributing
+- [Changelog](https://github.com/sunerpy/voltip/blob/main/CHANGELOG.md)
