@@ -25,6 +25,7 @@ This repository owns the site:
 | `functions/`, `test/`, `scripts/admin-password.mjs` | this repo | The API of the try page and the admin page, and the apps' update channel (Cloudflare Pages Functions), their tests, and the admin password hasher |
 | `src/.vitepress/` (config, theme, components) | this repo | |
 | `src/public/{og.svg,og.png,robots.txt,_headers}` | this repo | |
+| `src/public/llms.txt` | this repo | A plain-text summary of the product with links to the main pages in both languages ([llms.txt](https://llmstxt.org/)); add a page here when it is added to the sidebar |
 | `src/public/media/` | this repo | The tutorial videos and their posters (`VideoFigure`). Kept here because a 13 MB render would grow voltip's history on every re-render; H.264 with `+faststart`, each file under Cloudflare Pages' 25 MiB limit |
 | `scripts/sync-voltip-docs.sh` | this repo | What is synced, and the checks that stop a bad sync |
 | `package.json`, `pnpm-lock.yaml`, `tsconfig.json` | this repo | Build |
@@ -114,6 +115,30 @@ requests.
    ```sh
    gh secret set FIRLAB_DOCS_TOKEN --repo sunerpy/voltip
    ```
+
+4. **Visit statistics** (optional). The site counts visits with Cloudflare Web Analytics, which
+   sets no cookies; both privacy pages say so. Use one of the two ways, not both, or every visit
+   is counted twice:
+   - In the Cloudflare dashboard, **Workers & Pages** › `voltip-docs` › **Metrics** › **Web
+     Analytics** › **Enable**. Cloudflare adds the beacon to the pages from the next deploy on;
+     nothing changes here.
+   - Or **Web Analytics** › **Add a site** › `voltip.firlab.app`, choose the JavaScript snippet,
+     and copy the token from `data-cf-beacon='{"token": "…"}'` into a repository variable. The
+     next deploy puts the beacon in every page's head (`config/shared.ts`); without the variable
+     no beacon loads.
+
+     ```sh
+     gh variable set VOLTIP_CF_BEACON_TOKEN --repo sunerpy/firlab --body '<32-character token>'
+     gh workflow run deploy-voltip.yml --repo sunerpy/firlab --ref main
+     ```
+
+### Page metadata
+
+`config/shared.ts` gives every page a canonical URL, `hreflang` pairs, and Open Graph and Twitter
+titles and descriptions taken from the page's own `title` and `description`. The two home pages
+also carry `SoftwareApplication` structured data (JSON-LD) with the latest Voltip version, read
+from FirLab's `src/i18n/versions.ts`; `sync-versions.yml` redeploys this site when that version
+changes.
 
 ### Verifying a deploy
 
@@ -224,6 +249,7 @@ account even within R2's free tier.
 ## Adding a page
 
 1. Add the page to voltip under `docs/site/`, in both languages.
-2. Add it to the sidebar in `src/.vitepress/config/en.ts` and `zh.ts`.
+2. Add it to the sidebar in `src/.vitepress/config/en.ts` and `zh.ts`, and to
+   `src/public/llms.txt`.
 3. If it sits outside a directory the sync script already copies, add it to `SYNCED_DIRS`
    or `SYNCED_FILES` in `scripts/sync-voltip-docs.sh`.

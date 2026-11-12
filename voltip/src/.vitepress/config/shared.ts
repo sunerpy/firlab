@@ -1,11 +1,62 @@
 /** Locale-independent build, metadata, search and theme settings. */
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { defineConfig, type HeadConfig } from 'vitepress';
 import { inlineLinks } from '../theme/components/inline';
 import { validateHome } from '../theme/data/home-schema';
 
 const HOST = 'https://voltip.firlab.app';
+const REPO = 'https://github.com/sunerpy/voltip';
+
+/**
+ * The latest Voltip release, for the home pages' structured data. FirLab's
+ * `src/i18n/versions.ts` holds it, kept current by `.github/workflows/sync-versions.yml`,
+ * which also redeploys this site when it changes. The file is read as text rather than
+ * imported: an import would make Vite resolve the repository root's tsconfig.json, which
+ * extends a package this sub-site does not install (see voltip/tsconfig.json).
+ */
+function voltipVersion(): string {
+  const file = fileURLToPath(new URL('../../../../src/i18n/versions.ts', import.meta.url));
+  const match = /export const VOLTIP_VERSION = 'v(\d+\.\d+\.\d+)'/.exec(readFileSync(file, 'utf8'));
+  if (!match) throw new Error(`VOLTIP_VERSION not found in ${file}`);
+  return match[1];
+}
+const VOLTIP_VERSION = voltipVersion();
+
+/**
+ * Cloudflare Web Analytics (cookie-free). Empty unless the deploy sets the site's beacon token:
+ * the repository variable VOLTIP_CF_BEACON_TOKEN (voltip/README.md, "Visit statistics"). The token
+ * is public, it appears in every page; a malformed one fails the build instead of shipping a beacon
+ * that counts nothing.
+ */
+const CF_BEACON_TOKEN = (process.env.VOLTIP_CF_BEACON_TOKEN ?? '').trim();
+if (CF_BEACON_TOKEN !== '' && !/^[0-9a-f]{32}$/i.test(CF_BEACON_TOKEN)) {
+  throw new Error('VOLTIP_CF_BEACON_TOKEN is set but is not a 32-character hex beacon token');
+}
+
+/** The home pages' SoftwareApplication structured data, in the page's language. */
+function softwareApplication(relativePath: string, description: string): string {
+  const zh = relativePath.startsWith('zh/');
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Voltip',
+    description,
+    url: pageUrl(relativePath),
+    inLanguage: zh ? 'zh-CN' : 'en',
+    applicationCategory: 'UtilitiesApplication',
+    operatingSystem: 'Windows, macOS, Linux, Android',
+    softwareVersion: VOLTIP_VERSION,
+    downloadUrl: `${REPO}/releases`,
+    license: 'https://spdx.org/licenses/AGPL-3.0-or-later.html',
+    isAccessibleForFree: true,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    image: `${HOST}/og.png`,
+    sameAs: [REPO],
+  };
+  // In a <script> element, `<` must not start `</script>`.
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
 
 /** Site paths named in the home pages' `hero:` and `home:`: `link` fields and links inside the words. */
 const frontmatterLinks = new Map<string, string[]>();
@@ -65,7 +116,7 @@ const CODE_CONTRAST: Record<'light' | 'dark', Record<string, string>> = {
 
 export const shared = defineConfig({
   title: 'Voltip',
-  description: 'Hold a key, speak, and the text appears at your cursor. Windows, macOS and Linux.',
+  description: 'Hold a key, speak, and the text appears at your cursor. Windows, macOS, Linux and Android.',
   lang: 'en-US',
 
   srcDir: '.',
@@ -137,6 +188,18 @@ export const shared = defineConfig({
     ['meta', { property: 'og:image:width', content: '1200' }],
     ['meta', { property: 'og:image:height', content: '630' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+    ...(CF_BEACON_TOKEN === ''
+      ? []
+      : ([
+          [
+            'script',
+            {
+              defer: '',
+              src: 'https://static.cloudflareinsights.com/beacon.min.js',
+              'data-cf-beacon': JSON.stringify({ token: CF_BEACON_TOKEN }),
+            },
+          ],
+        ] satisfies HeadConfig[])),
   ],
 
   // The home pages carry their data in frontmatter; a missing or misspelt field
@@ -166,13 +229,30 @@ export const shared = defineConfig({
   // One canonical URL per page, and hreflang pairs between the two languages. The
   // design documents exist only in Chinese: the Chinese page is canonical and the
   // English placeholder declares no alternate.
-  transformHead({ pageData }) {
+  // Every page also gets Open Graph and Twitter titles and descriptions from its own title and
+  // description, so a shared link shows the page rather than the site.
+  transformHead({ pageData, title, description }) {
     if (pageData.isNotFound) return [];
     const rel = pageData.relativePath;
+    const zh = rel.startsWith('zh/');
+    const social: HeadConfig[] = [
+      ['meta', { property: 'og:title', content: title }],
+      ['meta', { property: 'og:description', content: description }],
+      ['meta', { property: 'og:locale', content: zh ? 'zh_CN' : 'en_US' }],
+      ['meta', { name: 'twitter:title', content: title }],
+      ['meta', { name: 'twitter:description', content: description }],
+    ];
     // The English design-document pointers and the admin page are noindex: no canonical, no
     // alternates.
-    if (rel.startsWith('dev/') || rel === 'admin.md') return [];
-    const head: HeadConfig[] = [['link', { rel: 'canonical', href: pageUrl(rel) }]];
+    if (rel.startsWith('dev/') || rel === 'admin.md') return social;
+    const head: HeadConfig[] = [
+      ...social,
+      ['meta', { property: 'og:url', content: pageUrl(rel) }],
+      ['link', { rel: 'canonical', href: pageUrl(rel) }],
+    ];
+    if (rel === 'index.md' || rel === 'zh/index.md') {
+      head.push(['script', { type: 'application/ld+json' }, softwareApplication(rel, description)]);
+    }
     const base = rel.startsWith('zh/') ? rel.slice(3) : rel;
     if (base.startsWith('dev/')) return head;
     head.push(

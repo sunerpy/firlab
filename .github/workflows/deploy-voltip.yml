@@ -15,7 +15,11 @@ on:
     branches: [main]
     paths:
       - 'voltip/**'
+      # The home pages' structured data names the latest Voltip release from this file.
+      - 'src/i18n/versions.ts'
       - '.github/workflows/deploy-voltip.yml'
+  # sync-versions.yml dispatches it when Voltip's version changes (a GITHUB_TOKEN push starts
+  # no workflow).
   workflow_dispatch:
 
 # A Pages deploy is not safely interruptible: queue instead of cancelling. Its own group, so
@@ -59,8 +63,12 @@ jobs:
         working-directory: voltip
         run: pnpm install --frozen-lockfile
 
+      # VOLTIP_CF_BEACON_TOKEN is the Cloudflare Web Analytics beacon token, a repository variable
+      # (it is public: the beacon carries it in every page). Unset, the site loads no beacon.
       - name: Build
         working-directory: voltip
+        env:
+          VOLTIP_CF_BEACON_TOKEN: ${{ vars.VOLTIP_CF_BEACON_TOKEN }}
         run: pnpm build
 
       # The try page's and the admin page's API (voltip/functions/). The deploy compiles them

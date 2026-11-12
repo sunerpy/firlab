@@ -10,6 +10,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
     text: '开始使用',
     items: [
       { text: 'Voltip 是什么', link: '/zh/guide/what-is-voltip' },
+      { text: '与其他工具对比', link: '/zh/guide/compare' },
       { text: '在线体验', link: '/zh/guide/try' },
       { text: '安装', link: '/zh/guide/install' },
       { text: '快速开始', link: '/zh/guide/quick-start' },
@@ -74,7 +75,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
 export const zh = defineConfigWithTheme<VoltipThemeConfig>({
   lang: 'zh-CN',
   description:
-    'Voltip 是 Windows、macOS 和 Linux 上的语音输入工具：按住快捷键说话，松开后文字出现在光标处。可以在本机识别，也可以使用你选择的云端服务。',
+    'Voltip 是开源的语音输入工具，支持 Windows、macOS、Linux 和 Android：按住快捷键说话，松开后文字出现在光标处。可以在电脑上离线识别，也可以使用你选择的云端服务。',
 
   themeConfig: {
     nav: [
@@ -149,6 +150,7 @@ export const zh = defineConfigWithTheme<VoltipThemeConfig>({
           title: '开始使用',
           items: [
             { text: 'Voltip 是什么', link: '/zh/guide/what-is-voltip' },
+            { text: '与其他工具对比', link: '/zh/guide/compare' },
             { text: '安装', link: '/zh/guide/install' },
             { text: '在线体验', link: '/zh/guide/try' },
             { text: '快速开始', link: '/zh/guide/quick-start' },

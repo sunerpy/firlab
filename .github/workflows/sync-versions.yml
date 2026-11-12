@@ -71,4 +71,8 @@ jobs:
             git pull --rebase origin main
           done
           gh workflow run deploy.yml --ref main
+          # voltip.firlab.app's home pages carry the Voltip version in their structured data.
+          if git show --format= HEAD -- src/i18n/versions.ts | grep '^+export const VOLTIP_VERSION' >/dev/null; then
+            gh workflow run deploy-voltip.yml --ref main
+          fi
           echo "### ${SUBJECT}" >> "$GITHUB_STEP_SUMMARY"
