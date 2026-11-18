@@ -1,343 +1,303 @@
 #!/usr/bin/env python3
 """
-pt-tools brand asset generator.
+pt-tools brand asset generator: the 1.0 seed badge.
 
-Emits every asset in this directory from ONE parametric definition of the mark,
-so the SVGs, the wordmark and the PNG ladder can never drift apart. Re-run after
-changing a parameter; do not hand-edit the generated files.
+Writes every file in this directory from one definition of the mark, so the
+SVGs, the lockups and the PNG ladder cannot drift apart. Change a value here
+and re-run; do not hand-edit the outputs.
 
-    uv run --with fonttools --with cairosvg --with pillow python3 build.py
+    uv run --with fonttools==4.65.0 --with shapely==2.2.0 --with cairosvg==2.7.1 python3 build.py
 
-WHY THE MARK LOOKS LIKE THIS
-----------------------------
-pt-tools is a Go command-line tool. The mark says exactly that:
+The versions are pinned because the outputs were checked byte for byte against
+the approved design files: another shapely release (it bundles its own GEOS) or
+another fontTools release can move the last digit of a coordinate.
 
-    a shell prompt caret, and the cursor block waiting after it
+THE MARK
+--------
+A seed, round except for one corner at the top right, with a lowercase p cut
+through it so the plate shows through. Chinese PT users call a torrent a 种子
+(seed); the p is for pt. It sits on a superellipse badge in two palettes:
 
-A teal caret pointing right, then a solid orange block on the same axis - the
-two things you actually see on a terminal line before you have typed anything.
-It is the most literal available statement of what the product is, and of 69
-drawn candidates it is the only one whose naive reading matched its intent.
+    ink    white seed on a near-black badge   light surfaces, and every place
+                                              that takes a single image
+    paper  near-black seed on a white badge   dark surfaces
 
-WHAT THE 68 REJECTED CANDIDATES TAUGHT
---------------------------------------
-Flat block mosaics (24 drawn) all got named as something else: staircase, bar
-chart, fork, fence. They also hit a hard contradiction - a filled grid needs
-visible cell separation to read as a grid, but same-coloured adjacent cells fuse
-into one mass and a gap between them fills in with antialiasing at 16px.
+Chosen on 2026-11-18 from the third 1.0 design round: concept 23 "种子徽标",
+palettes A "墨黑" (ink) and C "纯白" (paper). The SVG ids keep that round's names
+(pt-23-seed-ink-t, ...) so the outputs stay byte-identical to the approved
+files. Each output file has its own id prefix, so different files can be
+inlined on one page; inlining the same file twice needs per-instance ids.
 
-Node-on-ring variants (12 drawn) read as atoms, and the three-node version
-collided with the sibling CodeGraph mark, which is literally a three-node graph.
+CONSTRUCTION (canvas 1024 x 1024)
+---------------------------------
+plate    superellipse |x|^5 + |y|^5 = 1 scaled to the canvas, 360 points.
+         ink:   vertical gradient #31353C -> #131518, a white radial glow at
+                (300, 150) r 820 (10% -> 0), and a top-edge highlight: the
+                outline stroked 10 wide and clipped to the plate, white 22% at
+                the top, gone by half height.
+         paper: vertical gradient #FFFFFF -> #EEF1F5 and an 8-wide #DCE1E8 rim,
+                clipped to the plate.
+seed     a 640 disc united with its top-right quadrant square, minus the p.
+         Diagonal gradient from the bottom-left corner of its box to the
+         top-right one: ink #C9D2DE -> #FFFFFF at 55%, paper #3D424C -> #1B1D22.
+p        stroke 96. Bowl: ring of centre-line radius 104. Stem: round-ended,
+         its left edge in line with the bowl's leftmost point, its right edge
+         touching the counter. Wholly inside the seed, so the outline never
+         opens; the counter stays as an island of seed.
+ink box  (184, 200)-(824, 840) at scale 1: 640 x 640, shifted 8 left and 8
+         down from the canvas centre as an optical correction for the corner.
+scale    0.86 about the centre in the logo, the app icon and the lockups;
+         1.0 in the favicons, which only render at 16 and 32 px, so the cut
+         stays 1.5 px wide at 16 px instead of 1.3 px.
+app icon full-bleed square for iOS, Android adaptive and PWA maskable icons
+         (the platform applies its own mask): plate gradient and glow only.
+         The farthest ink, the seed's corner, is 379.5 from the centre, inside
+         the 440 safe radius.
+lockup   the badge at 256 px, a 72 px gap, then "pt-tools" in Instrument Sans
+         SemiBold (fonts/, SIL OFL 1.1) at 196 px, converted to outlines, its
+         x-height band centred on the badge.
 
-Letterform "pt" cannot be made to work at icon size: inside a 48-unit box the
-p's bowl and the t's crossbar collide, and opening them far enough to separate
-leaves both strokes too thin to survive a favicon.
-
-One late candidate carried its meaning in an opacity-faded return segment.
-Measured at 16px the faded segment was simply gone. That is rule 4 below,
-learned the expensive way.
-
-CONSTRUCTION RULES
-------------------
-1. Everything sits on a 64-unit grid inside a 1024 canvas. 1024 / 64 = 16, so at
-   a 16px favicon every ORTHOGONAL edge lands on a whole pixel boundary; the
-   cursor block rasterises to exactly 5 x 4 whole pixels. The caret is a
-   45-degree stroke with round caps, so it is antialiased by construction. That
-   is the price of the diagonal and it is paid knowingly - the previous mark's
-   "zero antialiased pixels" property does not survive a stroked design and the
-   claim has been retired rather than quietly kept.
-2. Minimum WEIGHT, not minimum mass. The old rule ("no mass below 3 units") was
-   written for flat rectangles; for a stroked mark the binding constraint is the
-   stroke. It is 2 units, i.e. 2px at a 16px favicon. Measured on the raster,
-   2 units yields 22 fully-opaque teal pixels and zero washed-out ones, while
-   1.5 units yields 8 opaque and 12 washed-out - a grey smear, not a caret. The
-   candidate as originally drawn used 2.6 of a 48-unit box, which works out to
-   0.87px at a 16px favicon and would not have survived. 2.5 units rasterises
-   identically to 2 at 16px, so 2 units is both the floor and the answer.
-3. The caret and the cursor are divided by a 2-unit gap, not a hairline. 1 unit
-   closes up under antialiasing at 16px; 2 units is two plate-dark pixels
-   between two bright masses and it holds. The sibling rule that parts must
-   TOUCH was derived for flat mosaics, where a gap is the only failure mode;
-   here the two elements are separate tokens on a command line and the gap is
-   the meaning, so it is sized to survive instead of being removed.
-4. Zero opacity anywhere. A faded element degrades into a ghost at small sizes
-   and silently changes what the mark means. See the late candidate above.
-
-COMPOSITION
------------
-The combined ink box is x 2..14, y 4..12 in 16ths - 12 x 8 units - so its centre
-is exactly (8, 8), the canvas centre. The caret and the cursor share the y=8
-axis, which is the optical baseline they read off.
-
-Measured mass centroid: (7.88, 7.99). The 0.12-unit bias to the left is the
-residual of a light stroke balanced against a solid block. Of every whole-unit
-arrangement that fills x 2..14 it is the smallest bias available, and closing it
-completely would push the caret past the 2-unit margin.
-
-The caret's ARM LENGTH was the one genuinely contested number, and it is a
-three-way trade between three measured quantities. What makes a caret read as an
-angle rather than a wedge is the dark notch between its arms, and the notch's
-depth is set by the arm's HORIZONTAL reach only - steepening the arms lengthens
-the chevron without deepening the notch at all (measured: dy 3, 4 and 5 all give
-a 2px notch, and dy 5 also brings back 4 washed-out pixels). Deepening it
-therefore means widening the caret, which means narrowing the cursor:
-
-    arm 3, cursor 5x4   notch 2px   chevron  8px   centroid 7.88   <- shipped
-    arm 4, cursor 4x4   notch 3px   chevron 10px   centroid 7.53
-    arm 4, cursor 4x6   notch 3px   chevron 10px   centroid 8.25
-
-arm 3 ships because the 16px favicon is not where this mark is read. At 16px its
-job is to be a distinct two-element signature, and it is: 22 fully-opaque caret
-pixels, 20 fully-opaque cursor pixels, a 2px gap, nothing washed out. The
-semantic read happens at 32px and up, where the chevron is unambiguous (72 solid
-pixels at 32px), and at the 46-52px sizes the site actually uses. arm 3 is also
-the only option that keeps the candidate's proportion - a cursor at least as wide
-as the caret and about half its height - and it has the best balance of the
-three. A naive viewer cannot name the shape at 16px; that is true of every
-favicon and is not worth buying with the cursor.
-
-For the record, the candidate as drawn was NOT off-centre to the right and was
-NOT top-heavy, however much it looks that way. Measured on its 48-unit field the
-ink box is x 9.70..37.00, y 14.70..33.30: vertically centred to the pixel (the
-round caps extend symmetrically up AND down), and 0.65 units LEFT of centre
-horizontally. What reads as imbalance is mass rather than geometry - the solid
-block outweighs the thin stroke - and that is what the layout above corrects.
-
-Construction language is inherited from the shipped sibling icons (AgentLens,
-Voltip, CodeGraph): 1024 canvas, hard angles, no gradients, and the same
-palette, so the four product marks sit together.
-
-Paper is no longer used in the icon - the mark is two colours on the plate. That
-is a deliberate simplification, not an oversight; paper's remaining job is the
-wordmark type, which is the one place in this palette that has to be READ.
+PNGs are rendered natively at every size, never downscaled: 16 and 32 from
+favicon.svg, 64 and up from logo.svg.
 """
 
 from __future__ import annotations
 
-import os
-import subprocess
+import math
 from pathlib import Path
 
+import cairosvg
+from fontTools.pens.boundsPen import BoundsPen
+from fontTools.pens.svgPathPen import SVGPathPen
+from fontTools.pens.transformPen import TransformPen
+from fontTools.ttLib import TTFont
+from shapely import affinity
+from shapely.geometry import LineString, Point, Polygon
+from shapely.ops import unary_union
+
 HERE = Path(__file__).resolve().parent
+FONT = HERE / "fonts" / "InstrumentSans-600.ttf"
 
-# cairo inherits LCD subpixel antialiasing from fontconfig, which bakes coloured
-# fringes into a raster. Forced to greyscale here, before cairo is imported, so
-# the PNG ladder is reproducible on any host. Verified by rendering the same SVG
-# under rgba=none and rgba=rgb and diffing: the outputs must be byte-identical.
-FONTS_CONF = HERE / "fonts.conf"
-FONTS_CONF.write_text(
-    '<?xml version="1.0"?>\n'
-    '<!DOCTYPE fontconfig SYSTEM "fonts.dtd">\n'
-    "<fontconfig>\n"
-    '  <match target="font">\n'
-    '    <edit name="rgba" mode="assign"><const>none</const></edit>\n'
-    '    <edit name="antialias" mode="assign"><bool>true</bool></edit>\n'
-    "  </match>\n"
-    "</fontconfig>\n"
-)
-os.environ.setdefault("FONTCONFIG_FILE", str(FONTS_CONF))
+DESIGN_ID = "23-seed"  # concept id from the design round, kept in the SVG ids; see the docstring
 
-# --- palette: the four locked values. Nothing else may appear in an output. ---
-INK = "#0B1220"  # near-black navy - plate, wordmark slab
-PAPER = "#E7EDF5"  # cool off-white - wordmark type ONLY; absent from the icon
-BRAND = "#F97316"  # orange - the cursor block (2.7:1 on paper: mass, never detail)
-TEAL = "#14B8A6"  # teal - the prompt caret
+# --- palettes ----------------------------------------------------------------
+# plate: vertical gradient, top -> bottom. glow / edge: white opacity at the
+# centre of the radial glow / at the top of the edge highlight (0 = not drawn).
+# rim: solid edge colour (None = not drawn). seed: diagonal gradient, far end
+# (bottom left) -> main colour, which holds from 55% to the top-right corner.
+PALETTES = {
+    "ink": dict(plate=("#31353C", "#131518"), glow=0.1, edge=0.22, rim=None, seed=("#C9D2DE", "#FFFFFF")),
+    "paper": dict(plate=("#FFFFFF", "#EEF1F5"), glow=0, edge=0, rim="#DCE1E8", seed=("#3D424C", "#1B1D22")),
+}
+TYPE = {"light": "#1B1D22", "dark": "#F1F2F4"}  # lockup type on light / dark surfaces
 
-# --- geometry, expressed in 16ths so the grid contract is visible ------------
-# The ink box is the contract: x INK_X0..INK_X1, y centred on CENTRE with height
-# CARET_H. Everything else is derived from it, so changing the stroke weight
-# cannot silently move the margins.
-U = 64  # one 16px-pixel = 64 canvas units
-CENTRE = 8  # the canvas axis both elements sit on
-INK_X0, INK_X1 = 2, 14  # 12.5% margin either side; 128..896 in canvas units
+# --- geometry ----------------------------------------------------------------
+SEED_R = 640 / 2
+P_STROKE = 96
+P_BOWL_R = 104  # centre line; ink from 56 to 152
+P_BOWL = (-6, -52)  # bowl centre, relative to the seed centre
+P_STEM_X = P_BOWL[0] - P_BOWL_R  # stem centre line; its left edge meets the bowl's leftmost point
+P_DESCENDER = 150  # stem centre line runs this far below the bowl
+OPTICAL = (-8, 8)  # shift of the ink box from the canvas centre
 
-SW = 2  # caret stroke weight - the floor; see rule 2 in the header
-CARET_H = 8  # caret ink height, cap to cap
-ARM = (CARET_H - SW) / 2  # 45-degree arms, so arm length == half the ink height
-APEX_X = INK_X0 + ARM + SW / 2  # places the caret's LEFT ink edge exactly on INK_X0
-TAIL_X = APEX_X - ARM
+GLYPH_SCALE = 0.86  # logo, app icon, lockups
+SAFE_R = 440  # app icon: no ink beyond this radius after scaling
+INK_BOX = (184, 200, 824, 840)
 
-CUR_W, CUR_H = 5, 4  # cursor block: landscape, as on a terminal line
-CUR_X = INK_X1 - CUR_W  # flush with the right ink edge
-CUR_Y = CENTRE - CUR_H / 2  # centred on the shared axis
-GAP = CUR_X - (APEX_X + SW / 2)  # measured, not asserted; rule 3 wants >= 2
-
-# Ink bounds in canvas units. The glyph is landscape (12 x 8), so x and y bounds
-# differ - the wordmark scales on the y span and places on both.
-GLYPH_X0, GLYPH_X1 = INK_X0 * U, INK_X1 * U
-GLYPH_Y0, GLYPH_Y1 = (CENTRE - CARET_H / 2) * U, (CENTRE + CARET_H / 2) * U
-GLYPH_W, GLYPH_SPAN = GLYPH_X1 - GLYPH_X0, GLYPH_Y1 - GLYPH_Y0
+LOCKUP_TILE, LOCKUP_GAP, LOCKUP_TYPE = 256, 72, 196
 
 
-def mark_body(caret: str, cursor: str, indent: str = "  ") -> str:
-    """The prompt caret, then the cursor block, on one shared axis."""
-    return (
-        f'{indent}<path d="M{TAIL_X * U:g} {(CENTRE - ARM) * U:g}'
-        f" L{APEX_X * U:g} {CENTRE * U:g}"
-        f' L{TAIL_X * U:g} {(CENTRE + ARM) * U:g}"'
-        f' fill="none" stroke="{caret}" stroke-width="{SW * U:g}"'
-        f' stroke-linecap="round" stroke-linejoin="round"/>\n'
-        f'{indent}<rect x="{CUR_X * U:g}" y="{CUR_Y * U:g}"'
-        f' width="{CUR_W * U:g}" height="{CUR_H * U:g}" fill="{cursor}"/>'
-    )
+def f(v: float) -> str:
+    """One decimal, trailing zeros dropped: 184.0 -> 184, 613.40 -> 613.4."""
+    return f"{v:.1f}".rstrip("0").rstrip(".")
 
 
-PLATE_R = 204.8  # 20% of 1024
+def superellipse(n: float = 5.0, steps: int = 360, a: float = 512.0, c: float = 512.0) -> str:
+    pts = []
+    for i in range(steps):
+        t = 2 * math.pi * i / steps
+        cos, sin = math.cos(t), math.sin(t)
+        x = c + a * math.copysign(abs(cos) ** (2 / n), cos)
+        y = c + a * math.copysign(abs(sin) ** (2 / n), sin)
+        pts.append(f"{f(x)} {f(y)}")
+    return "M" + " L".join(pts) + " Z"
 
 
-def write_logo() -> None:
-    """Plated primary. Self-contained, so it holds on light, dark and coloured
-    grounds with no media query and no <picture>. The PNG ladder comes from this.
-    The glyph is NOT scaled: its bounds are already 128..896 across, which leaves
-    a 2-unit (12.5%) margin either side. It is landscape, so the vertical margin
-    is larger - a command line is a horizontal object and the mark is allowed to
-    say so."""
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-label="pt-tools">
-  <title>pt-tools</title>
-  <!-- Generated by build.py. Do not hand-edit. -->
-  <rect x="0" y="0" width="1024" height="1024" rx="{PLATE_R}" ry="{PLATE_R}" fill="{INK}"/>
-{mark_body(TEAL, BRAND)}
-</svg>
-"""
-    (HERE / "logo.svg").write_text(svg)
+PLATE = superellipse()
+BLEED = "M0 0 H1024 V1024 H0 Z"
 
 
-def write_mono() -> None:
-    """Plate-less, single-colour, currentColor so an inlined copy inherits the
-    host theme. This is the real test of the geometry, and this mark passes it for
-    a structural reason: its identity is carried by two shapes of DIFFERENT
-    CHARACTER - an open stroked angle and a closed filled rectangle - so one
-    colour cannot collapse them into each other. Several rejected candidates
-    lived on colour separation between two shapes of the same character and
-    became unreadable here."""
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" role="img" aria-label="pt-tools">
-  <title>pt-tools</title>
-  <!-- Generated by build.py. Do not hand-edit. Inherits colour from the host. -->
-{mark_body("currentColor", "currentColor")}
-</svg>
-"""
-    (HERE / "logo-mono.svg").write_text(svg)
+def disc(cx: float, cy: float, r: float):
+    return Point(cx, cy).buffer(r, quad_segs=64)
 
 
-# --- wordmark ---------------------------------------------------------------
-# The ink slab is a decision, not laziness. Of the four locked colours only ink
-# clears text contrast on paper, and ink is invisible on a dark ground. Paper
-# type on an ink slab keeps the lockup inside the palette AND readable on every
-# background, which is what a transplanted asset needs.
-#
-# Type is emitted as outlines, never <text>, so it renders identically on a
-# machine with none of these fonts installed.
-WORDMARK = "pt-tools"
-FONT = "/usr/share/fonts/truetype/noto/NotoSansMono-Bold.ttf"
-
-SLAB_H = 320
-SLAB_R = 64  # 20% of slab height - the plate's corner ratio, held
-PAD_L = 72
-GLYPH_H = 184  # mark height inside the slab
-TYPE_GAP = 64  # mark-to-type gap; distinct from GAP, the caret-to-cursor gap
-PAD_R = 76
-TYPE_CAP = 112  # cap height: 61% of the mark
+def ring(cx: float, cy: float, r: float, w: float):
+    return disc(cx, cy, r + w / 2).difference(disc(cx, cy, r - w / 2))
 
 
-def write_wordmark() -> None:
-    from fontTools.pens.svgPathPen import SVGPathPen
-    from fontTools.ttLib import TTFont
+def stroke(pts, w: float):
+    return LineString(pts).buffer(w / 2, cap_style="round", join_style="round", quad_segs=32)
 
+
+def seed_geometry():
+    """The seed with the p cut out, placed on the canvas; returns (geometry,
+    offset of the seed centre)."""
+    r = SEED_R
+    leaf = unary_union([disc(0, 0, r), Polygon([(0, -r), (r, -r), (r, 0), (0, 0)])])
+    bx, by = P_BOWL
+    p = unary_union([
+        ring(bx, by, P_BOWL_R, P_STROKE),
+        stroke([(P_STEM_X, by - P_BOWL_R), (P_STEM_X, by + P_BOWL_R + P_DESCENDER)], P_STROKE),
+    ])
+    assert leaf.contains(p), "the p must stay inside the seed, or the outline opens"
+    badge = leaf.difference(p)
+    x0, y0, x1, y1 = badge.bounds
+    ox, oy = 512 - (x0 + x1) / 2 + OPTICAL[0], 512 - (y0 + y1) / 2 + OPTICAL[1]
+    return affinity.translate(badge, ox, oy), (ox, oy)
+
+
+def svg_path(geom) -> str:
+    polys = [geom] if geom.geom_type == "Polygon" else [g for g in geom.geoms if g.geom_type == "Polygon"]
+    out = []
+    for poly in polys:
+        for line in [poly.exterior, *poly.interiors]:
+            pts = list(line.coords)[:-1]
+            out.append("M" + " L".join(f"{f(x)} {f(y)}" for x, y in pts) + " Z")
+    return " ".join(out)
+
+
+SEED, (SEED_X, SEED_Y) = seed_geometry()
+SEED_D = svg_path(SEED)
+
+
+# --- svg ---------------------------------------------------------------------
+
+def defs(uid: str, pal: str) -> str:
+    p = PALETTES[pal]
+    top, bot = p["plate"]
+    far, main = p["seed"]
+    glow = ""
+    if p["glow"]:
+        glow = (f'<radialGradient id="{uid}-s" gradientUnits="userSpaceOnUse" cx="300" cy="150" r="820">'
+                f'<stop offset="0" stop-color="#FFFFFF" stop-opacity="{p["glow"]}"/>'
+                f'<stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>')
+    edge = ""
+    if p["edge"]:
+        edge = (f'<linearGradient id="{uid}-e" x1="0" y1="0" x2="0" y2="1">'
+                f'<stop offset="0" stop-color="#FFFFFF" stop-opacity="{p["edge"]}"/>'
+                f'<stop offset=".5" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>')
+    r = SEED_R
+    seed = (f'<linearGradient id="{uid}-leaf" gradientUnits="userSpaceOnUse" x1="{f(SEED_X - r)}" y1="{f(SEED_Y + r)}" '
+            f'x2="{f(SEED_X + r)}" y2="{f(SEED_Y - r)}"><stop offset="0" stop-color="{far}" stop-opacity="1"/>'
+            f'<stop offset="0.55" stop-color="{main}" stop-opacity="1"/>'
+            f'<stop offset="1" stop-color="{main}" stop-opacity="1"/></linearGradient>')
+    return (f'<defs><linearGradient id="{uid}-t" x1="0" y1="0" x2="0" y2="1">'
+            f'<stop offset="0" stop-color="{top}"/><stop offset="1" stop-color="{bot}"/></linearGradient>{glow}{edge}'
+            f'<clipPath id="{uid}-c"><path d="{PLATE}"/></clipPath>{seed}</defs>')
+
+
+def plate(uid: str, pal: str, indent: str = "  ", bleed: bool = False) -> str:
+    """bleed=True: a full square for platforms that apply their own mask; no
+    edge highlight and no rim, the platform draws the edge."""
+    p = PALETTES[pal]
+    shape = BLEED if bleed else PLATE
+    out = [f'{indent}<path d="{shape}" fill="url(#{uid}-t)"/>']
+    if p["glow"]:
+        out.append(f'{indent}<path d="{shape}" fill="url(#{uid}-s)"/>')
+    if not bleed:
+        if p["edge"]:
+            out.append(f'{indent}<path d="{PLATE}" fill="none" stroke="url(#{uid}-e)" stroke-width="10" clip-path="url(#{uid}-c)"/>')
+        if p["rim"]:
+            out.append(f'{indent}<path d="{PLATE}" fill="none" stroke="{p["rim"]}" stroke-width="8" clip-path="url(#{uid}-c)"/>')
+    return "\n".join(out)
+
+
+def glyph(uid: str, scale: float, indent: str) -> str:
+    tr = f' transform="translate(512 512) scale({scale:.4f}) translate(-512 -512)"' if scale < 1 else ""
+    return (f'{indent}<g{tr}>\n{indent}  <path d="{SEED_D}" fill="url(#{uid}-leaf)" fill-rule="evenodd"/>\n'
+            f'{indent}</g>')
+
+
+def badge_svg(pal: str, scale: float, tag: str = "", bleed: bool = False) -> str:
+    uid = f"pt-{DESIGN_ID}-{pal}{tag}"
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" '
+            f'role="img" aria-label="pt-tools">\n  <title>pt-tools</title>\n  {defs(uid, pal)}\n'
+            f'{plate(uid, pal, bleed=bleed)}\n{glyph(uid, scale, "  ")}\n</svg>\n')
+
+
+def mono_svg() -> str:
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" '
+            f'fill="none" role="img" aria-label="pt-tools">\n  <title>pt-tools</title>\n'
+            f'  <path d="{SEED_D}" fill="currentColor" fill-rule="evenodd"/>\n</svg>\n')
+
+
+def text_outline(s: str, size: float):
+    """(path data, right edge of the ink) for s at font size `size`, baseline at
+    y=0, y down. The font is only read here; no output embeds it."""
     font = TTFont(FONT)
-    upem = font["head"].unitsPerEm
-    cap = font["OS/2"].sCapHeight
-    glyph_set = font.getGlyphSet()
-    cmap = font.getBestCmap()
-    hmtx = font["hmtx"]
-    glyf = font["glyf"]
-
-    size = TYPE_CAP * upem / cap  # font size yielding exactly TYPE_CAP cap height
-    scale = size / upem
-
-    paths: list[str] = []
-    x = 0.0
-    y_lo = y_hi = 0.0
-    for ch in WORDMARK:
+    gs, cmap = font.getGlyphSet(), font.getBestCmap()
+    k = size / font["head"].unitsPerEm
+    x, parts, right = 0.0, [], 0.0
+    for ch in s:
         name = cmap[ord(ch)]
-        pen = SVGPathPen(glyph_set)
-        glyph_set[name].draw(pen)
-        d = pen.getCommands()
-        if d:
-            paths.append(f'<path transform="translate({x:.2f} 0)" d="{d}"/>')
-            g = glyf[name]
-            if g.numberOfContours:
-                y_lo = min(y_lo, g.yMin)
-                y_hi = max(y_hi, g.yMax)
-        x += hmtx[name][0]
-
-    text_w = x * scale
-    ink_top, ink_bot = y_hi * scale, -y_lo * scale
-
-    # Centre the type's real ink box (t-ascender to p-descender) on the slab
-    # axis. Centring the baseline instead would ride visibly high.
-    baseline = (SLAB_H + ink_top - ink_bot) / 2
-
-    # The glyph is landscape, so it is scaled on its HEIGHT (keeping the
-    # documented mark-height-to-cap-height ratio) and its width follows.
-    gs = GLYPH_H / GLYPH_SPAN
-    glyph_w = GLYPH_W * gs
-    tx = PAD_L - GLYPH_X0 * gs
-    ty = (SLAB_H - GLYPH_H) / 2 - GLYPH_Y0 * gs
-
-    text_x = PAD_L + glyph_w + TYPE_GAP
-    slab_w = round(text_x + text_w + PAD_R)
-
-    joined = "\n      ".join(paths)
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="{slab_w}" height="{SLAB_H}" viewBox="0 0 {slab_w} {SLAB_H}" role="img" aria-label="pt-tools">
-  <title>pt-tools</title>
-  <!-- Generated by build.py. Do not hand-edit. Type is converted outlines, never a text element. -->
-  <rect x="0" y="0" width="{slab_w}" height="{SLAB_H}" rx="{SLAB_R}" ry="{SLAB_R}" fill="{INK}"/>
-  <g transform="translate({tx:.3f} {ty:.3f}) scale({gs:.6f})">
-{mark_body(TEAL, BRAND, indent="    ")}
-  </g>
-  <g fill="{PAPER}" transform="translate({text_x:.2f} {baseline:.2f}) scale({scale:.6f} -{scale:.6f})">
-      {joined}
-  </g>
-</svg>
-"""
-    (HERE / "wordmark.svg").write_text(svg)
-    print(
-        f"wordmark.svg  {slab_w}x{SLAB_H}  mark {glyph_w:.1f}x{GLYPH_H}  "
-        f"type {size:.1f}px  cap {TYPE_CAP}"
-    )
+        pen = SVGPathPen(gs)
+        gs[name].draw(TransformPen(pen, (k, 0, 0, -k, x, 0)))
+        parts.append(pen.getCommands())
+        bounds = BoundsPen(gs)
+        gs[name].draw(TransformPen(bounds, (k, 0, 0, -k, x, 0)))
+        if bounds.bounds:
+            right = max(right, bounds.bounds[2])
+        x += font["hmtx"][name][0] * k
+    x_height = font["OS/2"].sxHeight * size / font["head"].unitsPerEm
+    return " ".join(parts), right, x_height
 
 
-SIZES = (512, 256, 128, 64, 32, 16)
+def lockup_svg(pal: str, surface: str) -> str:
+    """Badge at LOCKUP_TILE px, then the name in outlines. `surface` is the
+    background the lockup is meant for, which sets the type colour."""
+    tile, gap = LOCKUP_TILE, LOCKUP_GAP
+    fill = TYPE[surface]
+    d, right, x_height = text_outline("pt-tools", LOCKUP_TYPE)
+    base = tile / 2 + x_height / 2  # centre the x-height band on the badge
+    width = math.ceil(tile + gap + right)
+    uid = f"lk-{DESIGN_ID}-{pal}-{fill.strip('#').lower()}"
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{tile}" viewBox="0 0 {width} {tile}" '
+            f'role="img" aria-label="pt-tools">\n  <title>pt-tools</title>\n  <g transform="scale({tile / 1024:g})">\n'
+            f'  {defs(uid, pal)}\n{plate(uid, pal, indent="    ")}\n{glyph(uid, GLYPH_SCALE, "    ")}\n  </g>\n'
+            f'  <path transform="translate({tile + gap} {base:.1f})" fill="{fill}" d="{d}"/>\n</svg>\n')
 
 
-def write_pngs() -> None:
-    """Rendered natively at each size from logo.svg - never downscaled from the
-    512, so each raster is a true evaluation of the vector at that pixel budget
-    and the 16px file is the geometry's real verdict."""
-    import cairosvg
-
-    src = (HERE / "logo.svg").read_bytes()
-    for s in SIZES:
-        cairosvg.svg2png(
-            bytestring=src,
-            write_to=str(HERE / f"icon-{s}.png"),
-            output_width=s,
-            output_height=s,
-            background_color=None,
-        )
-        print(f"icon-{s}.png")
+OUTPUTS = {
+    "logo.svg": lambda: badge_svg("ink", GLYPH_SCALE),
+    "logo-dark.svg": lambda: badge_svg("paper", GLYPH_SCALE),
+    "logo-mono.svg": mono_svg,
+    "favicon.svg": lambda: badge_svg("ink", 1.0, tag="-fav"),
+    "favicon-dark.svg": lambda: badge_svg("paper", 1.0, tag="-fav"),
+    "app-icon.svg": lambda: badge_svg("ink", GLYPH_SCALE, tag="-app", bleed=True),
+    "wordmark.svg": lambda: lockup_svg("paper", "dark"),
+    "wordmark-light.svg": lambda: lockup_svg("ink", "light"),
+}
+PNG_SIZES = (16, 32, 64, 128, 256, 512)
+FAVICON_MAX = 32  # sizes up to this render from favicon.svg, the rest from logo.svg
 
 
 def main() -> None:
-    assert GLYPH_X0 == 128 and GLYPH_X1 == 896, "12.5% horizontal margin broken"
-    assert GLYPH_Y0 + GLYPH_Y1 == 1024, "glyph not vertically centred"
-    assert GAP >= 2, f"caret-to-cursor gap {GAP} closes up at 16px (rule 3)"
-    print(f"glyph ink  x {GLYPH_X0:g}..{GLYPH_X1:g}  y {GLYPH_Y0:g}..{GLYPH_Y1:g}  gap {GAP:g}u")
-    write_logo()
-    write_mono()
-    write_wordmark()
-    write_pngs()
-    subprocess.run(["ls", "-l", str(HERE)], check=False)
+    box = tuple(round(v, 6) for v in SEED.bounds)
+    assert box == INK_BOX, f"ink box moved: {box}"
+    far = max(math.hypot(x - 512, y - 512) for g in SEED.geoms for line in [g.exterior, *g.interiors] for x, y in line.coords)
+    assert far * GLYPH_SCALE <= SAFE_R, f"app icon ink reaches {far * GLYPH_SCALE:.1f}, past the {SAFE_R} safe radius"
+    print(f"ink box {box}  farthest ink at {GLYPH_SCALE}: {far * GLYPH_SCALE:.1f} (safe {SAFE_R})")
+
+    svgs = {}
+    for name, make in OUTPUTS.items():
+        svgs[name] = make().encode("ascii")
+        (HERE / name).write_bytes(svgs[name])
+        print(f"{name:20} {len(svgs[name]):6} bytes")
+    for s in PNG_SIZES:
+        src = svgs["favicon.svg" if s <= FAVICON_MAX else "logo.svg"]
+        out = HERE / f"icon-{s}.png"
+        cairosvg.svg2png(bytestring=src, write_to=str(out), output_width=s, output_height=s)
+        print(f"{out.name:20} {out.stat().st_size:6} bytes")
 
 
 if __name__ == "__main__":
