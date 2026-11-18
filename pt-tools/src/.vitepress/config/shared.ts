@@ -91,7 +91,7 @@ const ZH_ALERT_TITLES: Record<string, string> = {
 
 export const shared = defineConfig({
   title: 'pt-tools',
-  description: '面向 PT 站点的自动化管理工具：RSS 自动下载、多站点统计与搜索、下载器管理和 ChatOps。',
+  description: '面向 PT 站点的自动化管理工具：RSS 自动下载、刷流与 IYUU 辅种、媒体库整理、多站点统计与下载器管理，手机 App 和 QQ、Telegram 上的 ChatOps。',
   lang: 'zh-CN',
   base: BASE,
 
@@ -227,7 +227,7 @@ export const shared = defineConfig({
   },
 
   themeConfig: {
-    logo: { src: '/pt-tools-logo.svg', alt: '' },
+    logo: { light: '/pt-tools-logo.svg', dark: '/pt-tools-logo-dark.svg', alt: '' },
     externalLinkIcon: true,
 
     socialLinks: [{ icon: 'github', link: 'https://github.com/sunerpy/pt-tools' }],

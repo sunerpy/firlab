@@ -18,7 +18,7 @@ export type { IconName } from './icons';
 /**
  * Maturity. `experimental` is what Voltip's site does not need: a feature that ships but
  * has not been verified end to end (pt-tools' WeCom and generic webhook channels).
- * `preview` is shipped in the 1.0 preview releases (v1.0.0-rc.N) and not yet in a stable one.
+ * `preview` is shipped in a preview release (X.Y.Z-rc.N) and not yet in a stable one.
  */
 export type Status = 'available' | 'preview' | 'experimental' | 'building' | 'planned';
 export const STATUSES: readonly Status[] = ['available', 'preview', 'experimental', 'building', 'planned'];

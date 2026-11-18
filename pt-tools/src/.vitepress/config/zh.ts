@@ -3,15 +3,14 @@ import { defineConfig, type DefaultTheme } from 'vitepress';
 import synced from '../synced.json';
 
 const REPO = 'https://github.com/sunerpy/pt-tools';
-// 文档按 1.0 预览版发布，页面与更新日志取自 v1.0.0-rc 分支；1.0 合回 main 以后改回 main（en.ts 同）。
-const DOCS_BRANCH = 'v1.0.0-rc';
+const DOCS_BRANCH = 'main';
 
 const sidebar: DefaultTheme.SidebarItem[] = [
   {
     text: '开始使用',
     items: [
       { text: 'pt-tools 是什么', link: '/guide/what-is-pt-tools' },
-      { text: '1.0 预览版新功能', link: '/guide/whats-new-1.0' },
+      { text: '1.0 新功能', link: '/guide/whats-new-1.0' },
       { text: '安装', link: '/guide/install' },
       { text: '快速开始', link: '/guide/quick-start' },
       { text: '首页与系统体检', link: '/guide/home-and-health' },
@@ -165,7 +164,7 @@ export const zh = defineConfig({
     editLink: {
       // VitePress serialises this function into the client bundle with toString(), so it
       // cannot close over REPO: the address is written out in full.
-      pattern: ({ filePath }) => `https://github.com/sunerpy/pt-tools/edit/v1.0.0-rc/docs/${filePath}`,
+      pattern: ({ filePath }) => `https://github.com/sunerpy/pt-tools/edit/main/docs/${filePath}`,
       text: '在 GitHub 上编辑此页',
     },
 
