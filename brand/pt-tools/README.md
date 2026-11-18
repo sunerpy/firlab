@@ -79,7 +79,8 @@ the badge: 1084 × 256 in all. The type is `#1B1D22` in `wordmark-light.svg` and
 | `logo-dark.svg` | paper badge, glyph 0.86 | dark surfaces, above 32 px |
 | `favicon.svg` | ink badge, glyph 1.0 | light surfaces at 16–32 px; the SVG favicon |
 | `favicon-dark.svg` | paper badge, glyph 1.0 | dark surfaces at 16–32 px |
-| `app-icon.svg` | ink, full-bleed square | iOS app icon, Android adaptive icon, PWA maskable icon |
+| `app-icon.svg` | ink, full-bleed square | iOS app icon, apple-touch icon, PWA maskable icon |
+| `adaptive-foreground.svg`, `adaptive-background.svg`, `adaptive-monochrome.svg` | ink, 108dp layers | Android adaptive icon (the launcher shows the middle 72dp); monochrome is for Android 13 themed icons |
 | `logo-mono.svg` | the seed alone, glyph 1.0, `currentColor` | inline in text or UI that sets its own colour |
 | `wordmark-light.svg` | lockup: ink badge, dark type | light surfaces |
 | `wordmark.svg` | lockup: paper badge, light type | dark surfaces |

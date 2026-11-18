@@ -70,7 +70,8 @@ App 图标是满版的正方形，只有底板渐变和光晕，给自己加遮�
 | `logo-dark.svg` | 纯白徽标，图形 0.86 | 深色背景，32 px 以上 |
 | `favicon.svg` | 墨黑徽标，图形 1.0 | 浅色背景的 16–32 px；SVG favicon |
 | `favicon-dark.svg` | 纯白徽标，图形 1.0 | 深色背景的 16–32 px |
-| `app-icon.svg` | 墨黑，满版正方形 | iOS App 图标、Android 自适应图标、PWA maskable 图标 |
+| `app-icon.svg` | 墨黑，满版正方形 | iOS App 图标、apple-touch 图标、PWA maskable 图标 |
+| `adaptive-foreground.svg`、`adaptive-background.svg`、`adaptive-monochrome.svg` | 墨黑，108dp 的三层 | Android 自适应图标（启动器只露出中间的 72dp）；单色层给 Android 13 的主题图标用 |
 | `logo-mono.svg` | 只有种子，图形 1.0，`currentColor` | 内联到文字里，或自己定颜色的界面 |
 | `wordmark-light.svg` | 字标：墨黑徽标，深色文字 | 浅色背景 |
 | `wordmark.svg` | 字标：纯白徽标，浅色文字 | 深色背景 |

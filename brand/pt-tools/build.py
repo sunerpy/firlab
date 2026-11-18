@@ -267,6 +267,37 @@ def lockup_svg(pal: str, surface: str) -> str:
             f'  <path transform="translate({tile + gap} {base:.1f})" fill="{fill}" d="{d}"/>\n</svg>\n')
 
 
+# --- android adaptive icon --------------------------------------------------
+# 108dp layers; the launcher shows the middle 72dp through its mask. VIEW maps the
+# 1024 badge onto that 72dp window, so foreground + background, cropped to it,
+# match app-icon.svg. The plate gradient is in user space over the 72dp window and
+# keeps its end colours outside it.
+VIEW = "translate(512 512) scale(0.666667) translate(-512 -512)"
+FULL = "M-256 -256 H1280 V1280 H-256 Z"
+
+
+def adaptive_svg(layer: str) -> str:
+    uid = f"ad-{DESIGN_ID}-ink"
+    head = '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">\n'
+    tr = f'translate(512 512) scale({GLYPH_SCALE:.4f}) translate(-512 -512)'
+    if layer == "foreground":
+        body = (f'  {defs(uid, "ink")}\n  <g transform="{VIEW}"><g transform="{tr}">'
+                f'<path d="{SEED_D}" fill="url(#{uid}-leaf)" fill-rule="evenodd"/></g></g>\n')
+    elif layer == "monochrome":
+        body = (f'  <g transform="{VIEW}"><g transform="{tr}">'
+                f'<path d="{SEED_D}" fill="#FFFFFF" fill-rule="evenodd"/></g></g>\n')
+    else:
+        p = PALETTES["ink"]
+        top, bot = p["plate"]
+        glow = (f'<radialGradient id="{uid}-s" gradientUnits="userSpaceOnUse" cx="300" cy="150" r="820">'
+                f'<stop offset="0" stop-color="#FFFFFF" stop-opacity="{p["glow"]}"/>'
+                f'<stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient>')
+        body = (f'  <defs><linearGradient id="{uid}-t" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="1024">'
+                f'<stop offset="0" stop-color="{top}"/><stop offset="1" stop-color="{bot}"/></linearGradient>{glow}</defs>\n'
+                f'  <g transform="{VIEW}"><path d="{FULL}" fill="url(#{uid}-t)"/><path d="{FULL}" fill="url(#{uid}-s)"/></g>\n')
+    return head + body + "</svg>\n"
+
+
 OUTPUTS = {
     "logo.svg": lambda: badge_svg("ink", GLYPH_SCALE),
     "logo-dark.svg": lambda: badge_svg("paper", GLYPH_SCALE),
@@ -276,6 +307,9 @@ OUTPUTS = {
     "app-icon.svg": lambda: badge_svg("ink", GLYPH_SCALE, tag="-app", bleed=True),
     "wordmark.svg": lambda: lockup_svg("paper", "dark"),
     "wordmark-light.svg": lambda: lockup_svg("ink", "light"),
+    "adaptive-foreground.svg": lambda: adaptive_svg("foreground"),
+    "adaptive-background.svg": lambda: adaptive_svg("background"),
+    "adaptive-monochrome.svg": lambda: adaptive_svg("monochrome"),
 }
 PNG_SIZES = (16, 32, 64, 128, 256, 512)
 FAVICON_MAX = 32  # sizes up to this render from favicon.svg, the rest from logo.svg
