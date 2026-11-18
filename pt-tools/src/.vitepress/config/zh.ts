@@ -64,6 +64,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: 'ChatOps 快速开始', link: '/guide/chatops-quickstart' },
       { text: 'QQ OneBot（NapCat）', link: '/guide/chatops-qq-napcat' },
       { text: 'Telegram Bot', link: '/guide/chatops-telegram' },
+      { text: '飞书应用机器人', link: '/guide/chatops-feishu' },
       { text: 'RSS 上新通知', link: '/guide/chatops-rss-notify' },
       { text: '更多通知通道', link: '/guide/notify-channels' },
       { text: 'AI 助手', link: '/guide/assistant' },
