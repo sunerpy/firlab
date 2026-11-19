@@ -1,10 +1,10 @@
 /*
  * pt-tools documentation palette.
  *
- * FirLab's ramp (firlab/DESIGN.md §1, §10 and §12), which is itself read off the product
- * marks: the pt-tools mark is the same five values — ink #0B1220 under a teal #14B8A6
- * chevron and an orange #F97316 cursor, with pale #E7EDF5 for the wordmark and slate
- * #64748B. Nothing on this site is purple: VitePress's indigo (its default brand), purple
+ * FirLab's ramp (firlab/DESIGN.md §1, §10 and §12), first read off the product marks of the
+ * time (ink #0B1220, teal #14B8A6, orange #F97316, pale #E7EDF5, slate #64748B). Since 1.0
+ * the pt-tools mark is the ink and paper seed badge (brand/pt-tools/), which uses none of
+ * these hues; the ramp stays as the site's palette. Nothing on this site is purple: VitePress's indigo (its default brand), purple
  * ("important" blocks), sponsor pink and hero gradient are all remapped below.
  *
  * Buttons and links follow the Voltip site (§10, after OpenAI's developer docs): the
@@ -14,8 +14,8 @@
  *
  * Contrast, measured (WCAG 2.x): every text colour here is at least 4.5:1 on the
  * surfaces it is used on — the lowest is light --pt-ink-400 on --pt-paper-2, 4.87:1.
- * The brand orange #F97316 measures 2.73:1 on paper, so it only ever marks (dots,
- * the logo), never text.
+ * The orange #F97316 measures 2.73:1 on paper, so it only ever marks (status dots),
+ * never text.
  *
  * Dark ramp: FirLab's measured OKLCH steps (sheet L 18.5, desk 16.7, block 30.3,
  * rule 35.0), plus two surfaces VitePress needs that FirLab has no name for —

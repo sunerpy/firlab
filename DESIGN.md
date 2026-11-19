@@ -986,10 +986,11 @@ fails the build when a link or an anchor in the home frontmatter leads nowhere.
 
 Where it departs from §18, each with its reason:
 
-- Status says which release has a feature. The 1.0 features are in the preview releases
-  (v1.0.0-rc.N) and not in 0.48.0, the stable release, so `preview` joins `StatusTag`'s values
-  («预览版» / "Preview", the green of available as a ring instead of a dot). The tag is text, and
-  the cells' intro and a question explain it. The wording changes on the day 1.0.0 ships.
+- Status says which release has a feature. `preview` marks one that so far ships only in a
+  preview release (X.Y.Z-rc.N), not in a stable one («预览版» / "Preview", the green of available
+  as a ring instead of a dot). It was added for the 1.0 previews (v1.0.0-rc.N); since 1.0.0
+  shipped on 2026-11-19 every home-page cell is `available`, and neither the cells' intro nor
+  the questions explain the tag any more.
 - The stages are crops, not screens. A 1440-wide capture at the 500–640 px a stage gets cannot be
   read, so each stage is the web UI's narrow layout at 640 px, captured at twice the pixels and
   cut to the part that tells its step: the title page from its header to the row under the

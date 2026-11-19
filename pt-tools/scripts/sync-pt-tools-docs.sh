@@ -65,8 +65,10 @@ chinese_only_title() {
 # Assets pt-tools owns: the screenshots and the community assets (the WeChat Official
 # Account QR on the home page). Everything else under src/public/ belongs to this repository.
 PUBLIC_DIRS=(screens community)
-# The mark itself, from the web UI's public assets (pt-tools docs/brand.md: the source of truth).
+# The mark itself, from the web UI's public assets (pt-tools docs/brand.md): the ink badge for
+# light pages and the paper badge for dark pages.
 LOGO="$PT_ROOT/web/frontend/public/logo.svg"
+LOGO_DARK="$PT_ROOT/web/frontend/public/logo-dark.svg"
 
 # Components a page may use: the ones src/.vitepress/theme/index.ts registers, plus
 # VitePress's own Badge. An unknown tag would render as an empty custom element with
@@ -104,6 +106,7 @@ for dir in "${PUBLIC_DIRS[@]}"; do
   [ -d "$SRC/public/$dir" ] || problem "expected directory docs/public/$dir is missing"
 done
 [ -f "$LOGO" ] || problem "expected the mark web/frontend/public/logo.svg is missing"
+[ -f "$LOGO_DARK" ] || problem "expected the mark web/frontend/public/logo-dark.svg is missing"
 [ "$fail" -eq 0 ] || exit 1
 
 # The pages of the site, relative to docs/: the synced files, and every Markdown file in the
@@ -235,13 +238,15 @@ for dir in "${PUBLIC_DIRS[@]}"; do
 done
 cp "$LOGO" "$DEST/public/pt-tools-logo.svg"
 printf '  %-26s ok\n' "public/pt-tools-logo.svg"
+cp "$LOGO_DARK" "$DEST/public/pt-tools-logo-dark.svg"
+printf '  %-26s ok\n' "public/pt-tools-logo-dark.svg"
 
 # A stamp so a stale sync is visible on the site (the footer shows the commit).
 # Recorded as data, not prose. A second run from the same commit keeps the old time,
 # so re-running the workflow never produces a commit that changes only a timestamp.
 COMMIT=$(git -C "$PT_ROOT" rev-parse HEAD 2>/dev/null || echo unknown)
 SHORT=$(git -C "$PT_ROOT" rev-parse --short=7 HEAD 2>/dev/null || echo unknown)
-if [ -n "$(git -C "$PT_ROOT" status --porcelain -- docs web/frontend/public/logo.svg 2>/dev/null)" ]; then
+if [ -n "$(git -C "$PT_ROOT" status --porcelain -- docs web/frontend/public/logo.svg web/frontend/public/logo-dark.svg 2>/dev/null)" ]; then
   SHORT="$SHORT-dirty"
 fi
 STAMP="$DEST/.vitepress/synced.json"

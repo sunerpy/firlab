@@ -3,16 +3,14 @@ import { defineConfig, type DefaultTheme } from 'vitepress';
 import synced from '../synced.json';
 
 const REPO = 'https://github.com/sunerpy/pt-tools';
-// The docs are published from the 1.0 preview: pages and the changelog come from the v1.0.0-rc
-// branch. Switch back to main once 1.0 is merged there (zh.ts too).
-const DOCS_BRANCH = 'v1.0.0-rc';
+const DOCS_BRANCH = 'main';
 
 const sidebar: DefaultTheme.SidebarItem[] = [
   {
     text: 'Getting started',
     items: [
       { text: 'What is pt-tools', link: '/en/guide/what-is-pt-tools' },
-      { text: "What's new in the 1.0 preview", link: '/en/guide/whats-new-1.0' },
+      { text: "What's new in 1.0", link: '/en/guide/whats-new-1.0' },
       { text: 'Install', link: '/en/guide/install' },
       { text: 'Quick start', link: '/en/guide/quick-start' },
       { text: 'Home page and system check', link: '/en/guide/home-and-health' },
@@ -66,6 +64,7 @@ const sidebar: DefaultTheme.SidebarItem[] = [
       { text: 'ChatOps quick start', link: '/en/guide/chatops-quickstart' },
       { text: 'QQ through OneBot (NapCat)', link: '/en/guide/chatops-qq-napcat' },
       { text: 'Telegram bot', link: '/en/guide/chatops-telegram' },
+      { text: 'Feishu app bot', link: '/en/guide/chatops-feishu' },
       { text: 'New-torrent notifications', link: '/en/guide/chatops-rss-notify' },
       { text: 'More notification channels', link: '/en/guide/notify-channels' },
       { text: 'AI assistant', link: '/en/guide/assistant' },
@@ -167,7 +166,7 @@ export const en = defineConfig({
     editLink: {
       // VitePress serialises this function into the client bundle with toString(), so it
       // cannot close over REPO: the address is written out in full.
-      pattern: ({ filePath }) => `https://github.com/sunerpy/pt-tools/edit/v1.0.0-rc/docs/${filePath}`,
+      pattern: ({ filePath }) => `https://github.com/sunerpy/pt-tools/edit/main/docs/${filePath}`,
       text: 'Edit this page on GitHub',
     },
 
