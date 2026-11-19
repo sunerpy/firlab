@@ -1,4 +1,4 @@
-# NAS 监控 <Badge type="tip" text="1.0 预览版" />
+# NAS 监控
 
 「系统 → NAS 监控」管首页 [NAS 概览](home-and-health.md#nas-概览)的数据从哪来：pt-tools 所在的主机（本机来源）与接入的 NAS（现在能接入 [TrueNAS](#truenas)、[Glances](#glances)，以及实验性的[群晖](#群晖)与[飞牛](#飞牛)）。pt-tools 在后台定时读这些来源，读到的数据放在内存里；首页和这一页显示的都是内存里的数据，打开页面不会再去连一次。
 
@@ -178,6 +178,8 @@ pt-tools 连飞牛网页的 `<地址>/websocket?type=main`（`https://` 地址�
 - 改了地址或账号时，原来的 token 与设备号不再用，要重新填验证码。
 
 ## 来源列表
+
+![NAS 监控页：来源列表里是本机与一台 TrueNAS，都已连上；下面是说明与「首页显示」的选择](images/home/nas-monitor-light.webp)
 
 每个来源一行（手机上一张卡）：
 

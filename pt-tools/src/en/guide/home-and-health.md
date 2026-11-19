@@ -1,4 +1,4 @@
-# Home page and system check <Badge type="tip" text="1.0 preview" />
+# Home page and system check
 
 The home page puts what you look at every day on one page: the CPU, memory, network, storage pools, disk temperatures and alerts of your NAS, whether today's episodes are in the library, what needs your attention, what you left unfinished on the media server, what was added recently, what airs later this week, and the state of download speeds, disk space, downloaders, the system check and backups. The system check examines the services and settings pt-tools relies on in one pass, and for each item says how it stands and how to fix it.
 
@@ -11,6 +11,8 @@ The line under the page title says how many episodes air and how many films are 
 Each block on the home page is read on its own: when one cannot be read, only that block says why (for example `取不到：15 秒内没取到，稍后刷新`, could not read it within 15 seconds) and the others are shown as usual. The server caches the home page data for 30 seconds (after a [system check](#system-check) finishes, the next visit uses the new result right away); Refresh (刷新) next to the page title (at the bottom of the page on a phone) reads everything again without the cache.
 
 On the desktop the NAS overview is at the top, with airing today and needs attention below it; further down, continue watching, recently added and later this week are on the left, and downloaders, storage and status on the right; in a narrow window the right-hand blocks move below. On a phone everything is in one column, with the NAS overview first.
+
+![The home page: the NAS overview of a TrueNAS host at the top (cards for CPU, memory, network and storage, then storage pools, disk temperatures and alerts), with the episodes airing today below](../../guide/images/home/home-page-light.webp)
 
 ## NAS overview
 
@@ -110,6 +112,8 @@ Times on the right of the status lines show only the time for today (`08:00`) an
 ## System check
 
 Open it from System → System check (系统 → 系统体检), or System check › (系统体检 ›) at the top right of the status block on the home page. The page shows the result of the last check: the line under the title gives the time of the check, how long it took and the result (for example `11-04 09:30 体检 · 用时 3.2 秒 · 1 项失败、1 项提醒`). Below it are three parts, top to bottom:
+
+![The system check: the ring on the left says 4 items need attention, the counts of passed, warning, failed and skipped items are on the right; below, Needs attention lists a downloader that cannot be reached, an expired cookie, a media library path and a failed backup, each with a link to fix it](../../guide/images/home/system-check-light.webp)
 
 - **Overview**: the ring on the left is split into failed, warning, OK and skipped by the number of items, with the number of items to deal with in the middle (`都正常`, all OK, when there is nothing). On the right are the time and item count of the last check, four count tiles and a status chip for each area. Clicking a count tile lists only the items in that state; clicking it again clears it. Clicking an area's chip scrolls to that area below (clearing the filters first if they hide it).
 - **Needs attention (需要处理)**: one card per failed or warning item, failures first. Each card says how the item stands, how to fix it, and Fix it (去处理): a site goes to that site's details, downloaders to Downloader settings (下载器设置), media servers, path mappings and media libraries to Media library (媒体库), TMDB and time to Media recognition (媒体识别), NAS to NAS monitoring (NAS 监控), and backups to Global settings (全局设置). Disk space and the encryption key have nothing to change on a page, so they get no link. After Run check (立即体检), items that got worse than before the check (new problems, or a warning that became a failure) are tagged `新出现` (new). When there is nothing to deal with, this part only says `没有要处理的项` (nothing to deal with).

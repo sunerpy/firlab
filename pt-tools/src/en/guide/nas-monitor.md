@@ -1,4 +1,4 @@
-# NAS monitoring <Badge type="tip" text="1.0 preview" />
+# NAS monitoring
 
 System → NAS monitoring (系统 → NAS 监控) decides where the [NAS overview](home-and-health.md#nas-overview) on the home page gets its data: the host pt-tools runs on (the local source) and any NAS you connect (for now [TrueNAS](#truenas), [Glances](#glances) and, experimentally, [Synology](#synology) and [fnOS](#fnos)). pt-tools reads these sources in the background and keeps what it reads in memory; the home page and this page show that data, so opening them does not connect to anything again.
 
@@ -178,6 +178,8 @@ When the account uses two-factor authentication, the first Test connection asks 
 - After changing the address or the account, the old token and device ID are no longer used and you enter a code again.
 
 ## The source list
+
+![The NAS monitoring page: the source list holds the local host and a TrueNAS, both connected; below are the notes and the choice of what the home page shows](../../guide/images/home/nas-monitor-light.webp)
 
 One line per source (a card on a phone):
 
