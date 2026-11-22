@@ -27,8 +27,8 @@
  * the two.
  */
 
-export const pttoolsVersion = 'v1.1.0';
-export const pttoolsReleased = '2026-11-21';
+export const pttoolsVersion = 'v1.1.1';
+export const pttoolsReleased = '2026-11-22';
 
 export const codegraphVersion = 'v0.55.2';
 export const codegraphReleased = '2026-10-22';
